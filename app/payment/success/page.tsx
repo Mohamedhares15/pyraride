@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -8,14 +8,13 @@ import { CheckCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const bookingId = searchParams.get("bookingId");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1500);
@@ -43,7 +42,6 @@ export default function PaymentSuccessPage() {
           className="w-full"
         >
           <Card className="p-8 text-center">
-            {/* Success Icon */}
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -54,18 +52,15 @@ export default function PaymentSuccessPage() {
               </div>
             </motion.div>
 
-            {/* Title */}
             <h1 className="mb-4 font-display text-4xl font-bold">
               Payment Successful!
             </h1>
 
-            {/* Message */}
             <p className="mb-8 text-lg text-muted-foreground">
               Your booking has been confirmed. You&apos;ll receive a confirmation
               email shortly with all the details.
             </p>
 
-            {/* Booking Info */}
             {bookingId && (
               <div className="mb-8 rounded-lg bg-primary/10 p-4 text-sm">
                 <p className="text-muted-foreground">Booking ID</p>
@@ -73,7 +68,6 @@ export default function PaymentSuccessPage() {
               </div>
             )}
 
-            {/* Actions */}
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Button asChild size="lg" className="gap-2">
                 <Link href="/dashboard/rider">
@@ -92,3 +86,14 @@ export default function PaymentSuccessPage() {
   );
 }
 
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    }>
+      <PaymentSuccessContent />
+    </Suspense>
+  );
+}

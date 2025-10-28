@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import SearchFilters from "@/components/sections/SearchFilters";
@@ -19,7 +19,7 @@ interface Stable {
   createdAt: string;
 }
 
-export default function StablesPage() {
+function StablesPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -102,7 +102,6 @@ export default function StablesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -124,7 +123,6 @@ export default function StablesPage() {
         </div>
       </motion.div>
 
-      {/* Filters and Results */}
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         <div className="space-y-8">
           <SearchFilters
@@ -137,7 +135,6 @@ export default function StablesPage() {
             onClear={handleClear}
           />
 
-          {/* Results */}
           {error ? (
             <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-center">
               <p className="text-destructive">{error}</p>
@@ -150,7 +147,6 @@ export default function StablesPage() {
             </div>
           ) : (
             <>
-              {/* Results Header */}
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-2xl font-bold">
                   {isLoading ? (
@@ -164,7 +160,6 @@ export default function StablesPage() {
                 </h2>
               </div>
 
-              {/* Stable List */}
               <StableList stables={stables} isLoading={isLoading} />
             </>
           )}
@@ -174,3 +169,14 @@ export default function StablesPage() {
   );
 }
 
+export default function StablesPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    }>
+      <StablesPageContent />
+    </Suspense>
+  );
+}
