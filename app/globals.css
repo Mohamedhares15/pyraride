@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --radius: 1rem;
+}
+
+/* Tailwind layers */
+@layer base {
+  :root {
+    --background: 252 251 248;
+    --foreground: 30 30 30;
+    --card: 252 251 248;
+    --card-foreground: 30 30 30;
+    --popover: 252 251 248;
+    --popover-foreground: 30 30 30;
+    --primary: 45 74 110;
+    --primary-foreground: 252 251 248;
+    --secondary: 245 245 245;
+    --secondary-foreground: 45 74 110;
+    --muted: 245 245 245;
+    --muted-foreground: 128 128 128;
+    --accent: 212 175 55;
+    --accent-foreground: 30 30 30;
+    --destructive: 239 68 68;
+    --destructive-foreground: 252 251 248;
+    --border: 224 224 224;
+    --input: 224 224 224;
+    --ring: 45 74 110;
+  }
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+  background-color: #FCFBF8;
+  color: #1E1E1E;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
