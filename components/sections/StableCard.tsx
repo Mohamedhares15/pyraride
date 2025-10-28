@@ -6,12 +6,16 @@ import { MapPin, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 type Stable = {
+  id: string;
   name: string;
   location: "Giza" | "Saqqara" | string;
   imageUrl: string;
+  description?: string;
+  rating?: number;
+  totalBookings?: number;
 };
 
-export default function StableCard({ stable }: { stable: Stable }) {
+export default function StableCard({ stable, index }: { stable: Stable; index?: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -27,7 +31,7 @@ export default function StableCard({ stable }: { stable: Stable }) {
             src={stable.imageUrl}
             alt={stable.name}
             fill
-            className="object-cover rounded-t-3xl"
+            className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
             priority={false}
           />
@@ -42,10 +46,16 @@ export default function StableCard({ stable }: { stable: Stable }) {
             <span>{stable.location}</span>
           </div>
 
+          {stable.description && (
+            <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
+              {stable.description}
+            </p>
+          )}
+
           <div className="flex items-center gap-2 text-nile-blue mt-4">
             <Star className="h-4 w-4 fill-current" />
-            <span className="font-semibold">4.9</span>
-            <span className="text-foreground/70 ml-1">(120 Reviews)</span>
+            <span className="font-semibold">{stable.rating?.toFixed(1) || "4.9"}</span>
+            <span className="text-foreground/70 ml-1">({stable.totalBookings || 120} Reviews)</span>
           </div>
         </CardContent>
       </Card>
