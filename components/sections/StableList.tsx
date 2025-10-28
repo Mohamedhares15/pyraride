@@ -61,7 +61,7 @@ export default function StableList({ stables, isLoading }: StableListProps) {
             id: stable.id,
             name: stable.name,
             location: stable.location,
-            imageUrl: undefined, // Will use default
+            imageUrl: "https://images.unsplash.com/photo-1544966503-7cc0ac6e7b5c?q=80&w=2070&auto=format&fit=crop",
             description: stable.description,
             rating: stable.rating,
             totalBookings: stable.totalBookings,
@@ -72,4 +72,3 @@ export default function StableList({ stables, isLoading }: StableListProps) {
     </div>
   );
 }
-
