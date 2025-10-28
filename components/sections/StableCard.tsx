@@ -6,33 +6,28 @@ import { MapPin, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 type Stable = {
-  id: string;
   name: string;
   location: "Giza" | "Saqqara" | string;
-  imageUrl?: string;
-  description?: string;
-  rating?: number;
-  totalBookings?: number;
+  imageUrl: string;
 };
 
-export default function StableCard({ stable, index }: { stable: Stable; index?: number }) {
+export default function StableCard({ stable }: { stable: Stable }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: (index || 0) * 0.1 }}
-      whileHover={{ y: -8, boxShadow: "0 10px 20px rgba(0,0,0,0.05)" }}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      className="will-change-transform"
+      transition={{ type: "spring", stiffness: 300, damping: 25, duration: 0.5 }}
+      whileHover={{ y: -8 }}
+      className="will-change-transform hover:shadow-lg transition-shadow"
     >
       <Card className="overflow-hidden h-full">
         {/* Media */}
         <div className="relative w-full aspect-video">
           <Image
-            src={stable.imageUrl || "https://images.unsplash.com/photo-1544966503-7cc0ac6e7b5c?q=80&w=2070&auto=format&fit=crop"}
+            src={stable.imageUrl}
             alt={stable.name}
             fill
-            className="object-cover"
+            className="object-cover rounded-t-3xl"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
             priority={false}
           />
@@ -47,16 +42,10 @@ export default function StableCard({ stable, index }: { stable: Stable; index?: 
             <span>{stable.location}</span>
           </div>
 
-          {stable.description && (
-            <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
-              {stable.description}
-            </p>
-          )}
-
           <div className="flex items-center gap-2 text-nile-blue mt-4">
             <Star className="h-4 w-4 fill-current" />
-            <span className="font-semibold">{stable.rating?.toFixed(1) || "4.9"}</span>
-            <span className="text-foreground/70 ml-1">({stable.totalBookings || 120} Reviews)</span>
+            <span className="font-semibold">4.9</span>
+            <span className="text-foreground/70 ml-1">(120 Reviews)</span>
           </div>
         </CardContent>
       </Card>
