@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { stableId, horseId, startTime, endTime, totalPrice, pickupLocation } = body;
+    const { stableId, horseId, startTime, endTime, totalPrice, stableLocation } = body;
 
     // Validate required fields
     if (!stableId || !horseId || !startTime || !endTime || !totalPrice) {
@@ -124,10 +124,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-        // Store pickup location as JSON in cancellationReason field temporarily
-        // (or create a separate field in schema if needed)
-        const bookingMeta = pickupLocation
-          ? JSON.stringify({ pickupLocation })
+        // Store stable location as JSON in cancellationReason field temporarily
+        const bookingMeta = stableLocation
+          ? JSON.stringify({ stableLocation })
           : null;
 
         // Create booking first (in pending payment status)
@@ -142,7 +141,7 @@ export async function POST(req: NextRequest) {
             commission: parseFloat(totalPrice.toString()) * 0.2,
             status: "confirmed",
             stripePaymentId: null, // Will be updated after payment
-            cancellationReason: bookingMeta, // Temporarily store pickup location here
+            cancellationReason: bookingMeta, // Temporarily store stable location here
           },
       include: {
         stable: {

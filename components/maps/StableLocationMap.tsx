@@ -67,7 +67,6 @@ export default function StableLocationMap({
       stableLng={coordinates.lng}
       stableName={stableName}
       stableAddress={stableAddress || stableLocation}
-      showDistance={true}
     />
   );
 }

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, Clock, DollarSign, Users, CheckCircle, ArrowRight, Calendar, MapPin, CreditCard } from "lucide-react";
+import { CalendarIcon, Clock, DollarSign, Users, CheckCircle, ArrowRight, Calendar, MapPin, CreditCard, X } from "lucide-react";
 import LocationMap from "@/components/maps/LocationMap";
 
 interface Horse {
@@ -54,8 +54,8 @@ export default function BookingModal({
   const [error, setError] = useState<string | null>(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
-  const [riderLocation, setRiderLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [stableCoordinates, setStableCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+  const [bookingData, setBookingData] = useState<any>(null);
+  const [stableCoordinates, setStableCoordinates] = useState<{ lat: number; lng: number; address?: string } | null>(null);
   
   // Fetch stable coordinates on mount
   useEffect(() => {
@@ -64,7 +64,10 @@ export default function BookingModal({
         const res = await fetch(`/api/stables/${stableId}/coordinates`);
         if (res.ok) {
           const data = await res.json();
-          setStableCoordinates(data.coordinates);
+          setStableCoordinates({
+            ...data.coordinates,
+            address: data.address,
+          });
         }
       } catch (err) {
         console.error("Error fetching stable coordinates:", err);
@@ -155,6 +158,7 @@ export default function BookingModal({
     try {
       const startDateTime = new Date(`${selectedDate}T${startTime}`);
       const endDateTime = new Date(`${selectedDate}T${endTime}`);
+      const selectedHorse = horses.find(h => h.id === selectedHorseId);
 
       // Create checkout session
       const response = await fetch("/api/checkout", {
@@ -169,9 +173,10 @@ export default function BookingModal({
           riders: selectedRiders,
           pickupRequested,
           addons,
-          pickupLocation: riderLocation ? {
-            lat: riderLocation.lat,
-            lng: riderLocation.lng,
+          stableLocation: stableCoordinates ? {
+            lat: stableCoordinates.lat,
+            lng: stableCoordinates.lng,
+            address: stableCoordinates.address,
           } : null,
         }),
       });
@@ -179,27 +184,33 @@ export default function BookingModal({
       const data = await response.json();
 
       if (!response.ok) {
-        // Show detailed error message if available
         const errorMsg = data.details 
           ? `${data.error}\n\n${data.details}`
           : data.error || "Failed to create checkout session";
         throw new Error(errorMsg);
       }
 
-      // Redirect to payment or show success
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else if (data.success || data.bookingId) {
-        // Booking created without payment (development mode or Paymob/payment on-site)
+      // Store booking data for confirmation modal
+      if (data.bookingId || data.success) {
+        setBookingData({
+          bookingId: data.bookingId || `BOOK-${Date.now()}`,
+          horseName: selectedHorse?.name || "Unknown",
+          date: selectedDate,
+          startTime,
+          endTime,
+          location: stableCoordinates?.address || stableName,
+          totalPrice,
+          riders: selectedRiders,
+        });
         setBookingId(data.bookingId || null);
         setBookingSuccess(true);
-        setIsSubmitting(false);
-      } else {
-        // Fallback
-        setBookingId(null);
-        setBookingSuccess(true);
-        setIsSubmitting(false);
+      } else if (data.checkoutUrl) {
+        // Redirect to payment
+        window.location.href = data.checkoutUrl;
+        return;
       }
+
+      setIsSubmitting(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create booking");
       setIsSubmitting(false);
@@ -212,215 +223,163 @@ export default function BookingModal({
   // Get selected horse name for success message
   const selectedHorse = horses.find(h => h.id === selectedHorseId);
 
-  // Success screen
-  if (bookingSuccess) {
+  // Success screen with new design
+  if (bookingSuccess && bookingData) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-lg p-0">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            {/* Success Header with Gradient */}
-            <div className="bg-gradient-to-br from-green-500 via-green-600 to-emerald-600 px-6 py-8 text-center">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
-              >
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                  <CheckCircle className="h-10 w-10 text-white" strokeWidth={2.5} />
+        <DialogContent className="max-w-lg p-0 overflow-hidden">
+          {/* Green Gradient Header */}
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-8 text-center text-white">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15 }}
+              className="mb-4"
+            >
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                <CheckCircle className="h-10 w-10 text-white" />
+              </div>
+            </motion.div>
+            <h2 className="text-2xl font-bold mb-2">Booking Confirmed</h2>
+            <p className="text-green-50">Your adventure is booked and ready!</p>
+          </div>
+
+          <div className="p-6 space-y-4">
+            {/* Booking Details Card */}
+            <Card className="p-4 border-2">
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Calendar className="h-5 w-5 text-primary mt-0.5" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Date & Time</p>
+                    <p className="font-semibold">
+                      {new Date(bookingData.date).toLocaleDateString("en-US", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {bookingData.startTime} - {bookingData.endTime}
+                    </p>
+                  </div>
                 </div>
-              </motion.div>
-              
-              <h3 className="mb-2 font-display text-2xl font-bold text-white">
-                Booking Confirmed
-              </h3>
-              
-              <p className="text-sm text-white/90">
-                Your horse riding adventure has been successfully booked
+
+                <div className="flex items-start gap-3 pt-3 border-t">
+                  <Users className="h-5 w-5 text-primary mt-0.5" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Horse Information</p>
+                    <p className="font-semibold">{bookingData.horseName}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {bookingData.riders} {bookingData.riders === 1 ? "rider" : "riders"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 pt-3 border-t">
+                  <MapPin className="h-5 w-5 text-primary mt-0.5" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Location</p>
+                    <p className="font-semibold">{bookingData.location}</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Payment Info Card */}
+            <Card className="p-4 bg-primary/5 border-primary/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Amount</p>
+                    <p className="text-2xl font-bold text-primary">
+                      ${bookingData.totalPrice.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Payment will be processed on-site or via your preferred method
               </p>
+            </Card>
+
+            {/* Booking Reference */}
+            <div className="rounded-lg border bg-muted/50 p-4">
+              <p className="text-xs text-muted-foreground mb-1">Booking Reference</p>
+              <p className="font-mono font-semibold text-sm">{bookingData.bookingId}</p>
             </div>
 
-            {/* Content Section */}
-            <div className="px-6 py-6 space-y-6">
-              {/* Booking Details Card */}
-              {selectedDate && selectedHorse && (
-                <Card className="border-2 border-primary/10 bg-gradient-to-br from-card to-muted/30">
-                  <div className="p-5 space-y-4">
-                    <div className="flex items-start gap-3 pb-3 border-b border-border/50">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <Calendar className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
-                          Date & Time
-                        </p>
-                        <p className="font-semibold text-foreground">
-                          {new Date(selectedDate).toLocaleDateString("en-US", { 
-                            weekday: "long", 
-                            month: "long", 
-                            day: "numeric",
-                            year: "numeric"
-                          })}
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {startTime} - {endTime}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3 pb-3 border-b border-border/50">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/50">
-                        <Users className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
-                          Horse
-                        </p>
-                        <p className="font-semibold text-foreground">{selectedHorse.name}</p>
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                          {selectedHorse.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
-                        <MapPin className="h-5 w-5 text-green-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
-                          Location
-                        </p>
-                        <p className="font-semibold text-foreground">{stableName}</p>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              )}
-
-              {/* Payment Info */}
-              <div className="rounded-lg border border-border/50 bg-muted/30 p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                      <CreditCard className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Total Amount
-                      </p>
-                      <p className="text-2xl font-bold text-foreground">
-                        ${totalPrice.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <p className="mt-3 text-xs text-muted-foreground">
-                  Payment will be processed on-site or via Paymob
-                </p>
-              </div>
-
-              {/* Booking ID */}
-              {bookingId && (
-                <div className="rounded-lg bg-primary/5 border border-primary/20 p-4">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                    Booking Reference
-                  </p>
-                  <p className="font-mono text-sm font-semibold text-primary break-all">
-                    {bookingId}
-                  </p>
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex flex-col gap-3 pt-2">
-                <Button
-                  size="lg"
-                  className="w-full gap-2"
-                  onClick={() => {
-                    setBookingSuccess(false);
-                    onOpenChange(false);
-                    window.location.href = "/dashboard/rider";
-                  }}
-                >
-                  View My Bookings
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    setBookingSuccess(false);
-                    onOpenChange(false);
-                  }}
-                >
-                  Close
-                </Button>
-              </div>
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => onOpenChange(false)}
+              >
+                <X className="mr-2 h-4 w-4" />
+                Close
+              </Button>
+              <Button
+                className="flex-1 bg-primary"
+                onClick={() => {
+                  onOpenChange(false);
+                  window.location.href = "/dashboard/rider";
+                }}
+              >
+                <ArrowRight className="mr-2 h-4 w-4" />
+                View My Bookings
+              </Button>
             </div>
-          </motion.div>
+          </div>
         </DialogContent>
       </Dialog>
     );
   }
 
+  // Booking form
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl overflow-y-auto max-h-[90vh]">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Book Your Ride</DialogTitle>
           <DialogDescription>
-            Complete your booking at {stableName}
+            Complete the form below to book your horse riding adventure at {stableName}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-            >
+            <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-sm text-destructive">
               {error}
-            </motion.div>
+            </div>
           )}
 
           {/* Select Horse */}
           <div className="space-y-2">
-            <Label>Select a Horse *</Label>
-            <div className="grid gap-3">
+            <Label>Select Horse *</Label>
+            <div className="grid gap-3 md:grid-cols-2">
               {horses.map((horse) => (
                 <Card
                   key={horse.id}
-                  className={`cursor-pointer border-2 transition-all ${
+                  className={`cursor-pointer transition-all ${
                     selectedHorseId === horse.id
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50"
+                      ? "border-primary bg-primary/5 ring-2 ring-primary"
+                      : "hover:border-primary/50"
                   }`}
                   onClick={() => setSelectedHorseId(horse.id)}
                 >
                   <div className="p-4">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Users className="h-5 w-5 text-primary" />
-                        <div>
-                          <h4 className="font-semibold">{horse.name}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {horse.description}
-                          </p>
-                        </div>
-                      </div>
+                      <h3 className="font-semibold">{horse.name}</h3>
                       {selectedHorseId === horse.id && (
-                        <Badge className="bg-primary">
-                          Selected
-                        </Badge>
+                        <CheckCircle className="h-5 w-5 text-primary" />
                       )}
                     </div>
+                    <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+                      {horse.description}
+                    </p>
                   </div>
                 </Card>
               ))}
@@ -477,23 +436,15 @@ export default function BookingModal({
             </div>
           </div>
 
-          {/* Location Picker */}
+          {/* Stable Location Map (Read-only) */}
           {stableCoordinates && (
             <div className="space-y-2">
-              <Label>Pickup Location (Optional)</Label>
-              <p className="text-xs text-muted-foreground mb-2">
-                Set your pickup location to calculate distance to the stable
-              </p>
+              <Label>Meeting Location</Label>
               <LocationMap
                 stableLat={stableCoordinates.lat}
                 stableLng={stableCoordinates.lng}
                 stableName={stableName}
-                riderLat={riderLocation?.lat}
-                riderLng={riderLocation?.lng}
-                onLocationSet={(lat, lng) => {
-                  setRiderLocation({ lat, lng });
-                }}
-                showDistance={true}
+                stableAddress={stableCoordinates.address}
               />
             </div>
           )}
