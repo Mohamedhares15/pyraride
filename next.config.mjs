@@ -68,7 +68,7 @@ const nextConfig = {
           // Permissions-Policy
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
+            value: 'camera=(), microphone=(), geolocation=(self)',
           },
           // Content-Security-Policy
           {
@@ -80,7 +80,7 @@ const nextConfig = {
               "font-src 'self' https://fonts.gstatic.com data:",
               "img-src 'self' data: https: blob: images.unsplash.com images.pexels.com",
               "connect-src 'self' https://api.paymob.com https://www.google-analytics.com https://*.vercel.app maps.googleapis.com",
-              "frame-src 'self' https://accept.paymob.com https://www.google.com",
+              "frame-src 'self' https://accept.paymob.com https://www.google.com https://maps.google.com https://*.googleapis.com",
               "media-src 'self' https://videos.pexels.com",
               "base-uri 'self'",
               "form-action 'self'",

@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import BookingModal from "@/components/shared/BookingModal";
 import ReviewsSection from "@/components/sections/ReviewsSection";
+import StableLocationMap from "@/components/maps/StableLocationMap";
 
 interface Review {
   id: string;
@@ -228,16 +229,22 @@ export default function StableDetailPage() {
         <div className="grid gap-8 md:grid-cols-3">
           {/* Main Content */}
           <div className="md:col-span-2 space-y-8">
-            {/* Location */}
+            {/* Location & Map */}
             <Card className="p-6">
-              <div className="flex items-start gap-4">
+              <div className="mb-4 flex items-start gap-4">
                 <MapPin className="mt-1 h-6 w-6 text-primary" />
                 <div>
                   <h3 className="mb-2 font-semibold">Location</h3>
-                  <p className="text-sm text-muted-foreground">{stable.address}</p>
+                  <p className="text-sm text-muted-foreground">{stable.address || stable.location}</p>
                   <p className="mt-1 text-sm capitalize">{stable.location}</p>
                 </div>
               </div>
+              <StableLocationMap 
+                stableId={stable.id} 
+                stableName={stable.name} 
+                stableLocation={stable.location}
+                stableAddress={stable.address}
+              />
             </Card>
 
             {/* Horses */}
