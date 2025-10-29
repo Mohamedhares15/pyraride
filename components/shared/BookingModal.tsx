@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import {
@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, Clock, DollarSign, Users, CheckCircle, ArrowRight, Calendar, MapPin, CreditCard } from "lucide-react";
+import LocationMap from "@/components/maps/LocationMap";
 
 interface Horse {
   id: string;
@@ -53,6 +54,24 @@ export default function BookingModal({
   const [error, setError] = useState<string | null>(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
+  const [riderLocation, setRiderLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [stableCoordinates, setStableCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+  
+  // Fetch stable coordinates on mount
+  useEffect(() => {
+    async function fetchStableCoords() {
+      try {
+        const res = await fetch(`/api/stables/${stableId}/coordinates`);
+        if (res.ok) {
+          const data = await res.json();
+          setStableCoordinates(data.coordinates);
+        }
+      } catch (err) {
+        console.error("Error fetching stable coordinates:", err);
+      }
+    }
+    fetchStableCoords();
+  }, [stableId]);
 
   // Calculate minimum date (today)
   const minDate = new Date().toISOString().split("T")[0];
@@ -150,6 +169,10 @@ export default function BookingModal({
           riders: selectedRiders,
           pickupRequested,
           addons,
+          pickupLocation: riderLocation ? {
+            lat: riderLocation.lat,
+            lng: riderLocation.lng,
+          } : null,
         }),
       });
 
@@ -453,6 +476,27 @@ export default function BookingModal({
               </div>
             </div>
           </div>
+
+          {/* Location Picker */}
+          {stableCoordinates && (
+            <div className="space-y-2">
+              <Label>Pickup Location (Optional)</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Set your pickup location to calculate distance to the stable
+              </p>
+              <LocationMap
+                stableLat={stableCoordinates.lat}
+                stableLng={stableCoordinates.lng}
+                stableName={stableName}
+                riderLat={riderLocation?.lat}
+                riderLng={riderLocation?.lng}
+                onLocationSet={(lat, lng) => {
+                  setRiderLocation({ lat, lng });
+                }}
+                showDistance={true}
+              />
+            </div>
+          )}
 
           {/* Price Summary */}
           {selectedDate && startTime && endTime && (

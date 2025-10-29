@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { stableId, horseId, startTime, endTime, totalPrice } = body;
+    const { stableId, horseId, startTime, endTime, totalPrice, pickupLocation } = body;
 
     // Validate required fields
     if (!stableId || !horseId || !startTime || !endTime || !totalPrice) {
@@ -124,19 +124,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create booking first (in pending payment status)
-    const booking = await prisma.booking.create({
-      data: {
-        riderId: session.user.id,
-        stableId,
-        horseId,
-        startTime,
-        endTime,
-        totalPrice: parseFloat(totalPrice.toString()),
-        commission: parseFloat(totalPrice.toString()) * 0.2,
-        status: "confirmed",
-        stripePaymentId: null, // Will be updated after payment
-      },
+        // Store pickup location as JSON in cancellationReason field temporarily
+        // (or create a separate field in schema if needed)
+        const bookingMeta = pickupLocation
+          ? JSON.stringify({ pickupLocation })
+          : null;
+
+        // Create booking first (in pending payment status)
+        const booking = await prisma.booking.create({
+          data: {
+            riderId: session.user.id,
+            stableId,
+            horseId,
+            startTime,
+            endTime,
+            totalPrice: parseFloat(totalPrice.toString()),
+            commission: parseFloat(totalPrice.toString()) * 0.2,
+            status: "confirmed",
+            stripePaymentId: null, // Will be updated after payment
+            cancellationReason: bookingMeta, // Temporarily store pickup location here
+          },
       include: {
         stable: {
           select: {
