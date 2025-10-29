@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(
   req: NextRequest,
@@ -81,3 +84,49 @@ export async function GET(
   }
 }
 
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession();
+
+    if (!session || session.user.role !== "stable_owner") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const stable = await prisma.stable.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!stable || stable.ownerId !== session.user.id) {
+      return NextResponse.json(
+        { error: "Stable not found or unauthorized" },
+        { status: 403 }
+      );
+    }
+
+    const body = await req.json();
+    const { name, description, address } = body;
+
+    const updatedStable = await prisma.stable.update({
+      where: { id: params.id },
+      data: {
+        ...(name && { name }),
+        ...(description !== undefined && { description }),
+        ...(address !== undefined && { address }),
+      },
+    });
+
+    return NextResponse.json({ stable: updatedStable });
+  } catch (error) {
+    console.error("Error updating stable:", error);
+    return NextResponse.json(
+      { error: "Failed to update stable" },
+      { status: 500 }
+    );
+  }
+}
