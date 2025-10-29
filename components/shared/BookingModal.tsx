@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, Clock, DollarSign, Users, CheckCircle, ArrowRight } from "lucide-react";
+import { CalendarIcon, Clock, DollarSign, Users, CheckCircle, ArrowRight, Calendar, MapPin, CreditCard } from "lucide-react";
 
 interface Horse {
   id: string;
@@ -193,80 +193,152 @@ export default function BookingModal({
   if (bookingSuccess) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg p-0">
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            className="text-center py-4"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
           >
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-500/20">
-              <CheckCircle className="h-12 w-12 text-green-500" />
+            {/* Success Header with Gradient */}
+            <div className="bg-gradient-to-br from-green-500 via-green-600 to-emerald-600 px-6 py-8 text-center">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
+              >
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                  <CheckCircle className="h-10 w-10 text-white" strokeWidth={2.5} />
+                </div>
+              </motion.div>
+              
+              <h3 className="mb-2 font-display text-2xl font-bold text-white">
+                Booking Confirmed
+              </h3>
+              
+              <p className="text-sm text-white/90">
+                Your horse riding adventure has been successfully booked
+              </p>
             </div>
 
-            <h3 className="mb-3 font-display text-2xl font-bold">
-              Booking Confirmed! 🎉
-            </h3>
+            {/* Content Section */}
+            <div className="px-6 py-6 space-y-6">
+              {/* Booking Details Card */}
+              {selectedDate && selectedHorse && (
+                <Card className="border-2 border-primary/10 bg-gradient-to-br from-card to-muted/30">
+                  <div className="p-5 space-y-4">
+                    <div className="flex items-start gap-3 pb-3 border-b border-border/50">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                        <Calendar className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+                          Date & Time
+                        </p>
+                        <p className="font-semibold text-foreground">
+                          {new Date(selectedDate).toLocaleDateString("en-US", { 
+                            weekday: "long", 
+                            month: "long", 
+                            day: "numeric",
+                            year: "numeric"
+                          })}
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {startTime} - {endTime}
+                        </p>
+                      </div>
+                    </div>
 
-            <p className="mb-4 text-muted-foreground">
-              Your horse riding adventure at {stableName} has been successfully booked. Payment will be processed on-site or via Paymob.
-            </p>
+                    <div className="flex items-start gap-3 pb-3 border-b border-border/50">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/50">
+                        <Users className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+                          Horse
+                        </p>
+                        <p className="font-semibold text-foreground">{selectedHorse.name}</p>
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                          {selectedHorse.description}
+                        </p>
+                      </div>
+                    </div>
 
-            {bookingId && (
-              <div className="mb-6 rounded-lg bg-primary/10 p-4 text-sm">
-                <p className="text-muted-foreground mb-1">Booking ID</p>
-                <p className="font-mono font-semibold text-primary">{bookingId}</p>
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
+                        <MapPin className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+                          Location
+                        </p>
+                        <p className="font-semibold text-foreground">{stableName}</p>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* Payment Info */}
+              <div className="rounded-lg border border-border/50 bg-muted/30 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                      <CreditCard className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Total Amount
+                      </p>
+                      <p className="text-2xl font-bold text-foreground">
+                        ${totalPrice.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Payment will be processed on-site or via Paymob
+                </p>
               </div>
-            )}
 
-            {selectedDate && selectedHorse && (
-              <div className="space-y-2 text-sm text-muted-foreground mb-6 rounded-lg bg-muted/50 p-4">
-                <p className="flex items-center gap-2">
-                  <span>📅</span>
-                  <span>Date: {new Date(selectedDate).toLocaleDateString("en-US", { 
-                    weekday: "long", 
-                    year: "numeric", 
-                    month: "long", 
-                    day: "numeric" 
-                  })}</span>
-                </p>
-                <p className="flex items-center gap-2">
-                  <span>⏰</span>
-                  <span>Time: {startTime} - {endTime}</span>
-                </p>
-                <p className="flex items-center gap-2">
-                  <span>🐴</span>
-                  <span>Horse: {selectedHorse.name}</span>
-                </p>
-                <p className="flex items-center gap-2">
-                  <span>💰</span>
-                  <span>Total: ${totalPrice.toFixed(2)}</span>
-                </p>
+              {/* Booking ID */}
+              {bookingId && (
+                <div className="rounded-lg bg-primary/5 border border-primary/20 p-4">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                    Booking Reference
+                  </p>
+                  <p className="font-mono text-sm font-semibold text-primary break-all">
+                    {bookingId}
+                  </p>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-3 pt-2">
+                <Button
+                  size="lg"
+                  className="w-full gap-2"
+                  onClick={() => {
+                    setBookingSuccess(false);
+                    onOpenChange(false);
+                    window.location.href = "/dashboard/rider";
+                  }}
+                >
+                  View My Bookings
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    setBookingSuccess(false);
+                    onOpenChange(false);
+                  }}
+                >
+                  Close
+                </Button>
               </div>
-            )}
-
-            <div className="flex flex-col gap-3">
-              <Button
-                className="gap-2"
-                onClick={() => {
-                  setBookingSuccess(false);
-                  onOpenChange(false);
-                  window.location.href = "/dashboard/rider";
-                }}
-              >
-                View My Bookings
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setBookingSuccess(false);
-                  onOpenChange(false);
-                  window.location.href = "/dashboard/rider";
-                }}
-              >
-                Close
-              </Button>
             </div>
           </motion.div>
         </DialogContent>
