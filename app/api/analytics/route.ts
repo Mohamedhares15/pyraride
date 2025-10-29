@@ -134,7 +134,10 @@ export async function GET(req: NextRequest) {
 
       if (!stable) {
         return NextResponse.json(
-          { error: "Stable not found" },
+          { 
+            error: "Stable not found. Please create and get your stable approved first.",
+            analytics: null 
+          },
           { status: 404 }
         );
       }

@@ -13,10 +13,11 @@ import {
   XCircle,
   Activity,
   Target,
+  Loader2,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 interface AnalyticsData {
   stable?: {
@@ -64,13 +65,23 @@ export default function AnalyticsPage() {
 
   async function fetchAnalytics() {
     try {
+      setIsLoading(true);
       const response = await fetch(`/api/analytics?days=${days}`);
-      if (!response.ok) throw new Error("Failed to fetch analytics");
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to fetch analytics: ${response.status}`);
+      }
 
       const data = await response.json();
+      if (!data.analytics) {
+        throw new Error("Invalid analytics data received");
+      }
+      
       setAnalytics(data.analytics);
     } catch (err) {
-      console.error("Error:", err);
+      console.error("Error fetching analytics:", err);
+      setAnalytics(null);
     } finally {
       setIsLoading(false);
     }
@@ -84,17 +95,46 @@ export default function AnalyticsPage() {
     );
   }
 
-  if (!analytics) {
+  if (!analytics && !isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <p className="text-destructive">Failed to load analytics</p>
-          <Button onClick={fetchAnalytics} className="mt-4">
-            Try Again
-          </Button>
+      <div className="min-h-screen bg-background">
+        <div className="border-b border-border bg-card/50 py-12 backdrop-blur-lg">
+          <div className="mx-auto max-w-7xl px-4 md:px-8">
+            <h1 className="mb-2 font-display text-4xl font-bold tracking-tight">
+              Analytics
+            </h1>
+          </div>
+        </div>
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <Card className="p-8 text-center max-w-md">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
+              <XCircle className="h-8 w-8 text-destructive" />
+            </div>
+            <h2 className="mb-2 font-display text-xl font-bold">Failed to Load Analytics</h2>
+            <p className="mb-6 text-sm text-muted-foreground">
+              {session?.user.role === "stable_owner" 
+                ? "Unable to load your stable analytics. Please ensure you have an approved stable."
+                : "Unable to load analytics data. Please try again."}
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <Button onClick={fetchAnalytics}>
+                Try Again
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/dashboard/stable">
+                  Back to Dashboard
+                </Link>
+              </Button>
+            </div>
+          </Card>
         </div>
       </div>
     );
+  }
+
+  // At this point, analytics should be loaded
+  if (!analytics) {
+    return null; // This should not happen due to earlier check, but satisfies TypeScript
   }
 
   const isAdmin = session?.user.role === "admin";
