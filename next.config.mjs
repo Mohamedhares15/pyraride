@@ -80,8 +80,6 @@ const nextConfig = {
   },
   // Compression
   compress: true,
-  // Output
-  output: 'standalone',
   // SWC minification (faster than Terser)
   swcMinify: true,
 };
