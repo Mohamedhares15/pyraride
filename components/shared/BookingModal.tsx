@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, Clock, DollarSign, Users } from "lucide-react";
+import { CalendarIcon, Clock, DollarSign, Users, CheckCircle, ArrowRight } from "lucide-react";
 
 interface Horse {
   id: string;
@@ -51,6 +51,8 @@ export default function BookingModal({
   const [addons, setAddons] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookingId, setBookingId] = useState<string | null>(null);
 
   // Calculate minimum date (today)
   const minDate = new Date().toISOString().split("T")[0];
@@ -164,17 +166,16 @@ export default function BookingModal({
       // Redirect to payment or show success
       if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
-      } else if (data.success) {
+      } else if (data.success || data.bookingId) {
         // Booking created without payment (development mode or Paymob/payment on-site)
-        onOpenChange(false);
-        alert(data.message || "Booking created successfully! Check your dashboard.");
-        // Optionally redirect to dashboard
-        window.location.href = "/dashboard/rider";
+        setBookingId(data.bookingId || null);
+        setBookingSuccess(true);
+        setIsSubmitting(false);
       } else {
         // Fallback
-        onOpenChange(false);
-        alert("Booking created successfully! Check your dashboard.");
-        window.location.href = "/dashboard/rider";
+        setBookingId(null);
+        setBookingSuccess(true);
+        setIsSubmitting(false);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create booking");
@@ -184,6 +185,94 @@ export default function BookingModal({
 
   const hours = calculateHours();
   const totalPrice = calculatePrice();
+  
+  // Get selected horse name for success message
+  const selectedHorse = horses.find(h => h.id === selectedHorseId);
+
+  // Success screen
+  if (bookingSuccess) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-md">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+            className="text-center py-4"
+          >
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-500/20">
+              <CheckCircle className="h-12 w-12 text-green-500" />
+            </div>
+
+            <h3 className="mb-3 font-display text-2xl font-bold">
+              Booking Confirmed! 🎉
+            </h3>
+
+            <p className="mb-4 text-muted-foreground">
+              Your horse riding adventure at {stableName} has been successfully booked. Payment will be processed on-site or via Paymob.
+            </p>
+
+            {bookingId && (
+              <div className="mb-6 rounded-lg bg-primary/10 p-4 text-sm">
+                <p className="text-muted-foreground mb-1">Booking ID</p>
+                <p className="font-mono font-semibold text-primary">{bookingId}</p>
+              </div>
+            )}
+
+            {selectedDate && selectedHorse && (
+              <div className="space-y-2 text-sm text-muted-foreground mb-6 rounded-lg bg-muted/50 p-4">
+                <p className="flex items-center gap-2">
+                  <span>📅</span>
+                  <span>Date: {new Date(selectedDate).toLocaleDateString("en-US", { 
+                    weekday: "long", 
+                    year: "numeric", 
+                    month: "long", 
+                    day: "numeric" 
+                  })}</span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <span>⏰</span>
+                  <span>Time: {startTime} - {endTime}</span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <span>🐴</span>
+                  <span>Horse: {selectedHorse.name}</span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <span>💰</span>
+                  <span>Total: ${totalPrice.toFixed(2)}</span>
+                </p>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-3">
+              <Button
+                className="gap-2"
+                onClick={() => {
+                  setBookingSuccess(false);
+                  onOpenChange(false);
+                  window.location.href = "/dashboard/rider";
+                }}
+              >
+                View My Bookings
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setBookingSuccess(false);
+                  onOpenChange(false);
+                  window.location.href = "/dashboard/rider";
+                }}
+              >
+                Close
+              </Button>
+            </div>
+          </motion.div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
