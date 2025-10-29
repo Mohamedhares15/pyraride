@@ -57,6 +57,7 @@ export default function StableOwnerDashboard() {
     upcomingBookings: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -71,54 +72,64 @@ export default function StableOwnerDashboard() {
 
   async function fetchStableData() {
     try {
-      // Fetch stable owner's stable
-      const stableRes = await fetch("/api/stables");
-      const stableData = await stableRes.json();
-      // This would need a proper endpoint to get owner's stable
-      // For now, we'll create a placeholder
+      // Fetch the owner's stable directly
+      const stablesRes = await fetch("/api/stables?ownerOnly=true");
+      if (!stablesRes.ok) {
+        throw new Error("Failed to fetch stable data");
+      }
+      const stablesData = await stablesRes.json();
+      
+      const ownerStable = stablesData.stables?.[0]; // Should be only one
+
+      if (!ownerStable) {
+        setError("Stable not found. Please create a stable first.");
+        setIsLoading(false);
+        return;
+      }
+
       setStable({
-        id: "1",
-        name: "My Stable",
-        location: "Giza",
-        status: "approved",
+        id: ownerStable.id,
+        name: ownerStable.name,
+        location: ownerStable.location,
+        status: ownerStable.status || "approved",
         _count: {
-          bookings: bookings.length,
-          horses: 3,
+          bookings: ownerStable.totalBookings || 0,
+          horses: ownerStable.horseCount || 0,
         },
       });
 
       // Fetch bookings for this stable
-      const bookingsRes = await fetch("/api/stables/" + stable?.id + "/bookings");
+      const bookingsRes = await fetch(`/api/stables/${ownerStable.id}/bookings`);
       if (bookingsRes.ok) {
         const bookingsData = await bookingsRes.json();
-        setBookings(bookingsData.bookings || []);
-      }
+        const fetchedBookings = bookingsData.bookings || [];
+        setBookings(fetchedBookings);
+        
+        // Recalculate stats after fetching bookings
+        const totalBookings = fetchedBookings.length;
+        const totalEarnings = fetchedBookings
+          .filter((b: Booking) => b.status === "completed")
+          .reduce((sum: number, b: Booking) => sum + (parseFloat(b.totalPrice.toString()) - parseFloat(b.commission.toString())), 0);
+        const upcoming = fetchedBookings.filter(
+          (b: Booking) =>
+            b.status === "confirmed" &&
+            new Date(b.startTime) > new Date()
+        ).length;
 
-      calculateStats();
+        setStats({
+          totalBookings,
+          totalEarnings,
+          upcomingBookings: upcoming,
+        });
+      }
     } catch (err) {
       console.error("Error fetching stable data:", err);
+      setError(err instanceof Error ? err.message : "Failed to load stable data");
     } finally {
       setIsLoading(false);
     }
   }
 
-  function calculateStats() {
-    const totalBookings = bookings.length;
-    const totalEarnings = bookings
-      .filter((b) => b.status === "completed")
-      .reduce((sum, b) => sum + (b.totalPrice - b.commission), 0);
-    const upcoming = bookings.filter(
-      (b) =>
-        b.status === "confirmed" &&
-        new Date(b.startTime) > new Date()
-    ).length;
-
-    setStats({
-      totalBookings,
-      totalEarnings,
-      upcomingBookings: upcoming,
-    });
-  }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -203,6 +214,13 @@ export default function StableOwnerDashboard() {
 
       {/* Content */}
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
+        {error ? (
+          <Card className="p-6 text-center">
+            <p className="text-destructive mb-4">{error}</p>
+            <Button onClick={fetchStableData}>Try Again</Button>
+          </Card>
+        ) : (
+        <>
         {/* Stats Grid */}
         <div className="mb-8 grid gap-6 md:grid-cols-3">
           <Card className="p-6">
@@ -299,7 +317,7 @@ export default function StableOwnerDashboard() {
                         <div className="flex items-center gap-2">
                           <DollarSign className="h-5 w-5 text-primary" />
                           <span className="text-xl font-bold">
-                            ${(booking.totalPrice - booking.commission).toFixed(2)}
+                            ${(parseFloat(booking.totalPrice.toString()) - parseFloat(booking.commission.toString())).toFixed(2)}
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground">
@@ -312,6 +330,8 @@ export default function StableOwnerDashboard() {
               </motion.div>
             ))}
           </div>
+        )}
+        </>
         )}
       </div>
     </div>

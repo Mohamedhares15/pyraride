@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
     // Validate dates
     const start = new Date(startTime);
     const end = new Date(endTime);
+    const now = new Date();
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return NextResponse.json(
@@ -45,10 +46,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Check that start time is in the future
+    if (start < now) {
+      return NextResponse.json(
+        { error: "Booking start time must be in the future" },
+        { status: 400 }
+      );
+    }
+
     // Check that end time is after start time
     if (end <= start) {
       return NextResponse.json(
         { error: "End time must be after start time" },
+        { status: 400 }
+      );
+    }
+
+    // Check minimum booking duration (at least 1 hour)
+    const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+    if (hours < 1) {
+      return NextResponse.json(
+        { error: "Minimum booking duration is 1 hour" },
         { status: 400 }
       );
     }
@@ -118,8 +136,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Calculate price (50 USD per hour)
-    const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+    // Calculate price (50 USD per hour) - hours already calculated above
     const totalPrice = hours * 50;
     const commission = totalPrice * 0.2; // 20% commission
 

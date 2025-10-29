@@ -197,11 +197,11 @@ export default function AnalyticsPage() {
                   {isAdmin ? "Total Revenue" : "Net Earnings"}
                 </p>
                 <p className="text-3xl font-bold">
-                  ${(analytics.overview.totalRevenue || analytics.overview.netEarnings || 0).toFixed(2)}
+                  ${((isAdmin ? analytics.overview.totalRevenue : analytics.overview.netEarnings) || 0).toFixed(2)}
                 </p>
                 {!isAdmin && analytics.overview.platformCommission && (
                   <p className="text-xs text-muted-foreground">
-                    Platform fee: ${parseFloat(analytics.overview.platformCommission.toString()).toFixed(2)}
+                    Platform fee: ${parseFloat((analytics.overview.platformCommission || 0).toString()).toFixed(2)}
                   </p>
                 )}
               </div>

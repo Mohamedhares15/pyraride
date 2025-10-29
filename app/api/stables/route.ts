@@ -4,15 +4,22 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await getServerSession();
     const searchParams = req.nextUrl.searchParams;
     const location = searchParams.get("location");
     const search = searchParams.get("search");
     const minRating = searchParams.get("minRating");
+    const ownerOnly = searchParams.get("ownerOnly") === "true"; // Get only owner's stable
 
     // Build where clause
     const where: any = {
       status: "approved",
     };
+
+    // If ownerOnly is true and user is logged in as stable owner, return only their stable
+    if (ownerOnly && session?.user?.role === "stable_owner") {
+      where.ownerId = session.user.id;
+    }
 
     // Filter by location
     if (location && location !== "all") {
