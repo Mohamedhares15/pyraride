@@ -157,13 +157,20 @@ export default function BookingModal({
         throw new Error(data.error || "Failed to create checkout session");
       }
 
-      // Redirect to payment
+      // Redirect to payment or show success
       if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
+      } else if (data.success) {
+        // Booking created without payment (development mode or Paymob/payment on-site)
+        onOpenChange(false);
+        alert(data.message || "Booking created successfully! Check your dashboard.");
+        // Optionally redirect to dashboard
+        window.location.href = "/dashboard/rider";
       } else {
-        // If no checkout URL, maybe it's direct booking (for development)
+        // Fallback
         onOpenChange(false);
         alert("Booking created successfully! Check your dashboard.");
+        window.location.href = "/dashboard/rider";
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create booking");
