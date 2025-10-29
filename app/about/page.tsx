@@ -14,7 +14,7 @@ export default function AboutPage() {
       <div 
         className="relative h-[500px] overflow-hidden"
         style={{
-          backgroundImage: "url(https://images.pexels.com/photos/462024/pexels-photo-462024.jpeg?auto=compress&cs=tinysrgb&w=1600)",
+          backgroundImage: "url(/hero-bg.webp)",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
