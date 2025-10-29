@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
+import { sendBookingConfirmationEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { stableId, horseId, startTime, endTime, totalPrice, stableLocation } = body;
+    const { stableId, horseId, startTime, endTime, totalPrice, stableLocation, riders } = body;
 
     // Validate required fields
     if (!stableId || !horseId || !startTime || !endTime || !totalPrice) {
@@ -144,9 +145,16 @@ export async function POST(req: NextRequest) {
             cancellationReason: bookingMeta, // Temporarily store stable location here
           },
       include: {
+        rider: {
+          select: {
+            email: true,
+            fullName: true,
+          },
+        },
         stable: {
           select: {
             name: true,
+            address: true,
           },
         },
         horse: {
@@ -156,6 +164,32 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+
+    // Send confirmation email
+    if (booking.rider.email) {
+      try {
+        const stableLocationData = stableLocation
+          ? JSON.parse(booking.cancellationReason || "{}")?.stableLocation
+          : null;
+
+        await sendBookingConfirmationEmail({
+          bookingId: booking.id,
+          riderName: booking.rider.fullName || "Valued Customer",
+          riderEmail: booking.rider.email,
+          stableName: booking.stable.name,
+          stableAddress: stableLocationData?.address || booking.stable.address || booking.stable.name,
+          horseName: booking.horse.name,
+          date: new Date(startTime).toISOString(),
+          startTime: new Date(startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: false }),
+          endTime: new Date(endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: false }),
+          totalPrice: parseFloat(totalPrice.toString()),
+          riders: riders || 1,
+        });
+      } catch (emailError) {
+        console.error("Failed to send confirmation email:", emailError);
+        // Don't fail the booking if email fails
+      }
+    }
 
     // Check if Stripe is configured
     if (!process.env.STRIPE_SECRET_KEY || !stripe || typeof stripe.checkout === 'undefined') {
