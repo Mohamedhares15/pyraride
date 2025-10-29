@@ -15,13 +15,21 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
-      <div className="relative h-[300px] overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20">
+      <div 
+        className="relative h-[300px] overflow-hidden"
+        style={{
+          backgroundImage: "url(/gallery5.jpg)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70" />
         <div className="relative z-10 flex h-full items-center justify-center">
           <div className="text-center">
-            <h1 className="font-display text-5xl font-bold tracking-tight md:text-6xl">
+            <h1 className="font-display text-5xl font-bold tracking-tight text-white md:text-6xl drop-shadow-lg">
               Get In Touch
             </h1>
-            <p className="mt-4 text-xl text-muted-foreground">
+            <p className="mt-4 text-xl text-white/90 drop-shadow-md">
               We&apos;re here to help you plan your perfect pyramid adventure.
             </p>
           </div>

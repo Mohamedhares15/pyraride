@@ -44,7 +44,7 @@ export default function GalleryPage() {
       <div 
         className="relative h-[400px] overflow-hidden"
         style={{
-          backgroundImage: "url(/hero-bg.webp)",
+          backgroundImage: "url(/gallery3.jpg)",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
