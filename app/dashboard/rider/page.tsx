@@ -76,7 +76,16 @@ export default function RiderDashboard() {
       }
 
       const data = await response.json();
-      setBookings(data.bookings || []);
+      // Ensure bookings array is properly formatted
+      const formattedBookings = (data.bookings || []).map((booking: any) => ({
+        ...booking,
+        totalPrice: booking.totalPrice ? parseFloat(booking.totalPrice.toString()) : 0,
+        startTime: booking.startTime || "",
+        endTime: booking.endTime || "",
+        status: booking.status || "confirmed",
+        hasReview: booking.hasReview || false,
+      }));
+      setBookings(formattedBookings);
     } catch (err) {
       console.error("Error fetching bookings:", err);
       setError(err instanceof Error ? err.message : "Failed to load bookings");
@@ -86,21 +95,31 @@ export default function RiderDashboard() {
   }
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "Invalid date";
+      return date.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch (err) {
+      return "Invalid date";
+    }
   };
 
   const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-    });
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "Invalid time";
+      return date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+      });
+    } catch (err) {
+      return "Invalid time";
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -251,7 +270,7 @@ export default function RiderDashboard() {
                         <div className="flex items-center gap-2">
                           <DollarSign className="h-5 w-5 text-primary" />
                           <span className="text-2xl font-bold">
-                            ${booking.totalPrice.toFixed(2)}
+                            ${parseFloat(booking.totalPrice.toString()).toFixed(2)}
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground">
