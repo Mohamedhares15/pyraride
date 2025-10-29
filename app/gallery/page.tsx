@@ -82,30 +82,42 @@ export default function GalleryPage() {
             <p className="mb-3 md:mb-4 text-sm md:text-base text-muted-foreground">
               Upload your horse riding photos for review and they may appear in our gallery!
             </p>
-            <input
-              type="file"
-              id="gallery-upload"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileUpload}
-              disabled={isUploading}
-            />
-            <label
-              htmlFor="gallery-upload"
-              className={`inline-flex items-center gap-2 cursor-pointer rounded-full bg-primary px-6 md:px-8 py-2 md:py-3 text-sm md:text-base text-white hover:bg-primary/90 transition-colors ${isUploading ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              {isUploading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Uploading...
-                </>
-              ) : (
-                "Upload Photo"
+            <div className="flex flex-col items-center gap-4">
+              <input
+                type="file"
+                id="gallery-upload"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileUpload}
+                disabled={isUploading}
+              />
+              <label
+                htmlFor="gallery-upload"
+                className={`inline-flex items-center gap-2 cursor-pointer rounded-full bg-primary px-6 md:px-8 py-2 md:py-3 text-sm md:text-base text-white hover:bg-primary/90 transition-colors ${isUploading ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                {isUploading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    Upload Photo
+                  </>
+                )}
+              </label>
+              {!isUploading && (
+                <p className="text-xs md:text-sm text-muted-foreground text-center">
+                  Click to select an image file from your device (Max 5MB)
+                </p>
               )}
-            </label>
-            <p className="mt-3 md:mt-4 text-xs md:text-sm text-muted-foreground">
-              Photos will be reviewed by our team before publication
-            </p>
+              <p className="text-xs md:text-sm text-muted-foreground text-center">
+                Photos will be reviewed by our team before publication
+              </p>
+            </div>
           </div>
         </Card>
       </div>
