@@ -21,19 +21,37 @@ export default function Navbar() {
         animate={{ y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-3 py-3 md:px-8 md:py-4">
           {/* Logo - White for visibility on image */}
-          <Link href="/" className="text-white font-bold text-xl drop-shadow-lg">
+          <Link href="/" className="text-white font-bold text-lg md:text-xl drop-shadow-lg">
             PyraRide
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden items-center space-x-4 md:flex">
+          <div className="hidden items-center space-x-2 lg:space-x-4 md:flex">
             <Link
               href="/stables"
-              className="text-sm font-medium text-white/90 drop-shadow-md transition-colors hover:text-white"
+              className="text-xs lg:text-sm font-medium text-white/90 drop-shadow-md transition-colors hover:text-white"
             >
-              Browse Stables
+              Stables
+            </Link>
+            <Link
+              href="/gallery"
+              className="text-xs lg:text-sm font-medium text-white/90 drop-shadow-md transition-colors hover:text-white"
+            >
+              Gallery
+            </Link>
+            <Link
+              href="/about"
+              className="text-xs lg:text-sm font-medium text-white/90 drop-shadow-md transition-colors hover:text-white"
+            >
+              About
+            </Link>
+            <Link
+              href="/contact"
+              className="text-xs lg:text-sm font-medium text-white/90 drop-shadow-md transition-colors hover:text-white"
+            >
+              Contact
             </Link>
             {session && (
               <Link
@@ -112,6 +130,27 @@ export default function Navbar() {
                 onClick={() => setIsOpen(false)}
               >
                 Browse Stables
+              </Link>
+              <Link
+                href="/gallery"
+                className="text-sm font-medium text-white transition-colors hover:text-white/70"
+                onClick={() => setIsOpen(false)}
+              >
+                Gallery
+              </Link>
+              <Link
+                href="/about"
+                className="text-sm font-medium text-white transition-colors hover:text-white/70"
+                onClick={() => setIsOpen(false)}
+              >
+                About
+              </Link>
+              <Link
+                href="/contact"
+                className="text-sm font-medium text-white transition-colors hover:text-white/70"
+                onClick={() => setIsOpen(false)}
+              >
+                Contact
               </Link>
               {session && (
                 <Link

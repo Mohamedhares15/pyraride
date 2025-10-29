@@ -49,7 +49,9 @@ export async function GET(req: NextRequest) {
           },
           select: {
             id: true,
+            imageUrls: true,
           },
+          take: 1, // Just get first horse for image
         },
         _count: {
           select: {
@@ -66,13 +68,18 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    // Calculate average ratings and add horse count
+    // Calculate average ratings and add horse count + image
     const stablesWithRating = stables.map((stable: any) => {
       const avgRating =
         stable.reviews.length > 0
           ? stable.reviews.reduce((sum: number, r: any) => sum + r.stableRating, 0) /
             stable.reviews.length
           : 0;
+
+      // Get image from first horse if available
+      const imageUrl = stable.horses.length > 0 && stable.horses[0].imageUrls?.length > 0
+        ? stable.horses[0].imageUrls[0]
+        : "/hero-bg.webp";
 
       return {
         id: stable.id,
@@ -84,6 +91,7 @@ export async function GET(req: NextRequest) {
         rating: Number(avgRating.toFixed(1)),
         totalBookings: stable._count.bookings,
         horseCount: stable.horses.length,
+        imageUrl: imageUrl,
         createdAt: stable.createdAt,
       };
     });

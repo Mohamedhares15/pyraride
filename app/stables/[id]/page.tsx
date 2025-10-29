@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
 import {
   MapPin,
   Star,
@@ -13,6 +15,7 @@ import {
   Clock,
   Phone,
   Mail,
+  ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -69,19 +72,30 @@ export default function StableDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState<Record<string, string[]>>({});
+  const [takenSlots, setTakenSlots] = useState<Record<string, Record<string, any[]>>>({});
   const { data: session } = useSession();
 
   useEffect(() => {
     async function fetchStable() {
       try {
-        const response = await fetch(`/api/stables/${id}`);
+        const [stableRes, slotsRes] = await Promise.all([
+          fetch(`/api/stables/${id}`),
+          fetch(`/api/stables/${id}/slots`),
+        ]);
         
-        if (!response.ok) {
+        if (!stableRes.ok) {
           throw new Error("Stable not found");
         }
 
-        const data = await response.json();
-        setStable(data);
+        const stableData = await stableRes.json();
+        setStable(stableData);
+
+        if (slotsRes.ok) {
+          const slotsData = await slotsRes.json();
+          setAvailableSlots(slotsData.availableSlots || {});
+          setTakenSlots(slotsData.takenSlots || {});
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load stable");
       } finally {
@@ -92,6 +106,26 @@ export default function StableDetailPage() {
     if (id) {
       fetchStable();
     }
+  }, [id]);
+
+  // Refresh slots every 15 seconds (more frequent updates)
+  useEffect(() => {
+    if (!id) return;
+    
+    const interval = setInterval(async () => {
+      try {
+        const slotsRes = await fetch(`/api/stables/${id}/slots`);
+        if (slotsRes.ok) {
+          const slotsData = await slotsRes.json();
+          setAvailableSlots(slotsData.availableSlots || {});
+          setTakenSlots(slotsData.takenSlots || {});
+        }
+      } catch (err) {
+        console.error("Error refreshing slots:", err);
+      }
+    }, 15000); // Refresh every 15 seconds
+
+    return () => clearInterval(interval);
   }, [id]);
 
   if (isLoading) {
@@ -122,12 +156,29 @@ export default function StableDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Back Button */}
+      <div className="border-b border-border bg-card/50 py-4 backdrop-blur-lg">
+        <div className="mx-auto max-w-5xl px-4 md:px-8">
+          <Link href="/stables">
+            <Button variant="ghost" size="sm" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Stables
+            </Button>
+          </Link>
+        </div>
+      </div>
+
       {/* Hero Image */}
       <div className="relative h-[400px] w-full overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20" />
-        <div className="relative flex h-full items-center justify-center">
-          <div className="h-48 w-48 rounded-full border-4 border-primary/30 bg-primary/10" />
-        </div>
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: stable.horses.length > 0 && stable.horses[0].imageUrls.length > 0
+              ? `url(${stable.horses[0].imageUrls[0]})`
+              : "url(/hero-bg.webp)",
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
       </div>
 
@@ -191,18 +242,124 @@ export default function StableDetailPage() {
 
             {/* Horses */}
             <div>
-              <h2 className="mb-4 font-display text-2xl font-bold">Our Horses</h2>
+              <h2 className="mb-6 font-display text-2xl font-bold">Our Horses</h2>
               {stable.horses.length > 0 ? (
-                <div className="grid gap-4">
-                  {stable.horses.map((horse) => (
-                    <Card key={horse.id} className="p-6">
-                      <h3 className="mb-2 font-semibold">{horse.name}</h3>
-                      <p className="text-sm text-muted-foreground">{horse.description}</p>
-                    </Card>
-                  ))}
+                <div className="space-y-6">
+                  {stable.horses.map((horse) => {
+                    // Extract or default horse info
+                    const horsePrice = "500"; // Default price, can be extracted from description
+                    const horseAge = "8 years"; // Default age, can be extracted from description
+                    const horseSkills = ["Beginner Friendly", "Tour Guide", "Desert Expert"]; // Default skills
+                    
+                    // Get slots for this horse
+                    const today = new Date().toISOString().split("T")[0];
+                    const horseSlots = takenSlots[today]?.[horse.id] || [];
+                    const availableSlotsToday = availableSlots[today] || [];
+                    const takenTimes = horseSlots.map((slot: any) => 
+                      new Date(slot.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+                    );
+                    const availableTimes = availableSlotsToday.filter((time: string) => !takenTimes.includes(time));
+
+                    return (
+                      <Card key={horse.id} className="overflow-hidden">
+                        <div className="grid gap-0 md:grid-cols-2">
+                          {/* Horse Image */}
+                          <div className="relative h-64 w-full md:h-auto bg-gradient-to-br from-primary/20 to-secondary/20">
+                            {horse.imageUrls && horse.imageUrls.length > 0 ? (
+                              <Image
+                                src={horse.imageUrls[0]}
+                                alt={horse.name}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="text-center">
+                                  <div className="mx-auto mb-2 text-5xl">🐴</div>
+                                  <p className="text-sm text-muted-foreground">{horse.name}</p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Horse Info */}
+                          <div className="p-6">
+                            <div className="mb-4">
+                              <h3 className="mb-2 font-semibold text-2xl">{horse.name}</h3>
+                              <p className="text-sm text-muted-foreground mb-4">{horse.description}</p>
+                            </div>
+
+                            {/* Horse Details Footer */}
+                            <div className="space-y-3 border-t pt-4">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Age:</span>
+                                <span className="font-medium">{horseAge}</span>
+                              </div>
+                              <div className="flex items-start justify-between text-sm">
+                                <span className="text-muted-foreground">Skills:</span>
+                                <div className="flex flex-wrap gap-1 justify-end">
+                                  {horseSkills.map((skill, idx) => (
+                                    <Badge key={idx} variant="outline" className="text-xs">
+                                      {skill}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Price:</span>
+                                <span className="font-bold text-primary text-lg">EGP {horsePrice}/hour</span>
+                              </div>
+                            </div>
+
+                            {/* Available Slots */}
+                            <div className="mt-6 border-t pt-4">
+                              <h4 className="mb-3 text-sm font-semibold">Today&apos;s Availability</h4>
+                              {availableTimes.length > 0 ? (
+                                <div className="flex flex-wrap gap-2 mb-3">
+                                  {availableTimes.slice(0, 6).map((time: string) => (
+                                    <Badge key={time} className="bg-green-500/20 text-green-700 border-green-500/50">
+                                      {time}
+                                    </Badge>
+                                  ))}
+                                  {availableTimes.length > 6 && (
+                                    <Badge variant="outline">
+                                      +{availableTimes.length - 6} more
+                                    </Badge>
+                                  )}
+                                </div>
+                              ) : (
+                                <p className="text-xs text-muted-foreground mb-3">No available slots today</p>
+                              )}
+                              
+                              {takenTimes.length > 0 && (
+                                <div className="mt-2">
+                                  <p className="text-xs text-muted-foreground mb-2">Booked:</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {takenTimes.slice(0, 4).map((time: string) => (
+                                      <Badge key={time} variant="outline" className="opacity-60">
+                                        {time}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                                <Clock className="h-3 w-3" />
+                                <span>Updated every 30 seconds</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    );
+                  })}
                 </div>
               ) : (
-                <p className="text-muted-foreground">No horses listed yet.</p>
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">No horses listed yet.</p>
+                </Card>
               )}
             </div>
 

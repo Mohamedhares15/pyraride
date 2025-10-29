@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession();
@@ -163,10 +165,8 @@ export async function GET(req: NextRequest) {
     const session = await getServerSession();
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      // Return empty array instead of error for unauthenticated users
+      return NextResponse.json({ bookings: [] }, { status: 200 });
     }
 
     // Get bookings for the current user
@@ -207,7 +207,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("Error fetching bookings:", error);
     return NextResponse.json(
-      { error: "Failed to fetch bookings" },
+      { error: "Failed to fetch bookings", details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

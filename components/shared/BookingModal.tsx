@@ -46,6 +46,9 @@ export default function BookingModal({
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [startTime, setStartTime] = useState<string>("09:00");
   const [endTime, setEndTime] = useState<string>("10:00");
+  const [selectedRiders, setSelectedRiders] = useState<number>(1);
+  const [pickupRequested, setPickupRequested] = useState<boolean>(false);
+  const [addons, setAddons] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -71,25 +74,59 @@ export default function BookingModal({
     return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
   };
 
+  const validateBooking = () => {
+    if (!session) {
+      return "Please sign in to book a ride";
+    }
+
+    if (!selectedHorseId) {
+      return "Please select a horse";
+    }
+
+    if (!selectedDate) {
+      return "Please select a date";
+    }
+
+    if (!startTime || !endTime) {
+      return "Please select start and end times";
+    }
+
+    const start = new Date(`${selectedDate}T${startTime}`);
+    const end = new Date(`${selectedDate}T${endTime}`);
+    const now = new Date();
+
+    if (start < now) {
+      return "Start time must be in the future";
+    }
+
+    if (end <= start) {
+      return "End time must be after start time";
+    }
+
+    const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+    if (hours < 0.5) {
+      return "Minimum booking duration is 30 minutes";
+    }
+
+    if (hours > 8) {
+      return "Maximum booking duration is 8 hours";
+    }
+
+    if (selectedRiders < 1 || selectedRiders > 10) {
+      return "Number of riders must be between 1 and 10";
+    }
+
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
-    if (!session) {
-      setError("Please sign in to book");
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (!selectedHorseId) {
-      setError("Please select a horse");
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (!selectedDate) {
-      setError("Please select a date");
+    const validationError = validateBooking();
+    if (validationError) {
+      setError(validationError);
       setIsSubmitting(false);
       return;
     }
@@ -108,6 +145,9 @@ export default function BookingModal({
           startTime: startDateTime.toISOString(),
           endTime: endDateTime.toISOString(),
           totalPrice: totalPrice,
+          riders: selectedRiders,
+          pickupRequested,
+          addons,
         }),
       });
 
@@ -117,9 +157,13 @@ export default function BookingModal({
         throw new Error(data.error || "Failed to create checkout session");
       }
 
-      // Redirect to Stripe checkout
+      // Redirect to payment
       if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
+      } else {
+        // If no checkout URL, maybe it's direct booking (for development)
+        onOpenChange(false);
+        alert("Booking created successfully! Check your dashboard.");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create booking");

@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -16,20 +17,34 @@ export default function DashboardPage() {
       return;
     }
 
-    // Redirect based on user role
-    if (session.user.role === "rider") {
+    // Redirect based on role
+    const role = session.user.role;
+    
+    if (role === "rider") {
       router.push("/dashboard/rider");
-    } else if (session.user.role === "stable_owner") {
+    } else if (role === "stable_owner") {
       router.push("/dashboard/stable");
-    } else if (session.user.role === "admin") {
-      router.push("/dashboard/stable"); // Default to stable for now
+    } else if (role === "admin") {
+      router.push("/dashboard/analytics");
+    } else {
+      // Default fallback
+      router.push("/dashboard/rider");
     }
   }, [session, status, router]);
 
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <span className="sr-only">Loading dashboard...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      <span className="sr-only">Redirecting to dashboard...</span>
     </div>
   );
 }
-

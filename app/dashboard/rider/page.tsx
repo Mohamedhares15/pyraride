@@ -16,6 +16,7 @@ import {
   Star,
   Edit2,
   Trash2,
+  ArrowLeft,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -69,11 +70,15 @@ export default function RiderDashboard() {
   async function fetchBookings() {
     try {
       const response = await fetch("/api/bookings");
-      if (!response.ok) throw new Error("Failed to fetch bookings");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch bookings");
+      }
 
       const data = await response.json();
-      setBookings(data.bookings);
+      setBookings(data.bookings || []);
     } catch (err) {
+      console.error("Error fetching bookings:", err);
       setError(err instanceof Error ? err.message : "Failed to load bookings");
     } finally {
       setIsLoading(false);
@@ -139,6 +144,26 @@ export default function RiderDashboard() {
       {/* Header */}
       <div className="border-b border-border bg-card/50 py-12 backdrop-blur-lg">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
+          <div className="mb-4 flex items-center gap-4">
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Home
+              </Button>
+            </Link>
+            <Link href="/stables">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Browse Stables
+              </Button>
+            </Link>
+            <div className="flex-1" /> {/* Spacer */}
+            <Link href="/dashboard">
+              <Button variant="outline" size="sm">
+                Dashboard
+              </Button>
+            </Link>
+          </div>
           <h1 className="mb-2 font-display text-4xl font-bold tracking-tight">
             My Bookings
           </h1>

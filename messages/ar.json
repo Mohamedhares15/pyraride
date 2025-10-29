@@ -1,0 +1,73 @@
+{
+  "common": {
+    "loading": "جارٍ التحميل...",
+    "error": "حدث خطأ",
+    "success": "نجاح",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "save": "حفظ",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "back": "رجوع",
+    "next": "التالي",
+    "search": "بحث",
+    "filter": "تصفية",
+    "clear": "مسح"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "browseStables": "تصفح الإسطبلات",
+    "dashboard": "لوحة التحكم",
+    "signIn": "تسجيل الدخول",
+    "signOut": "تسجيل الخروج",
+    "getStarted": "ابدأ الآن"
+  },
+  "hero": {
+    "title": "الأهرامات، لا تُنسى.",
+    "subtitle": "الرحلة، بدون تعقيد.",
+    "description": "احجز رحلتك الموثوقة والمعتمدة في الجيزة وسقارة.",
+    "search": "بحث"
+  },
+  "stables": {
+    "title": "تصفح الإسطبلات",
+    "noResults": "لم يتم العثور على إسطبلات",
+    "loading": "جارٍ تحميل الإسطبلات...",
+    "searchPlaceholder": "ابحث عن إسطبلات...",
+    "allLocations": "جميع المواقع",
+    "minimumRating": "الحد الأدنى للتصنيف",
+    "anyRating": "أي تصنيف",
+    "filterBy": "تصفية حسب",
+    "discover": "اكتشف مغامرتك القادمة"
+  },
+  "booking": {
+    "title": "احجز رحلتك",
+    "selectDate": "اختر التاريخ",
+    "selectHorse": "اختر الحصان",
+    "selectTime": "اختر الوقت",
+    "riders": "عدد الركاب",
+    "pickup": "نقل من الفندق",
+    "addons": "إضافات",
+    "summary": "راجع حجزك",
+    "total": "المجموع",
+    "completeBooking": "إتمام الحجز",
+    "bookingSuccess": "تم الحجز بنجاح!",
+    "confirmDetails": "يرجى تأكيد تفاصيل حجزك"
+  },
+  "dashboard": {
+    "myBookings": "حجوزاتي",
+    "upcomingBookings": "الحجوزات القادمة",
+    "pastBookings": "الحجوزات السابقة",
+    "noBookings": "لا توجد حجوزات بعد",
+    "startAdventure": "ابدأ مغامرتك بحجز تجربة ركوب خيل في أحد إسطبلاتنا الموثوقة!"
+  },
+  "payment": {
+    "proceedToPay": "المتابعة إلى الدفع",
+    "paymentMethod": "طريقة الدفع",
+    "totalAmount": "المبلغ الإجمالي",
+    "currency": "جنيه",
+    "processing": "جارٍ معالجة دفعتك...",
+    "success": "تم الدفع بنجاح!",
+    "failed": "فشل الدفع"
+  }
+}
+

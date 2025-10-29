@@ -13,6 +13,7 @@ interface Stable {
   rating: number;
   totalBookings: number;
   horseCount: number;
+  imageUrl?: string;
   createdAt: string;
 }
 
@@ -61,7 +62,7 @@ export default function StableList({ stables, isLoading }: StableListProps) {
             id: stable.id,
             name: stable.name,
             location: stable.location,
-            imageUrl: "https://images.unsplash.com/photo-1544966503-7cc0ac6e7b5c?q=80&w=2070&auto=format&fit=crop",
+            imageUrl: stable.imageUrl || "/hero-bg.webp",
             description: stable.description,
             rating: stable.rating,
             totalBookings: stable.totalBookings,

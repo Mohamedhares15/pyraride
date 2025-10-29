@@ -251,7 +251,7 @@ export default function StableOwnerDashboard() {
               Your bookings will appear here once riders start booking your horses!
             </p>
             <Button asChild>
-              <Link href="/dashboard/stable/manage">
+              <Link href="/dashboard/stable/horses">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Horses
               </Link>
