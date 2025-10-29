@@ -109,18 +109,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check for overlapping bookings
+    // Check for overlapping bookings (only confirmed, excluding cancelled and completed past bookings)
     const overlappingBookings = await prisma.booking.findFirst({
       where: {
         horseId,
-        status: {
-          in: ["confirmed", "completed"],
-        },
-        OR: [
+        status: "confirmed", // Only check confirmed bookings (not completed or cancelled)
+        AND: [
           {
+            // Booking starts before our end time
             startTime: {
               lte: end,
             },
+          },
+          {
+            // Booking ends after our start time
             endTime: {
               gte: start,
             },
@@ -130,8 +132,14 @@ export async function POST(req: NextRequest) {
     });
 
     if (overlappingBookings) {
+      // Get details of the conflicting booking for better error message
+      const conflictStart = new Date(overlappingBookings.startTime).toLocaleString();
+      const conflictEnd = new Date(overlappingBookings.endTime).toLocaleString();
       return NextResponse.json(
-        { error: "This horse is already booked for the selected time" },
+        { 
+          error: "This horse is already booked for the selected time",
+          details: `Conflicting booking: ${conflictStart} - ${conflictEnd}. Please choose a different time.`
+        },
         { status: 400 }
       );
     }

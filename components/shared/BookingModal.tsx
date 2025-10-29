@@ -154,7 +154,11 @@ export default function BookingModal({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to create checkout session");
+        // Show detailed error message if available
+        const errorMsg = data.details 
+          ? `${data.error}\n\n${data.details}`
+          : data.error || "Failed to create checkout session";
+        throw new Error(errorMsg);
       }
 
       // Redirect to payment or show success
