@@ -16,6 +16,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, Clock, DollarSign, Users, CheckCircle, ArrowRight, Calendar, MapPin, CreditCard, X } from "lucide-react";
 import LocationMap from "@/components/maps/LocationMap";
+import CalendarSVG from '@/components/icons/CalendarSVG';
+import GroupSVG from '@/components/icons/GroupSVG';
+import PinSVG from '@/components/icons/PinSVG';
+import DirectionsArrowSVG from '@/components/icons/DirectionsArrowSVG';
 
 interface Horse {
   id: string;
@@ -225,6 +229,12 @@ export default function BookingModal({
 
   // Success screen with new design
   if (bookingSuccess && bookingData) {
+    // Helper to format Google Maps directions URL
+    const gmapsLink =
+      bookingData.location
+        ? `https://maps.google.com/?daddr=${encodeURIComponent(bookingData.location)}`
+        : undefined;
+
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-lg p-0 overflow-hidden">
@@ -244,44 +254,66 @@ export default function BookingModal({
             <p className="text-green-50">Your adventure is booked and ready!</p>
           </div>
 
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-6">
             {/* Booking Details Card */}
-            <Card className="p-4 border-2">
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <Calendar className="h-5 w-5 text-primary mt-0.5" />
+            <Card className="p-6 border-2">
+              <div className="space-y-7">
+                <div className="flex items-center gap-4">
+                  <CalendarSVG className="flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Date & Time</p>
-                    <p className="font-semibold">
-                      {new Date(bookingData.date).toLocaleDateString("en-US", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
+                    <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase mb-1">
+                      Date & Time
+                    </p>
+                    <div className="font-semibold text-lg">
+                      {new Date(bookingData.date).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
                       })}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
+                    </div>
+                    <div className="text-sm text-muted-foreground">
                       {bookingData.startTime} - {bookingData.endTime}
-                    </p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 pt-3 border-t">
-                  <Users className="h-5 w-5 text-primary mt-0.5" />
+                <div className="flex items-center gap-4">
+                  <GroupSVG className="flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Horse Information</p>
-                    <p className="font-semibold">{bookingData.horseName}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {bookingData.riders} {bookingData.riders === 1 ? "rider" : "riders"}
+                    <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase mb-1">
+                      Horse Information
                     </p>
+                    <div className="font-semibold">
+                      {bookingData.horseName}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {bookingData.riders} {bookingData.riders === 1 ? 'rider' : 'riders'}
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 pt-3 border-t">
-                  <MapPin className="h-5 w-5 text-primary mt-0.5" />
+                <div className="flex items-center gap-4">
+                  <PinSVG className="flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Location</p>
-                    <p className="font-semibold">{bookingData.location}</p>
+                    <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase mb-1">
+                      Location
+                    </p>
+                    <div className="font-semibold">
+                      {bookingData.location}
+                    </div>
+                    {/* Get Directions Button */}
+                    {gmapsLink && (
+                      <a
+                        href={gmapsLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-full shadow-md transition w-full justify-center"
+                      >
+                        Get Directions
+                        <DirectionsArrowSVG className="inline-block h-6 w-6" />
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>

@@ -38,6 +38,10 @@ function createTransporter() {
 
 // Professional HTML email template
 function generateBookingConfirmationEmail(data: BookingEmailData): string {
+  // Generate encoded Google Maps link
+  const directionsLink = data.stableAddress
+    ? `https://maps.google.com/?daddr=${encodeURIComponent(data.stableAddress)}`
+    : "";
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -46,195 +50,128 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Booking Confirmation - PyraRide</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+<body style="margin:0; padding:0; background:#18181b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+  <table role="presentation" style="width:100%; border-spacing:0; background-color:#18181b;">
     <tr>
-      <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+      <td align="center" style="padding:32px 0;">
+        <table role="presentation" style="max-width:600px; min-width:340px; width:100%; background:#232328; border-radius:16px; overflow:hidden; box-shadow:0 4px 32px rgba(24,24,38,0.12);">
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#10b981 0%,#059669 100%);padding:40px 30px;text-align:center;">
+              <div style="width:80px; height:80px; background:rgba(255,255,255,0.2);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;">
+                <svg viewBox="0 0 52 52" width="50" height="50"><circle cx="26" cy="26" r="26" fill="none"/><path fill="none" stroke="#fff" stroke-width="5" d="M16 27l8 8 14-16"/></svg>
+              </div>
+              <h1 style="margin:22px 0 10px;font-size:2rem;font-weight:800;line-height:1.2;color:#fff;letter-spacing:-0.5px;">Booking Confirmed</h1>
+              <div style="font-size:1.2rem; color:rgba(255,255,255,0.90);">Your adventure is booked and ready!</div>
+            </td>
+          </tr>
           
-          <!-- Header with Green Gradient -->
+          <!-- Details Card -->
           <tr>
-            <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 30px; text-align: center;">
-              <table role="presentation" style="width: 100%; border-collapse: collapse;">
+            <td style="padding:38px 18px 18px 18px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="border-radius: 12px; background: #232328; border:2px solid #35353b;">
                 <tr>
-                  <td align="center" style="padding-bottom: 20px;">
-                    <div style="width: 80px; height: 80px; background-color: rgba(255, 255, 255, 0.2); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
-                      <span style="font-size: 40px; color: #ffffff;">✓</span>
+                  <td style="padding:22px 24px 0 24px;">
+                    <!-- Date&Time -->
+                    <table width="100%" cellpadding="0" cellspacing="0" align="left" style="margin-bottom:18px;">
+                      <tr>
+                        <td style="width:56px; vertical-align:top;">
+                          <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#2563eb"/><rect x="10" y="16" width="24" height="16" rx="4" fill="#fff" /><rect x="10" y="13" width="24" height="5" rx="2" fill="#1d4ed8" /><rect x="15" y="12" width="2.5" height="4" rx="1.25" fill="#2563eb"/><rect x="26.5" y="12" width="2.5" height="4" rx="1.25" fill="#2563eb"/><text x="50%" y="65%" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="14" fill="#2563eb">17</text></svg>
+                        </td>
+                        <td style="padding-left:12px;">
+                          <div style="font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#94a3b8;">Date &amp; Time</div>
+                          <div style="font-size:1.14rem;font-weight:600;color:#fff; margin-top:2px;">${new Date(data.date).toLocaleDateString("en-US", {weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+                          <div style="color:#cdd1d9;font-size:13px;">${data.startTime} - ${data.endTime}</div>
+                        </td>
+                      </tr>
+                    </table>
+                    <!-- Horse Info -->
+                    <table width="100%" cellpadding="0" cellspacing="0" align="left" style="margin-bottom:18px;">
+                      <tr>
+                        <td style="width:56px; vertical-align:top;">
+                          <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#8b5cf6"/><circle cx="15.5" cy="22.5" r="4" fill="#fff"/><circle cx="28.5" cy="22.5" r="4" fill="#fff" fill-opacity="0.8"/><ellipse cx="15.5" cy="30.5" rx="7" ry="4" fill="#fff"/><ellipse cx="28.5" cy="30.5" rx="7" ry="4" fill="#fff" fill-opacity="0.8"/></svg>
+                        </td>
+                        <td style="padding-left:12px;">
+                          <div style="font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#94a3b8;">Horse Information</div>
+                          <div style="font-size:1.08rem;font-weight:600;color:#fff; margin-top:2px;">${data.horseName}</div>
+                          <div style="color:#cdd1d9;font-size:13px;">${data.riders} ${data.riders === 1 ? "rider" : "riders"}</div>
+                        </td>
+                      </tr>
+                    </table>
+                    <!-- Location Info -->
+                    <table width="100%" cellpadding="0" cellspacing="0" align="left">
+                      <tr>
+                        <td style="width:56px; vertical-align:top;">
+                          <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#10b981"/><path d="M22 13c-4.2 0-7.5 3.18-7.5 7.09 0 5.9 7.13 12.4 7.41 12.64a1 1 0 0 0 1.18 0C22.37 32.5 29.5 26 29.5 20.09 29.5 16.18 26.2 13 22 13zm0 2c3.36 0 6 2.7 6 6.09 0 4.36-5.01 9.18-6 10.01-.99-.83-6-5.65-6-10.01C16 17.7 18.64 15 22 15zm0 2.2a3.1 3.1 0 1 0 .001 6.201A3.1 3.1 0 0 0 22 17.2z" fill="#fff"/><circle cx="22" cy="22.5" r="2" fill="#10b981"/></svg>
+                        </td>
+                        <td style="padding-left:12px;">
+                          <div style="font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#94a3b8;">Location</div>
+                          <div style="font-size:1.08rem;font-weight:600;color:#fff; margin-top:2px;">${data.stableName}</div>
+                          <div style="color:#cdd1d9;font-size:13px; margin-bottom:9px;">${data.stableAddress}</div>
+                          ${directionsLink
+                            ? `<a href="${directionsLink}" target="_blank" style="display:inline-block;padding:12px 28px;margin-top:4px;background:linear-gradient(90deg,#10b981 60%,#2563eb 100%);color:#fff;font-size:1rem;font-weight:700;border-radius:999px;text-decoration:none;box-shadow:0 3px 12px 0 #05966922;margin-bottom:3px;">
+                              <span style="vertical-align:middle;display:inline-block;margin-right:8px;">
+                                <svg width="24" height="24" viewBox="0 0 32 32" fill="none" style="vertical-align:middle;">
+                                  <defs><linearGradient id="g1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#10b981"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs>
+                                  <path d="M6 16h16.34l-5.3-5.29a1 1 0 1 1 1.42-1.42l7 7a1 1 0 0 1 0 1.42l-7 7a1 1 0 1 1-1.42-1.42l5.3-5.29H6a1 1 0 1 1 0-2z" fill="url(#g1)"/>
+                                </svg>
+                              </span>
+                              Get Directions
+                            </a>` : ``}
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Payment Info -->
+          <tr>
+            <td style="padding:12px 24px 0 24px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#18181b; border-radius:9px; border:1.5px solid #2563eb;">
+                <tr>
+                  <td style="padding:20px 18px;">
+                    <div style="display:flex;align-items:center;font-size:14px;color:#cdd1d9;">
+                      <svg width="28" height="28" style="margin-right:12px;"><circle cx="14" cy="14" r="14" fill="#2563eb"/><path d="M19.9 8c.39 0 .71.31.75.7.02.23-.07.46-.29.62l-9.7 7.3c-.4.3-.96.12-1.13-.36C9 15.9 9 15.43 9.34 15.17l10.02-7.22c.11-.08.25-.13.39-.12zm-7.53 11.85c-.3.22-.33.5-.27.72.07.22.3.41.66.41h3.5c.37 0 .62-.19.66-.41.06-.23.03-.5-.29-.72L13 16.12v-4.5c0-.41-.34-.75-.75-.75s-.75.34-.75.75v4.5l-1.37 1.83z" fill="#fff"/></svg>
+                      <span>
+                        <span style="font-size:12px;font-weight:600;color:#60a5fa;text-transform:uppercase;letter-spacing:0.5px;">Total Amount</span><br />
+                        <span style="font-size:1.32em;color:#fff;font-weight:700;display:inline-block;margin-top:2px;">$${data.totalPrice.toFixed(2)}</span>
+                      </span>
                     </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td align="center">
-                    <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                      Booking Confirmed
-                    </h1>
-                    <p style="margin: 10px 0 0 0; font-size: 16px; color: rgba(255, 255, 255, 0.95);">
-                      Your adventure is booked and ready!
-                    </p>
+                    <div style="font-size:11.5px; color:#60a5fa; margin-top:3px; font-style:italic;">Payment will be processed on-site or via your preferred method</div>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
-
-          <!-- Main Content -->
+          <!-- Booking Ref -->
           <tr>
-            <td style="padding: 40px 30px;">
-              
-              <!-- Booking Details Card -->
-              <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 24px; background-color: #f9fafb; border-radius: 8px; border: 2px solid #e5e7eb;">
-                <tr>
-                  <td style="padding: 24px;">
-                    
-                    <!-- Date & Time -->
-                    <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">
-                      <tr>
-                        <td style="padding-right: 16px; vertical-align: top;">
-                          <div style="width: 48px; height: 48px; background-color: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            <span style="font-size: 24px;">📅</span>
-                          </div>
-                        </td>
-                        <td style="vertical-align: top;">
-                          <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
-                            Date & Time
-                          </p>
-                          <p style="margin: 0 0 4px 0; font-size: 18px; font-weight: 600; color: #111827;">
-                            ${new Date(data.date).toLocaleDateString("en-US", {
-                              weekday: "long",
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })}
-                          </p>
-                          <p style="margin: 0; font-size: 14px; color: #6b7280;">
-                            ${data.startTime} - ${data.endTime}
-                          </p>
-                        </td>
-                      </tr>
-                    </table>
-
-                    <!-- Horse Information -->
-                    <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">
-                      <tr>
-                        <td style="padding-right: 16px; vertical-align: top;">
-                          <div style="width: 48px; height: 48px; background-color: #8b5cf6; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            <span style="font-size: 24px;">👥</span>
-                          </div>
-                        </td>
-                        <td style="vertical-align: top;">
-                          <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
-                            Horse Information
-                          </p>
-                          <p style="margin: 0 0 4px 0; font-size: 18px; font-weight: 600; color: #111827;">
-                            ${data.horseName}
-                          </p>
-                          <p style="margin: 0; font-size: 14px; color: #6b7280;">
-                            ${data.riders} ${data.riders === 1 ? "rider" : "riders"}
-                          </p>
-                        </td>
-                      </tr>
-                    </table>
-
-                    <!-- Location -->
-                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                      <tr>
-                        <td style="padding-right: 16px; vertical-align: top;">
-                          <div style="width: 48px; height: 48px; background-color: #10b981; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            <span style="font-size: 24px;">📍</span>
-                          </div>
-                        </td>
-                        <td style="vertical-align: top;">
-                          <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
-                            Location
-                          </p>
-                          <p style="margin: 0; font-size: 18px; font-weight: 600; color: #111827;">
-                            ${data.stableName}
-                          </p>
-                          <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">
-                            ${data.stableAddress}
-                          </p>
-                        </td>
-                      </tr>
-                    </table>
-
-                  </td>
-                </tr>
+            <td style="padding:20px 24px 0 24px;">
+              <table width="100%" style="background:#232328;border-radius:6px;">
+                <tr><td style="padding:12px;font-size:13.2px;letter-spacing:0.5px;color:#a1a1aa;">Booking Reference<br><span style="font-family: 'Courier New', monospace;color:#fff;font-size:15px;font-weight:600;">${data.bookingId}</span></td></tr>
               </table>
-
-              <!-- Payment Info Card -->
-              <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 24px; background-color: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe;">
-                <tr>
-                  <td style="padding: 24px;">
-                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                      <tr>
-                        <td>
-                          <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px;">
-                            💳 Total Amount
-                          </p>
-                          <p style="margin: 0 0 8px 0; font-size: 32px; font-weight: 700; color: #1e40af;">
-                            $${data.totalPrice.toFixed(2)}
-                          </p>
-                          <p style="margin: 0; font-size: 13px; color: #1e3a8a;">
-                            Payment will be processed on-site or via your preferred method
-                          </p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Booking Reference -->
-              <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 24px; background-color: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
-                <tr>
-                  <td style="padding: 20px;">
-                    <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
-                      Booking Reference
-                    </p>
-                    <p style="margin: 0; font-family: 'Courier New', monospace; font-size: 16px; font-weight: 600; color: #111827;">
-                      ${data.bookingId}
-                    </p>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- CTA Button -->
-              <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td align="center" style="padding: 20px 0;">
-                    <a href="${process.env.NEXTAUTH_URL || "https://pyraride.vercel.app"}/dashboard/rider" 
-                       style="display: inline-block; padding: 14px 28px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                      View My Bookings →
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
             </td>
           </tr>
-
+          <tr>
+            <td style="height:36px;"></td>
+          </tr>
           <!-- Footer -->
           <tr>
-            <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0 0 8px 0; font-size: 14px; color: #6b7280;">
-                Thank you for choosing <strong style="color: #059669;">PyraRide</strong>
-              </p>
-              <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                If you have any questions, please contact us at support@pyraride.com
-              </p>
-              <p style="margin: 16px 0 0 0; font-size: 11px; color: #9ca3af;">
-                © ${new Date().getFullYear()} PyraRide. All rights reserved.
-              </p>
+            <td style="background:#121217;color:#6b7280;font-size:15px;padding:28px 24px 24px 24px;text-align:center;border-top:1.5px solid #232323;">
+              <span style="display:inline-block;font-family:inherit;font-size:1.11em;font-weight:800;letter-spacing:-1.5px;color:#10b981;">PyraRide</span>
+              <div style="font-size:0.98em;color:#a1a1aa;margin-top:5px;">support@pyraride.com</div>
+              <div style="color:#a1a1aa;margin-top:10px;font-size:11.5px;">© ${new Date().getFullYear()} PyraRide. All rights reserved.</div>
             </td>
           </tr>
-
         </table>
       </td>
     </tr>
   </table>
 </body>
 </html>
-  `;
+`;
 }
 
 // Send booking confirmation email
