@@ -48,6 +48,12 @@ export default function Navbar() {
               About
             </Link>
             <Link
+              href="/faq"
+              className="text-xs lg:text-sm font-medium text-white/90 drop-shadow-md transition-colors hover:text-white"
+            >
+              FAQ
+            </Link>
+            <Link
               href="/contact"
               className="text-xs lg:text-sm font-medium text-white/90 drop-shadow-md transition-colors hover:text-white"
             >
@@ -144,6 +150,13 @@ export default function Navbar() {
                 onClick={() => setIsOpen(false)}
               >
                 About
+              </Link>
+              <Link
+                href="/faq"
+                className="text-sm font-medium text-white transition-colors hover:text-white/70"
+                onClick={() => setIsOpen(false)}
+              >
+                FAQ
               </Link>
               <Link
                 href="/contact"

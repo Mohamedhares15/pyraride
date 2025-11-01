@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import AuthProvider from "@/components/providers/AuthProvider";
 import AIAgent from "@/components/shared/AIAgent";
+import CookieConsent from "@/components/shared/CookieConsent";
 import { GoogleAnalytics, Plausible } from "@/components/shared/Analytics";
 import "./globals.css";
 
@@ -148,6 +149,7 @@ export default function RootLayout({
         <AuthProvider>
           <main id="main-content">{children}</main>
           <AIAgent />
+          <CookieConsent />
           <GoogleAnalytics trackingId={process.env.NEXT_PUBLIC_GA_ID} />
           <Plausible domain="pyraride.vercel.app" />
         </AuthProvider>
