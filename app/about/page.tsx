@@ -1,8 +1,6 @@
 import { Metadata } from "next";
 import { MapPin, Shield, Users, Award, Heart, Target, Globe, CheckCircle, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import Image from "next/image";
-import TrustBadges from "@/components/shared/TrustBadges";
 
 export const metadata: Metadata = {
   title: "About Us - Our Story & Team | PyraRide",
@@ -15,49 +13,48 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
+  // PLACEHOLDER: Update these with your actual team members
   const team = [
     {
-      name: "Mohamed Hares",
+      name: "[Your Name]",
       role: "Founder & CEO",
-      image: "/team/founder.jpg", // Placeholder
-      bio: "Horse enthusiast and Egypt tourism advocate with 15+ years connecting travelers with authentic experiences.",
-      linkedin: "https://linkedin.com/in/mohamedhares"
-    },
-    {
-      name: "Ahmed Khalil",
-      role: "Head of Stable Partnerships",
-      image: "/team/partnerships.jpg",
-      bio: "Former stable owner, now ensuring every partner meets our gold-standard safety and animal welfare criteria.",
+      bio: "[Add your bio here - background in tourism, horses, or technology]",
       linkedin: "#"
     },
     {
-      name: "Sara El-Sayed",
-      role: "Customer Experience Lead",
-      image: "/team/cx-lead.jpg",
-      bio: "Multilingual support specialist dedicated to making every rider's journey seamless from booking to ride.",
+      name: "[Team Member]",
+      role: "Head of Operations",
+      bio: "[Add team member bio - their role and expertise]",
       linkedin: "#"
     },
     {
-      name: "Omar Hassan",
-      role: "Safety & Compliance Officer",
-      image: "/team/safety.jpg",
-      bio: "Veterinary specialist and equestrian expert ensuring the highest standards of horse welfare and rider safety.",
+      name: "[Team Member]",
+      role: "Customer Success Manager",
+      bio: "[Add team member bio - their commitment to customer experience]",
+      linkedin: "#"
+    },
+    {
+      name: "[Team Member]",
+      role: "Safety & Compliance",
+      bio: "[Add team member bio - their safety and animal welfare expertise]",
       linkedin: "#"
     }
   ];
 
+  // PLACEHOLDER: Update milestones with real company history
   const milestones = [
-    { year: "2023", title: "PyraRide Founded", description: "Started with a mission to transform pyramid horse riding experiences" },
-    { year: "2024", title: "10 Certified Stables", description: "Partnered with the top-rated stables in Giza and Saqqara" },
-    { year: "2024", title: "5,000 Happy Riders", description: "Served thousands of travelers from 50+ countries" },
-    { year: "2025", title: "Industry Recognition", description: "Featured in TripAdvisor's Top 10 Egyptian Experiences" },
+    { year: "[Year]", title: "PyraRide Founded", description: "[Your founding story]" },
+    { year: "[Year]", title: "First Partnership", description: "[Your first stable partnership]" },
+    { year: "[Year]", title: "Platform Launch", description: "[When you officially launched]" },
+    { year: "[Current Year]", title: "Growing Platform", description: "[Current status and growth]" },
   ];
 
+  // PLACEHOLDER: Update stats with real numbers (will be calculated from database)
   const stats = [
-    { value: "10,000+", label: "Satisfied Riders", icon: Users },
-    { value: "15", label: "Verified Stables", icon: Shield },
-    { value: "4.9/5", label: "Average Rating", icon: Star },
-    { value: "98%", label: "Rebooking Rate", icon: Heart },
+    { value: "[#]", label: "Total Bookings", icon: Users },
+    { value: "[#]", label: "Partner Stables", icon: Shield },
+    { value: "[#]/5", label: "Average Rating", icon: Star },
+    { value: "[#]%", label: "Customer Satisfaction", icon: Heart },
   ];
 
   return (
@@ -116,20 +113,22 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="space-y-4 text-lg">
               <p>
-                PyraRide was born in <strong>2023</strong> when our founder, Mohamed Hares, witnessed firsthand
-                the challenges tourists faced when trying to book trustworthy horse riding experiences at the Pyramids.
+                <strong>[PLACEHOLDER: Your Founding Story]</strong> — Share how and why you started PyraRide. 
+                What problem did you see? What inspired you to create this platform?
               </p>
               <p>
-                <strong>The problem was clear:</strong> Travelers had no reliable way to verify stable quality,
-                compare prices, or read authentic reviews. Many ended up with disappointing or even unsafe experiences.
+                <strong>The Challenge:</strong> Describe the specific challenges travelers face when trying 
+                to book horse riding experiences at the pyramids (safety concerns, price confusion, lack of trust, etc.)
               </p>
               <p className="text-primary font-semibold">
-                We set out to change that.
+                [Your solution and unique approach]
               </p>
               <p>
-                Today, PyraRide is <strong>Egypt's #1 trusted platform</strong> for pyramid horse riding experiences,
-                serving thousands of happy riders from over 50 countries. Every stable is personally vetted,
-                every horse's welfare is verified, and every review is authentic.
+                <strong>[Your Current Status]:</strong> Share your current impact — how many stables you work with, 
+                riders served, countries reached, or other metrics that demonstrate your platform's value and growth.
+              </p>
+              <p className="text-sm text-muted-foreground italic mt-4">
+                💡 Replace this text with your authentic story to build trust and connection with visitors
               </p>
             </div>
             
@@ -342,16 +341,29 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Certifications & Trust Badges */}
+        {/* Certifications & Partnerships - PLACEHOLDER */}
         <section>
           <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Certifications & Partnerships</h2>
-            <p className="text-muted-foreground">
-              Recognized by leading travel and safety organizations
+            <p className="text-muted-foreground mb-6">
+              Display your business certifications, travel industry memberships, and partnerships here
             </p>
           </div>
           
-          <TrustBadges />
+          <Card className="p-8 bg-muted/30">
+            <div className="text-center space-y-4">
+              <Shield className="h-16 w-16 mx-auto text-primary/40" />
+              <h3 className="font-semibold text-lg">Add Your Certifications</h3>
+              <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+                Upload logos of your business licenses, tourism board memberships, safety certifications, 
+                and industry partnerships. This builds trust and credibility with potential customers.
+              </p>
+              <p className="text-xs text-muted-foreground italic">
+                Examples: Egyptian Tourism Authority, International Equestrian Federation, 
+                TripAdvisor Certificate of Excellence, Better Business Bureau, etc.
+              </p>
+            </div>
+          </Card>
         </section>
 
         {/* Animal Welfare Commitment */}

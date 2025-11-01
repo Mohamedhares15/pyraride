@@ -1,281 +1,410 @@
-"use client";
+import { Metadata } from "next";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Card } from "@/components/ui/card";
+import { Search, HelpCircle, Book, CreditCard, Shield, MapPin } from "lucide-react";
 
-import { HelpCircle, ChevronDown } from "lucide-react";
-import { useState } from "react";
-
-function FAQItem({ question, answer }: { question: string; answer: string }) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="border rounded-lg overflow-hidden">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-6 py-4 text-left hover:bg-muted/50 transition-colors flex items-center justify-between gap-4"
-      >
-        <span className="font-semibold pr-4">{question}</span>
-        <ChevronDown 
-          className={`h-5 w-5 text-muted-foreground transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
-        />
-      </button>
-      {isOpen && (
-        <div className="px-6 pb-4 text-muted-foreground whitespace-pre-line text-sm">
-          {answer}
-        </div>
-      )}
-    </div>
-  );
-}
+export const metadata: Metadata = {
+  title: "FAQ - Frequently Asked Questions",
+  description: "Common questions about booking horse riding experiences at the Giza and Saqqara pyramids.",
+};
 
 export default function FAQPage() {
-  const faqCategories = [
-    {
-      category: "Booking & Payments",
-      questions: [
-        {
-          q: "How do I book a horse ride?",
-          a: "Booking is simple! Browse available stables, select your preferred horse and time slot, fill in your details, and complete payment. You'll receive instant confirmation via email."
-        },
-        {
-          q: "What payment methods do you accept?",
-          a: "We accept all major credit and debit cards (Visa, Mastercard, American Express), as well as secure online payment through our payment processor. Payment is processed at the time of booking."
-        },
-        {
-          q: "Is my payment information secure?",
-          a: "Absolutely! We use industry-standard SSL encryption and PCI DSS compliant payment processors. We never store your full card details on our servers."
-        },
-        {
-          q: "Can I book for multiple people?",
-          a: "Yes! When booking, simply select the number of riders. Each rider will need their own horse. Group discounts may be available for bookings of 5+ riders."
-        },
-        {
-          q: "How far in advance should I book?",
-          a: "We recommend booking at least 24-48 hours in advance, especially during peak tourist season (October-April). However, last-minute bookings (24+ hours ahead) are often available."
-        },
-      ],
-    },
-    {
-      category: "Cancellations & Refunds",
-      questions: [
-        {
-          q: "What is your cancellation policy?",
-          a: "• 24+ hours before: 100% refund\n• 12-24 hours before: 50% refund\n• Less than 12 hours: No refund\n• Weather cancellations: Full refund or free rescheduling"
-        },
-        {
-          q: "How do I cancel or reschedule my booking?",
-          a: "Log in to your account, go to 'My Bookings', select the booking, and click 'Cancel' or 'Reschedule'. Refunds are processed within 5-7 business days to your original payment method."
-        },
-        {
-          q: "What happens if the stable cancels my ride?",
-          a: "If the stable cancels due to weather, horse health, or safety concerns, you'll receive a full 100% refund immediately or can reschedule free of charge to any available date."
-        },
-        {
-          q: "Can I get a refund if I arrive late?",
-          a: "Arrivals within 15 minutes of the scheduled time are usually accommodated with reduced ride time. After 15 minutes without notification, bookings may be marked as no-show with no refund."
-        },
-      ],
-    },
-    {
-      category: "Safety & Requirements",
-      questions: [
-        {
-          q: "Is horse riding safe?",
-          a: "All our stables maintain strict safety standards. Horses are well-trained, guides are experienced, and safety equipment (helmets) is provided. However, horse riding does carry inherent risks - riders must follow all safety instructions."
-        },
-        {
-          q: "Do I need riding experience?",
-          a: "No! Most stables offer horses suitable for beginners. When booking, you can indicate your experience level, and the stable will match you with an appropriate horse and provide guidance."
-        },
-        {
-          q: "What should I wear?",
-          a: "Wear comfortable clothes you can move in (long pants recommended), closed-toe shoes with a small heel (no sandals or flip-flops), and bring sunscreen and sunglasses. Helmets are typically provided."
-        },
-        {
-          q: "Are there age or weight restrictions?",
-          a: "Age and weight limits vary by stable and horse. Generally:\n• Minimum age: 8-12 years\n• Maximum weight: 90-100 kg (200-220 lbs)\n• Children under 16 must be accompanied by an adult"
-        },
-        {
-          q: "What if I have a medical condition?",
-          a: "Please disclose any medical conditions (pregnancy, back/neck injuries, heart conditions, etc.) when booking. Some conditions may prevent you from riding for safety reasons. Consult your doctor before booking if uncertain."
-        },
-      ],
-    },
-    {
-      category: "Ride Details",
-      questions: [
-        {
-          q: "How long is a typical ride?",
-          a: "Ride durations vary by package:\n• Short ride: 30-60 minutes\n• Standard ride: 1-2 hours\n• Extended tour: 2-4 hours\nCheck the stable's offerings for specific durations and routes."
-        },
-        {
-          q: "Where do the rides take place?",
-          a: "Rides take place at the Giza Pyramids (near the Great Pyramid, Sphinx area) and Saqqara (near the Step Pyramid). Exact routes vary by stable and package."
-        },
-        {
-          q: "Can I take photos during the ride?",
-          a: "Yes! You're welcome to bring a camera or smartphone. Many stables also offer professional photography services for an additional fee. Selfies with the pyramids are encouraged!"
-        },
-        {
-          q: "What's included in the price?",
-          a: "Typically included:\n• Horse and tack rental\n• Safety helmet\n• Guided experience\n• Access to riding areas\n\nMay be extra:\n• Professional photos/videos\n• Extended routes\n• Private guides\n• Transportation to/from stable"
-        },
-        {
-          q: "What time of day is best for riding?",
-          a: "Early morning (7-9 AM) and late afternoon (3-5 PM) are ideal - cooler temperatures and beautiful lighting for photos. Avoid midday (11 AM-2 PM) in summer due to heat."
-        },
-      ],
-    },
-    {
-      category: "About Stables & Horses",
-      questions: [
-        {
-          q: "How do you verify stables?",
-          a: "All stables undergo a rigorous verification process:\n• Safety certifications checked\n• Horse welfare standards reviewed\n• Customer reviews analyzed\n• Regular inspections conducted\n• Only trusted, professional stables are listed"
-        },
-        {
-          q: "How are the horses cared for?",
-          a: "All our partner stables must meet strict animal welfare standards:\n• Horses are fed, watered, and rested regularly\n• Maximum riding hours enforced\n• Regular veterinary check-ups\n• Proper shelter and stable conditions\n• We take animal welfare seriously and investigate all concerns"
-        },
-        {
-          q: "Can I choose my own horse?",
-          a: "While you can indicate preferences (calm vs. energetic, color, etc.), the stable assigns horses based on your experience level, weight, and the horse's daily workload to ensure safety and animal welfare."
-        },
-        {
-          q: "Are the horses pure Arabian?",
-          a: "Many stables feature purebred Arabian horses, but not all. Horse breeds vary by stable. Arabian horses are well-suited to Egypt's climate and are popular for their endurance and gentle temperament."
-        },
-      ],
-    },
-    {
-      category: "Logistics & Access",
-      questions: [
-        {
-          q: "How do I get to the stable?",
-          a: "After booking, you'll receive the stable's exact location with GPS coordinates. Most stables are accessible by taxi (Uber works in Cairo/Giza), private car, or hotel shuttle. Some stables offer pickup for an additional fee."
-        },
-        {
-          q: "Is there parking available?",
-          a: "Most stables have designated parking areas for private vehicles. Check the stable's details page or contact them directly to confirm parking availability."
-        },
-        {
-          q: "What if I can't find the stable?",
-          a: "Your booking confirmation includes:\n• Stable's phone number\n• GPS coordinates\n• Map location\n• Meeting point instructions\n\nCall the stable directly if you're having trouble finding them - they're happy to guide you!"
-        },
-        {
-          q: "Can I extend my ride after I arrive?",
-          a: "Extensions may be possible if the horse and time slot are available, subject to additional fees. However, this isn't guaranteed - we recommend booking your preferred duration initially."
-        },
-      ],
-    },
-    {
-      category: "Account & Technical",
-      questions: [
-        {
-          q: "Do I need to create an account to book?",
-          a: "Yes, a free account is required to make bookings. This allows you to manage your reservations, track bookings, save favorite stables, and leave reviews."
-        },
-        {
-          q: "I didn't receive my confirmation email. What should I do?",
-          a: "Check your spam/junk folder first. If not there, log in to your account to view your booking details. Still no confirmation? Contact support@pyraride.com immediately with your booking reference."
-        },
-        {
-          q: "Can I modify my booking details after confirmation?",
-          a: "Some details can be modified (date, time, number of riders) by canceling and rebooking based on the cancellation policy. Contact the stable directly for minor changes (phone number, special requests)."
-        },
-        {
-          q: "Is there a mobile app?",
-          a: "Currently, PyraRide is web-based and mobile-optimized. You can access the full platform from any smartphone browser. A native app is planned for the future!"
-        },
-      ],
-    },
-    {
-      category: "Reviews & Trust",
-      questions: [
-        {
-          q: "Are the reviews real?",
-          a: "Yes! Only verified riders who completed bookings can leave reviews. We have a zero-tolerance policy for fake reviews and use verification systems to ensure authenticity."
-        },
-        {
-          q: "Can I leave a review?",
-          a: "Absolutely! After your ride, you'll receive an email invitation to review your experience. Reviews help other riders make informed decisions and help us maintain quality standards."
-        },
-        {
-          q: "What if I have a complaint?",
-          a: "We take complaints seriously. Contact support@pyraride.com with your booking details and concerns. We'll investigate promptly and work to resolve issues fairly. Response time: within 24 hours."
-        },
-      ],
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-primary/80 text-white py-16">
-        <div className="mx-auto max-w-4xl px-4">
-          <div className="flex items-center gap-3 mb-4">
-            <HelpCircle className="h-10 w-10" />
-            <h1 className="font-display text-4xl md:text-5xl font-bold">Frequently Asked Questions</h1>
-            </div>
-          <p className="text-lg text-white/90">
-            Find answers to common questions about booking your Pyramid horse riding experience
+      <div className="mx-auto max-w-4xl px-4 py-16">
+        <div className="text-center mb-12">
+          <HelpCircle className="w-16 h-16 mx-auto mb-4 text-primary" />
+          <h1 className="mb-4 font-display text-4xl font-bold">Frequently Asked Questions</h1>
+          <p className="text-lg text-muted-foreground">
+            Find answers to common questions about booking and riding at the pyramids
           </p>
-        </div>
           </div>
 
       {/* Quick Links */}
-      <div className="bg-muted border-b">
-        <div className="mx-auto max-w-4xl px-4 py-4">
-          <p className="text-sm font-semibold mb-2">Quick Jump:</p>
-          <div className="flex flex-wrap gap-2">
-            {faqCategories.map((cat, idx) => (
-              <a
-                key={idx}
-                href={`#category-${idx}`}
-                className="text-xs px-3 py-1 bg-background rounded-full hover:bg-primary hover:text-primary-foreground transition-colors"
-              >
-                {cat.category}
-              </a>
-            ))}
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-12">
+          <a href="#booking" className="flex items-center gap-2 p-4 rounded-lg border hover:border-primary transition-colors">
+            <Book className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium">Booking</span>
+          </a>
+          <a href="#payment" className="flex items-center gap-2 p-4 rounded-lg border hover:border-primary transition-colors">
+            <CreditCard className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium">Payment</span>
+          </a>
+          <a href="#safety" className="flex items-center gap-2 p-4 rounded-lg border hover:border-primary transition-colors">
+            <Shield className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium">Safety</span>
+          </a>
+          <a href="#location" className="flex items-center gap-2 p-4 rounded-lg border hover:border-primary transition-colors">
+            <MapPin className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium">Location</span>
+          </a>
+          <a href="#experience" className="flex items-center gap-2 p-4 rounded-lg border hover:border-primary transition-colors">
+            <Search className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium">Experience</span>
+          </a>
+          <a href="#general" className="flex items-center gap-2 p-4 rounded-lg border hover:border-primary transition-colors">
+            <HelpCircle className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium">General</span>
+          </a>
         </div>
-      </div>
 
-      {/* FAQ Content */}
-      <div className="mx-auto max-w-4xl px-4 py-12">
-        {faqCategories.map((category, catIdx) => (
-          <section key={catIdx} id={`category-${catIdx}`} className="mb-12">
-            <h2 className="text-2xl font-bold mb-6 pb-2 border-b-2 border-primary">
-              {category.category}
+        <Card className="p-6 md:p-8">
+          {/* Booking Questions */}
+          <section id="booking" className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+              <Book className="w-6 h-6 text-primary" />
+              Booking Questions
             </h2>
-            
-            <div className="space-y-2">
-              {category.questions.map((item, qIdx) => (
-                <FAQItem key={qIdx} question={item.q} answer={item.a} />
-              ))}
-            </div>
-            </section>
-          ))}
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="booking-1">
+                <AccordionTrigger>How do I book a horse riding experience?</AccordionTrigger>
+                <AccordionContent>
+                  <p className="mb-2">Booking is simple:</p>
+                  <ol className="list-decimal pl-5 space-y-1">
+                    <li>Browse available stables on our platform</li>
+                    <li>Select your preferred stable and horse</li>
+                    <li>Choose your date, time, and duration</li>
+                    <li>Complete the booking form</li>
+                    <li>Confirm and receive your booking confirmation via email</li>
+                  </ol>
+                </AccordionContent>
+              </AccordionItem>
 
-        {/* Still have questions */}
-        <div className="mt-16 p-8 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border-l-4 border-primary">
-          <h3 className="text-2xl font-bold mb-4">Still have questions?</h3>
-          <p className="mb-4">
-            Can't find the answer you're looking for? Our friendly support team is here to help!
-          </p>
-          <div className="space-y-2">
-            <p>📧 <strong>Email:</strong> <a href="mailto:support@pyraride.com" className="text-primary hover:underline">support@pyraride.com</a></p>
-            <p>📱 <strong>Phone:</strong> +20 123 456 7890</p>
-            <p>⏰ <strong>Hours:</strong> 9 AM - 6 PM EET, 7 days a week</p>
-            <p>⚡ <strong>Response Time:</strong> Within 4 hours</p>
-          </div>
-          <div className="mt-6">
+              <AccordionItem value="booking-2">
+                <AccordionTrigger>How far in advance should I book?</AccordionTrigger>
+                <AccordionContent>
+                  We recommend booking at least 48 hours in advance, especially during peak tourist seasons 
+                  (October-April). For sunrise rides or specific horses, booking 3-7 days ahead is ideal. 
+                  Same-day bookings may be available but are subject to availability.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="booking-3">
+                <AccordionTrigger>Can I modify or cancel my booking?</AccordionTrigger>
+                <AccordionContent>
+                  <p className="mb-2">Yes! Cancellation policy:</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>48+ hours before: 100% refund</li>
+                    <li>24-48 hours before: 50% refund</li>
+                    <li>Less than 24 hours: No refund</li>
+                  </ul>
+                  <p className="mt-2">
+                    Modifications (date/time changes) are free if made 48+ hours in advance, subject to availability.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="booking-4">
+                <AccordionTrigger>What's included in the booking?</AccordionTrigger>
+                <AccordionContent>
+                  Typically includes: horse rental, safety equipment (helmet), guide escort, and access to the riding areas. 
+                  Some stables may offer additional services like photography, refreshments, or extended tours. 
+                  Check the specific stable's offerings when booking.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </section>
+
+          {/* Payment Questions */}
+          <section id="payment" className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+              <CreditCard className="w-6 h-6 text-primary" />
+              Payment & Pricing
+            </h2>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="payment-1">
+                <AccordionTrigger>What payment methods do you accept?</AccordionTrigger>
+                <AccordionContent>
+                  We accept major credit cards (Visa, Mastercard), debit cards, and some local payment methods. 
+                  Some stables may also accept cash payment on-site. Payment options are displayed during checkout.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="payment-2">
+                <AccordionTrigger>How much does a horse riding experience cost?</AccordionTrigger>
+                <AccordionContent>
+                  Prices vary by stable, horse, duration, and experience type. Typical range:
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li>Standard 1-hour ride: $30-50 USD</li>
+                    <li>Premium Arabian horse: $50-80 USD per hour</li>
+                    <li>Sunrise/sunset tours: $60-100 USD</li>
+                    <li>Private guided tours: $80-150 USD</li>
+                  </ul>
+                  <p className="mt-2">Check individual stable listings for exact pricing.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="payment-3">
+                <AccordionTrigger>When do I pay?</AccordionTrigger>
+                <AccordionContent>
+                  Payment timing depends on the stable's policy:
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li><strong>Advance payment:</strong> Some stables require full payment during booking</li>
+                    <li><strong>On-site payment:</strong> Others allow payment when you arrive</li>
+                    <li><strong>Deposit + balance:</strong> Pay a deposit online, remainder on arrival</li>
+                  </ul>
+                  <p className="mt-2">The payment terms are clearly stated during the booking process.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="payment-4">
+                <AccordionTrigger>Are there any hidden fees?</AccordionTrigger>
+                <AccordionContent>
+                  No hidden fees. The price shown is the final price you pay. Optional extras (photography, 
+                  refreshments, extended tours) are clearly marked as additional services you can choose to add.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </section>
+
+          {/* Safety Questions */}
+          <section id="safety" className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+              <Shield className="w-6 h-6 text-primary" />
+              Safety & Requirements
+            </h2>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="safety-1">
+                <AccordionTrigger>Is horse riding safe for beginners?</AccordionTrigger>
+                <AccordionContent>
+                  Yes! All our verified stables offer beginner-friendly horses and provide:
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li>Safety helmets and protective gear</li>
+                    <li>Professional guides who accompany all rides</li>
+                    <li>Gentle, well-trained horses suitable for first-time riders</li>
+                    <li>Safety briefing before each ride</li>
+                    <li>Adherence to safety standards and protocols</li>
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="safety-2">
+                <AccordionTrigger>Are there age restrictions?</AccordionTrigger>
+                <AccordionContent>
+                  Age requirements vary by stable:
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li><strong>Children:</strong> Usually 6+ years old (must be accompanied by an adult)</li>
+                    <li><strong>Teenagers:</strong> 13-17 years (parental consent required)</li>
+                    <li><strong>Adults:</strong> No upper age limit if physically fit</li>
+                  </ul>
+                  <p className="mt-2">Check specific stable requirements during booking.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="safety-3">
+                <AccordionTrigger>Are there weight or health restrictions?</AccordionTrigger>
+                <AccordionContent>
+                  <p className="mb-2"><strong>Weight:</strong> Maximum typically 220 lbs (100 kg) for rider safety and horse welfare</p>
+                  <p className="mb-2"><strong>Health conditions:</strong> Please inform us if you have:</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Back, neck, or joint problems</li>
+                    <li>Heart conditions</li>
+                    <li>Pregnancy</li>
+                    <li>Recent surgeries</li>
+                    <li>Severe allergies</li>
+                  </ul>
+                  <p className="mt-2">The stable may refuse service if safety cannot be guaranteed.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="safety-4">
+                <AccordionTrigger>What should I wear?</AccordionTrigger>
+                <AccordionContent>
+                  Recommended attire:
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li><strong>Pants:</strong> Long pants (jeans or riding pants)</li>
+                    <li><strong>Shoes:</strong> Closed-toe shoes with heel (boots ideal)</li>
+                    <li><strong>Top:</strong> Comfortable, breathable shirt</li>
+                    <li><strong>Sun protection:</strong> Sunglasses, sunscreen, hat</li>
+                    <li><strong>Avoid:</strong> Shorts, sandals, flip-flops, loose jewelry</li>
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </section>
+
+          {/* Location Questions */}
+          <section id="location" className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+              <MapPin className="w-6 h-6 text-primary" />
+              Location & Logistics
+            </h2>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="location-1">
+                <AccordionTrigger>Where are the stables located?</AccordionTrigger>
+                <AccordionContent>
+                  Our verified stables are located in two main areas:
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li><strong>Giza:</strong> Near the Great Pyramids and Sphinx</li>
+                    <li><strong>Saqqara:</strong> Near the Step Pyramid complex</li>
+                  </ul>
+                  <p className="mt-2">Exact addresses and directions are provided in your booking confirmation.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="location-2">
+                <AccordionTrigger>How do I get to the stable?</AccordionTrigger>
+                <AccordionContent>
+                  <p className="mb-2">Transportation options:</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li><strong>Taxi/Uber:</strong> Most convenient from Cairo hotels (30-45 min)</li>
+                    <li><strong>Hotel pickup:</strong> Some stables offer this service for an additional fee</li>
+                    <li><strong>Tour package:</strong> May include transportation</li>
+                  </ul>
+                  <p className="mt-2">We provide Google Maps directions in your confirmation email.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="location-3">
+                <AccordionTrigger>What time should I arrive?</AccordionTrigger>
+                <AccordionContent>
+                  Please arrive 15-20 minutes before your scheduled ride time for:
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li>Check-in and paperwork</li>
+                    <li>Safety briefing</li>
+                    <li>Horse introduction</li>
+                    <li>Fitting safety equipment</li>
+                  </ul>
+                  <p className="mt-2">Late arrivals may result in shortened ride time or cancellation.</p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </section>
+
+          {/* Experience Questions */}
+          <section id="experience" className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+              <Search className="w-6 h-6 text-primary" />
+              The Experience
+            </h2>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="experience-1">
+                <AccordionTrigger>How long does a typical ride last?</AccordionTrigger>
+                <AccordionContent>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li><strong>Short ride:</strong> 1 hour (most popular for beginners)</li>
+                    <li><strong>Standard ride:</strong> 2 hours</li>
+                    <li><strong>Extended tour:</strong> 3-4 hours (includes breaks)</li>
+                    <li><strong>Sunrise/sunset special:</strong> 1.5-2 hours</li>
+                  </ul>
+                  <p className="mt-2">Actual riding time, safety briefings add 15-20 minutes.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="experience-2">
+                <AccordionTrigger>Can I take photos during the ride?</AccordionTrigger>
+                <AccordionContent>
+                  Yes! Most stables welcome photography. Your guide can help take photos of you with the pyramids. 
+                  Some stables offer professional photography services for an additional fee. Bring a secure bag or strap 
+                  for your phone/camera.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="experience-3">
+                <AccordionTrigger>What will I see during the ride?</AccordionTrigger>
+                <AccordionContent>
+                  <p className="mb-2">Depending on location:</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li><strong>Giza rides:</strong> Views of the Great Pyramids, Sphinx, desert landscape</li>
+                    <li><strong>Saqqara rides:</strong> Step Pyramid, ancient tombs, archaeological sites</li>
+                    <li><strong>Desert routes:</strong> Panoramic views, sunset/sunrise experiences</li>
+                  </ul>
+                  <p className="mt-2">Routes vary by stable and ride duration.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="experience-4">
+                <AccordionTrigger>Are the horses well-treated?</AccordionTrigger>
+                <AccordionContent>
+                  Animal welfare is our priority. All verified stables must meet our standards:
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li>Regular veterinary care and health checks</li>
+                    <li>Proper nutrition and hydration</li>
+                    <li>Adequate rest periods between rides</li>
+                    <li>Clean, comfortable stabling</li>
+                    <li>No overworking or mistreatment</li>
+                  </ul>
+                  <p className="mt-2">We regularly inspect our partner stables to ensure compliance.</p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </section>
+
+          {/* General Questions */}
+          <section id="general">
+            <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+              <HelpCircle className="w-6 h-6 text-primary" />
+              General Information
+            </h2>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="general-1">
+                <AccordionTrigger>Do I need riding experience?</AccordionTrigger>
+                <AccordionContent>
+                  No prior experience needed! Most riders are beginners. Each stable offers horses suitable for all levels:
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li><strong>Beginners:</strong> Gentle, calm horses with full guidance</li>
+                    <li><strong>Intermediate:</strong> More responsive horses for comfortable riders</li>
+                    <li><strong>Advanced:</strong> Spirited horses for experienced equestrians</li>
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="general-2">
+                <AccordionTrigger>What if the weather is bad?</AccordionTrigger>
+                <AccordionContent>
+                  For severe weather (heavy rain, sandstorms, extreme heat), stables may cancel for safety. You'll be offered:
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li>Full refund (100%), or</li>
+                    <li>Free rescheduling to another date</li>
+                  </ul>
+                  <p className="mt-2">You'll be notified as soon as possible if weather cancellation is necessary.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="general-3">
+                <AccordionTrigger>Can I bring my own camera/GoPro?</AccordionTrigger>
+                <AccordionContent>
+                  Yes, personal cameras and GoPros are welcome. Make sure they're securely attached. Some riders use chest mounts 
+                  or helmet mounts for hands-free recording. Drones require special permission from authorities.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="general-4">
+                <AccordionTrigger>How do I contact support?</AccordionTrigger>
+                <AccordionContent>
+                  We're here to help!
+                  <ul className="list-none mt-2 space-y-2">
+                    <li><strong>Email:</strong> support@pyraride.com</li>
+                    <li><strong>Response time:</strong> Within 24 hours</li>
+                    <li><strong>Dashboard:</strong> Use the AI chat assistant for instant help</li>
+                    <li><strong>Phone:</strong> [Contact number to be provided]</li>
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+            </section>
+        </Card>
+
+        {/* Still have questions? */}
+        <Card className="mt-8 p-6 bg-primary/5 border-primary/20">
+          <div className="text-center">
+            <h3 className="text-xl font-semibold mb-2">Still have questions?</h3>
+            <p className="text-muted-foreground mb-4">
+              Can't find what you're looking for? Our support team is ready to help.
+            </p>
             <a
               href="/contact"
-              className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
             >
               Contact Support
             </a>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
