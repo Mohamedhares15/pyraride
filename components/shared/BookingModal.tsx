@@ -228,21 +228,11 @@ export default function BookingModal({
   // Get selected horse name for success message
   const selectedHorse = horses.find(h => h.id === selectedHorseId);
 
-  // Success screen with new design - matching reference image exactly
-  if (bookingSuccess && bookingData) {
-    // Helper to format Google Maps directions URL
-    const gmapsLink =
-      bookingData.location
-        ? `https://maps.google.com/?daddr=${encodeURIComponent(bookingData.location)}`
-        : undefined;
-
-    // Format date for calendar icon display
-    const bookingDate = new Date(bookingData.date);
-    const dayOfMonth = bookingDate.getDate();
-
-    // Set background image on overlay when modal opens
-    useEffect(() => {
-      if (open) {
+  // Set background image on overlay when modal opens and booking is successful
+  useEffect(() => {
+    if (open && bookingSuccess && bookingData) {
+      // Use setTimeout to ensure overlay element exists after Radix renders
+      const timeoutId = setTimeout(() => {
         const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
         if (overlay) {
           overlay.style.backgroundImage = "url('/gallery5.jpeg')";
@@ -264,19 +254,34 @@ export default function BookingModal({
             overlay.appendChild(darkOverlay);
           }
         }
-        return () => {
-          const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
-          if (overlay) {
-            overlay.style.backgroundImage = '';
-            overlay.style.filter = '';
-            overlay.style.transform = '';
-            overlay.style.backgroundColor = '';
-            const darkOverlay = overlay.querySelector('.dark-overlay');
-            if (darkOverlay) darkOverlay.remove();
-          }
-        };
-      }
-    }, [open]);
+      }, 100);
+
+      return () => {
+        clearTimeout(timeoutId);
+        const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+        if (overlay) {
+          overlay.style.backgroundImage = '';
+          overlay.style.filter = '';
+          overlay.style.transform = '';
+          overlay.style.backgroundColor = '';
+          const darkOverlay = overlay.querySelector('.dark-overlay');
+          if (darkOverlay) darkOverlay.remove();
+        }
+      };
+    }
+  }, [open, bookingSuccess, bookingData]);
+
+  // Success screen with new design - matching reference image exactly
+  if (bookingSuccess && bookingData) {
+    // Helper to format Google Maps directions URL
+    const gmapsLink =
+      bookingData.location
+        ? `https://maps.google.com/?daddr=${encodeURIComponent(bookingData.location)}`
+        : undefined;
+
+    // Format date for calendar icon display
+    const bookingDate = new Date(bookingData.date);
+    const dayOfMonth = bookingDate.getDate();
 
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>

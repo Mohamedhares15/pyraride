@@ -70,12 +70,12 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
             </td>
           </tr>
           
-          <!-- Details Card -->
+          <!-- Details Card - All sections inside one card matching reference -->
           <tr>
-            <td style="padding:38px 18px 18px 18px;">
+            <td style="padding:24px 18px;">
               <table width="100%" cellpadding="0" cellspacing="0" style="border-radius: 12px; background: #232328; border:2px solid #35353b;">
                 <tr>
-                  <td style="padding:22px 24px 0 24px;">
+                  <td style="padding:22px 24px 24px 24px;">
                     <!-- Date&Time -->
                     <table width="100%" cellpadding="0" cellspacing="0" align="left" style="margin-bottom:18px;">
                       <tr>
@@ -103,7 +103,7 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
                       </tr>
                     </table>
                     <!-- Location Info -->
-                    <table width="100%" cellpadding="0" cellspacing="0" align="left">
+                    <table width="100%" cellpadding="0" cellspacing="0" align="left" style="margin-bottom:18px;">
                       <tr>
                         <td style="width:56px; vertical-align:top;">
                           <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#10b981"/><path d="M22 13c-4.2 0-7.5 3.18-7.5 7.09 0 5.9 7.13 12.4 7.41 12.64a1 1 0 0 0 1.18 0C22.37 32.5 29.5 26 29.5 20.09 29.5 16.18 26.2 13 22 13zm0 2c3.36 0 6 2.7 6 6.09 0 4.36-5.01 9.18-6 10.01-.99-.83-6-5.65-6-10.01C16 17.7 18.64 15 22 15zm0 2.2a3.1 3.1 0 1 0 .001 6.201A3.1 3.1 0 0 0 22 17.2z" fill="#fff"/><circle cx="22" cy="22.5" r="2" fill="#10b981"/></svg>
@@ -124,18 +124,7 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
                         </td>
                       </tr>
                     </table>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Payment Info -->
-          <tr>
-            <td style="padding:12px 24px 0 24px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#18181b; border-radius:9px; border:1.5px solid #2563eb;">
-                <tr>
-                  <td style="padding:20px 18px;">
+                    <!-- Total Amount - INSIDE the same card -->
                     <table width="100%" cellpadding="0" cellspacing="0" align="left" style="margin-bottom:0;">
                       <tr>
                         <td style="width:56px; vertical-align:top;">
@@ -150,14 +139,6 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
                     </table>
                   </td>
                 </tr>
-              </table>
-            </td>
-          </tr>
-          <!-- Booking Ref -->
-          <tr>
-            <td style="padding:20px 24px 0 24px;">
-              <table width="100%" style="background:#232328;border-radius:6px;">
-                <tr><td style="padding:12px;font-size:13.2px;letter-spacing:0.5px;color:#a1a1aa;">Booking Reference<br><span style="font-family: 'Courier New', monospace;color:#fff;font-size:15px;font-weight:600;">${data.bookingId}</span></td></tr>
               </table>
             </td>
           </tr>
