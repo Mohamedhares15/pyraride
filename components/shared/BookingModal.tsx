@@ -14,11 +14,12 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, Clock, DollarSign, Users, CheckCircle, ArrowRight, Calendar, MapPin, CreditCard, X } from "lucide-react";
+import { CalendarIcon, Clock, DollarSign, Users, CheckCircle, ArrowRight, Calendar, MapPin, Receipt, X } from "lucide-react";
 import LocationMap from "@/components/maps/LocationMap";
 import CalendarSVG from '@/components/icons/CalendarSVG';
 import HorseHeadSVG from '@/components/icons/HorseHeadSVG';
 import PinSVG from '@/components/icons/PinSVG';
+import ReceiptSVG from '@/components/icons/ReceiptSVG';
 import DirectionsArrowSVG from '@/components/icons/DirectionsArrowSVG';
 
 interface Horse {
@@ -239,15 +240,55 @@ export default function BookingModal({
     const bookingDate = new Date(bookingData.date);
     const dayOfMonth = bookingDate.getDate();
 
+    // Set background image on overlay when modal opens
+    useEffect(() => {
+      if (open) {
+        const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+        if (overlay) {
+          overlay.style.backgroundImage = "url('/gallery5.jpeg')";
+          overlay.style.backgroundSize = "cover";
+          overlay.style.backgroundPosition = "center";
+          overlay.style.backgroundRepeat = "no-repeat";
+          overlay.style.filter = "blur(8px)";
+          overlay.style.transform = "scale(1.1)";
+          overlay.style.backgroundColor = "transparent";
+          
+          // Add dark overlay
+          if (!overlay.querySelector('.dark-overlay')) {
+            const darkOverlay = document.createElement('div');
+            darkOverlay.className = 'dark-overlay';
+            darkOverlay.style.position = 'absolute';
+            darkOverlay.style.inset = '0';
+            darkOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+            darkOverlay.style.pointerEvents = 'none';
+            overlay.appendChild(darkOverlay);
+          }
+        }
+        return () => {
+          const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+          if (overlay) {
+            overlay.style.backgroundImage = '';
+            overlay.style.filter = '';
+            overlay.style.transform = '';
+            overlay.style.backgroundColor = '';
+            const darkOverlay = overlay.querySelector('.dark-overlay');
+            if (darkOverlay) darkOverlay.remove();
+          }
+        };
+      }
+    }, [open]);
+
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md p-0 overflow-hidden bg-transparent border-0 shadow-none [&>button]:hidden">
+        <DialogContent 
+          className="max-w-md p-0 overflow-hidden bg-transparent border-0 shadow-none [&>button]:hidden"
+        >
           {/* Dark charcoal card - centered */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
-            className="bg-[#232328] rounded-2xl overflow-hidden shadow-2xl w-full"
+            className="relative bg-[#232328] rounded-2xl overflow-hidden shadow-2xl w-full"
           >
             {/* Green Gradient Header */}
             <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-8 text-center text-white">
@@ -336,53 +377,25 @@ export default function BookingModal({
                       )}
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Total Amount Card */}
-              <div className="p-4 bg-[#18181b] border border-blue-600/30 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <CreditCard className="h-6 w-6 text-blue-500" />
-                  <div>
-                    <p className="text-xs font-semibold tracking-wider text-blue-400 uppercase mb-0.5">
-                      TOTAL AMOUNT
-                    </p>
-                    <p className="text-xl font-bold text-white">
-                      ${bookingData.totalPrice.toFixed(2)}
-                    </p>
-                    <p className="text-xs text-blue-400 italic mt-1">
-                      Payment will be processed on-site or via your preferred method
-                    </p>
+                  {/* Total Amount - inside the same card */}
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      <ReceiptSVG className="w-11 h-11" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold tracking-wider text-[#94a3b8] uppercase mb-1">
+                        TOTAL AMOUNT
+                      </p>
+                      <p className="text-xl font-bold text-white mb-1">
+                        ${bookingData.totalPrice.toFixed(2)}
+                      </p>
+                      <p className="text-sm text-[#cdd1d9]">
+                        Payment will be processed on-site or via your preferred method
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Booking Reference */}
-              <div className="rounded-lg bg-[#232328] border border-[#35353b] p-3">
-                <p className="text-xs text-[#a1a1aa] mb-1">Booking Reference</p>
-                <p className="font-mono font-semibold text-sm text-white">{bookingData.bookingId}</p>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-2">
-                <Button
-                  variant="outline"
-                  className="flex-1 border-[#35353b] text-white hover:bg-[#35353b]"
-                  onClick={() => onOpenChange(false)}
-                >
-                  <X className="mr-2 h-4 w-4" />
-                  Close
-                </Button>
-                <Button
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
-                  onClick={() => {
-                    onOpenChange(false);
-                    window.location.href = "/dashboard/rider";
-                  }}
-                >
-                  <ArrowRight className="mr-2 h-4 w-4" />
-                  View My Bookings
-                </Button>
               </div>
             </div>
           </motion.div>

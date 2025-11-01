@@ -136,14 +136,18 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
               <table width="100%" cellpadding="0" cellspacing="0" style="background:#18181b; border-radius:9px; border:1.5px solid #2563eb;">
                 <tr>
                   <td style="padding:20px 18px;">
-                    <div style="display:flex;align-items:center;font-size:14px;color:#cdd1d9;">
-                      <svg width="28" height="28" style="margin-right:12px;"><circle cx="14" cy="14" r="14" fill="#2563eb"/><path d="M19.9 8c.39 0 .71.31.75.7.02.23-.07.46-.29.62l-9.7 7.3c-.4.3-.96.12-1.13-.36C9 15.9 9 15.43 9.34 15.17l10.02-7.22c.11-.08.25-.13.39-.12zm-7.53 11.85c-.3.22-.33.5-.27.72.07.22.3.41.66.41h3.5c.37 0 .62-.19.66-.41.06-.23.03-.5-.29-.72L13 16.12v-4.5c0-.41-.34-.75-.75-.75s-.75.34-.75.75v4.5l-1.37 1.83z" fill="#fff"/></svg>
-                      <span>
-                        <span style="font-size:12px;font-weight:600;color:#60a5fa;text-transform:uppercase;letter-spacing:0.5px;">TOTAL AMOUNT</span><br />
-                        <span style="font-size:1.32em;color:#fff;font-weight:700;display:inline-block;margin-top:2px;">$${data.totalPrice.toFixed(2)}</span>
-                      </span>
-                    </div>
-                    <div style="font-size:11.5px; color:#60a5fa; margin-top:3px; font-style:italic;">Payment will be processed on-site or via your preferred method</div>
+                    <table width="100%" cellpadding="0" cellspacing="0" align="left" style="margin-bottom:0;">
+                      <tr>
+                        <td style="width:56px; vertical-align:top;">
+                          <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#2563eb"/><rect x="10" y="14" width="24" height="20" rx="2" fill="#fff" /><line x1="13" y1="18" x2="31" y2="18" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" /><line x1="13" y1="22" x2="31" y2="22" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" /><line x1="13" y1="26" x2="27" y2="26" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" /><path d="M10 14 Q12 13 14 14 Q16 13 18 14 Q20 13 22 14 Q24 13 26 14 Q28 13 30 14 Q32 13 34 14" stroke="#2563eb" stroke-width="1.5" fill="none" stroke-linecap="round" /></svg>
+                        </td>
+                        <td style="padding-left:12px;">
+                          <div style="font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#94a3b8;">TOTAL AMOUNT</div>
+                          <div style="font-size:1.32em;font-weight:700;color:#fff; margin-top:2px; margin-bottom:4px;">$${data.totalPrice.toFixed(2)}</div>
+                          <div style="color:#cdd1d9;font-size:13px;">Payment will be processed on-site or via your preferred method</div>
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
