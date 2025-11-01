@@ -315,12 +315,12 @@ export default function BookingModal({
         <DialogContent 
           className="max-w-md p-0 overflow-hidden bg-transparent border-0 shadow-none [&>button]:hidden"
         >
-          {/* Dark charcoal card - centered */}
+          {/* White/Light card - centered */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
-            className="relative bg-[#232328] rounded-2xl overflow-hidden shadow-2xl w-full"
+            className="relative bg-white rounded-2xl overflow-hidden shadow-2xl w-full"
           >
             {/* Green Gradient Header */}
             <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-8 text-center text-white">
@@ -339,8 +339,8 @@ export default function BookingModal({
             </div>
 
             <div className="p-6">
-              {/* Booking Details Card - dark charcoal with border - all sections inside */}
-              <div className="p-5 border-2 border-[#35353b] rounded-xl bg-[#232328]">
+              {/* Booking Details Card - LIGHT GRAY matching reference */}
+              <div className="p-5 border-2 border-gray-300 rounded-xl bg-gray-100 shadow-lg">
                 <div className="space-y-5">
                   {/* Date & Time */}
                   <div className="flex items-start gap-4">
@@ -348,10 +348,10 @@ export default function BookingModal({
                       <CalendarSVG className="w-11 h-11" day={dayOfMonth} />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-semibold tracking-wider text-[#94a3b8] uppercase mb-1">
+                      <p className="text-xs font-semibold tracking-wider text-gray-500 uppercase mb-1">
                         DATE & TIME
                       </p>
-                      <div className="font-semibold text-base text-white">
+                      <div className="font-semibold text-base text-gray-900">
                         {new Date(bookingData.date).toLocaleDateString('en-US', {
                           weekday: 'long',
                           year: 'numeric',
@@ -359,7 +359,7 @@ export default function BookingModal({
                           day: 'numeric',
                         })}
                       </div>
-                      <div className="text-sm text-[#cdd1d9] mt-0.5">
+                      <div className="text-sm text-gray-600 mt-0.5">
                         {bookingData.startTime} - {bookingData.endTime}
                       </div>
                     </div>
@@ -371,13 +371,13 @@ export default function BookingModal({
                       <HorseHeadSVG className="w-11 h-11" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-semibold tracking-wider text-[#94a3b8] uppercase mb-1">
+                      <p className="text-xs font-semibold tracking-wider text-gray-500 uppercase mb-1">
                         HORSE INFORMATION
                       </p>
-                      <div className="font-semibold text-base text-white">
+                      <div className="font-semibold text-base text-gray-900">
                         {bookingData.horseName}
                       </div>
-                      <div className="text-sm text-[#cdd1d9] mt-0.5">
+                      <div className="text-sm text-gray-600 mt-0.5">
                         {bookingData.riders} {bookingData.riders === 1 ? 'rider' : 'riders'}
                       </div>
                     </div>
@@ -389,10 +389,10 @@ export default function BookingModal({
                       <PinSVG className="w-11 h-11" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-semibold tracking-wider text-[#94a3b8] uppercase mb-1">
+                      <p className="text-xs font-semibold tracking-wider text-gray-500 uppercase mb-1">
                         LOCATION
                       </p>
-                      <div className="font-semibold text-base text-white leading-tight">
+                      <div className="font-semibold text-base text-gray-900 leading-tight">
                         {bookingData.location}
                       </div>
                       {/* Get Directions Button - gradient matching reference */}
@@ -416,13 +416,13 @@ export default function BookingModal({
                       <ReceiptSVG className="w-11 h-11" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-semibold tracking-wider text-[#94a3b8] uppercase mb-1">
+                      <p className="text-xs font-semibold tracking-wider text-gray-500 uppercase mb-1">
                         TOTAL AMOUNT
                       </p>
-                      <p className="text-2xl font-bold text-white mb-1">
+                      <p className="text-2xl font-bold text-gray-900 mb-1">
                         ${bookingData.totalPrice.toFixed(2)}
                       </p>
-                      <p className="text-sm text-[#cdd1d9] mt-1">
+                      <p className="text-sm text-gray-600 mt-1">
                         Payment will be processed on-site or via your preferred method
                       </p>
                     </div>
