@@ -231,41 +231,68 @@ export default function BookingModal({
   // Set background image on overlay when modal opens and booking is successful
   useEffect(() => {
     if (open && bookingSuccess && bookingData) {
-      // Use setTimeout to ensure overlay element exists after Radix renders
-      const timeoutId = setTimeout(() => {
+      // Use multiple attempts to ensure overlay element exists after Radix renders
+      let timeoutId: NodeJS.Timeout;
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      const applyBackground = () => {
+        attempts++;
         const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
         if (overlay) {
-          overlay.style.backgroundImage = "url('/gallery5.jpeg')";
-          overlay.style.backgroundSize = "cover";
-          overlay.style.backgroundPosition = "center";
-          overlay.style.backgroundRepeat = "no-repeat";
-          overlay.style.filter = "blur(8px)";
-          overlay.style.transform = "scale(1.1)";
-          overlay.style.backgroundColor = "transparent";
+          // Create background image element
+          const bgImage = document.createElement('div');
+          bgImage.className = 'blurred-bg-image';
+          bgImage.style.cssText = `
+            position: absolute;
+            inset: 0;
+            background-image: url('/gallery5.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(8px);
+            transform: scale(1.1);
+            z-index: -1;
+          `;
           
           // Add dark overlay
+          const darkOverlay = document.createElement('div');
+          darkOverlay.className = 'dark-overlay';
+          darkOverlay.style.cssText = `
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            z-index: 0;
+          `;
+
+          // Set overlay styles
+          overlay.style.position = 'relative';
+          overlay.style.backgroundColor = 'transparent';
+          
+          // Add elements if not already present
+          if (!overlay.querySelector('.blurred-bg-image')) {
+            overlay.appendChild(bgImage);
+          }
           if (!overlay.querySelector('.dark-overlay')) {
-            const darkOverlay = document.createElement('div');
-            darkOverlay.className = 'dark-overlay';
-            darkOverlay.style.position = 'absolute';
-            darkOverlay.style.inset = '0';
-            darkOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
-            darkOverlay.style.pointerEvents = 'none';
             overlay.appendChild(darkOverlay);
           }
+        } else if (attempts < maxAttempts) {
+          timeoutId = setTimeout(applyBackground, 100);
         }
-      }, 100);
+      };
+
+      timeoutId = setTimeout(applyBackground, 50);
 
       return () => {
         clearTimeout(timeoutId);
         const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
         if (overlay) {
-          overlay.style.backgroundImage = '';
-          overlay.style.filter = '';
-          overlay.style.transform = '';
-          overlay.style.backgroundColor = '';
+          const bgImage = overlay.querySelector('.blurred-bg-image');
           const darkOverlay = overlay.querySelector('.dark-overlay');
+          if (bgImage) bgImage.remove();
           if (darkOverlay) darkOverlay.remove();
+          overlay.style.backgroundColor = '';
         }
       };
     }
@@ -395,7 +422,7 @@ export default function BookingModal({
                       <p className="text-xl font-bold text-white mb-1">
                         ${bookingData.totalPrice.toFixed(2)}
                       </p>
-                      <p className="text-xs text-[#60a5fa] italic">
+                      <p className="text-sm text-[#cdd1d9]">
                         Payment will be processed on-site or via your preferred method
                       </p>
                     </div>
