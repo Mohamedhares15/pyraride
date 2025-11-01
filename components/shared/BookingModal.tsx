@@ -272,7 +272,9 @@ export default function BookingModal({
 
   // Success screen with new design - matching reference image exactly
   const renderSuccessScreen = () => {
-    if (!bookingSuccess || !bookingData || !bookingDate) return null;
+    if (!bookingSuccess || !bookingData || !bookingDate) {
+      return null;
+    }
     
     return (
       <Dialog key="booking-success" open={open} onOpenChange={onOpenChange}>
