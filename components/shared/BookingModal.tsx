@@ -258,6 +258,7 @@ export default function BookingModal({
         }
       };
     }
+    return undefined;
   }, [open, bookingSuccess, bookingData]);
 
   // Success screen with new design - matching reference image exactly
