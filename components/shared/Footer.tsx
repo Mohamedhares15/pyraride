@@ -1,10 +1,16 @@
 import Link from "next/link";
 import { Instagram, Facebook, Twitter } from "lucide-react";
+import NewsletterSignup from "./NewsletterSignup";
 
 export default function Footer() {
   return (
     <footer className="bg-secondary border-t">
       <div className="mx-auto max-w-7xl px-4 py-12 md:py-16">
+        {/* Newsletter Signup */}
+        <div className="mb-12">
+          <NewsletterSignup />
+        </div>
+
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           

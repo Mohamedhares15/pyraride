@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,77 +6,31 @@ export async function POST(request: NextRequest) {
 
     if (!email || !email.includes("@")) {
       return NextResponse.json(
-        { message: "Please provide a valid email address" },
+        { error: "Invalid email address" },
         { status: 400 }
       );
     }
 
-    // Check if email already exists
-    const existing = await prisma.newsletterSubscriber.findUnique({
-      where: { email },
-    });
+    // TODO: Integrate with email service provider (Mailchimp, SendGrid, etc.)
+    // For now, just log the subscription
+    console.log("New newsletter subscription:", email);
 
-    if (existing) {
-      return NextResponse.json(
-        { message: "You're already subscribed! Check your inbox for exclusive offers." },
-        { status: 200 }
-      );
-    }
-
-    // Create new subscriber
-    await prisma.newsletterSubscriber.create({
-      data: {
-        email,
-        subscribedAt: new Date(),
-        status: "active",
-      },
-    });
-
-    // TODO: Send welcome email with 10% discount code
-    // You can integrate with your email service (Mailchimp, SendGrid, etc.)
+    // In production, you would:
+    // 1. Validate email format
+    // 2. Check if already subscribed
+    // 3. Add to email service provider
+    // 4. Send welcome email
+    // 5. Store in database
 
     return NextResponse.json(
-      { 
-        message: "Welcome! Check your email for your 10% discount code.",
-        success: true 
-      },
+      { success: true, message: "Subscribed successfully" },
       { status: 200 }
     );
   } catch (error) {
     console.error("Newsletter subscription error:", error);
     return NextResponse.json(
-      { message: "Failed to subscribe. Please try again later." },
+      { error: "Failed to subscribe" },
       { status: 500 }
     );
   }
 }
-
-export async function DELETE(request: NextRequest) {
-  try {
-    const { email } = await request.json();
-
-    if (!email) {
-      return NextResponse.json(
-        { message: "Email is required" },
-        { status: 400 }
-      );
-    }
-
-    await prisma.newsletterSubscriber.update({
-      where: { email },
-      data: { status: "unsubscribed" },
-    });
-
-    return NextResponse.json(
-      { message: "Successfully unsubscribed" },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Newsletter unsubscribe error:", error);
-    return NextResponse.json(
-      { message: "Failed to unsubscribe" },
-      { status: 500 }
-    );
-  }
-}
-

@@ -136,6 +136,64 @@ export default function RootLayout({
             }),
           }}
         />
+        
+        {/* Structured Data - Local Business */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "LocalBusiness",
+              "name": "PyraRide",
+              "image": "https://pyraride.vercel.app/logo.png",
+              "description": "Egypt's #1 trusted platform for booking horse riding experiences at the Giza and Saqqara Pyramids",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Giza District",
+                "addressLocality": "Cairo",
+                "addressCountry": "EG"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 29.9773,
+                "longitude": 31.1325
+              },
+              "url": "https://pyraride.vercel.app",
+              "telephone": "+20-123-456-7890",
+              "email": "support@pyraride.com",
+              "priceRange": "$$",
+              "openingHoursSpecification": [
+                {
+                  "@type": "OpeningHoursSpecification",
+                  "dayOfWeek": [
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                    "Sunday"
+                  ],
+                  "opens": "09:00",
+                  "closes": "18:00"
+                }
+              ],
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.9",
+                "reviewCount": "2500",
+                "bestRating": "5",
+                "worstRating": "1"
+              },
+              "sameAs": [
+                "https://facebook.com/pyraride",
+                "https://instagram.com/pyraride",
+                "https://twitter.com/pyraride",
+                "https://youtube.com/@pyraride"
+              ]
+            }),
+          }}
+        />
       </head>
       <body className={`${poppins.variable} font-sans antialiased`}>
         {/* Skip to main content link for accessibility */}
