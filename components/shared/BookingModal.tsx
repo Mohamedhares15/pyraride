@@ -228,7 +228,7 @@ export default function BookingModal({
   // Get selected horse name for success message
   const selectedHorse = horses.find(h => h.id === selectedHorseId);
 
-  // Set background image on overlay when modal opens and booking is successful
+  // Set dark blurred background on overlay when modal opens and booking is successful
   useEffect(() => {
     if (open && bookingSuccess && bookingData) {
       // Use multiple attempts to ensure overlay element exists after Radix renders
@@ -240,9 +240,14 @@ export default function BookingModal({
         attempts++;
         const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
         if (overlay) {
-          // Set dark background to match design: #0F1011
-          overlay.style.position = 'relative';
-          overlay.style.backgroundColor = '#0F1011';
+          // Set blurred pyramid background matching design.png
+          overlay.style.backgroundImage = "url('/gallery5.jpeg')";
+          overlay.style.backgroundSize = "cover";
+          overlay.style.backgroundPosition = "center";
+          overlay.style.backgroundRepeat = "no-repeat";
+          overlay.style.filter = "blur(8px) brightness(0.4)";
+          overlay.style.transform = "scale(1.1)";
+          overlay.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
         } else if (attempts < maxAttempts) {
           timeoutId = setTimeout(applyBackground, 100);
         }
@@ -254,7 +259,13 @@ export default function BookingModal({
         clearTimeout(timeoutId);
         const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
         if (overlay) {
+          overlay.style.backgroundImage = '';
+          overlay.style.filter = '';
+          overlay.style.transform = '';
           overlay.style.backgroundColor = '';
+          overlay.style.backgroundSize = '';
+          overlay.style.backgroundPosition = '';
+          overlay.style.backgroundRepeat = '';
         }
       };
     }
@@ -277,193 +288,107 @@ export default function BookingModal({
         <DialogContent 
           className="max-w-md p-0 overflow-hidden bg-transparent border-0 shadow-none [&>button]:hidden"
         >
-          {/* White card container - IDENTICAL to design.png */}
+          {/* DARK card container - IDENTICAL to design.png */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
-            className="relative bg-white rounded-2xl overflow-hidden shadow-2xl w-full max-w-md"
+            className="relative rounded-3xl overflow-hidden shadow-2xl w-full max-w-md"
+            style={{
+              background: "rgba(28, 28, 30, 0.95)",
+              backdropFilter: "blur(20px)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
           >
-            {/* Green Gradient Header - IDENTICAL to design.png */}
-            <div className="px-6 py-8 text-center text-white" style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)" }}>
+            {/* Header with checkmark and title */}
+            <div className="px-8 py-8 text-center">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                className="mb-4"
+                className="mb-6"
               >
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(8px)" }}>
-                  <CheckCircle className="h-10 w-10 text-white" />
+                <div 
+                  className="mx-auto flex h-16 w-16 items-center justify-center rounded-full" 
+                  style={{ background: "rgba(16, 185, 129, 0.2)", border: "2px solid rgba(16, 185, 129, 0.4)" }}
+                >
+                  <CheckCircle className="h-8 w-8" style={{ color: "#10b981" }} />
                 </div>
               </motion.div>
-              <h2 className="text-2xl font-bold mb-2" style={{ fontSize: "32px", fontWeight: 600, letterSpacing: "-0.01em" }}>Booking Confirmed</h2>
-              <p className="text-green-50" style={{ fontSize: "18px", lineHeight: "1.2", color: "rgba(255,255,255,0.9)" }}>Your adventure is ready!</p>
+              <h2 className="text-3xl font-bold mb-2 text-white">Booking Confirmed</h2>
+              <p className="text-base text-gray-300">Your adventure is ready!</p>
             </div>
 
-            {/* Details Cards - SEPARATE WHITE CARDS IDENTICAL to design.png */}
-            <div className="p-6 bg-white" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              {/* Date & Time Card - SEPARATE WHITE CARD */}
-              <div
-                className="flex items-start"
-                style={{
-                  padding: "20px",
-                  borderRadius: "16px",
-                  background: "#FFFFFF",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                  border: "1px solid #E5E7EB",
-                  gap: "12px",
-                }}
-              >
-                <div
-                  className="flex-shrink-0 flex items-center justify-center"
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    background: "#2563eb",
-                    borderRadius: "12px",
-                  }}
-                >
-                  <CalendarSVG className="w-6 h-6" day={dayOfMonth} />
-                </div>
+            {/* Details in ONE dark card - IDENTICAL to design.png */}
+            <div className="px-8 pb-8 space-y-6">
+              {/* Date & Time */}
+              <div className="flex items-start gap-4">
+                <Calendar className="w-8 h-8 text-white flex-shrink-0 mt-1" />
                 <div className="flex-1">
-                  <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
-                    DATE &amp; TIME
-                  </p>
-                  <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#1f2937" }}>
+                  <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">DATE & TIME</p>
+                  <p className="text-base font-semibold text-white">
                     {new Date(bookingData.date).toLocaleDateString('en-US', {
                       weekday: 'long',
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
                     })}
-                  </div>
-                  <div className="font-normal" style={{ fontSize: "14px", lineHeight: "1.3", color: "#6b7280" }}>
-                    {bookingData.startTime} - {bookingData.endTime}
-                  </div>
+                  </p>
+                  <p className="text-sm text-gray-300 mt-0.5">
+                    {bookingData.startTime} – {bookingData.endTime}
+                  </p>
                 </div>
               </div>
 
-              {/* Horse Information Card - SEPARATE WHITE CARD */}
-              <div
-                className="flex items-start"
-                style={{
-                  padding: "20px",
-                  borderRadius: "16px",
-                  background: "#FFFFFF",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                  border: "1px solid #E5E7EB",
-                  gap: "12px",
-                }}
-              >
-                <div
-                  className="flex-shrink-0 flex items-center justify-center"
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    background: "#8b5cf6",
-                    borderRadius: "12px",
-                  }}
-                >
-                  <HorseHeadSVG className="w-6 h-6" />
-                </div>
+              {/* Horse Information */}
+              <div className="flex items-start gap-4">
+                <svg className="w-8 h-8 text-white flex-shrink-0 mt-1" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 7c-2 0-3.5 1-4.5 2.5-1-1-2-1-2.5-0.5-0.5 0.5-1 1-0.5 2s1 1 1.5 0.5c0.5-0.2 1-0.5 1.5-1 0.5 0.5 1 1.5 2 2 1 0.5 2 0.5 2.5 0 0.5 0.5 1 0.5 2 0.5 1 0 1.5-0.2 2-0.5 1 0.5 2 0.5 2.5 0 1-0.5 2-1 2-1.5 0.5 0.5 1 1 1.5 0.5 0.5-0.5 0.5-1.5 0-2-0.5-0.5-1.5 0-2.5 0.5-1-1.5-2.5-2.5-4.5-2.5z" />
+                </svg>
                 <div className="flex-1">
-                  <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
-                    HORSE INFORMATION
-                  </p>
-                  <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#1f2937" }}>
-                    {bookingData.horseName}
-                  </div>
-                  <div className="font-normal" style={{ fontSize: "14px", lineHeight: "1.3", color: "#6b7280" }}>
+                  <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">HORSE INFORMATION</p>
+                  <p className="text-base font-semibold text-white">{bookingData.horseName}</p>
+                  <p className="text-sm text-gray-300 mt-0.5">
                     {bookingData.riders} {bookingData.riders === 1 ? 'rider' : 'riders'}
-                  </div>
+                  </p>
                 </div>
               </div>
 
-              {/* Location Card - SEPARATE WHITE CARD */}
-              <div
-                className="flex items-start"
-                style={{
-                  padding: "20px",
-                  borderRadius: "16px",
-                  background: "#FFFFFF",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                  border: "1px solid #E5E7EB",
-                  gap: "12px",
-                }}
-              >
-                <div
-                  className="flex-shrink-0 flex items-center justify-center"
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    background: "#10b981",
-                    borderRadius: "12px",
-                  }}
-                >
-                  <PinSVG className="w-6 h-6" />
-                </div>
+              {/* Location */}
+              <div className="flex items-start gap-4">
+                <MapPin className="w-8 h-8 text-white flex-shrink-0 mt-1" />
                 <div className="flex-1">
-                  <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
-                    LOCATION
-                  </p>
-                  <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#1f2937" }}>
-                    {bookingData.location}
-                  </div>
-                  {/* Get Directions Button */}
+                  <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">LOCATION</p>
+                  <p className="text-base font-semibold text-white mb-4">{bookingData.location}</p>
                   {gmapsLink && (
                     <a
                       href={gmapsLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-4 inline-flex items-center justify-center w-full rounded-2xl transition-all text-white font-semibold"
+                      className="inline-flex items-center justify-center w-full rounded-2xl transition-all text-white font-semibold"
                       style={{
-                        height: "56px",
+                        height: "52px",
                         padding: "0 24px",
-                        borderRadius: "16px",
-                        background: "linear-gradient(90deg, #0D7F94 0%, #144A78 100%)",
-                        fontSize: "16px",
-                        fontWeight: 600,
-                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)",
+                        background: "linear-gradient(90deg, #0d9488 0%, #2563eb 100%)",
+                        fontSize: "15px",
                       }}
                     >
                       Get Directions
-                      <DirectionsArrowSVG className="w-5 h-5 ml-2" />
                     </a>
                   )}
                 </div>
               </div>
 
-              {/* Total Amount Card - SEPARATE WHITE CARD */}
-              <div
-                className="flex items-start"
-                style={{
-                  padding: "20px",
-                  borderRadius: "16px",
-                  background: "#FFFFFF",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                  border: "1px solid #E5E7EB",
-                  gap: "12px",
-                }}
-              >
-                <div
-                  className="flex-shrink-0 flex items-center justify-center"
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    background: "#2563eb",
-                    borderRadius: "12px",
-                  }}
-                >
-                  <ReceiptSVG className="w-6 h-6" />
-                </div>
+              {/* Total Amount */}
+              <div className="flex items-start gap-4 pt-6" style={{ borderTop: "1px solid rgba(255, 255, 255, 0.1)" }}>
+                <svg className="w-8 h-8 text-white flex-shrink-0 mt-1" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="5" y="7" width="14" height="10" rx="1" />
+                  <path d="M5 7 Q6 6 7 7 Q8 6 9 7 Q10 6 11 7 Q12 6 13 7 Q14 6 15 7 Q16 6 17 7 Q18 6 19 7" stroke="rgba(28, 28, 30, 0.95)" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                </svg>
                 <div className="flex-1">
-                  <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
-                    TOTAL AMOUNT
-                  </p>
-                  <p className="font-bold mb-2" style={{ fontSize: "20px", color: "#1f2937", lineHeight: "1.2" }}>
-                    ${bookingData.totalPrice.toFixed(2)}
-                  </p>
-                  <p className="font-normal" style={{ fontSize: "12px", color: "#6b7280", lineHeight: "1.3" }}>
+                  <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">TOTAL AMOUNT</p>
+                  <p className="text-2xl font-bold text-white mb-2">${bookingData.totalPrice.toFixed(2)}</p>
+                  <p className="text-xs text-gray-400 italic">
                     Payment will be processed on-site or via your preferred method
                   </p>
                 </div>
