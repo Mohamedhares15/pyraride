@@ -277,40 +277,27 @@ export default function BookingModal({
         <DialogContent 
           className="max-w-md p-0 overflow-hidden bg-transparent border-0 shadow-none [&>button]:hidden"
         >
-          {/* Dark card - pixel-perfect to design.png */}
+          {/* White card container - IDENTICAL to design.png */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
-            className="relative w-[720px] max-w-full rounded-[28px] overflow-hidden"
-            style={{
-              background: "#111316",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
-              padding: "24px 28px 28px",
-              color: "#FFFFFF",
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', system-ui, sans-serif",
-            }}
+            className="relative bg-white rounded-2xl overflow-hidden shadow-2xl w-full max-w-md"
           >
-            {/* Header - pixel perfect */}
-            <div className="flex flex-col items-center gap-4">
-              {/* Check circle: 64x64, radius 32, bg #1E3B2F, check #8FE3B4 */}
+            {/* Green Gradient Header - IDENTICAL to design.png */}
+            <div className="px-6 py-8 text-center text-white" style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)" }}>
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                className="w-16 h-16 rounded-full flex items-center justify-center"
-                style={{ background: "#1E3B2F" }}
+                className="mb-4"
               >
-                <CheckCircle className="w-6 h-6" style={{ color: "#8FE3B4" }} />
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(8px)" }}>
+                  <CheckCircle className="h-10 w-10 text-white" />
+                </div>
               </motion.div>
-              {/* H1: 32px, Semibold, -1% letter spacing, spacing 16px from icon */}
-              <h2 className="font-semibold mb-2" style={{ fontSize: "32px", letterSpacing: "-0.01em", marginTop: "0" }}>
-                Booking Confirmed
-              </h2>
-              {/* Subtitle: 18px, Regular, 120% line-height, color #C9CDD1, spacing 8px from H1 */}
-              <p className="font-normal" style={{ fontSize: "18px", lineHeight: "1.2", color: "#C9CDD1", marginTop: "0" }}>
-                Your adventure is ready!
-              </p>
+              <h2 className="text-2xl font-bold mb-2" style={{ fontSize: "32px", fontWeight: 600, letterSpacing: "-0.01em" }}>Booking Confirmed</h2>
+              <p className="text-green-50" style={{ fontSize: "18px", lineHeight: "1.2", color: "rgba(255,255,255,0.9)" }}>Your adventure is ready!</p>
             </div>
 
             {/* Details Panel - LIGHT GRAY card IDENTICAL to design.png */}
