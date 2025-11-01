@@ -270,15 +270,14 @@ export default function BookingModal({
   const bookingDate = bookingSuccess && bookingData ? new Date(bookingData.date) : null;
   const dayOfMonth = bookingDate ? bookingDate.getDate() : 0;
 
-  // Success screen with new design - matching reference image exactly
-  const renderSuccessScreen = () => {
+  // Render success screen JSX
+  const renderSuccessContent = () => {
     if (!bookingSuccess || !bookingData || !bookingDate) {
       return null;
     }
     
     return (
-      <Dialog key="booking-success" open={open} onOpenChange={onOpenChange}>
-        <DialogContent 
+      <DialogContent 
           className="max-w-md p-0 overflow-hidden bg-transparent border-0 shadow-none [&>button]:hidden"
         >
           {/* Dark card - pixel-perfect to design.png */}
@@ -483,14 +482,19 @@ export default function BookingModal({
             </div>
           </motion.div>
         </DialogContent>
-      </Dialog>
+      </>
     );
   };
 
   // Success screen or booking form
-  const successScreen = renderSuccessScreen();
-  if (successScreen) {
-    return successScreen;
+  const successContent = renderSuccessContent();
+  
+  if (successContent) {
+    return (
+      <Dialog key="booking-success" open={open} onOpenChange={onOpenChange}>
+        {successContent}
+      </Dialog>
+    );
   }
 
   // Booking form
