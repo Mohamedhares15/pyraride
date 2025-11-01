@@ -338,8 +338,8 @@ export default function BookingModal({
               <p className="text-green-50">Your adventure is ready!</p>
             </div>
 
-            <div className="p-6">
-              {/* Booking Details Card - dark charcoal with border */}
+            <div className="p-6 space-y-0">
+              {/* Booking Details Card - dark charcoal with border - all sections inside */}
               <div className="p-5 border-2 border-[#35353b] rounded-xl bg-[#232328]">
                 <div className="space-y-5">
                   {/* Date & Time */}
