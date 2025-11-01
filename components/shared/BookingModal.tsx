@@ -271,8 +271,8 @@ export default function BookingModal({
   const dayOfMonth = bookingDate ? bookingDate.getDate() : 0;
 
   // Success screen with new design - matching reference image exactly
-  if (bookingSuccess && bookingData) {
-    return (
+  if (bookingSuccess && bookingData && bookingDate) {
+    const successContent = (
       <Dialog key="booking-success" open={open} onOpenChange={onOpenChange}>
         <DialogContent 
           className="max-w-md p-0 overflow-hidden bg-transparent border-0 shadow-none [&>button]:hidden"
@@ -481,6 +481,7 @@ export default function BookingModal({
         </DialogContent>
       </Dialog>
     );
+    return successContent;
   }
 
   // Booking form
