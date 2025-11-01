@@ -324,7 +324,7 @@ export default function BookingModal({
                   border: "1px solid #E5E7EB",
                 }}
               >
-                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                 {/* Date & Time - IDENTICAL to design.png */}
                 <div className="flex items-start" style={{ gap: "12px" }}>
                   {/* Icon: 40x40, radius 12, colored background */}
