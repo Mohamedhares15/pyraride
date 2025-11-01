@@ -313,43 +313,37 @@ export default function BookingModal({
               </p>
             </div>
 
-            {/* Details Panel - pixel perfect */}
-            <div
-              className="mt-6"
-              style={{
-                padding: "24px",
-                borderRadius: "20px",
-                background: "#1A1D20",
-                boxShadow: "0 6px 24px rgba(0,0,0,0.25)",
-              }}
-            >
-              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                {/* Date & Time - pixel perfect */}
+            {/* Details Panel - LIGHT GRAY card IDENTICAL to design.png */}
+            <div className="p-6 bg-white">
+              <div
+                style={{
+                  padding: "24px",
+                  borderRadius: "20px",
+                  background: "#F5F5F5",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                  border: "1px solid #E5E7EB",
+                }}
+              >
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                {/* Date & Time - IDENTICAL to design.png */}
                 <div className="flex items-start" style={{ gap: "12px" }}>
-                  {/* Icon cell: 40x40, radius 12, bg #262B30 */}
+                  {/* Icon: 40x40, radius 12, colored background */}
                   <div
                     className="flex-shrink-0 flex items-center justify-center rounded-xl"
                     style={{
                       width: "40px",
                       height: "40px",
-                      background: "#262B30",
+                      background: "#2563eb",
                       borderRadius: "12px",
-                      color: "#FFFFFF",
                     }}
                   >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: "currentColor" }}>
-                      <rect x="4" y="6" width="16" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                      <path d="M4 10h16M8 4v4M16 4v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                      <text x="12" y="17" textAnchor="middle" fontSize="10" fill="currentColor" fontWeight="600">{dayOfMonth}</text>
-                    </svg>
+                    <CalendarSVG className="w-6 h-6" day={dayOfMonth} />
                   </div>
                   <div className="flex-1">
-                    {/* Label: 12px, Medium, +4% tracking, uppercase, color #8D949B, spacing 8px */}
-                    <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#8D949B", marginTop: "0" }}>
+                    <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
                       DATE &amp; TIME
                     </p>
-                    {/* Primary value: 16px, Semibold, 130% line-height */}
-                    <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#FFFFFF" }}>
+                    <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#1f2937" }}>
                       {new Date(bookingData.date).toLocaleDateString('en-US', {
                         weekday: 'long',
                         year: 'numeric',
@@ -357,83 +351,73 @@ export default function BookingModal({
                         day: 'numeric',
                       })}
                     </div>
-                    {/* Secondary value: 14px, Regular, 130%, color #8D949B */}
-                    <div className="font-normal" style={{ fontSize: "14px", lineHeight: "1.3", color: "#8D949B" }}>
+                    <div className="font-normal" style={{ fontSize: "14px", lineHeight: "1.3", color: "#6b7280" }}>
                       {bookingData.startTime} - {bookingData.endTime}
                     </div>
                   </div>
                 </div>
 
-                {/* Horse Information - pixel perfect */}
+                {/* Horse Information - IDENTICAL to design.png */}
                 <div className="flex items-start" style={{ gap: "12px" }}>
                   <div
                     className="flex-shrink-0 flex items-center justify-center rounded-xl"
                     style={{
                       width: "40px",
                       height: "40px",
-                      background: "#262B30",
+                      background: "#8b5cf6",
                       borderRadius: "12px",
-                      color: "#FFFFFF",
                     }}
                   >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: "currentColor" }}>
-                      <path d="M12 7c-2 0-3.5 1-4.5 2.5-1-1-2-1-2.5-0.5-0.5 0.5-1 1-0.5 2s1 1 1.5 0.5c0.5-0.2 1-0.5 1.5-1 0.5 0.5 1 1.5 2 2 1 0.5 2 0.5 2.5 0 0.5 0.5 1 0.5 2 0.5 1 0 1.5-0.2 2-0.5 1 0.5 2 0.5 2.5 0 1-0.5 2-1 2-1.5 0.5 0.5 1 1 1.5 0.5 0.5-0.5 0.5-1.5 0-2-0.5-0.5-1.5 0-2.5 0.5-1-1.5-2.5-2.5-4.5-2.5z" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                      <circle cx="12" cy="11" r="1" fill="currentColor"/>
-                    </svg>
+                    <HorseHeadSVG className="w-6 h-6" />
                   </div>
                   <div className="flex-1">
-                    <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#8D949B", marginTop: "0" }}>
+                    <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
                       HORSE INFORMATION
                     </p>
-                    <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#FFFFFF" }}>
+                    <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#1f2937" }}>
                       {bookingData.horseName}
                     </div>
-                    <div className="font-normal" style={{ fontSize: "14px", lineHeight: "1.3", color: "#8D949B" }}>
+                    <div className="font-normal" style={{ fontSize: "14px", lineHeight: "1.3", color: "#6b7280" }}>
                       {bookingData.riders} {bookingData.riders === 1 ? 'rider' : 'riders'}
                     </div>
                   </div>
                 </div>
 
-                {/* Location - pixel perfect */}
+                {/* Location - IDENTICAL to design.png */}
                 <div className="flex items-start" style={{ gap: "12px" }}>
                   <div
                     className="flex-shrink-0 flex items-center justify-center rounded-xl"
                     style={{
                       width: "40px",
                       height: "40px",
-                      background: "#262B30",
+                      background: "#10b981",
                       borderRadius: "12px",
-                      color: "#FFFFFF",
                     }}
                   >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: "currentColor" }}>
-                      <path d="M12 8c-2.5 0-4.5 1.5-4.5 3.5 0 3 4.5 6 4.5 6s4.5-3 4.5-6c0-2-2-3.5-4.5-3.5zm0 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                      <circle cx="12" cy="11" r="1" fill="currentColor"/>
-                    </svg>
+                    <PinSVG className="w-6 h-6" />
                   </div>
                   <div className="flex-1">
-                    <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#8D949B", marginTop: "0" }}>
+                    <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
                       LOCATION
                     </p>
-                    <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#FFFFFF" }}>
+                    <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#1f2937" }}>
                       {bookingData.location}
                     </div>
-                    {/* CTA Button - pixel perfect: 56px height, 24px padding, 16px radius, gradient #0D7F94 to #144A78, 20px top spacing */}
+                    {/* Get Directions Button - IDENTICAL to design.png */}
                     {gmapsLink && (
                       <a
                         href={gmapsLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mt-5 inline-flex items-center justify-center w-full rounded-2xl transition-all"
+                        className="mt-5 inline-flex items-center justify-center w-full rounded-2xl transition-all text-white font-semibold"
                         style={{
                           height: "56px",
                           padding: "0 24px",
                           borderRadius: "16px",
-                          background: "linear-gradient(90deg, #0D7F94, #144A78)",
-                          color: "#FFFFFF",
+                          background: "linear-gradient(90deg, #0d9488 0%, #2563eb 100%)",
                           fontSize: "16px",
                           fontWeight: 600,
-                          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)",
+                          boxShadow: "0 2px 8px rgba(13, 148, 136, 0.3)",
                         }}
                       >
                         Get Directions
@@ -443,39 +427,31 @@ export default function BookingModal({
                   </div>
                 </div>
 
-                {/* Total Amount - pixel perfect, 24px top spacing, divider */}
-                <div className="flex items-start pt-6" style={{ gap: "12px", borderTop: "1px solid #2A2F34", marginTop: "24px", paddingTop: "16px" }}>
+                {/* Total Amount - IDENTICAL to design.png */}
+                <div className="flex items-start pt-6" style={{ gap: "12px", borderTop: "1px solid #E5E7EB", marginTop: "24px", paddingTop: "16px" }}>
                   <div
                     className="flex-shrink-0 flex items-center justify-center rounded-xl"
                     style={{
                       width: "40px",
                       height: "40px",
-                      background: "#262B30",
+                      background: "#2563eb",
                       borderRadius: "12px",
-                      color: "#FFFFFF",
                     }}
                   >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: "currentColor" }}>
-                      <rect x="5" y="7" width="14" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                      <line x1="7" y1="9" x2="17" y2="9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                      <line x1="7" y1="12" x2="17" y2="12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                      <line x1="7" y1="15" x2="14" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                      <path d="M5 7 Q6 6 7 7 Q8 6 9 7 Q10 6 11 7 Q12 6 13 7 Q14 6 15 7 Q16 6 17 7 Q18 6 19 7" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-                    </svg>
+                    <ReceiptSVG className="w-6 h-6" />
                   </div>
                   <div className="flex-1">
-                    <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#8D949B", marginTop: "0" }}>
+                    <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
                       TOTAL AMOUNT
                     </p>
-                    {/* Amount: 20px, Bold */}
-                    <p className="font-bold mb-2" style={{ fontSize: "20px", color: "#FFFFFF", lineHeight: "1.2" }}>
+                    <p className="font-bold mb-2" style={{ fontSize: "20px", color: "#1f2937", lineHeight: "1.2" }}>
                       ${bookingData.totalPrice.toFixed(2)}
                     </p>
-                    {/* Note: 12px, tertiary, 130% line-height */}
-                    <p className="font-normal" style={{ fontSize: "12px", color: "#8D949B", lineHeight: "1.3" }}>
+                    <p className="font-normal" style={{ fontSize: "12px", color: "#6b7280", lineHeight: "1.3" }}>
                       Payment will be processed on-site or via your preferred method
                     </p>
                   </div>
+                </div>
                 </div>
               </div>
             </div>
