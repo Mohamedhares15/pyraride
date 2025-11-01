@@ -338,7 +338,7 @@ export default function BookingModal({
               <p className="text-green-50">Your adventure is ready!</p>
             </div>
 
-            <div className="p-6 space-y-0">
+            <div className="p-6">
               {/* Booking Details Card - dark charcoal with border - all sections inside */}
               <div className="p-5 border-2 border-[#35353b] rounded-xl bg-[#232328]">
                 <div className="space-y-5">
@@ -419,10 +419,10 @@ export default function BookingModal({
                       <p className="text-xs font-semibold tracking-wider text-[#94a3b8] uppercase mb-1">
                         TOTAL AMOUNT
                       </p>
-                      <p className="text-xl font-bold text-white mb-1">
+                      <p className="text-2xl font-bold text-white mb-1">
                         ${bookingData.totalPrice.toFixed(2)}
                       </p>
-                      <p className="text-sm text-[#cdd1d9]">
+                      <p className="text-sm text-[#cdd1d9] mt-1">
                         Payment will be processed on-site or via your preferred method
                       </p>
                     </div>
