@@ -338,20 +338,20 @@ export default function BookingModal({
               <p className="text-green-50">Your adventure is ready!</p>
             </div>
 
-            <div className="p-6">
-              {/* Booking Details Card - LIGHT GRAY matching reference */}
-              <div className="p-5 border-2 border-gray-300 rounded-xl bg-gray-100 shadow-lg">
-                <div className="space-y-5">
+            <div className="p-6 bg-white">
+              {/* Booking Details Card - IDENTICAL to reference */}
+              <div className="p-5 border border-gray-200 rounded-xl bg-[#f5f5f5] shadow-md">
+                <div className="space-y-[18px]">
                   {/* Date & Time */}
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0">
                       <CalendarSVG className="w-11 h-11" day={dayOfMonth} />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-semibold tracking-wider text-gray-500 uppercase mb-1">
-                        DATE & TIME
+                      <p className="text-[11px] font-bold tracking-[0.5px] text-gray-500 uppercase mb-1 leading-tight">
+                        DATE &amp; TIME
                       </p>
-                      <div className="font-semibold text-base text-gray-900">
+                      <div className="font-semibold text-[15px] text-[#1f2937] leading-snug">
                         {new Date(bookingData.date).toLocaleDateString('en-US', {
                           weekday: 'long',
                           year: 'numeric',
@@ -359,7 +359,7 @@ export default function BookingModal({
                           day: 'numeric',
                         })}
                       </div>
-                      <div className="text-sm text-gray-600 mt-0.5">
+                      <div className="text-[13px] text-gray-600 mt-[2px] leading-snug">
                         {bookingData.startTime} - {bookingData.endTime}
                       </div>
                     </div>
@@ -371,13 +371,13 @@ export default function BookingModal({
                       <HorseHeadSVG className="w-11 h-11" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-semibold tracking-wider text-gray-500 uppercase mb-1">
+                      <p className="text-[11px] font-bold tracking-[0.5px] text-gray-500 uppercase mb-1 leading-tight">
                         HORSE INFORMATION
                       </p>
-                      <div className="font-semibold text-base text-gray-900">
+                      <div className="font-semibold text-[15px] text-[#1f2937] leading-snug">
                         {bookingData.horseName}
                       </div>
-                      <div className="text-sm text-gray-600 mt-0.5">
+                      <div className="text-[13px] text-gray-600 mt-[2px] leading-snug">
                         {bookingData.riders} {bookingData.riders === 1 ? 'rider' : 'riders'}
                       </div>
                     </div>
@@ -389,19 +389,19 @@ export default function BookingModal({
                       <PinSVG className="w-11 h-11" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-semibold tracking-wider text-gray-500 uppercase mb-1">
+                      <p className="text-[11px] font-bold tracking-[0.5px] text-gray-500 uppercase mb-1 leading-tight">
                         LOCATION
                       </p>
-                      <div className="font-semibold text-base text-gray-900 leading-tight">
+                      <div className="font-semibold text-[15px] text-[#1f2937] leading-tight mb-[2px]">
                         {bookingData.location}
                       </div>
-                      {/* Get Directions Button - gradient matching reference */}
+                      {/* Get Directions Button - IDENTICAL to reference */}
                       {gmapsLink && (
                         <a
                           href={gmapsLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="mt-3 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white font-semibold py-2.5 px-6 rounded-full shadow-lg transition-all w-full"
+                          className="mt-3 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#0d9488] to-[#2563eb] text-white font-bold text-base py-3 px-7 rounded-full shadow-md transition-all w-full"
                         >
                           Get Directions
                           <DirectionsArrowSVG className="w-5 h-5" />
@@ -416,13 +416,13 @@ export default function BookingModal({
                       <ReceiptSVG className="w-11 h-11" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-semibold tracking-wider text-gray-500 uppercase mb-1">
+                      <p className="text-[11px] font-bold tracking-[0.5px] text-gray-500 uppercase mb-1 leading-tight">
                         TOTAL AMOUNT
                       </p>
-                      <p className="text-2xl font-bold text-gray-900 mb-1">
+                      <p className="text-xl font-bold text-[#1f2937] mb-[4px] leading-tight">
                         ${bookingData.totalPrice.toFixed(2)}
                       </p>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-[13px] text-gray-600 leading-snug">
                         Payment will be processed on-site or via your preferred method
                       </p>
                     </div>

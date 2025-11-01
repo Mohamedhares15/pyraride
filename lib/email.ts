@@ -70,12 +70,12 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
             </td>
           </tr>
           
-          <!-- Details Card - LIGHT GRAY matching reference -->
+          <!-- Details Card - IDENTICAL to reference -->
           <tr>
-            <td style="padding:24px 18px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="border-radius: 12px; background: #f3f4f6; border:2px solid #d1d5db; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <td style="padding:24px 18px; background:#ffffff;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="border-radius: 12px; background: #f5f5f5; border:1px solid #e5e7eb; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
                 <tr>
-                  <td style="padding:22px 24px 24px 24px;">
+                  <td style="padding:20px 24px 24px 24px;">
                     <!-- Date&Time -->
                     <table width="100%" cellpadding="0" cellspacing="0" align="left" style="margin-bottom:18px;">
                       <tr>
@@ -83,9 +83,9 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
                           <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#2563eb"/><rect x="10" y="16" width="24" height="16" rx="4" fill="#fff" /><rect x="10" y="13" width="24" height="5" rx="2" fill="#1d4ed8" /><rect x="15" y="12" width="2.5" height="4" rx="1.25" fill="#2563eb"/><rect x="26.5" y="12" width="2.5" height="4" rx="1.25" fill="#2563eb"/><text x="50%" y="65%" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="14" fill="#2563eb">${dayOfMonth}</text></svg>
                         </td>
                         <td style="padding-left:12px;">
-                          <div style="font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#6b7280;">DATE &amp; TIME</div>
-                          <div style="font-size:1.14rem;font-weight:600;color:#111827; margin-top:2px;">${new Date(data.date).toLocaleDateString("en-US", {weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
-                          <div style="color:#4b5563;font-size:13px;">${data.startTime} - ${data.endTime}</div>
+                          <div style="font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#6b7280;line-height:1.2;">DATE &amp; TIME</div>
+                          <div style="font-size:15px;font-weight:600;color:#1f2937; margin-top:2px;line-height:1.3;">${new Date(data.date).toLocaleDateString("en-US", {weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+                          <div style="color:#4b5563;font-size:13px;line-height:1.3;margin-top:2px;">${data.startTime} - ${data.endTime}</div>
                         </td>
                       </tr>
                     </table>
@@ -96,9 +96,9 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
                           <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#8b5cf6"/><path d="M22 14c-3 0-5.5 1.5-6.5 3.5-1-1-2.5-1.5-3.5-1-1 .5-1.5 1.5-1 2.5.5 1 1.5 1.5 2.5 1 .8-.3 1.5-.8 2-1.5.5 1 1.5 2 3 2.5 1.5.5 3 .5 4 0 .8.5 1.8.8 3 .8 1.2 0 2.2-.3 3-.8 1 .5 2.5.5 4 0 1.5-.5 2.5-1.5 3-2.5.5.7 1.2 1.2 2 1.5 1 .5 2 .5 2.5-1 .5-1 0-2-1-2.5-1-.5-2.5 0-3.5 1-1-2-3.5-3.5-6.5-3.5z" fill="#fff"/><circle cx="19" cy="20" r="1.5" fill="#8b5cf6"/><path d="M16 16l1 2-1 1v-3z" fill="#fff"/><path d="M28 16l-1 2 1 1v-3z" fill="#fff"/><ellipse cx="22" cy="26" rx="3" ry="2" fill="#fff" opacity="0.9"/></svg>
                         </td>
                         <td style="padding-left:12px;">
-                          <div style="font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#6b7280;">HORSE INFORMATION</div>
-                          <div style="font-size:1.08rem;font-weight:600;color:#111827; margin-top:2px;">${data.horseName}</div>
-                          <div style="color:#4b5563;font-size:13px;">${data.riders} ${data.riders === 1 ? "rider" : "riders"}</div>
+                          <div style="font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#6b7280;line-height:1.2;">HORSE INFORMATION</div>
+                          <div style="font-size:15px;font-weight:600;color:#1f2937; margin-top:2px;line-height:1.3;">${data.horseName}</div>
+                          <div style="color:#4b5563;font-size:13px;line-height:1.3;margin-top:2px;">${data.riders} ${data.riders === 1 ? "rider" : "riders"}</div>
                         </td>
                       </tr>
                     </table>
@@ -109,9 +109,9 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
                           <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#10b981"/><path d="M22 13c-4.2 0-7.5 3.18-7.5 7.09 0 5.9 7.13 12.4 7.41 12.64a1 1 0 0 0 1.18 0C22.37 32.5 29.5 26 29.5 20.09 29.5 16.18 26.2 13 22 13zm0 2c3.36 0 6 2.7 6 6.09 0 4.36-5.01 9.18-6 10.01-.99-.83-6-5.65-6-10.01C16 17.7 18.64 15 22 15zm0 2.2a3.1 3.1 0 1 0 .001 6.201A3.1 3.1 0 0 0 22 17.2z" fill="#fff"/><circle cx="22" cy="22.5" r="2" fill="#10b981"/></svg>
                         </td>
                         <td style="padding-left:12px;">
-                          <div style="font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#6b7280;">LOCATION</div>
-                          <div style="font-size:1.08rem;font-weight:600;color:#111827; margin-top:2px;line-height:1.4;">${data.stableName}</div>
-                          <div style="color:#4b5563;font-size:13px; margin-bottom:12px;line-height:1.4;">${data.stableAddress}</div>
+                          <div style="font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#6b7280;line-height:1.2;">LOCATION</div>
+                          <div style="font-size:15px;font-weight:600;color:#1f2937; margin-top:2px;line-height:1.3;margin-bottom:2px;">${data.stableName}</div>
+                          <div style="color:#4b5563;font-size:13px; margin-bottom:12px;line-height:1.3;">${data.stableAddress}</div>
                           ${directionsLink
                             ? `<a href="${directionsLink}" target="_blank" style="display:inline-block;padding:12px 28px;margin-top:6px;background:linear-gradient(90deg,#0d9488 0%,#2563eb 100%);color:#fff;font-size:1rem;font-weight:700;border-radius:999px;text-decoration:none;box-shadow:0 3px 12px 0 rgba(5,150,105,0.3);width:100%;text-align:center;">
                               <span style="vertical-align:middle;display:inline-block;margin-right:8px;">
@@ -131,9 +131,9 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
                           <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#2563eb"/><rect x="10" y="14" width="24" height="20" rx="2" fill="#fff" /><line x1="13" y1="18" x2="31" y2="18" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" /><line x1="13" y1="22" x2="31" y2="22" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" /><line x1="13" y1="26" x2="27" y2="26" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" /><path d="M10 14 Q12 13 14 14 Q16 13 18 14 Q20 13 22 14 Q24 13 26 14 Q28 13 30 14 Q32 13 34 14" stroke="#2563eb" stroke-width="1.5" fill="none" stroke-linecap="round" /></svg>
                         </td>
                         <td style="padding-left:12px;">
-                          <div style="font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#6b7280;">TOTAL AMOUNT</div>
-                          <div style="font-size:1.32em;font-weight:700;color:#111827; margin-top:2px; margin-bottom:4px;">$${data.totalPrice.toFixed(2)}</div>
-                          <div style="color:#4b5563;font-size:13px;">Payment will be processed on-site or via your preferred method</div>
+                          <div style="font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#6b7280;line-height:1.2;">TOTAL AMOUNT</div>
+                          <div style="font-size:20px;font-weight:700;color:#1f2937; margin-top:2px; margin-bottom:4px;line-height:1.2;">$${data.totalPrice.toFixed(2)}</div>
+                          <div style="color:#4b5563;font-size:13px;line-height:1.3;">Payment will be processed on-site or via your preferred method</div>
                         </td>
                       </tr>
                     </table>
