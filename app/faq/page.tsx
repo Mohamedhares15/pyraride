@@ -1,16 +1,30 @@
-import { Metadata } from "next";
-import { HelpCircle, ChevronDown } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Frequently Asked Questions - PyraRide",
-  description: "Find answers to common questions about booking horse rides at the Giza and Saqqara Pyramids.",
-};
+import { HelpCircle, ChevronDown } from "lucide-react";
+import { useState } from "react";
+
+function FAQItem({ question, answer }: { question: string; answer: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="border rounded-lg overflow-hidden">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-6 py-4 text-left hover:bg-muted/50 transition-colors flex items-center justify-between gap-4"
+      >
+        <span className="font-semibold pr-4">{question}</span>
+        <ChevronDown 
+          className={`h-5 w-5 text-muted-foreground transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+      {isOpen && (
+        <div className="px-6 pb-4 text-muted-foreground whitespace-pre-line text-sm">
+          {answer}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function FAQPage() {
   const faqCategories = [
@@ -233,22 +247,11 @@ export default function FAQPage() {
               {category.category}
             </h2>
             
-            <Accordion type="single" collapsible className="w-full space-y-2">
+            <div className="space-y-2">
               {category.questions.map((item, qIdx) => (
-                <AccordionItem
-                  key={qIdx}
-                  value={`item-${catIdx}-${qIdx}`}
-                  className="border rounded-lg px-4"
-                >
-                  <AccordionTrigger className="text-left hover:no-underline">
-                    <span className="font-semibold pr-4">{item.q}</span>
-                        </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground whitespace-pre-line">
-                    {item.a}
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
+                <FAQItem key={qIdx} question={item.q} answer={item.a} />
+              ))}
+            </div>
             </section>
           ))}
 
