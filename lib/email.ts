@@ -54,86 +54,132 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Booking Confirmation - PyraRide</title>
 </head>
-<body style="margin:0; padding:0; background:#18181b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
-  <table role="presentation" style="width:100%; border-spacing:0; background-color:#18181b;">
+<body style="margin:0; padding:0; background:#0F1011; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', system-ui, sans-serif;">
+  <table role="presentation" style="width:100%; border-spacing:0; background-color:#0F1011;">
     <tr>
-      <td align="center" style="padding:32px 0;">
-        <table role="presentation" style="max-width:600px; min-width:340px; width:100%; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 32px rgba(0,0,0,0.1);">
-          <!-- Header -->
+      <td align="center" style="padding:48px 152px 80px;">
+        <table role="presentation" style="width:720px; max-width:100%; background:#111316; border-radius:28px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.35); color:#FFFFFF;">
+          <!-- Header - pixel perfect -->
           <tr>
-            <td style="background:linear-gradient(135deg,#10b981 0%,#059669 100%);padding:40px 30px;text-align:center;">
-              <div style="width:80px; height:80px; background:rgba(255,255,255,0.2);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;">
-                <svg viewBox="0 0 52 52" width="50" height="50"><circle cx="26" cy="26" r="26" fill="none"/><path fill="none" stroke="#fff" stroke-width="5" d="M16 27l8 8 14-16"/></svg>
-              </div>
-              <h1 style="margin:22px 0 10px;font-size:2rem;font-weight:800;line-height:1.2;color:#fff;letter-spacing:-0.5px;">Booking Confirmed</h1>
-              <div style="font-size:1.2rem; color:rgba(255,255,255,0.90);">Your adventure is ready!</div>
+            <td style="padding:24px 28px 24px 28px; text-align:center;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding-bottom:16px;">
+                    <!-- Check circle: 64x64, radius 32, bg #1E3B2F -->
+                    <div style="width:64px;height:64px;border-radius:32px;background:#1E3B2F;display:inline-flex;align-items:center;justify-content:center;margin:0 auto;">
+                      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 12l2 2 4-4" stroke="#8FE3B4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center">
+                    <!-- H1: 32px, Semibold, -1% letter spacing -->
+                    <h1 style="margin:0 0 8px 0;font-size:32px;font-weight:600;letter-spacing:-0.01em;color:#FFFFFF;line-height:1.2;">Booking Confirmed</h1>
+                    <!-- Subtitle: 18px, Regular, 120% line-height, color #C9CDD1 -->
+                    <div style="font-size:18px;font-weight:400;line-height:1.2;color:#C9CDD1;">Your adventure is ready!</div>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
           
-          <!-- Details Card - IDENTICAL to reference -->
+          <!-- Details Panel - pixel perfect -->
           <tr>
-            <td style="padding:24px 18px; background:#ffffff;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="border-radius: 12px; background: #f5f5f5; border:1px solid #e5e7eb; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
+            <td style="padding:0 28px 28px 28px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="border-radius:20px; background:#1A1D20; box-shadow:0 6px 24px rgba(0,0,0,0.25); padding:24px;">
+                <!-- Date&Time - pixel perfect -->
                 <tr>
-                  <td style="padding:20px 24px 24px 24px;">
-                    <!-- Date&Time -->
-                    <table width="100%" cellpadding="0" cellspacing="0" align="left" style="margin-bottom:18px;">
+                  <td>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
                       <tr>
-                        <td style="width:56px; vertical-align:top;">
-                          <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#2563eb"/><rect x="10" y="16" width="24" height="16" rx="4" fill="#fff" /><rect x="10" y="13" width="24" height="5" rx="2" fill="#1d4ed8" /><rect x="15" y="12" width="2.5" height="4" rx="1.25" fill="#2563eb"/><rect x="26.5" y="12" width="2.5" height="4" rx="1.25" fill="#2563eb"/><text x="50%" y="65%" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="14" fill="#2563eb">${dayOfMonth}</text></svg>
+                        <td style="width:40px; vertical-align:top; padding-right:12px;">
+                          <div style="width:40px;height:40px;border-radius:12px;background:#262B30;display:flex;align-items:center;justify-content:center;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#FFFFFF;">
+                              <rect x="4" y="6" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                              <path d="M4 10h16M8 4v4M16 4v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                              <text x="12" y="17" text-anchor="middle" font-size="10" fill="currentColor" font-weight="600">${dayOfMonth}</text>
+                            </svg>
+                          </div>
                         </td>
-                        <td style="padding-left:12px;">
-                          <div style="font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#6b7280;line-height:1.2;">DATE &amp; TIME</div>
-                          <div style="font-size:15px;font-weight:600;color:#1f2937; margin-top:2px;line-height:1.3;">${new Date(data.date).toLocaleDateString("en-US", {weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
-                          <div style="color:#4b5563;font-size:13px;line-height:1.3;margin-top:2px;">${data.startTime} - ${data.endTime}</div>
+                        <td style="vertical-align:top;">
+                          <div style="font-size:12px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;color:#8D949B;line-height:1.2;margin-bottom:8px;">DATE &amp; TIME</div>
+                          <div style="font-size:16px;font-weight:600;color:#FFFFFF;line-height:1.3;margin-bottom:4px;">${new Date(data.date).toLocaleDateString("en-US", {weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+                          <div style="font-size:14px;font-weight:400;color:#8D949B;line-height:1.3;">${data.startTime} - ${data.endTime}</div>
                         </td>
                       </tr>
                     </table>
-                    <!-- Horse Info -->
-                    <table width="100%" cellpadding="0" cellspacing="0" align="left" style="margin-bottom:18px;">
+                  </td>
+                </tr>
+                <!-- Horse Info - pixel perfect -->
+                <tr>
+                  <td>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
                       <tr>
-                        <td style="width:56px; vertical-align:top;">
-                          <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#8b5cf6"/><path d="M22 14c-3 0-5.5 1.5-6.5 3.5-1-1-2.5-1.5-3.5-1-1 .5-1.5 1.5-1 2.5.5 1 1.5 1.5 2.5 1 .8-.3 1.5-.8 2-1.5.5 1 1.5 2 3 2.5 1.5.5 3 .5 4 0 .8.5 1.8.8 3 .8 1.2 0 2.2-.3 3-.8 1 .5 2.5.5 4 0 1.5-.5 2.5-1.5 3-2.5.5.7 1.2 1.2 2 1.5 1 .5 2 .5 2.5-1 .5-1 0-2-1-2.5-1-.5-2.5 0-3.5 1-1-2-3.5-3.5-6.5-3.5z" fill="#fff"/><circle cx="19" cy="20" r="1.5" fill="#8b5cf6"/><path d="M16 16l1 2-1 1v-3z" fill="#fff"/><path d="M28 16l-1 2 1 1v-3z" fill="#fff"/><ellipse cx="22" cy="26" rx="3" ry="2" fill="#fff" opacity="0.9"/></svg>
+                        <td style="width:40px; vertical-align:top; padding-right:12px;">
+                          <div style="width:40px;height:40px;border-radius:12px;background:#262B30;display:flex;align-items:center;justify-content:center;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#FFFFFF;">
+                              <path d="M12 7c-2 0-3.5 1-4.5 2.5-1-1-2-1-2.5-0.5-0.5 0.5-1 1-0.5 2s1 1 1.5 0.5c0.5-0.2 1-0.5 1.5-1 0.5 0.5 1 1.5 2 2 1 0.5 2 0.5 2.5 0 0.5 0.5 1 0.5 2 0.5 1 0 1.5-0.2 2-0.5 1 0.5 2 0.5 2.5 0 1-0.5 2-1 2-1.5 0.5 0.5 1 1 1.5 0.5 0.5-0.5 0.5-1.5 0-2-0.5-0.5-1.5 0-2.5 0.5-1-1.5-2.5-2.5-4.5-2.5z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                              <circle cx="12" cy="11" r="1" fill="currentColor"/>
+                            </svg>
+                          </div>
                         </td>
-                        <td style="padding-left:12px;">
-                          <div style="font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#6b7280;line-height:1.2;">HORSE INFORMATION</div>
-                          <div style="font-size:15px;font-weight:600;color:#1f2937; margin-top:2px;line-height:1.3;">${data.horseName}</div>
-                          <div style="color:#4b5563;font-size:13px;line-height:1.3;margin-top:2px;">${data.riders} ${data.riders === 1 ? "rider" : "riders"}</div>
+                        <td style="vertical-align:top;">
+                          <div style="font-size:12px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;color:#8D949B;line-height:1.2;margin-bottom:8px;">HORSE INFORMATION</div>
+                          <div style="font-size:16px;font-weight:600;color:#FFFFFF;line-height:1.3;margin-bottom:4px;">${data.horseName}</div>
+                          <div style="font-size:14px;font-weight:400;color:#8D949B;line-height:1.3;">${data.riders} ${data.riders === 1 ? "rider" : "riders"}</div>
                         </td>
                       </tr>
                     </table>
-                    <!-- Location Info -->
-                    <table width="100%" cellpadding="0" cellspacing="0" align="left" style="margin-bottom:18px;">
+                  </td>
+                </tr>
+                <!-- Location Info - pixel perfect -->
+                <tr>
+                  <td>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
                       <tr>
-                        <td style="width:56px; vertical-align:top;">
-                          <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#10b981"/><path d="M22 13c-4.2 0-7.5 3.18-7.5 7.09 0 5.9 7.13 12.4 7.41 12.64a1 1 0 0 0 1.18 0C22.37 32.5 29.5 26 29.5 20.09 29.5 16.18 26.2 13 22 13zm0 2c3.36 0 6 2.7 6 6.09 0 4.36-5.01 9.18-6 10.01-.99-.83-6-5.65-6-10.01C16 17.7 18.64 15 22 15zm0 2.2a3.1 3.1 0 1 0 .001 6.201A3.1 3.1 0 0 0 22 17.2z" fill="#fff"/><circle cx="22" cy="22.5" r="2" fill="#10b981"/></svg>
+                        <td style="width:40px; vertical-align:top; padding-right:12px;">
+                          <div style="width:40px;height:40px;border-radius:12px;background:#262B30;display:flex;align-items:center;justify-content:center;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#FFFFFF;">
+                              <path d="M12 8c-2.5 0-4.5 1.5-4.5 3.5 0 3 4.5 6 4.5 6s4.5-3 4.5-6c0-2-2-3.5-4.5-3.5zm0 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                              <circle cx="12" cy="11" r="1" fill="currentColor"/>
+                            </svg>
+                          </div>
                         </td>
-                        <td style="padding-left:12px;">
-                          <div style="font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#6b7280;line-height:1.2;">LOCATION</div>
-                          <div style="font-size:15px;font-weight:600;color:#1f2937; margin-top:2px;line-height:1.3;margin-bottom:2px;">${data.stableName}</div>
-                          <div style="color:#4b5563;font-size:13px; margin-bottom:12px;line-height:1.3;">${data.stableAddress}</div>
+                        <td style="vertical-align:top;">
+                          <div style="font-size:12px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;color:#8D949B;line-height:1.2;margin-bottom:8px;">LOCATION</div>
+                          <div style="font-size:16px;font-weight:600;color:#FFFFFF;line-height:1.3;margin-bottom:4px;">${data.stableName}</div>
+                          <div style="font-size:14px;font-weight:400;color:#8D949B;line-height:1.3;margin-bottom:12px;">${data.stableAddress}</div>
                           ${directionsLink
-                            ? `<a href="${directionsLink}" target="_blank" style="display:inline-block;padding:12px 28px;margin-top:6px;background:linear-gradient(90deg,#0d9488 0%,#2563eb 100%);color:#fff;font-size:1rem;font-weight:700;border-radius:999px;text-decoration:none;box-shadow:0 3px 12px 0 rgba(5,150,105,0.3);width:100%;text-align:center;">
-                              <span style="vertical-align:middle;display:inline-block;margin-right:8px;">
-                                <svg width="20" height="20" viewBox="0 0 32 32" fill="none" style="vertical-align:middle;">
-                                  <path d="M6 16h16.34l-5.3-5.29a1 1 0 1 1 1.42-1.42l7 7a1 1 0 0 1 0 1.42l-7 7a1 1 0 1 1-1.42-1.42l5.3-5.29H6a1 1 0 1 1 0-2z" fill="#fff"/>
-                                </svg>
-                              </span>
-                              Get Directions
+                            ? `<a href="${directionsLink}" target="_blank" style="display:block;height:56px;padding:0 24px;margin-top:20px;background:linear-gradient(90deg,#0D7F94,#144A78);color:#FFFFFF;font-size:16px;font-weight:600;border-radius:16px;text-decoration:none;box-shadow:inset 0 1px 0 rgba(255,255,255,0.12);text-align:center;line-height:56px;">
+                              Get Directions →
                             </a>` : ``}
                         </td>
                       </tr>
                     </table>
-                    <!-- Total Amount - INSIDE the same card -->
-                    <table width="100%" cellpadding="0" cellspacing="0" align="left" style="margin-bottom:0;">
+                  </td>
+                </tr>
+                <!-- Total Amount - pixel perfect with divider -->
+                <tr>
+                  <td>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #2A2F34;padding-top:16px;margin-top:24px;">
                       <tr>
-                        <td style="width:56px; vertical-align:top;">
-                          <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#2563eb"/><rect x="10" y="14" width="24" height="20" rx="2" fill="#fff" /><line x1="13" y1="18" x2="31" y2="18" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" /><line x1="13" y1="22" x2="31" y2="22" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" /><line x1="13" y1="26" x2="27" y2="26" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" /><path d="M10 14 Q12 13 14 14 Q16 13 18 14 Q20 13 22 14 Q24 13 26 14 Q28 13 30 14 Q32 13 34 14" stroke="#2563eb" stroke-width="1.5" fill="none" stroke-linecap="round" /></svg>
+                        <td style="width:40px; vertical-align:top; padding-right:12px;">
+                          <div style="width:40px;height:40px;border-radius:12px;background:#262B30;display:flex;align-items:center;justify-content:center;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#FFFFFF;">
+                              <rect x="5" y="7" width="14" height="10" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                              <line x1="7" y1="9" x2="17" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                              <line x1="7" y1="12" x2="17" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                              <line x1="7" y1="15" x2="14" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                              <path d="M5 7 Q6 6 7 7 Q8 6 9 7 Q10 6 11 7 Q12 6 13 7 Q14 6 15 7 Q16 6 17 7 Q18 6 19 7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                            </svg>
+                          </div>
                         </td>
-                        <td style="padding-left:12px;">
-                          <div style="font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#6b7280;line-height:1.2;">TOTAL AMOUNT</div>
-                          <div style="font-size:20px;font-weight:700;color:#1f2937; margin-top:2px; margin-bottom:4px;line-height:1.2;">$${data.totalPrice.toFixed(2)}</div>
-                          <div style="color:#4b5563;font-size:13px;line-height:1.3;">Payment will be processed on-site or via your preferred method</div>
+                        <td style="vertical-align:top;">
+                          <div style="font-size:12px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;color:#8D949B;line-height:1.2;margin-bottom:8px;">TOTAL AMOUNT</div>
+                          <div style="font-size:20px;font-weight:700;color:#FFFFFF;line-height:1.2;margin-bottom:8px;">$${data.totalPrice.toFixed(2)}</div>
+                          <div style="font-size:12px;font-weight:400;color:#8D949B;line-height:1.3;">Payment will be processed on-site or via your preferred method</div>
                         </td>
                       </tr>
                     </table>
@@ -143,14 +189,14 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
             </td>
           </tr>
           <tr>
-            <td style="height:36px;"></td>
+            <td style="height:28px;"></td>
           </tr>
           <!-- Footer -->
           <tr>
-            <td style="background:#121217;color:#6b7280;font-size:15px;padding:28px 24px 24px 24px;text-align:center;border-top:1.5px solid #232323;">
-              <span style="display:inline-block;font-family:inherit;font-size:1.11em;font-weight:800;letter-spacing:-1.5px;color:#10b981;">PyraRide</span>
-              <div style="font-size:0.98em;color:#a1a1aa;margin-top:5px;">support@pyraride.com</div>
-              <div style="color:#a1a1aa;margin-top:10px;font-size:11.5px;">© ${new Date().getFullYear()} PyraRide. All rights reserved.</div>
+            <td style="background:#111316;color:#8D949B;font-size:14px;padding:24px 28px;text-align:center;border-top:1px solid #2A2F34;">
+              <div style="font-weight:600;color:#FFFFFF;margin-bottom:4px;">PyraRide</div>
+              <div style="font-size:13px;color:#8D949B;margin-top:4px;">support@pyraride.com</div>
+              <div style="font-size:11px;color:#8D949B;margin-top:8px;">© ${new Date().getFullYear()} PyraRide. All rights reserved.</div>
             </td>
           </tr>
         </table>
