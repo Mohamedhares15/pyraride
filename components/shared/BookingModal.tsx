@@ -300,145 +300,172 @@ export default function BookingModal({
               <p className="text-green-50" style={{ fontSize: "18px", lineHeight: "1.2", color: "rgba(255,255,255,0.9)" }}>Your adventure is ready!</p>
             </div>
 
-            {/* Details Panel - LIGHT GRAY card IDENTICAL to design.png */}
-            <div className="p-6 bg-white">
+            {/* Details Cards - SEPARATE WHITE CARDS IDENTICAL to design.png */}
+            <div className="p-6 bg-white" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {/* Date & Time Card - SEPARATE WHITE CARD */}
               <div
+                className="flex items-start"
                 style={{
-                  padding: "24px",
-                  borderRadius: "20px",
-                  background: "#F5F5F5",
+                  padding: "20px",
+                  borderRadius: "16px",
+                  background: "#FFFFFF",
                   boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                   border: "1px solid #E5E7EB",
+                  gap: "12px",
                 }}
               >
-                  <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                {/* Date & Time - IDENTICAL to design.png */}
-                <div className="flex items-start" style={{ gap: "12px" }}>
-                  {/* Icon: 40x40, radius 12, colored background */}
-                  <div
-                    className="flex-shrink-0 flex items-center justify-center rounded-xl"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      background: "#2563eb",
-                      borderRadius: "12px",
-                    }}
-                  >
-                    <CalendarSVG className="w-6 h-6" day={dayOfMonth} />
+                <div
+                  className="flex-shrink-0 flex items-center justify-center"
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    background: "#2563eb",
+                    borderRadius: "12px",
+                  }}
+                >
+                  <CalendarSVG className="w-6 h-6" day={dayOfMonth} />
+                </div>
+                <div className="flex-1">
+                  <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
+                    DATE &amp; TIME
+                  </p>
+                  <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#1f2937" }}>
+                    {new Date(bookingData.date).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
                   </div>
-                  <div className="flex-1">
-                    <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
-                      DATE &amp; TIME
-                    </p>
-                    <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#1f2937" }}>
-                      {new Date(bookingData.date).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </div>
-                    <div className="font-normal" style={{ fontSize: "14px", lineHeight: "1.3", color: "#6b7280" }}>
-                      {bookingData.startTime} - {bookingData.endTime}
-                    </div>
+                  <div className="font-normal" style={{ fontSize: "14px", lineHeight: "1.3", color: "#6b7280" }}>
+                    {bookingData.startTime} - {bookingData.endTime}
                   </div>
                 </div>
+              </div>
 
-                {/* Horse Information - IDENTICAL to design.png */}
-                <div className="flex items-start" style={{ gap: "12px" }}>
-                  <div
-                    className="flex-shrink-0 flex items-center justify-center rounded-xl"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      background: "#8b5cf6",
-                      borderRadius: "12px",
-                    }}
-                  >
-                    <HorseHeadSVG className="w-6 h-6" />
+              {/* Horse Information Card - SEPARATE WHITE CARD */}
+              <div
+                className="flex items-start"
+                style={{
+                  padding: "20px",
+                  borderRadius: "16px",
+                  background: "#FFFFFF",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                  border: "1px solid #E5E7EB",
+                  gap: "12px",
+                }}
+              >
+                <div
+                  className="flex-shrink-0 flex items-center justify-center"
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    background: "#8b5cf6",
+                    borderRadius: "12px",
+                  }}
+                >
+                  <HorseHeadSVG className="w-6 h-6" />
+                </div>
+                <div className="flex-1">
+                  <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
+                    HORSE INFORMATION
+                  </p>
+                  <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#1f2937" }}>
+                    {bookingData.horseName}
                   </div>
-                  <div className="flex-1">
-                    <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
-                      HORSE INFORMATION
-                    </p>
-                    <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#1f2937" }}>
-                      {bookingData.horseName}
-                    </div>
-                    <div className="font-normal" style={{ fontSize: "14px", lineHeight: "1.3", color: "#6b7280" }}>
-                      {bookingData.riders} {bookingData.riders === 1 ? 'rider' : 'riders'}
-                    </div>
+                  <div className="font-normal" style={{ fontSize: "14px", lineHeight: "1.3", color: "#6b7280" }}>
+                    {bookingData.riders} {bookingData.riders === 1 ? 'rider' : 'riders'}
                   </div>
                 </div>
+              </div>
 
-                {/* Location - IDENTICAL to design.png */}
-                <div className="flex items-start" style={{ gap: "12px" }}>
-                  <div
-                    className="flex-shrink-0 flex items-center justify-center rounded-xl"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      background: "#10b981",
-                      borderRadius: "12px",
-                    }}
-                  >
-                    <PinSVG className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
-                      LOCATION
-                    </p>
-                    <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#1f2937" }}>
-                      {bookingData.location}
-                    </div>
-                    {/* Get Directions Button - IDENTICAL to design.png */}
-                    {gmapsLink && (
-                      <a
-                        href={gmapsLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-5 inline-flex items-center justify-center w-full rounded-2xl transition-all text-white font-semibold"
-                        style={{
-                          height: "56px",
-                          padding: "0 24px",
-                          borderRadius: "16px",
-                          background: "linear-gradient(90deg, #0d9488 0%, #2563eb 100%)",
-                          fontSize: "16px",
-                          fontWeight: 600,
-                          boxShadow: "0 2px 8px rgba(13, 148, 136, 0.3)",
-                        }}
-                      >
-                        Get Directions
-                        <DirectionsArrowSVG className="w-5 h-5 ml-2" />
-                      </a>
-                    )}
-                  </div>
+              {/* Location Card - SEPARATE WHITE CARD */}
+              <div
+                className="flex items-start"
+                style={{
+                  padding: "20px",
+                  borderRadius: "16px",
+                  background: "#FFFFFF",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                  border: "1px solid #E5E7EB",
+                  gap: "12px",
+                }}
+              >
+                <div
+                  className="flex-shrink-0 flex items-center justify-center"
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    background: "#10b981",
+                    borderRadius: "12px",
+                  }}
+                >
+                  <PinSVG className="w-6 h-6" />
                 </div>
+                <div className="flex-1">
+                  <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
+                    LOCATION
+                  </p>
+                  <div className="font-semibold mb-1" style={{ fontSize: "16px", lineHeight: "1.3", color: "#1f2937" }}>
+                    {bookingData.location}
+                  </div>
+                  {/* Get Directions Button */}
+                  {gmapsLink && (
+                    <a
+                      href={gmapsLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 inline-flex items-center justify-center w-full rounded-2xl transition-all text-white font-semibold"
+                      style={{
+                        height: "56px",
+                        padding: "0 24px",
+                        borderRadius: "16px",
+                        background: "linear-gradient(90deg, #0D7F94 0%, #144A78 100%)",
+                        fontSize: "16px",
+                        fontWeight: 600,
+                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)",
+                      }}
+                    >
+                      Get Directions
+                      <DirectionsArrowSVG className="w-5 h-5 ml-2" />
+                    </a>
+                  )}
+                </div>
+              </div>
 
-                {/* Total Amount - IDENTICAL to design.png */}
-                <div className="flex items-start pt-6" style={{ gap: "12px", borderTop: "1px solid #E5E7EB", marginTop: "24px", paddingTop: "16px" }}>
-                  <div
-                    className="flex-shrink-0 flex items-center justify-center rounded-xl"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      background: "#2563eb",
-                      borderRadius: "12px",
-                    }}
-                  >
-                    <ReceiptSVG className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
-                      TOTAL AMOUNT
-                    </p>
-                    <p className="font-bold mb-2" style={{ fontSize: "20px", color: "#1f2937", lineHeight: "1.2" }}>
-                      ${bookingData.totalPrice.toFixed(2)}
-                    </p>
-                    <p className="font-normal" style={{ fontSize: "12px", color: "#6b7280", lineHeight: "1.3" }}>
-                      Payment will be processed on-site or via your preferred method
-                    </p>
-                  </div>
+              {/* Total Amount Card - SEPARATE WHITE CARD */}
+              <div
+                className="flex items-start"
+                style={{
+                  padding: "20px",
+                  borderRadius: "16px",
+                  background: "#FFFFFF",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                  border: "1px solid #E5E7EB",
+                  gap: "12px",
+                }}
+              >
+                <div
+                  className="flex-shrink-0 flex items-center justify-center"
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    background: "#2563eb",
+                    borderRadius: "12px",
+                  }}
+                >
+                  <ReceiptSVG className="w-6 h-6" />
                 </div>
+                <div className="flex-1">
+                  <p className="uppercase mb-2" style={{ fontSize: "12px", fontWeight: 500, letterSpacing: "0.04em", color: "#6b7280", marginTop: "0" }}>
+                    TOTAL AMOUNT
+                  </p>
+                  <p className="font-bold mb-2" style={{ fontSize: "20px", color: "#1f2937", lineHeight: "1.2" }}>
+                    ${bookingData.totalPrice.toFixed(2)}
+                  </p>
+                  <p className="font-normal" style={{ fontSize: "12px", color: "#6b7280", lineHeight: "1.3" }}>
+                    Payment will be processed on-site or via your preferred method
+                  </p>
                 </div>
               </div>
             </div>
