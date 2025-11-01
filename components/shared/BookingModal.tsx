@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, Clock, DollarSign, Users, CheckCircle, ArrowRight, Calendar, MapPin, CreditCard, X } from "lucide-react";
 import LocationMap from "@/components/maps/LocationMap";
 import CalendarSVG from '@/components/icons/CalendarSVG';
-import GroupSVG from '@/components/icons/GroupSVG';
+import HorseHeadSVG from '@/components/icons/HorseHeadSVG';
 import PinSVG from '@/components/icons/PinSVG';
 import DirectionsArrowSVG from '@/components/icons/DirectionsArrowSVG';
 
@@ -227,7 +227,7 @@ export default function BookingModal({
   // Get selected horse name for success message
   const selectedHorse = horses.find(h => h.id === selectedHorseId);
 
-  // Success screen with new design
+  // Success screen with new design - matching reference image exactly
   if (bookingSuccess && bookingData) {
     // Helper to format Google Maps directions URL
     const gmapsLink =
@@ -235,136 +235,157 @@ export default function BookingModal({
         ? `https://maps.google.com/?daddr=${encodeURIComponent(bookingData.location)}`
         : undefined;
 
+    // Format date for calendar icon display
+    const bookingDate = new Date(bookingData.date);
+    const dayOfMonth = bookingDate.getDate();
+
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-lg p-0 overflow-hidden">
-          {/* Green Gradient Header */}
-          <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-8 text-center text-white">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15 }}
-              className="mb-4"
-            >
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                <CheckCircle className="h-10 w-10 text-white" />
+        <DialogContent className="max-w-md p-0 overflow-hidden bg-transparent border-0 shadow-none [&>button]:hidden">
+          {/* Dark charcoal card - centered */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="bg-[#232328] rounded-2xl overflow-hidden shadow-2xl w-full"
+          >
+            {/* Green Gradient Header */}
+            <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-8 text-center text-white">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                className="mb-4"
+              >
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                  <CheckCircle className="h-10 w-10 text-white" />
+                </div>
+              </motion.div>
+              <h2 className="text-2xl font-bold mb-2">Booking Confirmed</h2>
+              <p className="text-green-50">Your adventure is ready!</p>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {/* Booking Details Card - dark charcoal with border */}
+              <div className="p-5 border-2 border-[#35353b] rounded-xl bg-[#232328]">
+                <div className="space-y-5">
+                  {/* Date & Time */}
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      <CalendarSVG className="w-11 h-11" day={dayOfMonth} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold tracking-wider text-[#94a3b8] uppercase mb-1">
+                        DATE & TIME
+                      </p>
+                      <div className="font-semibold text-base text-white">
+                        {new Date(bookingData.date).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </div>
+                      <div className="text-sm text-[#cdd1d9] mt-0.5">
+                        {bookingData.startTime} - {bookingData.endTime}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Horse Information */}
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      <HorseHeadSVG className="w-11 h-11" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold tracking-wider text-[#94a3b8] uppercase mb-1">
+                        HORSE INFORMATION
+                      </p>
+                      <div className="font-semibold text-base text-white">
+                        {bookingData.horseName}
+                      </div>
+                      <div className="text-sm text-[#cdd1d9] mt-0.5">
+                        {bookingData.riders} {bookingData.riders === 1 ? 'rider' : 'riders'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Location */}
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      <PinSVG className="w-11 h-11" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold tracking-wider text-[#94a3b8] uppercase mb-1">
+                        LOCATION
+                      </p>
+                      <div className="font-semibold text-base text-white leading-tight">
+                        {bookingData.location}
+                      </div>
+                      {/* Get Directions Button - gradient matching reference */}
+                      {gmapsLink && (
+                        <a
+                          href={gmapsLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-3 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white font-semibold py-2.5 px-6 rounded-full shadow-lg transition-all w-full"
+                        >
+                          Get Directions
+                          <DirectionsArrowSVG className="w-5 h-5" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </motion.div>
-            <h2 className="text-2xl font-bold mb-2">Booking Confirmed</h2>
-            <p className="text-green-50">Your adventure is booked and ready!</p>
-          </div>
 
-          <div className="p-6 space-y-6">
-            {/* Booking Details Card */}
-            <Card className="p-6 border-2">
-              <div className="space-y-7">
-                <div className="flex items-center gap-4">
-                  <CalendarSVG className="flex-shrink-0" />
+              {/* Total Amount Card */}
+              <div className="p-4 bg-[#18181b] border border-blue-600/30 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <CreditCard className="h-6 w-6 text-blue-500" />
                   <div>
-                    <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase mb-1">
-                      Date & Time
+                    <p className="text-xs font-semibold tracking-wider text-blue-400 uppercase mb-0.5">
+                      TOTAL AMOUNT
                     </p>
-                    <div className="font-semibold text-lg">
-                      {new Date(bookingData.date).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {bookingData.startTime} - {bookingData.endTime}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <GroupSVG className="flex-shrink-0" />
-                  <div>
-                    <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase mb-1">
-                      Horse Information
-                    </p>
-                    <div className="font-semibold">
-                      {bookingData.horseName}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {bookingData.riders} {bookingData.riders === 1 ? 'rider' : 'riders'}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <PinSVG className="flex-shrink-0" />
-                  <div>
-                    <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase mb-1">
-                      Location
-                    </p>
-                    <div className="font-semibold">
-                      {bookingData.location}
-                    </div>
-                    {/* Get Directions Button */}
-                    {gmapsLink && (
-                      <a
-                        href={gmapsLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-2 inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-full shadow-md transition w-full justify-center"
-                      >
-                        Get Directions
-                        <DirectionsArrowSVG className="inline-block h-6 w-6" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Payment Info Card */}
-            <Card className="p-4 bg-primary/5 border-primary/20">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Amount</p>
-                    <p className="text-2xl font-bold text-primary">
+                    <p className="text-xl font-bold text-white">
                       ${bookingData.totalPrice.toFixed(2)}
                     </p>
+                    <p className="text-xs text-blue-400 italic mt-1">
+                      Payment will be processed on-site or via your preferred method
+                    </p>
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Payment will be processed on-site or via your preferred method
-              </p>
-            </Card>
 
-            {/* Booking Reference */}
-            <div className="rounded-lg border bg-muted/50 p-4">
-              <p className="text-xs text-muted-foreground mb-1">Booking Reference</p>
-              <p className="font-mono font-semibold text-sm">{bookingData.bookingId}</p>
-            </div>
+              {/* Booking Reference */}
+              <div className="rounded-lg bg-[#232328] border border-[#35353b] p-3">
+                <p className="text-xs text-[#a1a1aa] mb-1">Booking Reference</p>
+                <p className="font-mono font-semibold text-sm text-white">{bookingData.bookingId}</p>
+              </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-2">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => onOpenChange(false)}
-              >
-                <X className="mr-2 h-4 w-4" />
-                Close
-              </Button>
-              <Button
-                className="flex-1 bg-primary"
-                onClick={() => {
-                  onOpenChange(false);
-                  window.location.href = "/dashboard/rider";
-                }}
-              >
-                <ArrowRight className="mr-2 h-4 w-4" />
-                View My Bookings
-              </Button>
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  className="flex-1 border-[#35353b] text-white hover:bg-[#35353b]"
+                  onClick={() => onOpenChange(false)}
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  Close
+                </Button>
+                <Button
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  onClick={() => {
+                    onOpenChange(false);
+                    window.location.href = "/dashboard/rider";
+                  }}
+                >
+                  <ArrowRight className="mr-2 h-4 w-4" />
+                  View My Bookings
+                </Button>
+              </div>
             </div>
-          </div>
+          </motion.div>
         </DialogContent>
       </Dialog>
     );

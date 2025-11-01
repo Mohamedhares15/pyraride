@@ -42,6 +42,10 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
   const directionsLink = data.stableAddress
     ? `https://maps.google.com/?daddr=${encodeURIComponent(data.stableAddress)}`
     : "";
+  
+  // Get day of month for calendar icon
+  const bookingDate = new Date(data.date);
+  const dayOfMonth = bookingDate.getDate();
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -62,7 +66,7 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
                 <svg viewBox="0 0 52 52" width="50" height="50"><circle cx="26" cy="26" r="26" fill="none"/><path fill="none" stroke="#fff" stroke-width="5" d="M16 27l8 8 14-16"/></svg>
               </div>
               <h1 style="margin:22px 0 10px;font-size:2rem;font-weight:800;line-height:1.2;color:#fff;letter-spacing:-0.5px;">Booking Confirmed</h1>
-              <div style="font-size:1.2rem; color:rgba(255,255,255,0.90);">Your adventure is booked and ready!</div>
+              <div style="font-size:1.2rem; color:rgba(255,255,255,0.90);">Your adventure is ready!</div>
             </td>
           </tr>
           
@@ -76,10 +80,10 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
                     <table width="100%" cellpadding="0" cellspacing="0" align="left" style="margin-bottom:18px;">
                       <tr>
                         <td style="width:56px; vertical-align:top;">
-                          <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#2563eb"/><rect x="10" y="16" width="24" height="16" rx="4" fill="#fff" /><rect x="10" y="13" width="24" height="5" rx="2" fill="#1d4ed8" /><rect x="15" y="12" width="2.5" height="4" rx="1.25" fill="#2563eb"/><rect x="26.5" y="12" width="2.5" height="4" rx="1.25" fill="#2563eb"/><text x="50%" y="65%" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="14" fill="#2563eb">17</text></svg>
+                          <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#2563eb"/><rect x="10" y="16" width="24" height="16" rx="4" fill="#fff" /><rect x="10" y="13" width="24" height="5" rx="2" fill="#1d4ed8" /><rect x="15" y="12" width="2.5" height="4" rx="1.25" fill="#2563eb"/><rect x="26.5" y="12" width="2.5" height="4" rx="1.25" fill="#2563eb"/><text x="50%" y="65%" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="14" fill="#2563eb">${dayOfMonth}</text></svg>
                         </td>
                         <td style="padding-left:12px;">
-                          <div style="font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#94a3b8;">Date &amp; Time</div>
+                          <div style="font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#94a3b8;">DATE &amp; TIME</div>
                           <div style="font-size:1.14rem;font-weight:600;color:#fff; margin-top:2px;">${new Date(data.date).toLocaleDateString("en-US", {weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
                           <div style="color:#cdd1d9;font-size:13px;">${data.startTime} - ${data.endTime}</div>
                         </td>
@@ -89,10 +93,10 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
                     <table width="100%" cellpadding="0" cellspacing="0" align="left" style="margin-bottom:18px;">
                       <tr>
                         <td style="width:56px; vertical-align:top;">
-                          <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#8b5cf6"/><circle cx="15.5" cy="22.5" r="4" fill="#fff"/><circle cx="28.5" cy="22.5" r="4" fill="#fff" fill-opacity="0.8"/><ellipse cx="15.5" cy="30.5" rx="7" ry="4" fill="#fff"/><ellipse cx="28.5" cy="30.5" rx="7" ry="4" fill="#fff" fill-opacity="0.8"/></svg>
+                          <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#8b5cf6"/><path d="M22 14c-3 0-5.5 1.5-6.5 3.5-1-1-2.5-1.5-3.5-1-1 .5-1.5 1.5-1 2.5.5 1 1.5 1.5 2.5 1 .8-.3 1.5-.8 2-1.5.5 1 1.5 2 3 2.5 1.5.5 3 .5 4 0 .8.5 1.8.8 3 .8 1.2 0 2.2-.3 3-.8 1 .5 2.5.5 4 0 1.5-.5 2.5-1.5 3-2.5.5.7 1.2 1.2 2 1.5 1 .5 2 .5 2.5-1 .5-1 0-2-1-2.5-1-.5-2.5 0-3.5 1-1-2-3.5-3.5-6.5-3.5z" fill="#fff"/><circle cx="19" cy="20" r="1.5" fill="#8b5cf6"/><path d="M16 16l1 2-1 1v-3z" fill="#fff"/><path d="M28 16l-1 2 1 1v-3z" fill="#fff"/><ellipse cx="22" cy="26" rx="3" ry="2" fill="#fff" opacity="0.9"/></svg>
                         </td>
                         <td style="padding-left:12px;">
-                          <div style="font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#94a3b8;">Horse Information</div>
+                          <div style="font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#94a3b8;">HORSE INFORMATION</div>
                           <div style="font-size:1.08rem;font-weight:600;color:#fff; margin-top:2px;">${data.horseName}</div>
                           <div style="color:#cdd1d9;font-size:13px;">${data.riders} ${data.riders === 1 ? "rider" : "riders"}</div>
                         </td>
@@ -105,15 +109,14 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
                           <svg width="44" height="44"><rect rx="12" width="44" height="44" fill="#10b981"/><path d="M22 13c-4.2 0-7.5 3.18-7.5 7.09 0 5.9 7.13 12.4 7.41 12.64a1 1 0 0 0 1.18 0C22.37 32.5 29.5 26 29.5 20.09 29.5 16.18 26.2 13 22 13zm0 2c3.36 0 6 2.7 6 6.09 0 4.36-5.01 9.18-6 10.01-.99-.83-6-5.65-6-10.01C16 17.7 18.64 15 22 15zm0 2.2a3.1 3.1 0 1 0 .001 6.201A3.1 3.1 0 0 0 22 17.2z" fill="#fff"/><circle cx="22" cy="22.5" r="2" fill="#10b981"/></svg>
                         </td>
                         <td style="padding-left:12px;">
-                          <div style="font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#94a3b8;">Location</div>
-                          <div style="font-size:1.08rem;font-weight:600;color:#fff; margin-top:2px;">${data.stableName}</div>
-                          <div style="color:#cdd1d9;font-size:13px; margin-bottom:9px;">${data.stableAddress}</div>
+                          <div style="font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#94a3b8;">LOCATION</div>
+                          <div style="font-size:1.08rem;font-weight:600;color:#fff; margin-top:2px;line-height:1.4;">${data.stableName}</div>
+                          <div style="color:#cdd1d9;font-size:13px; margin-bottom:12px;line-height:1.4;">${data.stableAddress}</div>
                           ${directionsLink
-                            ? `<a href="${directionsLink}" target="_blank" style="display:inline-block;padding:12px 28px;margin-top:4px;background:linear-gradient(90deg,#10b981 60%,#2563eb 100%);color:#fff;font-size:1rem;font-weight:700;border-radius:999px;text-decoration:none;box-shadow:0 3px 12px 0 #05966922;margin-bottom:3px;">
+                            ? `<a href="${directionsLink}" target="_blank" style="display:inline-block;padding:12px 28px;margin-top:6px;background:linear-gradient(90deg,#0d9488 0%,#2563eb 100%);color:#fff;font-size:1rem;font-weight:700;border-radius:999px;text-decoration:none;box-shadow:0 3px 12px 0 rgba(5,150,105,0.3);width:100%;text-align:center;">
                               <span style="vertical-align:middle;display:inline-block;margin-right:8px;">
-                                <svg width="24" height="24" viewBox="0 0 32 32" fill="none" style="vertical-align:middle;">
-                                  <defs><linearGradient id="g1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#10b981"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs>
-                                  <path d="M6 16h16.34l-5.3-5.29a1 1 0 1 1 1.42-1.42l7 7a1 1 0 0 1 0 1.42l-7 7a1 1 0 1 1-1.42-1.42l5.3-5.29H6a1 1 0 1 1 0-2z" fill="url(#g1)"/>
+                                <svg width="20" height="20" viewBox="0 0 32 32" fill="none" style="vertical-align:middle;">
+                                  <path d="M6 16h16.34l-5.3-5.29a1 1 0 1 1 1.42-1.42l7 7a1 1 0 0 1 0 1.42l-7 7a1 1 0 1 1-1.42-1.42l5.3-5.29H6a1 1 0 1 1 0-2z" fill="#fff"/>
                                 </svg>
                               </span>
                               Get Directions
@@ -136,7 +139,7 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
                     <div style="display:flex;align-items:center;font-size:14px;color:#cdd1d9;">
                       <svg width="28" height="28" style="margin-right:12px;"><circle cx="14" cy="14" r="14" fill="#2563eb"/><path d="M19.9 8c.39 0 .71.31.75.7.02.23-.07.46-.29.62l-9.7 7.3c-.4.3-.96.12-1.13-.36C9 15.9 9 15.43 9.34 15.17l10.02-7.22c.11-.08.25-.13.39-.12zm-7.53 11.85c-.3.22-.33.5-.27.72.07.22.3.41.66.41h3.5c.37 0 .62-.19.66-.41.06-.23.03-.5-.29-.72L13 16.12v-4.5c0-.41-.34-.75-.75-.75s-.75.34-.75.75v4.5l-1.37 1.83z" fill="#fff"/></svg>
                       <span>
-                        <span style="font-size:12px;font-weight:600;color:#60a5fa;text-transform:uppercase;letter-spacing:0.5px;">Total Amount</span><br />
+                        <span style="font-size:12px;font-weight:600;color:#60a5fa;text-transform:uppercase;letter-spacing:0.5px;">TOTAL AMOUNT</span><br />
                         <span style="font-size:1.32em;color:#fff;font-weight:700;display:inline-block;margin-top:2px;">$${data.totalPrice.toFixed(2)}</span>
                       </span>
                     </div>

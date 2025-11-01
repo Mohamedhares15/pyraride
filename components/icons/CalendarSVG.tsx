@@ -1,6 +1,14 @@
 import * as React from "react";
 
-const CalendarSVG = ({ className = "", style = {} }: { className?: string; style?: React.CSSProperties }) => (
+const CalendarSVG = ({ 
+  className = "", 
+  style = {},
+  day 
+}: { 
+  className?: string; 
+  style?: React.CSSProperties;
+  day?: number;
+}) => (
   <svg
     width={44}
     height={44}
@@ -15,7 +23,20 @@ const CalendarSVG = ({ className = "", style = {} }: { className?: string; style
     <rect x="10" y="13" width="24" height="5" rx="2" fill="#1d4ed8" />
     <rect x="15" y="12" width="2.5" height="4" rx="1.25" fill="#2563eb" />
     <rect x="26.5" y="12" width="2.5" height="4" rx="1.25" fill="#2563eb" />
-    <text x="50%" y="65%" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="bold" fontSize="14" fill="#2563eb">17</text>
+    {day && (
+      <text 
+        x="50%" 
+        y="65%" 
+        dominantBaseline="middle" 
+        textAnchor="middle" 
+        fontFamily="sans-serif" 
+        fontWeight="bold" 
+        fontSize="14" 
+        fill="#2563eb"
+      >
+        {day}
+      </text>
+    )}
   </svg>
 );
 
