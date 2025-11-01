@@ -261,20 +261,19 @@ export default function BookingModal({
     return undefined;
   }, [open, bookingSuccess, bookingData]);
 
+  // Helper to format Google Maps directions URL (only if booking success)
+  const gmapsLink = bookingSuccess && bookingData && bookingData.location
+    ? `https://maps.google.com/?daddr=${encodeURIComponent(bookingData.location)}`
+    : undefined;
+
+  // Format date for calendar icon display (only if booking success)
+  const bookingDate = bookingSuccess && bookingData ? new Date(bookingData.date) : null;
+  const dayOfMonth = bookingDate ? bookingDate.getDate() : 0;
+
   // Success screen with new design - matching reference image exactly
   if (bookingSuccess && bookingData) {
-    // Helper to format Google Maps directions URL
-    const gmapsLink =
-      bookingData.location
-        ? `https://maps.google.com/?daddr=${encodeURIComponent(bookingData.location)}`
-        : undefined;
-
-    // Format date for calendar icon display
-    const bookingDate = new Date(bookingData.date);
-    const dayOfMonth = bookingDate.getDate();
-
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog key="booking-success" open={open} onOpenChange={onOpenChange}>
         <DialogContent 
           className="max-w-md p-0 overflow-hidden bg-transparent border-0 shadow-none [&>button]:hidden"
         >
