@@ -1,0 +1,73 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Back",
+    "next": "Next",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear"
+  },
+  "nav": {
+    "home": "Home",
+    "browseStables": "Browse Stables",
+    "dashboard": "Dashboard",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "getStarted": "Get Started"
+  },
+  "hero": {
+    "title": "The Pyramids, Unforgettable.",
+    "subtitle": "The Ride, Uncomplicated.",
+    "description": "Book your trusted, vetted ride at Giza and Saqqara.",
+    "search": "Search"
+  },
+  "stables": {
+    "title": "Browse Stables",
+    "noResults": "No Stables Found",
+    "loading": "Loading stables...",
+    "searchPlaceholder": "Search for stables...",
+    "allLocations": "All Locations",
+    "minimumRating": "Minimum Rating",
+    "anyRating": "Any Rating",
+    "filterBy": "Filter by",
+    "discover": "Discover Your Next Adventure"
+  },
+  "booking": {
+    "title": "Book Your Ride",
+    "selectDate": "Select Date",
+    "selectHorse": "Select Horse",
+    "selectTime": "Select Time",
+    "riders": "Number of Riders",
+    "pickup": "Hotel Pickup",
+    "addons": "Add-ons",
+    "summary": "Review Your Booking",
+    "total": "Total",
+    "completeBooking": "Complete Booking",
+    "bookingSuccess": "Booking Successful!",
+    "confirmDetails": "Please confirm your booking details"
+  },
+  "dashboard": {
+    "myBookings": "My Bookings",
+    "upcomingBookings": "Upcoming Bookings",
+    "pastBookings": "Past Bookings",
+    "noBookings": "No Bookings Yet",
+    "startAdventure": "Start your adventure by booking a horse riding experience at one of our trusted stables!"
+  },
+  "payment": {
+    "proceedToPay": "Proceed to Payment",
+    "paymentMethod": "Payment Method",
+    "totalAmount": "Total Amount",
+    "currency": "EGP",
+    "processing": "Processing your payment...",
+    "success": "Payment Successful!",
+    "failed": "Payment Failed"
+  }
+}
+

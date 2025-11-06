@@ -1,0 +1,143 @@
+// This is your Prisma schema file.
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "postgresql"
+  url          = env("DATABASE_URL") // Connects to Neon
+  relationMode = "prisma"
+}
+
+enum Role {
+  rider
+  stable_owner
+  admin
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  completed
+  cancelled
+  rescheduled
+}
+
+enum StableStatus {
+  pending_approval
+  approved
+  rejected
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  fullName      String?
+  role          Role      @default(rider)
+  createdAt     DateTime  @default(now())
+  
+  // Relations
+  bookings      Booking[]
+  reviews       Review[]
+  stable        Stable?   // A user can own one stable
+}
+
+model Stable {
+  id          String       @id @default(uuid())
+  ownerId     String       @unique // Each stable has one owner
+  name        String
+  description String       @db.Text
+  location    String       // "Giza" or "Saqqara"
+  address     String
+  status      StableStatus @default(pending_approval)
+  createdAt   DateTime     @default(now())
+
+  // Relations
+  owner       User      @relation(fields: [ownerId], references: [id])
+  horses      Horse[]
+  bookings    Booking[]
+  reviews     Review[]
+}
+
+model Horse {
+  id          String   @id @default(uuid())
+  stableId    String
+  name        String
+  description String   @db.Text
+  imageUrls   String[]
+  isActive    Boolean  @default(true)
+
+  // Relations
+  stable    Stable    @relation(fields: [stableId], references: [id], onDelete: Cascade)
+  bookings  Booking[]
+  reviews   Review[]
+}
+
+model Booking {
+  id              String        @id @default(uuid())
+  riderId         String
+  stableId        String
+  horseId         String
+  startTime       DateTime
+  endTime         DateTime
+  totalPrice      Decimal
+  commission      Decimal       // (e.g., 20% of total)
+  status          BookingStatus @default(confirmed)
+  stripePaymentId String?       @unique
+  refundStatus    String?       // "requested", "approved", "rejected", "processed"
+  refundAmount    Decimal?
+  stripeRefundId  String?
+  refundReason    String?       @db.Text
+  cancellationReason String?    @db.Text
+  rescheduledFrom DateTime?
+  rescheduledTo   DateTime?
+  isRescheduled   Boolean       @default(false)
+  cancelledBy     String?       // "rider", "owner", "admin"
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  rider     User    @relation(fields: [riderId], references: [id])
+  stable    Stable  @relation(fields: [stableId], references: [id])
+  horse     Horse   @relation(fields: [horseId], references: [id])
+  review    Review? // A booking can have one review
+}
+
+model Review {
+  id            String   @id @default(uuid())
+  bookingId     String   @unique // One review per booking
+  riderId       String
+  stableId      String
+  horseId       String
+  stableRating  Int      // 1-5
+  horseRating   Int      // 1-5
+  comment       String   @db.Text
+  createdAt     DateTime @default(now())
+
+  // Relations
+  booking   Booking @relation(fields: [bookingId], references: [id])
+  rider     User    @relation(fields: [riderId], references: [id])
+  stable    Stable  @relation(fields: [stableId], references: [id], onDelete: Restrict)
+  horse     Horse   @relation(fields: [horseId], references: [id], onDelete: Restrict)
+}
+
+model NewsletterSubscriber {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  subscribedAt DateTime @default(now())
+  status       String   @default("active") // "active", "unsubscribed"
+  source       String?  // "homepage", "footer", "checkout", etc.
+}
+
+model LoyaltyPoints {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  points      Int      @default(0)
+  tier        String   @default("bronze") // "bronze", "silver", "gold", "platinum"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+

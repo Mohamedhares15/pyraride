@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Sitemap: https://pyraride.vercel.app/sitemap.xml
+
+# Disallow admin and private routes
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth/
+
