@@ -2,10 +2,17 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState, useEffect } from "react";
 
 export default function Hero() {
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState("all");
   const [date, setDate] = useState("");
   
   // Prevent scrolling on homepage only
@@ -17,7 +24,7 @@ export default function Hero() {
   function onSearch(e: React.FormEvent) {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (location) params.set("location", location);
+    if (location && location !== "all") params.set("location", location);
     if (date) params.set("date", date);
     window.location.href = `/stables${params.toString() ? `?${params.toString()}` : ""}`;
   }
@@ -85,12 +92,16 @@ export default function Hero() {
           className="mt-6 md:mt-8 bg-white/20 backdrop-blur-lg rounded-full shadow-2xl p-3 md:p-4 w-full max-w-3xl mx-auto border border-white/30"
         >
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3">
-            <Input
-              placeholder="Location (Giza or Saqqara)"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="md:flex-1 w-full bg-white/90 backdrop-blur-sm border-white/50"
-            />
+            <Select value={location} onValueChange={setLocation}>
+              <SelectTrigger className="md:flex-1 w-full rounded-full bg-white/90 backdrop-blur-sm border-white/50 text-left">
+                <SelectValue placeholder="Choose location" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Locations</SelectItem>
+                <SelectItem value="giza">Giza Plateau</SelectItem>
+                <SelectItem value="saqqara">Saqqara Desert</SelectItem>
+              </SelectContent>
+            </Select>
             <Input
               type="date"
               value={date}
