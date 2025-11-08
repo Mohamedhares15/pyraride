@@ -13,6 +13,7 @@ async function main() {
     update: {},
     create: {
       email: "admin@pyraride.com",
+      phoneNumber: "+201000000001",
       passwordHash: hashedPassword,
       fullName: "Admin User",
       role: "admin",
@@ -27,6 +28,7 @@ async function main() {
     update: {},
     create: {
       email: "owner@giza-stables.com",
+      phoneNumber: "+201000000002",
       passwordHash: ownerPassword,
       fullName: "Ahmed Stable Owner",
       role: "stable_owner",
@@ -41,6 +43,7 @@ async function main() {
     update: {},
     create: {
       email: "rider1@example.com",
+      phoneNumber: "+201000000003",
       passwordHash: rider1Password,
       fullName: "John Rider",
       role: "rider",
@@ -54,6 +57,7 @@ async function main() {
     update: {},
     create: {
       email: "rider2@example.com",
+      phoneNumber: "+201000000004",
       passwordHash: rider2Password,
       fullName: "Sarah Explorer",
       role: "rider",

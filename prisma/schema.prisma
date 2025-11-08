@@ -34,6 +34,7 @@ enum StableStatus {
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
+  phoneNumber   String?   @unique
   passwordHash  String
   fullName      String?
   role          Role      @default(rider)
@@ -43,6 +44,7 @@ model User {
   bookings      Booking[]
   reviews       Review[]
   stable        Stable?   // A user can own one stable
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Stable {
@@ -139,5 +141,14 @@ model LoyaltyPoints {
   tier        String   @default("bronze") // "bronze", "silver", "gold", "platinum"
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }
 

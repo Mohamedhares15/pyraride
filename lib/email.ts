@@ -215,3 +215,97 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
   }
 }
 
+interface PasswordResetEmailData {
+  email: string;
+  fullName: string;
+  resetLink: string;
+}
+
+function generatePasswordResetEmail(data: PasswordResetEmailData): string {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reset Your PyraRide Password</title>
+</head>
+<body style="margin:0;padding:0;background:#000000;font-family:-apple-system,BlinkMacSystemFont,'SF Pro','Segoe UI',system-ui,sans-serif;">
+  <table role="presentation" style="width:100%;border-spacing:0;background-color:#000000;">
+    <tr>
+      <td align="center" style="padding:48px 20px 80px;">
+        <table role="presentation" style="width:600px;max-width:95%;background:rgba(28,28,30,0.95);border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.8);border:1px solid rgba(255,255,255,0.1);">
+          <tr>
+            <td style="padding:40px 32px;text-align:center;background:transparent;">
+              <h1 style="margin:0 0 12px 0;font-size:32px;font-weight:700;color:#FFFFFF;line-height:1.2;">Reset your password</h1>
+              <p style="margin:0;font-size:16px;font-weight:400;color:#D1D5DB;">Hi ${data.fullName}, we received a request to reset your password.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 32px 32px 32px;">
+              <div style="padding:24px;border-radius:16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);color:#F9FAFB;">
+                <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;color:#E5E7EB;">
+                  Click the button below to choose a new password. This link will expire in 60 minutes for security reasons.
+                </p>
+                <p style="margin:0 0 24px 0;">
+                  <a href="${data.resetLink}" style="display:inline-block;padding:14px 28px;background:linear-gradient(90deg,#0d9488,#2563eb);color:#FFFFFF;font-size:15px;font-weight:600;border-radius:12px;text-decoration:none;">
+                    Reset Password
+                  </a>
+                </p>
+                <p style="margin:0;font-size:13px;color:#9CA3AF;">If you did not request this update, you can safely ignore this email. Your password will remain unchanged.</p>
+              </div>
+              <p style="margin:24px 0 0 0;font-size:12px;color:#6B7280;line-height:1.6;text-align:center;">
+                For your security, this link can be used only once and expires in 60 minutes.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 32px;text-align:center;background:transparent;border-top:1px solid rgba(255,255,255,0.1);">
+              <div style="font-size:12px;color:#6B7280;line-height:1.6;">
+                <div style="margin-bottom:8px;">
+                  <a href="https://pyraride.vercel.app" style="color:#FFFFFF;text-decoration:none;font-weight:600;">PyraRide</a>
+                </div>
+                <div style="margin-bottom:4px;">
+                  Need help? <a href="mailto:support@pyraride.com" style="color:#10b981;text-decoration:none;">support@pyraride.com</a>
+                </div>
+                <div style="font-size:11px;color:#6B7280;margin-top:12px;">© ${new Date().getFullYear()} PyraRide. All rights reserved.</div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+}
+
+export async function sendPasswordResetEmail(
+  data: PasswordResetEmailData
+): Promise<boolean> {
+  try {
+    const transporter = createTransporter();
+
+    if (!transporter) {
+      console.warn("Email transporter not configured. Skipping email send.");
+      return false;
+    }
+
+    const mailOptions = {
+      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      to: data.email,
+      subject: "Reset your PyraRide password",
+      html: generatePasswordResetEmail(data),
+      text: `Hi ${data.fullName},\n\nWe received a request to reset your PyraRide password.\nClick the link below to set a new password (valid for 60 minutes):\n\n${data.resetLink}\n\nIf you didn't request this, you can ignore this email.\n\n— The PyraRide Team`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Password reset email sent:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    return false;
+  }
+}
+

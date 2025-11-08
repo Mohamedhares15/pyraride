@@ -57,3 +57,24 @@ export function validatePassword(password: string): {
   };
 }
 
+/**
+ * Normalize a phone number by removing common formatting characters.
+ * Keeps leading "+" for international numbers.
+ */
+export function normalizePhoneNumber(phone: string): string {
+  const trimmed = phone.trim();
+  if (!trimmed) return "";
+  const hasPlus = trimmed.startsWith("+");
+  const digitsOnly = trimmed.replace(/\D+/g, "");
+  return hasPlus ? `+${digitsOnly}`.replace(/\+\+/, "+") : digitsOnly;
+}
+
+/**
+ * Basic phone validation (E.164-ish). Ensures 8-15 digits and optional leading plus.
+ */
+export function isValidPhoneNumber(phone: string): boolean {
+  const normalized = normalizePhoneNumber(phone);
+  const phoneRegex = /^\+?\d{8,15}$/;
+  return phoneRegex.test(normalized);
+}
+
