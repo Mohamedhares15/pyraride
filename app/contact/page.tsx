@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { Mail, Phone, MapPin, MessageCircle, Clock, Zap, Headphones } from "lucide-react";
+import { Mail, MessageCircle, Clock, Zap, Headphones } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -124,7 +124,7 @@ export default function ContactPage() {
           {/* Contact Info */}
           <section>
             <h2 className="mb-2 font-display text-2xl font-bold">Contact Information</h2>
-            <p className="text-muted-foreground mb-6">Choose your preferred way to reach us</p>
+            <p className="text-muted-foreground mb-6">You can reach us anytime via email or WhatsApp chat</p>
             
             <div className="space-y-4 mb-8">
               <Card className="p-6 hover:shadow-lg transition-shadow">
@@ -140,24 +140,6 @@ export default function ContactPage() {
                     </a>
                     <p className="text-xs text-muted-foreground mt-1">
                       ⚡ Response time: 2-4 hours
-                    </p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-start gap-4">
-                  <Phone className="h-6 w-6 text-primary mt-1" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold mb-1">Phone Support</h3>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Best for: Urgent matters, booking confirmation, immediate assistance
-                    </p>
-                    <a href="tel:+201234567890" className="text-primary hover:underline font-medium text-lg">
-                      +20 123 456 7890
-                    </a>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      🕒 Available: 9 AM - 6 PM EET, 7 days a week
                     </p>
                   </div>
                 </div>
@@ -187,22 +169,6 @@ export default function ContactPage() {
                 </div>
               </Card>
 
-              <Card className="p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-start gap-4">
-                  <MapPin className="h-6 w-6 text-primary mt-1" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold mb-1">Office Location</h3>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Visit us or send mail to:
-                    </p>
-                    <p className="font-medium">
-                      PyraRide Headquarters<br />
-                      Giza District, Cairo<br />
-                      Egypt
-                    </p>
-                  </div>
-                </div>
-              </Card>
             </div>
 
             {/* Business Hours */}
