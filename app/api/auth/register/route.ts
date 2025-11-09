@@ -95,7 +95,10 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(
-      { error: "Failed to register user" },
+      {
+        error: "Failed to register user",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }

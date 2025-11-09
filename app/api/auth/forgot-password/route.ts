@@ -90,7 +90,10 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Forgot password error:", error);
     return NextResponse.json(
-      { error: "Unable to process password reset request" },
+      {
+        error: "Unable to process password reset request",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }
