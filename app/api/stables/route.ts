@@ -60,9 +60,6 @@ export async function GET(req: NextRequest) {
         horses: {
           where: {
             isActive: true,
-            pricePerHour: {
-              not: null,
-            },
           },
           select: {
             id: true,
@@ -162,7 +159,12 @@ export async function GET(req: NextRequest) {
     if (sortByHorsePrice) {
       const horseEntries = filteredStables
         .flatMap((stable: any) =>
-          stable.horses.map((horse: any) => ({
+          stable.horses
+            .filter(
+              (horse: any) =>
+                horse.pricePerHour !== null && horse.pricePerHour !== undefined
+            )
+            .map((horse: any) => ({
             type: "horse",
             stableId: horse.stableId,
             stableName: horse.stableName,
