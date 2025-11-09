@@ -43,6 +43,86 @@ export async function ensureAuthSchema() {
     `);
 
     await prisma.$executeRawUnsafe(`
+      UPDATE "Horse"
+      SET "pricePerHour" = COALESCE("pricePerHour", 500)
+      WHERE "pricePerHour" IS NULL;
+    `);
+
+    // Ensure mediaUrls column exists on Horse table
+    await prisma.$executeRawUnsafe(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM information_schema.columns
+          WHERE table_name = 'Horse'
+            AND column_name = 'mediaUrls'
+        ) THEN
+          ALTER TABLE "Horse"
+            ADD COLUMN "mediaUrls" TEXT[];
+        END IF;
+      END
+      $$;
+    `);
+
+    // Ensure age column exists on Horse table
+    await prisma.$executeRawUnsafe(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM information_schema.columns
+          WHERE table_name = 'Horse'
+            AND column_name = 'age'
+        ) THEN
+          ALTER TABLE "Horse"
+            ADD COLUMN "age" INTEGER;
+        END IF;
+      END
+      $$;
+    `);
+
+    // Ensure skills column exists on Horse table
+    await prisma.$executeRawUnsafe(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM information_schema.columns
+          WHERE table_name = 'Horse'
+            AND column_name = 'skills'
+        ) THEN
+          ALTER TABLE "Horse"
+            ADD COLUMN "skills" TEXT[] DEFAULT ARRAY[]::TEXT[];
+        END IF;
+      END
+      $$;
+    `);
+
+    // Ensure portfolioMedia column exists on Horse table
+    await prisma.$executeRawUnsafe(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM information_schema.columns
+          WHERE table_name = 'Horse'
+            AND column_name = 'portfolioMedia'
+        ) THEN
+          ALTER TABLE "Horse"
+            ADD COLUMN "portfolioMedia" JSONB DEFAULT '[]'::jsonb;
+        END IF;
+      END
+      $$;
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      UPDATE "Horse"
+      SET "portfolioMedia" = '[]'::jsonb
+      WHERE "portfolioMedia" IS NULL;
+    `);
+
+    await prisma.$executeRawUnsafe(`
       CREATE UNIQUE INDEX IF NOT EXISTS "User_phoneNumber_key"
       ON "User"("phoneNumber");
     `);

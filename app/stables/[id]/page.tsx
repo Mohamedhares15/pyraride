@@ -43,6 +43,10 @@ interface Horse {
   description: string;
   imageUrls: string[];
   isActive: boolean;
+  pricePerHour?: number | null;
+  age?: number | null;
+  skills?: string[];
+  portfolioMedia?: unknown;
 }
 
 interface Stable {
@@ -253,28 +257,55 @@ export default function StableDetailPage() {
               {stable.horses.length > 0 ? (
                 <div className="space-y-6">
                   {stable.horses.map((horse) => {
-                    // Extract or default horse info
-                    const horsePrice = "500"; // Default price, can be extracted from description
-                    const horseAge = "8 years"; // Default age, can be extracted from description
-                    const horseSkills = ["Beginner Friendly", "Tour Guide", "Desert Expert"]; // Default skills
-                    
-                    // Get slots for this horse
                     const today = new Date().toISOString().split("T")[0];
                     const horseSlots = takenSlots[today]?.[horse.id] || [];
                     const availableSlotsToday = availableSlots[today] || [];
-                    const takenTimes = horseSlots.map((slot: any) => 
-                      new Date(slot.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+                    const takenTimes = horseSlots.map((slot: any) =>
+                      new Date(slot.startTime).toLocaleTimeString("en-US", {
+                        hour: "numeric",
+                        minute: "2-digit",
+                      })
                     );
-                    const availableTimes = availableSlotsToday.filter((time: string) => !takenTimes.includes(time));
+                    const availableTimes = availableSlotsToday.filter(
+                      (time: string) => !takenTimes.includes(time)
+                    );
+
+                    const horsePriceLabel =
+                      horse.pricePerHour !== null && horse.pricePerHour !== undefined
+                        ? `EGP ${Number(horse.pricePerHour).toFixed(0)}/hour`
+                        : "Contact for pricing";
+                    const horseAge =
+                      horse.age !== null && horse.age !== undefined
+                        ? `${horse.age} years`
+                        : "Not specified";
+                    const horseSkills =
+                      horse.skills && horse.skills.length > 0
+                        ? horse.skills
+                        : ["Beginner Friendly", "Tour Guide", "Desert Expert"];
+                    const portfolioItems = Array.isArray(horse.portfolioMedia)
+                      ? (horse.portfolioMedia as { type?: string; url?: string }[]).filter(
+                          (item) => typeof item?.url === "string"
+                        )
+                      : [];
+                    const galleryItems =
+                      portfolioItems.length > 0
+                        ? portfolioItems
+                        : horse.imageUrls.slice(1).map((url) => ({
+                            type: "image",
+                            url,
+                          }));
+                    const heroImage =
+                      portfolioItems.find((item) => item.type === "image")?.url ||
+                      horse.imageUrls[0];
 
                     return (
-                      <Card key={horse.id} className="overflow-hidden">
+                      <Card key={horse.id} id={`horse-${horse.id}`} className="overflow-hidden">
                         <div className="grid gap-0 md:grid-cols-2">
                           {/* Horse Image */}
                           <div className="relative h-64 w-full md:h-auto bg-gradient-to-br from-primary/20 to-secondary/20">
-                            {horse.imageUrls && horse.imageUrls.length > 0 ? (
+                            {heroImage ? (
                               <Image
-                                src={horse.imageUrls[0]}
+                                src={heroImage}
                                 alt={horse.name}
                                 fill
                                 className="object-cover"
@@ -297,6 +328,39 @@ export default function StableDetailPage() {
                               <p className="text-sm text-muted-foreground mb-4">{horse.description}</p>
                             </div>
 
+                            {galleryItems.length > 0 && (
+                              <div className="mb-4 space-y-2">
+                                <h4 className="text-sm font-semibold">Horse Portfolio</h4>
+                                <div className="grid grid-cols-2 gap-3">
+                                  {galleryItems.map((media, idx) => {
+                                    const url = media.url as string;
+                                    return media.type === "video" ? (
+                                      <video
+                                        key={`${horse.id}-media-${idx}`}
+                                        controls
+                                        className="h-32 w-full rounded-lg object-cover"
+                                      >
+                                        <source src={url} />
+                                        Your browser does not support the video tag.
+                                      </video>
+                                    ) : (
+                                      <div
+                                        key={`${horse.id}-media-${idx}`}
+                                        className="relative h-32 w-full overflow-hidden rounded-lg bg-muted"
+                                      >
+                                        <Image
+                                          src={url}
+                                          alt={`${horse.name} media ${idx + 1}`}
+                                          fill
+                                          className="object-cover"
+                                        />
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+
                             {/* Horse Details Footer */}
                             <div className="space-y-3 border-t pt-4">
                               <div className="flex items-center justify-between text-sm">
@@ -315,7 +379,7 @@ export default function StableDetailPage() {
                               </div>
                               <div className="flex items-center justify-between text-sm">
                                 <span className="text-muted-foreground">Price:</span>
-                                <span className="font-bold text-primary text-lg">EGP {horsePrice}/hour</span>
+                                <span className="font-bold text-primary text-lg">{horsePriceLabel}</span>
                               </div>
                             </div>
 

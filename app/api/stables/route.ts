@@ -175,7 +175,7 @@ export async function GET(req: NextRequest) {
             imageUrl: horse.imageUrl,
             rating: horse.rating,
             totalBookings: horse.totalBookings,
-            pricePerHour: horse.pricePerHour ?? Number.POSITIVE_INFINITY,
+            pricePerHour: Number(horse.pricePerHour),
           }))
         )
         .filter((entry: any) => Number.isFinite(entry.pricePerHour));

@@ -10,30 +10,32 @@ import { Loader2 } from "lucide-react";
 
 type StableMode = "stable" | "horse";
 
-interface BaseResult {
+interface StableResult {
+  type: "stable";
   id: string;
   name: string;
-  rating: number;
-  totalBookings: number;
-  distanceKm?: number;
-}
-
-interface StableResult extends BaseResult {
-  type: "stable";
   location: string;
   address: string;
   description: string;
+  rating: number;
+  totalBookings: number;
   imageUrl?: string;
   createdAt: string;
+  distanceKm?: number;
 }
 
-interface HorseResult extends BaseResult {
+interface HorseResult {
   type: "horse";
+  id: string;
+  name: string;
   stableId: string;
   stableName: string;
   stableLocation: string;
-  imageUrl?: string;
+  rating: number;
+  totalBookings: number;
   pricePerHour: number;
+  imageUrl?: string;
+  distanceKm?: number;
 }
 
 type SearchResult = StableResult | HorseResult;
@@ -89,7 +91,7 @@ export default function StablesClient() {
                 imageUrl: item.imageUrl,
                 rating: item.rating,
                 totalBookings: item.totalBookings,
-                pricePerHour: item.pricePerHour,
+                pricePerHour: Number(item.pricePerHour ?? 0),
                 stableId: item.stableId,
                 stableName: item.stableName,
                 stableLocation: item.stableLocation,

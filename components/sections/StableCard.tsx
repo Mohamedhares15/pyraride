@@ -16,6 +16,7 @@ type Stable = {
   totalBookings?: number;
   startingPrice?: number;
   distanceKm?: number;
+  pricePerHour?: number;
 };
 
 interface StableCardProps {
@@ -69,6 +70,12 @@ export default function StableCard({ stable, index, href }: StableCardProps) {
             <MapPin className="h-3 w-3 md:h-4 md:w-4" />
             <span>{stable.location}</span>
           </div>
+
+          {stable.pricePerHour !== undefined && (
+            <div className="mt-3 text-sm font-semibold text-primary">
+              EGP {stable.pricePerHour.toFixed(0)}/hour
+            </div>
+          )}
 
           {stable.description && (
             <p className="mt-3 text-xs md:text-sm text-muted-foreground line-clamp-2">

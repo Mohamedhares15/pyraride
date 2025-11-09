@@ -63,7 +63,7 @@ export default function StableList({ results, mode, isLoading }: StableListProps
       >
         <div className="mb-4 text-6xl">🐴</div>
         <h3 className="mb-2 font-display text-2xl font-bold">
-          No Stables Found
+          {mode === "horse" ? "No Horses Found" : "No Stables Found"}
         </h3>
         <p className="max-w-md text-muted-foreground">
           We couldn&apos;t find any stables matching your search criteria.
@@ -76,7 +76,7 @@ export default function StableList({ results, mode, isLoading }: StableListProps
   if (mode === "horse") {
     return (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {results.map((item) => {
+        {results.map((item, index) => {
           if (item.type !== "horse") return null;
           return (
             <StableCard
@@ -84,16 +84,15 @@ export default function StableList({ results, mode, isLoading }: StableListProps
               href={`/stables/${item.stableId}#horse-${item.id}`}
               stable={{
                 id: item.stableId,
-                name: `${item.name} · ${item.stableName}`,
+              name: `${item.name} · ${item.stableName}`,
                 location: item.stableLocation,
                 imageUrl: item.imageUrl || "/hero-bg.webp",
-                description: `Tap to view full details and book. Rate: $${item.pricePerHour.toFixed(
-                  0
-                )}/hour.`,
+              description: `Belongs to ${item.stableName}. View full gallery and availability.`,
                 rating: item.rating,
                 totalBookings: item.totalBookings,
+                pricePerHour: item.pricePerHour,
               }}
-              index={0}
+              index={index}
             />
           );
         })}

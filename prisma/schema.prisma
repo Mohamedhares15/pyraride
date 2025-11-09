@@ -71,6 +71,9 @@ model Horse {
   description String   @db.Text
   imageUrls   String[]
   pricePerHour Decimal? @db.Decimal(10,2)
+  age         Int?
+  skills      String[] @default([])
+  portfolioMedia Json @default(json("[]"))
   isActive    Boolean  @default(true)
 
   // Relations

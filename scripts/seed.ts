@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -90,7 +90,16 @@ async function main() {
         "A beautiful Arabian horse, gentle and experienced with tourists. Perfect for beginners and experts alike. Known for his calm demeanor and love of the desert.",
       imageUrls: [
         "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800",
+        "https://images.unsplash.com/photo-1601758063433-0c3be2b9af1e?w=800",
       ],
+      pricePerHour: 450,
+      age: 8,
+      skills: ["Beginner Friendly", "Calm Temperament", "Family Friendly"],
+      portfolioMedia: [
+        { type: "image", url: "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=1200" },
+        { type: "image", url: "https://images.unsplash.com/photo-1601758063433-0c3be2b9af1e?w=1200" },
+        { type: "video", url: "https://cdn.coverr.co/videos/coverr-riding-horses-in-the-desert-8867/1080p.mp4" },
+      ] as Prisma.JsonArray,
       isActive: true,
     },
   });
@@ -104,7 +113,16 @@ async function main() {
         "An elegant mare with stunning brown coat. Expertly trained for pyramid tours. Very friendly and loves attention from riders.",
       imageUrls: [
         "https://images.unsplash.com/photo-1505275350441-83dcda8eeef5?w=800",
+        "https://images.unsplash.com/photo-1523978591478-c753949ff840?w=800",
       ],
+      pricePerHour: 520,
+      age: 9,
+      skills: ["Intermediate Riders", "Pyramid Tours", "Photo Ready"],
+      portfolioMedia: [
+        { type: "image", url: "https://images.unsplash.com/photo-1505275350441-83dcda8eeef5?w=1200" },
+        { type: "image", url: "https://images.unsplash.com/photo-1523978591478-c753949ff840?w=1200" },
+        { type: "video", url: "https://cdn.coverr.co/videos/coverr-horse-walking-in-the-field-7282/1080p.mp4" },
+      ] as Prisma.JsonArray,
       isActive: true,
     },
   });
@@ -118,7 +136,16 @@ async function main() {
         "A majestic stallion with years of experience on pyramid tours. His strong build and gentle nature make him perfect for longer rides around Giza.",
       imageUrls: [
         "https://images.unsplash.com/photo-1551963831-b3b1ca40c98e?w=800",
+        "https://images.unsplash.com/photo-1546712791-4d13e0c67f16?w=800",
       ],
+      pricePerHour: 580,
+      age: 10,
+      skills: ["Advanced Riders", "Sunset Tours", "Desert Expert"],
+      portfolioMedia: [
+        { type: "image", url: "https://images.unsplash.com/photo-1551963831-b3b1ca40c98e?w=1200" },
+        { type: "image", url: "https://images.unsplash.com/photo-1546712791-4d13e0c67f16?w=1200" },
+        { type: "video", url: "https://cdn.coverr.co/videos/coverr-horseback-riding-at-sunset-8530/1080p.mp4" },
+      ] as Prisma.JsonArray,
       isActive: true,
     },
   });

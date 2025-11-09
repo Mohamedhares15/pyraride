@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ensureAuthSchema } from "@/lib/ensure-auth-schema";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,8 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    await ensureAuthSchema();
+
     const stable = await prisma.stable.findUnique({
       where: {
         id: params.id,
@@ -24,6 +27,17 @@ export async function GET(
         },
         horses: {
           where: {
+            isActive: true,
+          },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            imageUrls: true,
+            pricePerHour: true,
+            age: true,
+            skills: true,
+            portfolioMedia: true,
             isActive: true,
           },
         },
@@ -69,8 +83,19 @@ export async function GET(
           stable.reviews.length
         : 0;
 
+    const horses = stable.horses.map((horse: any) => ({
+      ...horse,
+      pricePerHour:
+        horse.pricePerHour !== null && horse.pricePerHour !== undefined
+          ? Number(horse.pricePerHour)
+          : null,
+      skills: horse.skills ?? [],
+      portfolioMedia: Array.isArray(horse.portfolioMedia) ? horse.portfolioMedia : [],
+    }));
+
     return NextResponse.json({
       ...stable,
+      horses,
       rating: Number(avgStableRating.toFixed(1)),
       totalBookings: stable._count.bookings,
       totalReviews: stable._count.reviews,
