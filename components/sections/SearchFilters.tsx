@@ -17,9 +17,11 @@ interface SearchFiltersProps {
   search: string;
   location: string;
   minRating: string;
+  sort: string;
   onSearchChange: (value: string) => void;
   onLocationChange: (value: string) => void;
   onRatingChange: (value: string) => void;
+  onSortChange: (value: string) => void;
   onClear: () => void;
 }
 
@@ -27,9 +29,11 @@ export default function SearchFilters({
   search,
   location,
   minRating,
+  sort,
   onSearchChange,
   onLocationChange,
   onRatingChange,
+  onSortChange,
   onClear,
 }: SearchFiltersProps) {
   const hasActiveFilters =
@@ -70,7 +74,7 @@ export default function SearchFilters({
       </div>
 
       {/* Filters */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         {/* Location Filter */}
         <div className="space-y-2">
           <Label htmlFor="location">Location</Label>
@@ -80,8 +84,8 @@ export default function SearchFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Locations</SelectItem>
-              <SelectItem value="giza">Giza</SelectItem>
-              <SelectItem value="saqqara">Saqqara</SelectItem>
+              <SelectItem value="Giza">Giza</SelectItem>
+              <SelectItem value="Saqqara">Saqqara</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -98,6 +102,24 @@ export default function SearchFilters({
               <SelectItem value="3">3+ Stars</SelectItem>
               <SelectItem value="4">4+ Stars</SelectItem>
               <SelectItem value="5">5 Stars</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Sort */}
+        <div className="space-y-2">
+          <Label htmlFor="sort">Sort by</Label>
+          <Select value={sort} onValueChange={onSortChange}>
+            <SelectTrigger id="sort">
+              <SelectValue placeholder="Recommended" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recommended">Recommended</SelectItem>
+              <SelectItem value="location">Location (A-Z)</SelectItem>
+              <SelectItem value="price-asc">Price: Low to High</SelectItem>
+              <SelectItem value="price-desc">Price: High to Low</SelectItem>
+              <SelectItem value="rating">Rating: High to Low</SelectItem>
+              <SelectItem value="distance">Distance: Nearest first</SelectItem>
             </SelectContent>
           </Select>
         </div>

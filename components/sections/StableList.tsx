@@ -15,6 +15,8 @@ interface Stable {
   horseCount: number;
   imageUrl?: string;
   createdAt: string;
+  startingPrice?: number | null;
+  distanceKm?: number;
 }
 
 interface StableListProps {
@@ -66,6 +68,8 @@ export default function StableList({ stables, isLoading }: StableListProps) {
             description: stable.description,
             rating: stable.rating,
             totalBookings: stable.totalBookings,
+            startingPrice: stable.startingPrice ?? undefined,
+            distanceKm: stable.distanceKm,
           }} 
           index={index} 
         />

@@ -14,6 +14,8 @@ type Stable = {
   description?: string;
   rating?: number;
   totalBookings?: number;
+  startingPrice?: number;
+  distanceKm?: number;
 };
 
 export default function StableCard({ stable, index }: { stable: Stable; index?: number }) {
@@ -73,6 +75,17 @@ export default function StableCard({ stable, index }: { stable: Stable; index?: 
             <span className="font-semibold text-sm md:text-base">{stable.rating?.toFixed(1) || "4.9"}</span>
             <span className="text-xs md:text-sm text-foreground/70 ml-1">({stable.totalBookings || 120} Reviews)</span>
           </div>
+
+          {(stable.startingPrice !== undefined || stable.distanceKm !== undefined) && (
+            <div className="mt-3 flex flex-wrap gap-3 text-xs md:text-sm text-foreground/70">
+              {stable.startingPrice !== undefined && (
+                <span>From ${stable.startingPrice.toFixed(0)} / hour</span>
+              )}
+              {stable.distanceKm !== undefined && (
+                <span>{stable.distanceKm} km from central Giza</span>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
       </Link>

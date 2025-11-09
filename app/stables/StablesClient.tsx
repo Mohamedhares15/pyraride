@@ -18,6 +18,8 @@ interface Stable {
   totalBookings: number;
   horseCount: number;
   createdAt: string;
+  startingPrice?: number | null;
+  distanceKm?: number;
 }
 
 export default function StablesClient() {
@@ -28,9 +30,18 @@ export default function StablesClient() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const normalizeLocationParam = (value: string | null) => {
+    if (!value) return "all";
+    const lower = value.toLowerCase();
+    if (lower === "giza") return "Giza";
+    if (lower === "saqqara") return "Saqqara";
+    return "all";
+  };
+
   const [search, setSearch] = useState(searchParams.get("search") || "");
-  const [location, setLocation] = useState(searchParams.get("location") || "all");
+  const [location, setLocation] = useState(normalizeLocationParam(searchParams.get("location")));
   const [minRating, setMinRating] = useState(searchParams.get("minRating") || "0");
+  const [sort, setSort] = useState(searchParams.get("sort") || "recommended");
 
   const fetchStables = useCallback(async () => {
     setIsLoading(true);
@@ -41,6 +52,7 @@ export default function StablesClient() {
       if (search) params.append("search", search);
       if (location !== "all") params.append("location", location);
       if (minRating !== "0") params.append("minRating", minRating);
+      if (sort && sort !== "recommended") params.append("sort", sort);
 
       const response = await fetch(`/api/stables?${params.toString()}`);
       
@@ -55,7 +67,7 @@ export default function StablesClient() {
     } finally {
       setIsLoading(false);
     }
-  }, [search, location, minRating]);
+  }, [search, location, minRating, sort]);
 
   useEffect(() => {
     fetchStables();
@@ -73,10 +85,11 @@ export default function StablesClient() {
   };
 
   const handleLocationChange = (value: string) => {
-    setLocation(value);
+    const normalized = value === "all" ? "all" : normalizeLocationParam(value);
+    setLocation(normalized);
     const params = new URLSearchParams(searchParams);
-    if (value !== "all") {
-      params.set("location", value);
+    if (normalized !== "all") {
+      params.set("location", normalized);
     } else {
       params.delete("location");
     }
@@ -94,10 +107,22 @@ export default function StablesClient() {
     router.push(`?${params.toString()}`);
   };
 
+  const handleSortChange = (value: string) => {
+    setSort(value);
+    const params = new URLSearchParams(searchParams);
+    if (value && value !== "recommended") {
+      params.set("sort", value);
+    } else {
+      params.delete("sort");
+    }
+    router.push(`?${params.toString()}`);
+  };
+
   const handleClear = () => {
     setSearch("");
     setLocation("all");
     setMinRating("0");
+    setSort("recommended");
     router.push("/stables");
   };
 
@@ -135,9 +160,11 @@ export default function StablesClient() {
             search={search}
             location={location}
             minRating={minRating}
+            sort={sort}
             onSearchChange={handleSearchChange}
             onLocationChange={handleLocationChange}
             onRatingChange={handleRatingChange}
+            onSortChange={handleSortChange}
             onClear={handleClear}
           />
 
