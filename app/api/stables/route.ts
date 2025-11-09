@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ensureAuthSchema } from "@/lib/ensure-auth-schema";
 
 export async function GET(req: NextRequest) {
   try {
+    await ensureAuthSchema();
+
     const session = await getServerSession();
     const searchParams = req.nextUrl.searchParams;
     const location = searchParams.get("location");

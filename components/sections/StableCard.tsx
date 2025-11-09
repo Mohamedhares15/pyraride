@@ -18,7 +18,13 @@ type Stable = {
   distanceKm?: number;
 };
 
-export default function StableCard({ stable, index }: { stable: Stable; index?: number }) {
+interface StableCardProps {
+  stable: Stable;
+  index?: number;
+  href?: string;
+}
+
+export default function StableCard({ stable, index, href }: StableCardProps) {
   // Default image if none provided
   const defaultImage = "/hero-bg.webp";
   const imageSrc = stable.imageUrl && stable.imageUrl !== "" ? stable.imageUrl : defaultImage;
@@ -31,7 +37,7 @@ export default function StableCard({ stable, index }: { stable: Stable; index?: 
       whileHover={{ y: -8 }}
       className="will-change-transform hover:shadow-lg transition-shadow h-full"
     >
-      <Link href={`/stables/${stable.id}`} className="block h-full">
+      <Link href={href ?? `/stables/${stable.id}`} className="block h-full">
         <Card className="overflow-hidden h-full cursor-pointer">
           {/* Media */}
           <div className="relative w-full aspect-video bg-gradient-to-br from-primary/20 to-secondary/20">

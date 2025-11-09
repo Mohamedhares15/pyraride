@@ -76,63 +76,25 @@ export default function StableList({ results, mode, isLoading }: StableListProps
   if (mode === "horse") {
     return (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {results.map((item, index) => {
+        {results.map((item) => {
           if (item.type !== "horse") return null;
-          const imageSrc =
-            item.imageUrl && item.imageUrl !== "" ? item.imageUrl : "/hero-bg.webp";
-
           return (
-            <motion.div
+            <StableCard
               key={item.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25, duration: 0.5 }}
-              whileHover={{ y: -8 }}
-              className="will-change-transform hover:shadow-lg transition-shadow h-full"
-            >
-              <Link href={`/stables/${item.stableId}#horse-${item.id}`} className="block h-full">
-                <Card className="overflow-hidden h-full cursor-pointer">
-                  <div className="relative w-full aspect-video bg-gradient-to-br from-primary/20 to-secondary/20">
-                    <Image
-                      src={imageSrc}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-                      priority={index < 6}
-                      loading={index >= 6 ? "lazy" : undefined}
-                    />
-                  </div>
-                  <CardContent className="p-4 md:p-8">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-lg md:text-2xl text-foreground">
-                        {item.name}
-                      </h3>
-                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                        ${item.pricePerHour.toFixed(0)}/hour
-                      </span>
-                    </div>
-                    <div className="mt-3 text-sm text-muted-foreground">
-                      {item.stableName} · {item.stableLocation}
-                    </div>
-                    <div className="flex items-center gap-2 text-nile-blue mt-3 md:mt-4">
-                      <Star className="h-3 w-3 md:h-4 md:w-4 fill-current" />
-                      <span className="font-semibold text-sm md:text-base">
-                        {item.rating.toFixed(1)}
-                      </span>
-                      <span className="text-xs md:text-sm text-foreground/70 ml-1">
-                        ({item.totalBookings} rides)
-                      </span>
-                    </div>
-                    {item.distanceKm !== undefined && (
-                      <div className="mt-3 text-xs md:text-sm text-foreground/60">
-                        {item.distanceKm} km from central Giza
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
+              href={`/stables/${item.stableId}#horse-${item.id}`}
+              stable={{
+                id: item.stableId,
+                name: `${item.name} · ${item.stableName}`,
+                location: item.stableLocation,
+                imageUrl: item.imageUrl || "/hero-bg.webp",
+                description: `Tap to view full details and book. Rate: $${item.pricePerHour.toFixed(
+                  0
+                )}/hour.`,
+                rating: item.rating,
+                totalBookings: item.totalBookings,
+              }}
+              index={0}
+            />
           );
         })}
       </div>
