@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "./prisma";
 import { verifyPassword, normalizePhoneNumber } from "./auth-utils";
+import { ensureAuthSchema } from "./ensure-auth-schema";
 import type { Adapter } from "next-auth/adapters";
 
 export const authOptions: NextAuthOptions = {
@@ -28,6 +29,8 @@ export const authOptions: NextAuthOptions = {
         if (!identifier || !password) {
           throw new Error("Missing credentials");
         }
+
+        await ensureAuthSchema();
 
         const normalizedIdentifier = identifier.includes("@")
           ? identifier.toLowerCase()

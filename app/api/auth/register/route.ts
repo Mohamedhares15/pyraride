@@ -7,9 +7,12 @@ import {
   isValidPhoneNumber,
   normalizePhoneNumber,
 } from "@/lib/auth-utils";
+import { ensureAuthSchema } from "@/lib/ensure-auth-schema";
 
 export async function POST(req: NextRequest) {
   try {
+    await ensureAuthSchema();
+
     const body = await req.json();
     const { email, password, fullName, phoneNumber, role } = body;
 

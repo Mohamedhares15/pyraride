@@ -7,9 +7,12 @@ import {
   isValidPhoneNumber,
 } from "@/lib/auth-utils";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { ensureAuthSchema } from "@/lib/ensure-auth-schema";
 
 export async function POST(req: NextRequest) {
   try {
+    await ensureAuthSchema();
+
     const { identifier } = await req.json();
 
     if (!identifier || typeof identifier !== "string") {
@@ -62,6 +65,7 @@ export async function POST(req: NextRequest) {
 
     await prisma.passwordResetToken.create({
       data: {
+        id: crypto.randomUUID(),
         token,
         userId: user.id,
         expiresAt,

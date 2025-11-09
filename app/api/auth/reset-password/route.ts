@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, validatePassword } from "@/lib/auth-utils";
+import { ensureAuthSchema } from "@/lib/ensure-auth-schema";
 
 export async function POST(req: NextRequest) {
   try {
+    await ensureAuthSchema();
+
     const { token, password } = await req.json();
 
     if (!token || typeof token !== "string") {
