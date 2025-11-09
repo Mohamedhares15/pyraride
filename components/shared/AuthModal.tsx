@@ -73,6 +73,9 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
     setIsLoading(true);
     resetFeedback();
 
+    const formatError = (primary?: string, detail?: string) =>
+      [primary, detail].filter(Boolean).join(" — ");
+
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
@@ -88,7 +91,7 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Registration failed");
+        setError(formatError(data.error, data.details) || "Registration failed");
         return;
       }
 
@@ -124,7 +127,11 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Unable to process request.");
+        const message =
+          data.error || data.details
+            ? [data.error, data.details].filter(Boolean).join(" — ")
+            : null;
+        setError(message || "Unable to process request.");
         return;
       }
 
