@@ -10,19 +10,8 @@ export async function ensureAuthSchema() {
   try {
     // Ensure phoneNumber column exists on User table
     await prisma.$executeRawUnsafe(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (
-          SELECT 1
-          FROM information_schema.columns
-          WHERE table_name = 'User'
-            AND column_name = 'phoneNumber'
-        ) THEN
-          ALTER TABLE "User"
-            ADD COLUMN "phoneNumber" TEXT;
-        END IF;
-      END
-      $$;
+      ALTER TABLE "User"
+      ADD COLUMN IF NOT EXISTS "phoneNumber" TEXT;
     `);
 
     await prisma.$executeRawUnsafe(`
@@ -33,18 +22,12 @@ export async function ensureAuthSchema() {
     // Ensure PasswordResetToken table exists
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "PasswordResetToken" (
-        "id" TEXT NOT NULL,
-        "token" TEXT NOT NULL,
+        "id" TEXT PRIMARY KEY,
+        "token" TEXT UNIQUE NOT NULL,
         "userId" TEXT NOT NULL,
         "expiresAt" TIMESTAMP(3) NOT NULL,
-        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT NOW(),
-        CONSTRAINT "PasswordResetToken_pkey" PRIMARY KEY ("id")
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT NOW()
       );
-    `);
-
-    await prisma.$executeRawUnsafe(`
-      CREATE UNIQUE INDEX IF NOT EXISTS "PasswordResetToken_token_key"
-        ON "PasswordResetToken"("token");
     `);
 
     await prisma.$executeRawUnsafe(`
