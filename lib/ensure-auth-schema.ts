@@ -11,7 +11,7 @@ export async function ensureAuthSchema() {
     // Ensure phoneNumber column exists on User table
     await prisma.$executeRawUnsafe(`
       ALTER TABLE "User"
-      ADD COLUMN IF NOT EXISTS "phoneNumber" TEXT;
+      ADD COLUMN IF NOT EXISTS "phoneNumber" TEXT NULL;
     `);
 
     await prisma.$executeRawUnsafe(`
