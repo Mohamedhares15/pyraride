@@ -57,11 +57,22 @@ export async function GET(req: NextRequest) {
         horses: {
           where: {
             isActive: true,
+            pricePerHour: {
+              not: null,
+            },
           },
           select: {
             id: true,
+            name: true,
             imageUrls: true,
             pricePerHour: true,
+            stable: {
+              select: {
+                id: true,
+                name: true,
+                location: true,
+              },
+            },
           },
         },
         _count: {
@@ -97,18 +108,26 @@ export async function GET(req: NextRequest) {
         ? stable.horses[0].imageUrls[0]
         : "/hero-bg.webp";
 
-      const horsePrices = stable.horses
-        .map((horse: any) =>
-          horse.pricePerHour !== null && horse.pricePerHour !== undefined
-            ? Number(horse.pricePerHour)
-            : null
-        )
-        .filter((price: number | null) => price !== null) as number[];
-
-      const startingPrice = horsePrices.length > 0 ? Math.min(...horsePrices) : null;
       const distanceKey = typeof stable.location === "string" ? stable.location.toLowerCase() : "";
       const distanceKm =
         distanceKey in distanceLookup ? distanceLookup[distanceKey] : 40;
+
+      const horses = stable.horses.map((horse: any) => ({
+        id: horse.id,
+        name: horse.name,
+        imageUrl:
+          horse.imageUrls && horse.imageUrls.length > 0 ? horse.imageUrls[0] : imageUrl,
+        pricePerHour:
+          horse.pricePerHour !== null && horse.pricePerHour !== undefined
+            ? Number(horse.pricePerHour)
+            : null,
+        stableId: horse.stable?.id ?? stable.id,
+        stableName: horse.stable?.name ?? stable.name,
+        stableLocation: horse.stable?.location ?? stable.location,
+        rating: Number(avgRating.toFixed(1)),
+        totalBookings: stable._count.bookings,
+        distanceKm,
+      }));
 
       return {
         id: stable.id,
@@ -122,8 +141,8 @@ export async function GET(req: NextRequest) {
         horseCount: stable.horses.length,
         imageUrl: imageUrl,
         createdAt: stable.createdAt,
-        startingPrice,
         distanceKm,
+        horses,
       };
     });
 
@@ -135,24 +154,43 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const sortByHorsePrice = sort === "price-asc" || sort === "price-desc";
+
+    if (sortByHorsePrice) {
+      const horseEntries = filteredStables
+        .flatMap((stable: any) =>
+          stable.horses.map((horse: any) => ({
+            type: "horse",
+            stableId: horse.stableId,
+            stableName: horse.stableName,
+            stableLocation: horse.stableLocation,
+            distanceKm: horse.distanceKm,
+            id: horse.id,
+            name: horse.name,
+            imageUrl: horse.imageUrl,
+            rating: horse.rating,
+            totalBookings: horse.totalBookings,
+            pricePerHour: horse.pricePerHour ?? Number.POSITIVE_INFINITY,
+          }))
+        )
+        .filter((entry: any) => Number.isFinite(entry.pricePerHour));
+
+      horseEntries.sort((a: any, b: any) =>
+        sort === "price-asc"
+          ? a.pricePerHour - b.pricePerHour
+          : b.pricePerHour - a.pricePerHour
+      );
+
+      return NextResponse.json({
+        stables: horseEntries,
+        mode: "horse",
+      });
+    }
+
     let sortedStables = [...filteredStables];
     switch (sort) {
       case "location":
         sortedStables.sort((a, b) => a.location.localeCompare(b.location));
-        break;
-      case "price-asc":
-        sortedStables.sort(
-          (a, b) =>
-            (a.startingPrice ?? Number.POSITIVE_INFINITY) -
-            (b.startingPrice ?? Number.POSITIVE_INFINITY)
-        );
-        break;
-      case "price-desc":
-        sortedStables.sort(
-          (a, b) =>
-            (b.startingPrice ?? Number.NEGATIVE_INFINITY) -
-            (a.startingPrice ?? Number.NEGATIVE_INFINITY)
-        );
         break;
       case "rating":
         sortedStables.sort((a, b) => b.rating - a.rating);
@@ -165,10 +203,15 @@ export async function GET(req: NextRequest) {
         );
         break;
       default:
-        sortedStables.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        sortedStables.sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
     }
 
-    return NextResponse.json({ stables: sortedStables });
+    return NextResponse.json({
+      stables: sortedStables,
+      mode: "stable",
+    });
   } catch (error) {
     console.error("Error fetching stables:", error);
     return NextResponse.json(

@@ -25,6 +25,23 @@ export async function ensureAuthSchema() {
       $$;
     `);
 
+    // Ensure pricePerHour column exists on Horse table
+    await prisma.$executeRawUnsafe(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM information_schema.columns
+          WHERE table_name = 'Horse'
+            AND column_name = 'pricePerHour'
+        ) THEN
+          ALTER TABLE "Horse"
+            ADD COLUMN "pricePerHour" DECIMAL(10,2);
+        END IF;
+      END
+      $$;
+    `);
+
     await prisma.$executeRawUnsafe(`
       CREATE UNIQUE INDEX IF NOT EXISTS "User_phoneNumber_key"
       ON "User"("phoneNumber");

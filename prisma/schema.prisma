@@ -70,6 +70,7 @@ model Horse {
   name        String
   description String   @db.Text
   imageUrls   String[]
+  pricePerHour Decimal? @db.Decimal(10,2)
   isActive    Boolean  @default(true)
 
   // Relations

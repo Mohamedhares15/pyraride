@@ -8,25 +8,42 @@ import StableList from "@/components/sections/StableList";
 import WeatherWidget from "@/components/shared/WeatherWidget";
 import { Loader2 } from "lucide-react";
 
-interface Stable {
+type StableMode = "stable" | "horse";
+
+interface BaseResult {
   id: string;
   name: string;
-  description: string;
-  location: string;
-  address: string;
   rating: number;
   totalBookings: number;
-  horseCount: number;
-  createdAt: string;
-  startingPrice?: number | null;
   distanceKm?: number;
 }
+
+interface StableResult extends BaseResult {
+  type: "stable";
+  location: string;
+  address: string;
+  description: string;
+  imageUrl?: string;
+  createdAt: string;
+}
+
+interface HorseResult extends BaseResult {
+  type: "horse";
+  stableId: string;
+  stableName: string;
+  stableLocation: string;
+  imageUrl?: string;
+  pricePerHour: number;
+}
+
+type SearchResult = StableResult | HorseResult;
 
 export default function StablesClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [stables, setStables] = useState<Stable[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [mode, setMode] = useState<StableMode>("stable");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,7 +78,38 @@ export default function StablesClient() {
       }
 
       const data = await response.json();
-      setStables(data.stables);
+      setMode((data.mode as StableMode) || "stable");
+      setResults(
+        (data.stables || []).map((item: any) =>
+          sort === "price-asc" || sort === "price-desc"
+            ? ({
+                type: "horse",
+                id: item.id,
+                name: item.name,
+                imageUrl: item.imageUrl,
+                rating: item.rating,
+                totalBookings: item.totalBookings,
+                pricePerHour: item.pricePerHour,
+                stableId: item.stableId,
+                stableName: item.stableName,
+                stableLocation: item.stableLocation,
+                distanceKm: item.distanceKm,
+              } as HorseResult)
+            : ({
+                type: "stable",
+                id: item.id,
+                name: item.name,
+                location: item.location,
+                address: item.address,
+                description: item.description,
+                rating: item.rating,
+                totalBookings: item.totalBookings,
+                imageUrl: item.imageUrl,
+                createdAt: item.createdAt,
+                distanceKm: item.distanceKm,
+              } as StableResult)
+        )
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -188,12 +236,15 @@ export default function StablesClient() {
                       <span className="text-sm md:text-base">Loading...</span>
                     </div>
                   ) : (
-                    <span className="text-sm md:text-base">{stables.length} Stable{stables.length !== 1 ? "s" : ""} Found</span>
+                    <span className="text-sm md:text-base">
+                      {results.length} {mode === "horse" ? "Horse" : "Stable"}
+                      {results.length !== 1 ? "s" : ""} Found
+                    </span>
                   )}
                 </h2>
               </div>
 
-              <StableList stables={stables} isLoading={isLoading} />
+              <StableList results={results} mode={mode} isLoading={isLoading} />
             </>
           )}
         </div>

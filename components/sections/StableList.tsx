@@ -2,29 +2,47 @@
 
 import { motion } from "framer-motion";
 import StableCard from "./StableCard";
-import { Loader2 } from "lucide-react";
+import { Loader2, Star } from "lucide-react";
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
 
-interface Stable {
-  id: string;
-  name: string;
-  description: string;
-  location: string;
-  address: string;
-  rating: number;
-  totalBookings: number;
-  horseCount: number;
-  imageUrl?: string;
-  createdAt: string;
-  startingPrice?: number | null;
-  distanceKm?: number;
-}
+type StableMode = "stable" | "horse";
 
 interface StableListProps {
-  stables: Stable[];
+  results: Array<
+    | {
+        type: "stable";
+        id: string;
+        name: string;
+        location: string;
+        address: string;
+        description: string;
+        rating: number;
+        totalBookings: number;
+        imageUrl?: string;
+        createdAt: string;
+        distanceKm?: number;
+      }
+    | {
+        type: "horse";
+        id: string;
+        name: string;
+        pricePerHour: number;
+        stableId: string;
+        stableName: string;
+        stableLocation: string;
+        imageUrl?: string;
+        rating: number;
+        totalBookings: number;
+        distanceKm?: number;
+      }
+  >;
+  mode: StableMode;
   isLoading?: boolean;
 }
 
-export default function StableList({ stables, isLoading }: StableListProps) {
+export default function StableList({ results, mode, isLoading }: StableListProps) {
   if (isLoading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
@@ -36,7 +54,7 @@ export default function StableList({ stables, isLoading }: StableListProps) {
     );
   }
 
-  if (stables.length === 0) {
+  if (results.length === 0) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -55,25 +73,92 @@ export default function StableList({ stables, isLoading }: StableListProps) {
     );
   }
 
+  if (mode === "horse") {
+    return (
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {results.map((item, index) => {
+          if (item.type !== "horse") return null;
+          const imageSrc =
+            item.imageUrl && item.imageUrl !== "" ? item.imageUrl : "/hero-bg.webp";
+
+          return (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25, duration: 0.5 }}
+              whileHover={{ y: -8 }}
+              className="will-change-transform hover:shadow-lg transition-shadow h-full"
+            >
+              <Link href={`/stables/${item.stableId}#horse-${item.id}`} className="block h-full">
+                <Card className="overflow-hidden h-full cursor-pointer">
+                  <div className="relative w-full aspect-video bg-gradient-to-br from-primary/20 to-secondary/20">
+                    <Image
+                      src={imageSrc}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+                      priority={index < 6}
+                      loading={index >= 6 ? "lazy" : undefined}
+                    />
+                  </div>
+                  <CardContent className="p-4 md:p-8">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-lg md:text-2xl text-foreground">
+                        {item.name}
+                      </h3>
+                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                        ${item.pricePerHour.toFixed(0)}/hour
+                      </span>
+                    </div>
+                    <div className="mt-3 text-sm text-muted-foreground">
+                      {item.stableName} · {item.stableLocation}
+                    </div>
+                    <div className="flex items-center gap-2 text-nile-blue mt-3 md:mt-4">
+                      <Star className="h-3 w-3 md:h-4 md:w-4 fill-current" />
+                      <span className="font-semibold text-sm md:text-base">
+                        {item.rating.toFixed(1)}
+                      </span>
+                      <span className="text-xs md:text-sm text-foreground/70 ml-1">
+                        ({item.totalBookings} rides)
+                      </span>
+                    </div>
+                    {item.distanceKm !== undefined && (
+                      <div className="mt-3 text-xs md:text-sm text-foreground/60">
+                        {item.distanceKm} km from central Giza
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {stables.map((stable, index) => (
-        <StableCard 
-          key={stable.id} 
-          stable={{
-            id: stable.id,
-            name: stable.name,
-            location: stable.location,
-            imageUrl: stable.imageUrl || "/hero-bg.webp",
-            description: stable.description,
-            rating: stable.rating,
-            totalBookings: stable.totalBookings,
-            startingPrice: stable.startingPrice ?? undefined,
-            distanceKm: stable.distanceKm,
-          }} 
-          index={index} 
-        />
-      ))}
+      {results.map((item, index) => {
+        if (item.type !== "stable") return null;
+        return (
+          <StableCard
+            key={item.id}
+            stable={{
+              id: item.id,
+              name: item.name,
+              location: item.location,
+              imageUrl: item.imageUrl || "/hero-bg.webp",
+              description: item.description,
+              rating: item.rating,
+              totalBookings: item.totalBookings,
+            }}
+            index={index}
+          />
+        );
+      })}
     </div>
   );
 }
