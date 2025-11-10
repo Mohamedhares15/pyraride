@@ -154,6 +154,7 @@ export async function GET(req: NextRequest) {
           select: {
             id: true,
             name: true,
+            description: true,
             imageUrls: true,
             pricePerHour: true,
             age: true,
@@ -163,13 +164,6 @@ export async function GET(req: NextRequest) {
                 id: true,
                 name: true,
                 location: true,
-              },
-            },
-            reviews: {
-              select: {
-                id: true,
-                horseRating: true,
-                comment: true,
               },
             },
             _count: {
@@ -206,6 +200,50 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    const reviews = await prisma.review.findMany({
+      where: {
+        stableId: {
+          in: stables.map((stable: any) => stable.id),
+        },
+      },
+      select: {
+        stableId: true,
+        horseId: true,
+        stableRating: true,
+        horseRating: true,
+        comment: true,
+      },
+    });
+
+    const stableReviewsMap = new Map<
+      string,
+      { stableRating: number; comment?: string | null }[]
+    >();
+    const horseReviewsMap = new Map<
+      string,
+      { horseRating: number; comment?: string | null }[]
+    >();
+
+    for (const review of reviews) {
+      if (review.stableId && typeof review.stableRating === "number") {
+        const existing = stableReviewsMap.get(review.stableId) ?? [];
+        existing.push({
+          stableRating: review.stableRating,
+          comment: review.comment,
+        });
+        stableReviewsMap.set(review.stableId, existing);
+      }
+
+      if (review.horseId && typeof review.horseRating === "number") {
+        const existing = horseReviewsMap.get(review.horseId) ?? [];
+        existing.push({
+          horseRating: review.horseRating,
+          comment: review.comment,
+        });
+        horseReviewsMap.set(review.horseId, existing);
+      }
+    }
+
     // Calculate average ratings and add horse count + image
     const distanceLookup: Record<string, number> = {
       giza: 0,
@@ -213,8 +251,9 @@ export async function GET(req: NextRequest) {
     };
 
     const stablesWithRating = stables.map((stable: any) => {
+      const stableReviewEntries = stableReviewsMap.get(stable.id) ?? [];
       const { rating: stableRating, reviewCount: stableReviewCount } =
-        computeAdjustedRating(stable.reviews, "stableRating");
+        computeAdjustedRating(stableReviewEntries, "stableRating");
 
       // Get image from first horse if available
       const firstHorseMedia =
@@ -235,8 +274,9 @@ export async function GET(req: NextRequest) {
         const primaryMedia = horse.media?.find((m: any) => m.type === "image");
         const fallbackImage =
           horse.imageUrls && horse.imageUrls.length > 0 ? horse.imageUrls[0] : imageUrl;
+        const horseReviewEntries = horseReviewsMap.get(horse.id) ?? [];
         const { rating: horseRating, reviewCount: horseReviewCount } =
-          computeAdjustedRating(horse.reviews, "horseRating");
+          computeAdjustedRating(horseReviewEntries, "horseRating");
 
         return {
           id: horse.id,
@@ -260,6 +300,9 @@ export async function GET(req: NextRequest) {
               : stable._count.bookings,
           distanceKm,
           stableRating,
+          age: horse.age,
+          skills: horse.skills,
+          description: horse.description,
         };
       });
 
@@ -318,6 +361,9 @@ export async function GET(req: NextRequest) {
               rating: horse.rating ?? stable.rating,
               totalBookings: horse.totalBookings ?? stable.totalBookings,
               reviewCount: horse.reviewCount ?? 0,
+              description: horse.description,
+              skills: horse.skills,
+              age: horse.age,
             }))
         )
         .filter((entry: any) => Number.isFinite(entry.pricePerHour));
