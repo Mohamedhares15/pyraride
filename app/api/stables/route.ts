@@ -68,10 +68,11 @@ function analyzeReviewComment(comment?: string | null): number {
 
 function computeAdjustedRating<T extends { [key: string]: any }>(
   reviews: T[] | undefined,
-  ratingKey: "stableRating" | "horseRating"
+  ratingKey: "stableRating" | "horseRating",
+  fallbackRating = 0
 ): { rating: number; reviewCount: number } {
   if (!reviews || reviews.length === 0) {
-    return { rating: 0, reviewCount: 0 };
+    return { rating: Number(fallbackRating.toFixed(2)), reviewCount: 0 };
   }
 
   const reviewCount = reviews.length;
@@ -253,7 +254,7 @@ export async function GET(req: NextRequest) {
     const stablesWithRating = stables.map((stable: any) => {
       const stableReviewEntries = stableReviewsMap.get(stable.id) ?? [];
       const { rating: stableRating, reviewCount: stableReviewCount } =
-        computeAdjustedRating(stableReviewEntries, "stableRating");
+        computeAdjustedRating(stableReviewEntries, "stableRating", 4.7);
 
       // Get image from first horse if available
       const firstHorseMedia =
@@ -276,7 +277,11 @@ export async function GET(req: NextRequest) {
           horse.imageUrls && horse.imageUrls.length > 0 ? horse.imageUrls[0] : imageUrl;
         const horseReviewEntries = horseReviewsMap.get(horse.id) ?? [];
         const { rating: horseRating, reviewCount: horseReviewCount } =
-          computeAdjustedRating(horseReviewEntries, "horseRating");
+          computeAdjustedRating(
+            horseReviewEntries,
+            "horseRating",
+            stableRating > 0 ? stableRating : 4.7
+          );
 
         return {
           id: horse.id,
