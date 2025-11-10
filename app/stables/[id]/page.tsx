@@ -13,9 +13,10 @@ import {
   Users,
   User,
   Clock,
-  Phone,
   Mail,
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,12 @@ import { Card } from "@/components/ui/card";
 import BookingModal from "@/components/shared/BookingModal";
 import ReviewsSection from "@/components/sections/ReviewsSection";
 import StableLocationMap from "@/components/maps/StableLocationMap";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Review {
   id: string;
@@ -56,6 +63,12 @@ interface Horse {
   media: HorseMediaItem[];
 }
 
+interface PortfolioViewerState {
+  horseName: string;
+  items: HorseMediaItem[];
+  index: number;
+}
+
 interface Stable {
   id: string;
   name: string;
@@ -86,6 +99,7 @@ export default function StableDetailPage() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<Record<string, string[]>>({});
   const [takenSlots, setTakenSlots] = useState<Record<string, Record<string, any[]>>>({});
+  const [portfolioViewer, setPortfolioViewer] = useState<PortfolioViewerState | null>(null);
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -139,6 +153,51 @@ export default function StableDetailPage() {
 
     return () => clearInterval(interval);
   }, [id]);
+
+  useEffect(() => {
+    if (isLoading || !stable) return;
+    if (typeof window === "undefined") return;
+
+    const { hash } = window.location;
+    if (!hash) return;
+
+    const element = document.querySelector(hash);
+    if (!(element instanceof HTMLElement)) return;
+
+    window.requestAnimationFrame(() => {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+      element.classList.add("ring-2", "ring-primary", "ring-offset-2");
+      setTimeout(() => {
+        element.classList.remove("ring-2", "ring-primary", "ring-offset-2");
+      }, 2000);
+    });
+  }, [isLoading, stable]);
+
+  const openPortfolio = (horseName: string, items: HorseMediaItem[], startIndex = 0) => {
+    if (!items || items.length === 0) return;
+    setPortfolioViewer({
+      horseName,
+      items,
+      index: Math.min(Math.max(startIndex, 0), items.length - 1),
+    });
+  };
+
+  const closePortfolio = () => setPortfolioViewer(null);
+
+  const showPreviousMedia = () =>
+    setPortfolioViewer((current) => {
+      if (!current || current.items.length <= 1) return current;
+      const nextIndex =
+        (current.index - 1 + current.items.length) % current.items.length;
+      return { ...current, index: nextIndex };
+    });
+
+  const showNextMedia = () =>
+    setPortfolioViewer((current) => {
+      if (!current || current.items.length <= 1) return current;
+      const nextIndex = (current.index + 1) % current.items.length;
+      return { ...current, index: nextIndex };
+    });
 
   if (isLoading) {
     return (
@@ -296,24 +355,34 @@ export default function StableDetailPage() {
                       portfolioItems.length > 0
                         ? portfolioItems
                         : horse.imageUrls.slice(1).map((url) => ({
-                            type: "image",
+                            type: "image" as const,
                             url,
                           }));
                     const heroImage =
                       portfolioItems.find((item) => item.type === "image")?.url ||
                       horse.imageUrls[0];
+                    const modalItems =
+                      heroImage && galleryItems.every((item) => item.url !== heroImage)
+                        ? [{ type: "image" as const, url: heroImage }, ...galleryItems]
+                        : galleryItems;
 
                     return (
                       <Card key={horse.id} id={`horse-${horse.id}`} className="overflow-hidden">
                         <div className="grid gap-0 md:grid-cols-2">
                           {/* Horse Image */}
-                          <div className="relative h-64 w-full md:h-auto bg-gradient-to-br from-primary/20 to-secondary/20">
+                          <button
+                            type="button"
+                            className="group relative h-64 w-full overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary md:h-auto"
+                            onClick={() => openPortfolio(horse.name, modalItems, 0)}
+                            aria-label={`Open ${horse.name} portfolio`}
+                          >
                             {heroImage ? (
                               <Image
                                 src={heroImage}
                                 alt={horse.name}
                                 fill
-                                className="object-cover"
+                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                draggable={false}
                                 sizes="(max-width: 768px) 100vw, 50vw"
                               />
                             ) : (
@@ -324,7 +393,10 @@ export default function StableDetailPage() {
                                 </div>
                               </div>
                             )}
-                          </div>
+                            <span className="absolute bottom-4 right-4 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white shadow-lg transition-opacity group-hover:opacity-100">
+                              View portfolio
+                            </span>
+                          </button>
                           
                           {/* Horse Info */}
                           <div className="p-6">
@@ -339,27 +411,50 @@ export default function StableDetailPage() {
                                 <div className="grid grid-cols-2 gap-3">
                                   {galleryItems.map((media, idx) => {
                                     const url = media.url as string;
+                                    const modalIndex =
+                                      heroImage && modalItems.length > galleryItems.length
+                                        ? idx + 1
+                                        : idx;
+                                    const previewKey = `${horse.id}-media-${idx}`;
+                                    const openAtIndex = () =>
+                                      openPortfolio(horse.name, modalItems, modalIndex);
                                     return media.type === "video" ? (
-                                      <video
-                                        key={`${horse.id}-media-${idx}`}
-                                        controls
-                                        className="h-32 w-full rounded-lg object-cover"
+                                      <button
+                                        key={previewKey}
+                                        type="button"
+                                        onClick={openAtIndex}
+                                        className="group relative h-32 w-full overflow-hidden rounded-lg bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                                       >
-                                        <source src={url} />
-                                        Your browser does not support the video tag.
-                                      </video>
+                                        <video
+                                          className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
+                                          muted
+                                          playsInline
+                                          preload="metadata"
+                                        >
+                                          <source src={url} />
+                                          Your browser does not support the video tag.
+                                        </video>
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                          <span className="rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-white">
+                                            Play video
+                                          </span>
+                                        </div>
+                                      </button>
                                     ) : (
-                                      <div
-                                        key={`${horse.id}-media-${idx}`}
-                                        className="relative h-32 w-full overflow-hidden rounded-lg bg-muted"
+                                      <button
+                                        key={previewKey}
+                                        type="button"
+                                        onClick={openAtIndex}
+                                        className="group relative h-32 w-full overflow-hidden rounded-lg bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                                       >
                                         <Image
                                           src={url}
                                           alt={`${horse.name} media ${idx + 1}`}
                                           fill
-                                          className="object-cover"
+                                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                          draggable={false}
                                         />
-                                      </div>
+                                      </button>
                                     );
                                   })}
                                 </div>
@@ -546,6 +641,74 @@ export default function StableDetailPage() {
           pricePerHour={50}
         />
       )}
+
+      <Dialog open={Boolean(portfolioViewer)} onOpenChange={(open) => {
+        if (!open) {
+          closePortfolio();
+        }
+      }}>
+        <DialogContent className="max-w-3xl overflow-hidden border border-border bg-background p-0">
+          {portfolioViewer && (
+            <div className="relative">
+              <div className="relative aspect-video w-full bg-black">
+                {portfolioViewer.items[portfolioViewer.index]?.type === "video" ? (
+                  <video
+                    key={portfolioViewer.items[portfolioViewer.index]?.url}
+                    controls
+                    className="h-full w-full object-contain"
+                  >
+                    <source src={portfolioViewer.items[portfolioViewer.index]?.url} />
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <Image
+                    key={portfolioViewer.items[portfolioViewer.index]?.url}
+                    src={portfolioViewer.items[portfolioViewer.index]?.url || "/hero-bg.webp"}
+                    alt={`${portfolioViewer.horseName} portfolio`}
+                    fill
+                    className="object-contain"
+                    draggable={false}
+                  />
+                )}
+
+                {portfolioViewer.items.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={showPreviousMedia}
+                      className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      aria-label="Previous media"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={showNextMedia}
+                      className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      aria-label="Next media"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  </>
+                )}
+              </div>
+              <div className="flex items-center justify-between border-t border-border bg-card/80 px-4 py-3">
+                <div>
+                  <DialogTitle className="text-lg font-semibold">
+                    {portfolioViewer.horseName}
+                  </DialogTitle>
+                  <DialogDescription className="text-sm text-muted-foreground">
+                    Media {portfolioViewer.index + 1} of {portfolioViewer.items.length}
+                  </DialogDescription>
+                </div>
+                <Button size="sm" variant="ghost" onClick={closePortfolio}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

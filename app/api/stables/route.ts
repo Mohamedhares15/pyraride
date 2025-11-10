@@ -3,6 +3,94 @@ import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ensureAuthSchema } from "@/lib/ensure-auth-schema";
 
+const POSITIVE_KEYWORDS = [
+  "amazing",
+  "awesome",
+  "beautiful",
+  "calm",
+  "clean",
+  "comfortable",
+  "excellent",
+  "fantastic",
+  "friendly",
+  "fun",
+  "great",
+  "helpful",
+  "love",
+  "perfect",
+  "professional",
+  "recommend",
+  "smooth",
+  "wonderful",
+];
+
+const NEGATIVE_KEYWORDS = [
+  "bad",
+  "dirty",
+  "disappointing",
+  "disorganized",
+  "hard",
+  "poor",
+  "problem",
+  "rough",
+  "rude",
+  "slow",
+  "terrible",
+  "uncomfortable",
+  "unfriendly",
+  "unsafe",
+  "waste",
+  "worst",
+];
+
+function analyzeReviewComment(comment?: string | null): number {
+  if (!comment) return 0;
+  const normalized = comment.toLowerCase();
+  const positiveMatches = POSITIVE_KEYWORDS.reduce(
+    (count, keyword) => (normalized.includes(keyword) ? count + 1 : count),
+    0
+  );
+  const negativeMatches = NEGATIVE_KEYWORDS.reduce(
+    (count, keyword) => (normalized.includes(keyword) ? count + 1 : count),
+    0
+  );
+
+  if (positiveMatches === 0 && negativeMatches === 0) {
+    return 0;
+  }
+
+  const rawScore =
+    (positiveMatches - negativeMatches) / (positiveMatches + negativeMatches);
+
+  // Clamp the adjustment so a single comment nudges the rating slightly (max ±0.5)
+  return Math.max(-0.5, Math.min(0.5, rawScore * 0.5));
+}
+
+function computeAdjustedRating<T extends { [key: string]: any }>(
+  reviews: T[] | undefined,
+  ratingKey: "stableRating" | "horseRating"
+): { rating: number; reviewCount: number } {
+  if (!reviews || reviews.length === 0) {
+    return { rating: 0, reviewCount: 0 };
+  }
+
+  const reviewCount = reviews.length;
+  const baseAverage =
+    reviews.reduce(
+      (sum, review) => sum + Number(review?.[ratingKey] ?? 0),
+      0
+    ) / reviewCount;
+
+  const sentimentAdjustment =
+    reviews.reduce(
+      (sum, review) => sum + analyzeReviewComment(review?.comment),
+      0
+    ) / reviewCount;
+
+  const adjusted = Math.max(0, Math.min(5, baseAverage + sentimentAdjustment));
+  return { rating: Number(adjusted.toFixed(2)), reviewCount };
+}
+
 export async function GET(req: NextRequest) {
   try {
     await ensureAuthSchema();
@@ -55,6 +143,8 @@ export async function GET(req: NextRequest) {
         reviews: {
           select: {
             stableRating: true,
+            horseRating: true,
+            comment: true,
           },
         },
         horses: {
@@ -66,11 +156,26 @@ export async function GET(req: NextRequest) {
             name: true,
             imageUrls: true,
             pricePerHour: true,
+            age: true,
+            skills: true,
             stable: {
               select: {
                 id: true,
                 name: true,
                 location: true,
+              },
+            },
+            reviews: {
+              select: {
+                id: true,
+                horseRating: true,
+                comment: true,
+              },
+            },
+            _count: {
+              select: {
+                bookings: true,
+                reviews: true,
               },
             },
             media: {
@@ -108,11 +213,8 @@ export async function GET(req: NextRequest) {
     };
 
     const stablesWithRating = stables.map((stable: any) => {
-      const avgRating =
-        stable.reviews.length > 0
-          ? stable.reviews.reduce((sum: number, r: any) => sum + r.stableRating, 0) /
-            stable.reviews.length
-          : 0;
+      const { rating: stableRating, reviewCount: stableReviewCount } =
+        computeAdjustedRating(stable.reviews, "stableRating");
 
       // Get image from first horse if available
       const firstHorseMedia =
@@ -133,6 +235,8 @@ export async function GET(req: NextRequest) {
         const primaryMedia = horse.media?.find((m: any) => m.type === "image");
         const fallbackImage =
           horse.imageUrls && horse.imageUrls.length > 0 ? horse.imageUrls[0] : imageUrl;
+        const { rating: horseRating, reviewCount: horseReviewCount } =
+          computeAdjustedRating(horse.reviews, "horseRating");
 
         return {
           id: horse.id,
@@ -145,9 +249,17 @@ export async function GET(req: NextRequest) {
           stableId: horse.stable?.id ?? stable.id,
           stableName: horse.stable?.name ?? stable.name,
           stableLocation: horse.stable?.location ?? stable.location,
-          rating: Number(avgRating.toFixed(1)),
-          totalBookings: stable._count.bookings,
+          rating:
+            horseReviewCount > 0
+              ? horseRating
+              : stableRating,
+          reviewCount: horseReviewCount,
+          totalBookings:
+            typeof horse._count?.bookings === "number"
+              ? horse._count.bookings
+              : stable._count.bookings,
           distanceKm,
+          stableRating,
         };
       });
 
@@ -158,8 +270,9 @@ export async function GET(req: NextRequest) {
         location: stable.location,
         address: stable.address,
         owner: stable.owner,
-        rating: Number(avgRating.toFixed(1)),
+        rating: stableRating,
         totalBookings: stable._count.bookings,
+        totalReviews: stableReviewCount,
         horseCount: stable.horses.length,
         imageUrl: imageUrl,
         createdAt: stable.createdAt,
@@ -169,23 +282,29 @@ export async function GET(req: NextRequest) {
     });
 
     // Filter by minimum rating if provided
-    let filteredStables = stablesWithRating;
-    if (minRating) {
-      filteredStables = stablesWithRating.filter(
-        (s: any) => s.rating >= Number(minRating)
-      );
-    }
+    const minRatingValue = minRating ? Number(minRating) : null;
+    const filteredStables =
+      minRatingValue !== null
+        ? stablesWithRating.filter((s: any) => s.rating >= minRatingValue)
+        : stablesWithRating;
 
     const sortByHorsePrice = sort === "price-asc" || sort === "price-desc";
 
     if (sortByHorsePrice) {
-      const horseEntries = filteredStables
+      const horseEntries = stablesWithRating
         .flatMap((stable: any) =>
           stable.horses
             .filter(
               (horse: any) =>
                 horse.pricePerHour !== null && horse.pricePerHour !== undefined
             )
+            .filter((horse: any) => {
+              if (minRatingValue === null) return true;
+              if (typeof horse.rating === "number") {
+                return horse.rating >= minRatingValue;
+              }
+              return stable.rating >= minRatingValue;
+            })
             .map((horse: any) => ({
               type: "horse",
               stableId: horse.stableId,
@@ -196,6 +315,9 @@ export async function GET(req: NextRequest) {
               name: horse.name,
               imageUrl: horse.imageUrl,
               pricePerHour: Number(horse.pricePerHour),
+              rating: horse.rating ?? stable.rating,
+              totalBookings: horse.totalBookings ?? stable.totalBookings,
+              reviewCount: horse.reviewCount ?? 0,
             }))
         )
         .filter((entry: any) => Number.isFinite(entry.pricePerHour));

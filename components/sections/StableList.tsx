@@ -34,6 +34,7 @@ interface StableListProps {
         stableLocation: string;
         imageUrl?: string;
         rating: number;
+        reviewCount: number;
         totalBookings: number;
         distanceKm?: number;
       }
@@ -79,6 +80,10 @@ export default function StableList({ results, mode, isLoading }: StableListProps
         {results.map((item) => {
           if (item.type !== "horse") return null;
           const priceLabel = `$${item.pricePerHour.toFixed(0)}/hour`;
+          const ratingLabel =
+            typeof item.rating === "number" && item.rating > 0
+              ? item.rating.toFixed(1)
+              : "New";
           return (
             <motion.div
               key={item.id}
@@ -95,6 +100,7 @@ export default function StableList({ results, mode, isLoading }: StableListProps
                       alt={item.name}
                       fill
                       className="object-cover"
+                      draggable={false}
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                     />
                   </div>
@@ -110,6 +116,15 @@ export default function StableList({ results, mode, isLoading }: StableListProps
                     <p className="text-sm text-muted-foreground">
                       {item.stableName} · {item.stableLocation}
                     </p>
+                    <div className="flex items-center gap-2 text-xs font-medium text-primary">
+                      <Star className="h-4 w-4 fill-current" />
+                      <span>{ratingLabel}</span>
+                      {item.reviewCount > 0 && (
+                        <span className="text-muted-foreground">
+                          ({item.reviewCount})
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       Tap to view this horse&apos;s full portfolio and availability.
                     </p>

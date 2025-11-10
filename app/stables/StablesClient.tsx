@@ -32,6 +32,7 @@ interface HorseResult {
   stableName: string;
   stableLocation: string;
   rating: number;
+  reviewCount: number;
   totalBookings: number;
   pricePerHour: number;
   imageUrl?: string;
@@ -90,6 +91,7 @@ export default function StablesClient() {
                 name: item.name,
                 imageUrl: item.imageUrl,
                 rating: item.rating,
+                reviewCount: item.reviewCount ?? 0,
                 totalBookings: item.totalBookings,
                 pricePerHour: Number(item.pricePerHour ?? 0),
                 stableId: item.stableId,

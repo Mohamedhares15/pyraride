@@ -48,9 +48,10 @@ export default function StableCard({ stable, index, href }: StableCardProps) {
                 alt={stable.name}
                 fill
                 className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-            priority={index !== undefined && index < 6}
-            loading={index !== undefined && index >= 6 ? "lazy" : undefined}
+                draggable={false}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+                priority={index !== undefined && index < 6}
+                loading={index !== undefined && index >= 6 ? "lazy" : undefined}
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">

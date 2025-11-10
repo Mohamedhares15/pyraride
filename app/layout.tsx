@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import AuthProvider from "@/components/providers/AuthProvider";
+import ImageProtectionProvider from "@/components/providers/ImageProtectionProvider";
 import AIAgent from "@/components/shared/AIAgent";
 import CookieConsent from "@/components/shared/CookieConsent";
 import { GoogleAnalytics, Plausible } from "@/components/shared/Analytics";
@@ -238,6 +239,7 @@ export default function RootLayout({
         </a>
         
         <AuthProvider>
+          <ImageProtectionProvider />
           <main id="main-content">{children}</main>
           <AIAgent />
           <CookieConsent />
