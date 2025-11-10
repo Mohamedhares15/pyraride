@@ -76,24 +76,47 @@ export default function StableList({ results, mode, isLoading }: StableListProps
   if (mode === "horse") {
     return (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {results.map((item, index) => {
+        {results.map((item) => {
           if (item.type !== "horse") return null;
+          const priceLabel = `$${item.pricePerHour.toFixed(0)}/hour`;
           return (
-            <StableCard
+            <motion.div
               key={item.id}
-              href={`/stables/${item.stableId}#horse-${item.id}`}
-              stable={{
-                id: item.stableId,
-              name: `${item.name} · ${item.stableName}`,
-                location: item.stableLocation,
-                imageUrl: item.imageUrl || "/hero-bg.webp",
-              description: `Belongs to ${item.stableName}. View full gallery and availability.`,
-                rating: item.rating,
-                totalBookings: item.totalBookings,
-                pricePerHour: item.pricePerHour,
-              }}
-              index={index}
-            />
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25, duration: 0.5 }}
+              whileHover={{ y: -6 }}
+            >
+              <Link href={`/stables/${item.stableId}#horse-${item.id}`} className="block h-full">
+                <Card className="overflow-hidden h-full hover:shadow-lg transition-shadow">
+                  <div className="relative h-48 w-full bg-gradient-to-br from-primary/20 to-secondary/20">
+                    <Image
+                      src={item.imageUrl || "/hero-bg.webp"}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+                    />
+                  </div>
+                  <CardContent className="space-y-3 p-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <h3 className="font-semibold text-lg text-foreground line-clamp-1">
+                        {item.name}
+                      </h3>
+                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary whitespace-nowrap">
+                        {priceLabel}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {item.stableName} · {item.stableLocation}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Tap to view this horse&apos;s full portfolio and availability.
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
           );
         })}
       </div>

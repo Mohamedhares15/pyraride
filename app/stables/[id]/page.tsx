@@ -37,6 +37,13 @@ interface Review {
   };
 }
 
+interface HorseMediaItem {
+  url: string;
+  type: "image" | "video";
+  thumbnailUrl?: string | null;
+  sortOrder?: number | null;
+}
+
 interface Horse {
   id: string;
   name: string;
@@ -46,7 +53,7 @@ interface Horse {
   pricePerHour?: number | null;
   age?: number | null;
   skills?: string[];
-  portfolioMedia?: unknown;
+  media: HorseMediaItem[];
 }
 
 interface Stable {
@@ -282,11 +289,9 @@ export default function StableDetailPage() {
                       horse.skills && horse.skills.length > 0
                         ? horse.skills
                         : ["Beginner Friendly", "Tour Guide", "Desert Expert"];
-                    const portfolioItems = Array.isArray(horse.portfolioMedia)
-                      ? (horse.portfolioMedia as { type?: string; url?: string }[]).filter(
-                          (item) => typeof item?.url === "string"
-                        )
-                      : [];
+                    const portfolioItems = horse.media?.filter(
+                      (item) => typeof item?.url === "string"
+                    ) ?? [];
                     const galleryItems =
                       portfolioItems.length > 0
                         ? portfolioItems

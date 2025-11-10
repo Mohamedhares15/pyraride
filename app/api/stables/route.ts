@@ -73,6 +73,17 @@ export async function GET(req: NextRequest) {
                 location: true,
               },
             },
+            media: {
+              select: {
+                url: true,
+                type: true,
+                thumbnailUrl: true,
+                sortOrder: true,
+              },
+              orderBy: {
+                sortOrder: "asc",
+              },
+            },
           },
         },
         _count: {
@@ -104,30 +115,41 @@ export async function GET(req: NextRequest) {
           : 0;
 
       // Get image from first horse if available
-      const imageUrl = stable.horses.length > 0 && stable.horses[0].imageUrls?.length > 0
-        ? stable.horses[0].imageUrls[0]
-        : "/hero-bg.webp";
+      const firstHorseMedia =
+        stable.horses.flatMap((horse: any) => horse.media ?? []).find(
+          (media: any) => media.type === "image"
+        );
+      const imageUrl =
+        firstHorseMedia?.url ||
+        (stable.horses.length > 0 && stable.horses[0].imageUrls?.length > 0
+          ? stable.horses[0].imageUrls[0]
+          : "/hero-bg.webp");
 
       const distanceKey = typeof stable.location === "string" ? stable.location.toLowerCase() : "";
       const distanceKm =
         distanceKey in distanceLookup ? distanceLookup[distanceKey] : 40;
 
-      const horses = stable.horses.map((horse: any) => ({
-        id: horse.id,
-        name: horse.name,
-        imageUrl:
-          horse.imageUrls && horse.imageUrls.length > 0 ? horse.imageUrls[0] : imageUrl,
-        pricePerHour:
-          horse.pricePerHour !== null && horse.pricePerHour !== undefined
-            ? Number(horse.pricePerHour)
-            : null,
-        stableId: horse.stable?.id ?? stable.id,
-        stableName: horse.stable?.name ?? stable.name,
-        stableLocation: horse.stable?.location ?? stable.location,
-        rating: Number(avgRating.toFixed(1)),
-        totalBookings: stable._count.bookings,
-        distanceKm,
-      }));
+      const horses = stable.horses.map((horse: any) => {
+        const primaryMedia = horse.media?.find((m: any) => m.type === "image");
+        const fallbackImage =
+          horse.imageUrls && horse.imageUrls.length > 0 ? horse.imageUrls[0] : imageUrl;
+
+        return {
+          id: horse.id,
+          name: horse.name,
+          imageUrl: primaryMedia?.url ?? fallbackImage,
+          pricePerHour:
+            horse.pricePerHour !== null && horse.pricePerHour !== undefined
+              ? Number(horse.pricePerHour)
+              : null,
+          stableId: horse.stable?.id ?? stable.id,
+          stableName: horse.stable?.name ?? stable.name,
+          stableLocation: horse.stable?.location ?? stable.location,
+          rating: Number(avgRating.toFixed(1)),
+          totalBookings: stable._count.bookings,
+          distanceKm,
+        };
+      });
 
       return {
         id: stable.id,
@@ -165,18 +187,16 @@ export async function GET(req: NextRequest) {
                 horse.pricePerHour !== null && horse.pricePerHour !== undefined
             )
             .map((horse: any) => ({
-            type: "horse",
-            stableId: horse.stableId,
-            stableName: horse.stableName,
-            stableLocation: horse.stableLocation,
-            distanceKm: horse.distanceKm,
-            id: horse.id,
-            name: horse.name,
-            imageUrl: horse.imageUrl,
-            rating: horse.rating,
-            totalBookings: horse.totalBookings,
-            pricePerHour: Number(horse.pricePerHour),
-          }))
+              type: "horse",
+              stableId: horse.stableId,
+              stableName: horse.stableName,
+              stableLocation: horse.stableLocation,
+              distanceKm: horse.distanceKm,
+              id: horse.id,
+              name: horse.name,
+              imageUrl: horse.imageUrl,
+              pricePerHour: Number(horse.pricePerHour),
+            }))
         )
         .filter((entry: any) => Number.isFinite(entry.pricePerHour));
 

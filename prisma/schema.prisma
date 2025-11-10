@@ -65,21 +65,38 @@ model Stable {
 }
 
 model Horse {
-  id          String   @id @default(uuid())
-  stableId    String
-  name        String
-  description String   @db.Text
-  imageUrls   String[]
-  pricePerHour Decimal? @db.Decimal(10,2)
-  age         Int?
-  skills      String[] @default([])
-  portfolioMedia Json @default(json("[]"))
-  isActive    Boolean  @default(true)
+  id           String    @id @default(uuid())
+  stableId     String
+  name         String
+  description  String    @db.Text
+  imageUrls    String[]
+  pricePerHour Decimal?  @db.Decimal(10, 2)
+  age          Int?
+  skills       String[]  @default([])
+  isActive     Boolean   @default(true)
 
   // Relations
-  stable    Stable    @relation(fields: [stableId], references: [id], onDelete: Cascade)
-  bookings  Booking[]
-  reviews   Review[]
+  stable       Stable    @relation(fields: [stableId], references: [id], onDelete: Cascade)
+  bookings     Booking[]
+  reviews      Review[]
+  media        HorseMedia[]
+}
+
+model HorseMedia {
+  id            String         @id @default(uuid())
+  horseId       String
+  type          HorseMediaType
+  url           String
+  thumbnailUrl  String?
+  sortOrder     Int?
+  createdAt     DateTime       @default(now())
+
+  horse         Horse          @relation(fields: [horseId], references: [id], onDelete: Cascade)
+}
+
+enum HorseMediaType {
+  image
+  video
 }
 
 model Booking {

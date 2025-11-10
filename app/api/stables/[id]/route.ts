@@ -37,8 +37,18 @@ export async function GET(
             pricePerHour: true,
             age: true,
             skills: true,
-            portfolioMedia: true,
             isActive: true,
+            media: {
+              select: {
+                url: true,
+                type: true,
+                thumbnailUrl: true,
+                sortOrder: true,
+              },
+              orderBy: {
+                sortOrder: "asc",
+              },
+            },
           },
         },
         reviews: {
@@ -90,7 +100,7 @@ export async function GET(
           ? Number(horse.pricePerHour)
           : null,
       skills: horse.skills ?? [],
-      portfolioMedia: Array.isArray(horse.portfolioMedia) ? horse.portfolioMedia : [],
+      media: Array.isArray(horse.media) ? horse.media : [],
     }));
 
     return NextResponse.json({

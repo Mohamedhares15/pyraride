@@ -10,36 +10,28 @@ export async function ensureAuthSchema() {
   try {
     // Ensure phoneNumber column exists on User table
     await prisma.$executeRawUnsafe(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (
-          SELECT 1
-          FROM information_schema.columns
-          WHERE table_name = 'User'
-            AND column_name = 'phoneNumber'
-        ) THEN
-          ALTER TABLE "User"
-            ADD COLUMN "phoneNumber" TEXT;
-        END IF;
-      END
-      $$;
+      ALTER TABLE "User"
+      ADD COLUMN IF NOT EXISTS "phoneNumber" TEXT;
     `);
 
-    // Ensure pricePerHour column exists on Horse table
     await prisma.$executeRawUnsafe(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (
-          SELECT 1
-          FROM information_schema.columns
-          WHERE table_name = 'Horse'
-            AND column_name = 'pricePerHour'
-        ) THEN
-          ALTER TABLE "Horse"
-            ADD COLUMN "pricePerHour" DECIMAL(10,2);
-        END IF;
-      END
-      $$;
+      CREATE UNIQUE INDEX IF NOT EXISTS "User_phoneNumber_key"
+      ON "User"("phoneNumber");
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "Horse"
+      ADD COLUMN IF NOT EXISTS "pricePerHour" NUMERIC(10,2) DEFAULT 500;
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "Horse"
+      ADD COLUMN IF NOT EXISTS "age" INTEGER;
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "Horse"
+      ADD COLUMN IF NOT EXISTS "skills" TEXT[] DEFAULT ARRAY[]::TEXT[];
     `);
 
     await prisma.$executeRawUnsafe(`
@@ -48,86 +40,50 @@ export async function ensureAuthSchema() {
       WHERE "pricePerHour" IS NULL;
     `);
 
-    // Ensure mediaUrls column exists on Horse table
     await prisma.$executeRawUnsafe(`
       DO $$
       BEGIN
-        IF NOT EXISTS (
-          SELECT 1
-          FROM information_schema.columns
-          WHERE table_name = 'Horse'
-            AND column_name = 'mediaUrls'
-        ) THEN
-          ALTER TABLE "Horse"
-            ADD COLUMN "mediaUrls" TEXT[];
-        END IF;
-      END
-      $$;
-    `);
-
-    // Ensure age column exists on Horse table
-    await prisma.$executeRawUnsafe(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (
-          SELECT 1
-          FROM information_schema.columns
-          WHERE table_name = 'Horse'
-            AND column_name = 'age'
-        ) THEN
-          ALTER TABLE "Horse"
-            ADD COLUMN "age" INTEGER;
-        END IF;
-      END
-      $$;
-    `);
-
-    // Ensure skills column exists on Horse table
-    await prisma.$executeRawUnsafe(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (
-          SELECT 1
-          FROM information_schema.columns
-          WHERE table_name = 'Horse'
-            AND column_name = 'skills'
-        ) THEN
-          ALTER TABLE "Horse"
-            ADD COLUMN "skills" TEXT[] DEFAULT ARRAY[]::TEXT[];
-        END IF;
-      END
-      $$;
-    `);
-
-    // Ensure portfolioMedia column exists on Horse table
-    await prisma.$executeRawUnsafe(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (
-          SELECT 1
-          FROM information_schema.columns
-          WHERE table_name = 'Horse'
-            AND column_name = 'portfolioMedia'
-        ) THEN
-          ALTER TABLE "Horse"
-            ADD COLUMN "portfolioMedia" JSONB DEFAULT '[]'::jsonb;
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'HorseMediaType') THEN
+          CREATE TYPE "HorseMediaType" AS ENUM ('image', 'video');
         END IF;
       END
       $$;
     `);
 
     await prisma.$executeRawUnsafe(`
-      UPDATE "Horse"
-      SET "portfolioMedia" = '[]'::jsonb
-      WHERE "portfolioMedia" IS NULL;
+      CREATE TABLE IF NOT EXISTS "HorseMedia" (
+        "id" TEXT PRIMARY KEY,
+        "horseId" TEXT NOT NULL,
+        "type" "HorseMediaType" NOT NULL,
+        "url" TEXT NOT NULL,
+        "thumbnailUrl" TEXT,
+        "sortOrder" INTEGER,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT NOW()
+      );
     `);
 
     await prisma.$executeRawUnsafe(`
-      CREATE UNIQUE INDEX IF NOT EXISTS "User_phoneNumber_key"
-      ON "User"("phoneNumber");
+      CREATE INDEX IF NOT EXISTS "HorseMedia_horseId_idx"
+        ON "HorseMedia"("horseId");
     `);
 
-    // Ensure PasswordResetToken table exists
+    await prisma.$executeRawUnsafe(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint
+          WHERE conname = 'HorseMedia_horseId_fkey'
+        ) THEN
+          ALTER TABLE "HorseMedia"
+          ADD CONSTRAINT "HorseMedia_horseId_fkey"
+          FOREIGN KEY ("horseId") REFERENCES "Horse"("id")
+          ON DELETE CASCADE ON UPDATE CASCADE;
+        END IF;
+      END
+      $$;
+    `);
+
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "PasswordResetToken" (
         "id" TEXT PRIMARY KEY,
