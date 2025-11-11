@@ -5,13 +5,40 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut, User } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import AuthModal from "./AuthModal";
+import Image from "next/image";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { data: session, status } = useSession();
+
+  const displayName = useMemo(() => {
+    const user = session?.user as any;
+    return user?.name || user?.email || "Profile";
+  }, [session?.user]);
+
+  const userImage = useMemo(() => {
+    const user = session?.user as any;
+    return (user?.image as string | null | undefined) ?? null;
+  }, [session?.user]);
+
+  const initials = useMemo(() => {
+    const user = session?.user as any;
+    if (user?.name) {
+      return (user.name as string)
+        .split(" ")
+        .map((part) => part[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+    }
+    if (user?.email) {
+      return (user.email as string).charAt(0).toUpperCase();
+    }
+    return "P";
+  }, [session?.user]);
 
   return (
     <>
@@ -78,12 +105,29 @@ export default function Navbar() {
               <div className="h-8 w-20 animate-pulse rounded-md bg-white/20" />
             ) : session ? (
               <>
-                <div className="flex items-center space-x-2">
-                  <User className="h-4 w-4 text-white" />
-                  <span className="text-sm font-medium text-white drop-shadow-md">
-                    {session.user?.name || session.user?.email}
+                <Link
+                  href="/profile"
+                  className="flex items-center space-x-3 rounded-full bg-white/10 px-3 py-1 text-white transition hover:bg-white/20"
+                >
+                  <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/40 bg-white/20">
+                    {userImage ? (
+                      <Image
+                        src={userImage}
+                        alt={displayName}
+                        fill
+                        sizes="32px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase">
+                        {initials}
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium drop-shadow-md">
+                    {displayName}
                   </span>
-                </div>
+                </Link>
                 <Button
                   variant="outline"
                   size="sm"
@@ -187,16 +231,44 @@ export default function Navbar() {
                   Dashboard
                 </Link>
               )}
+              {session && (
+                <Link
+                  href="/profile"
+                  className="text-sm font-medium text-white transition-colors hover:text-white/70"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Profile
+                </Link>
+              )}
               {status === "loading" ? (
                 <div className="h-10 w-full animate-pulse rounded-md bg-white/20" />
               ) : session ? (
                 <>
-                  <div className="flex items-center space-x-2">
-                    <User className="h-4 w-4 text-white" />
-                    <span className="text-sm font-medium text-white">
-                      {session.user?.name || session.user?.email}
-                    </span>
-                  </div>
+                  <Link
+                    href="/profile"
+                    className="flex items-center space-x-2 rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-white transition hover:bg-white/20"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/20 bg-white/10">
+                      {userImage ? (
+                        <Image
+                          src={userImage}
+                          alt={displayName}
+                          fill
+                          sizes="32px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase">
+                          {initials}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{displayName}</span>
+                      <span className="text-xs text-white/80">View profile</span>
+                    </div>
+                  </Link>
                   <Button
                     variant="outline"
                     size="sm"
