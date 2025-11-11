@@ -36,6 +36,7 @@ model User {
   email         String    @unique
   phoneNumber   String?   @unique
   passwordHash  String
+  profileImageUrl String?
   fullName      String?
   role          Role      @default(rider)
   createdAt     DateTime  @default(now())

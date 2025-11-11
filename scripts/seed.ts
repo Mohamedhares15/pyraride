@@ -13,6 +13,8 @@ async function main() {
     update: {},
     create: {
       email: "admin@pyraride.com",
+      profileImageUrl:
+        "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=600&auto=format&fit=crop",
       phoneNumber: "+201000000001",
       passwordHash: hashedPassword,
       fullName: "Admin User",
@@ -28,6 +30,8 @@ async function main() {
     update: {},
     create: {
       email: "owner@giza-stables.com",
+      profileImageUrl:
+        "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=600&auto=format&fit=crop",
       phoneNumber: "+201000000002",
       passwordHash: ownerPassword,
       fullName: "Ahmed Stable Owner",
@@ -43,6 +47,8 @@ async function main() {
     update: {},
     create: {
       email: "rider1@example.com",
+      profileImageUrl:
+        "https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?w=600&auto=format&fit=crop",
       phoneNumber: "+201000000003",
       passwordHash: rider1Password,
       fullName: "John Rider",
@@ -57,6 +63,8 @@ async function main() {
     update: {},
     create: {
       email: "rider2@example.com",
+      profileImageUrl:
+        "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=600&auto=format&fit=crop",
       phoneNumber: "+201000000004",
       passwordHash: rider2Password,
       fullName: "Sarah Explorer",

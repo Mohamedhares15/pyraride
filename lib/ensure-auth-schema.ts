@@ -15,6 +15,11 @@ export async function ensureAuthSchema() {
     `);
 
     await prisma.$executeRawUnsafe(`
+      ALTER TABLE "User"
+      ADD COLUMN IF NOT EXISTS "profileImageUrl" TEXT;
+    `);
+
+    await prisma.$executeRawUnsafe(`
       CREATE UNIQUE INDEX IF NOT EXISTS "User_phoneNumber_key"
       ON "User"("phoneNumber");
     `);

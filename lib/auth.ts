@@ -64,6 +64,8 @@ export const authOptions: NextAuthOptions = {
           name: user.fullName || user.email,
           role: user.role,
           phoneNumber: user.phoneNumber ?? undefined,
+          image: user.profileImageUrl ?? undefined,
+          createdAt: user.createdAt?.toISOString?.() ?? undefined,
         };
       },
     }),
@@ -74,6 +76,8 @@ export const authOptions: NextAuthOptions = {
         token.role = (user as any).role;
         token.id = user.id;
         (token as any).phoneNumber = (user as any).phoneNumber ?? null;
+        (token as any).image = (user as any).image ?? null;
+        (token as any).createdAt = (user as any).createdAt ?? null;
       }
       return token;
     },
@@ -82,6 +86,10 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).id = token.id as string;
         (session.user as any).role = token.role as string;
         (session.user as any).phoneNumber = (token as any).phoneNumber ?? null;
+        (session.user as any).image =
+          (token as any).image !== null ? ((token as any).image as string) : null;
+        (session.user as any).createdAt =
+          (token as any).createdAt !== null ? (token as any).createdAt : null;
       }
       return session;
     },
