@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getLocationMeta } from "@/lib/location-coordinates";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 300; // Revalidate every 5 minutes
-
-const DEFAULT_LAT = 29.9792; // Giza Pyramids latitude
-const DEFAULT_LON = 31.1342; // Giza Pyramids longitude
 
 const WEATHER_CODE_DESCRIPTIONS: Record<number, string> = {
   0: "Clear sky",
@@ -55,19 +53,28 @@ function coerceNumber(value: unknown, fallback: number): number {
 }
 
 export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
+  const locationParam = searchParams.get("location");
+  const locationMeta = getLocationMeta(locationParam ?? undefined);
+  const latParam = searchParams.get("lat");
+  const lonParam = searchParams.get("lon");
+
   try {
-    const { searchParams } = request.nextUrl;
-    const latParam = searchParams.get("lat");
-    const lonParam = searchParams.get("lon");
+    const {
+      key: resolvedLocationKey,
+      latitude: defaultLat,
+      longitude: defaultLon,
+      name: locationName,
+    } = locationMeta;
 
     const latitude =
       latParam && !Number.isNaN(Number(latParam))
         ? Number(latParam)
-        : DEFAULT_LAT;
+        : defaultLat;
     const longitude =
       lonParam && !Number.isNaN(Number(lonParam))
         ? Number(lonParam)
-        : DEFAULT_LON;
+        : defaultLon;
 
     const url = new URL("https://api.open-meteo.com/v1/forecast");
     url.searchParams.set("latitude", latitude.toString());
@@ -96,6 +103,8 @@ export async function GET(request: NextRequest) {
       windSpeed: 14,
       feelsLike: 30,
       weatherCode: null as number | null,
+      location: locationName,
+      locationKey: resolvedLocationKey,
     };
 
     if (!response.ok) {
@@ -120,6 +129,8 @@ export async function GET(request: NextRequest) {
       windSpeed: coerceNumber(current.wind_speed_10m, fallbackResponse.windSpeed),
       feelsLike: coerceNumber(current.apparent_temperature, fallbackResponse.feelsLike),
       weatherCode: weatherCode ?? null,
+      location: locationName,
+      locationKey: resolvedLocationKey,
     });
   } catch (error) {
     console.error("Weather fetch error:", error);
@@ -136,6 +147,8 @@ export async function GET(request: NextRequest) {
       windSpeed: 12,
       feelsLike: isNight ? 22 : 30,
       weatherCode: null,
+      location: locationMeta.name,
+      locationKey: locationMeta.key,
     });
   }
 }

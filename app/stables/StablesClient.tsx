@@ -205,7 +205,7 @@ export default function StablesClient() {
         <div className="space-y-6 md:space-y-8">
           {/* Weather Widget */}
           <div className="mb-4 md:mb-0">
-            <WeatherWidget />
+          <WeatherWidget location={location} />
           </div>
 
           <SearchFilters

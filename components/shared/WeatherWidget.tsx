@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MapPin, Sun, Cloud, CloudRain, Droplets, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { getLocationMeta, resolveLocationKey } from "@/lib/location-coordinates";
 
 interface WeatherData {
   temperature: number;
@@ -11,19 +12,37 @@ interface WeatherData {
   windSpeed: number;
   icon: "sun" | "cloud" | "rain";
   feelsLike?: number;
+  locationName: string;
 }
 
-const defaultWeather: WeatherData = {
+const FALLBACK_WEATHER: WeatherData = {
   temperature: 25,
   condition: "Sunny",
   humidity: 58,
   windSpeed: 11,
   icon: "sun",
   feelsLike: 25,
+  locationName: getLocationMeta().name,
 };
 
-export default function WeatherWidget() {
-  const [weather, setWeather] = useState<WeatherData>(defaultWeather);
+interface WeatherWidgetProps {
+  location?: string;
+}
+
+export default function WeatherWidget({ location }: WeatherWidgetProps) {
+  const resolvedLocationKey = useMemo(
+    () => resolveLocationKey(location),
+    [location]
+  );
+  const resolvedLocationMeta = useMemo(
+    () => getLocationMeta(resolvedLocationKey),
+    [resolvedLocationKey]
+  );
+
+  const [weather, setWeather] = useState<WeatherData>({
+    ...FALLBACK_WEATHER,
+    locationName: resolvedLocationMeta.name,
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -31,7 +50,10 @@ export default function WeatherWidget() {
     const fetchWeather = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch("/api/weather");
+        const params = new URLSearchParams({
+          location: resolvedLocationKey,
+        });
+        const response = await fetch(`/api/weather?${params.toString()}`);
         
         if (!response.ok) {
           throw new Error("Failed to fetch weather");
@@ -55,6 +77,7 @@ export default function WeatherWidget() {
           windSpeed: data.windSpeed,
           icon: icon,
           feelsLike: data.feelsLike || data.temperature,
+           locationName: data.location || resolvedLocationMeta.name,
         });
       } catch (error) {
         console.error("Error fetching weather:", error);
@@ -70,7 +93,7 @@ export default function WeatherWidget() {
     const interval = setInterval(fetchWeather, 600000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [resolvedLocationKey, resolvedLocationMeta.name]);
 
   const getIcon = () => {
     switch (weather.icon) {
@@ -91,7 +114,7 @@ export default function WeatherWidget() {
         <div>
           <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
             <MapPin className="h-3 w-3 md:h-4 md:w-4" />
-            Giza, Egypt
+            {weather.locationName}
           </div>
           <div className="mt-2 flex items-center gap-2">
             {isLoading ? (
