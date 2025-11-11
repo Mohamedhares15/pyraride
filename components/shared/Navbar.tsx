@@ -117,6 +117,7 @@ export default function Navbar() {
                         fill
                         sizes="32px"
                         className="object-cover"
+                        unoptimized
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase">
@@ -257,6 +258,7 @@ export default function Navbar() {
                           fill
                           sizes="32px"
                           className="object-cover"
+                          unoptimized
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase">

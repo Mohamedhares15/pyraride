@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Camera, HelpCircle, Shield, Mail, Phone } from "lucide-react";
+import { Loader2, Camera, HelpCircle, Shield, Mail } from "lucide-react";
 import Image from "next/image";
 
 interface ProfileResponse {
@@ -123,7 +123,7 @@ export default function ProfilePage() {
     }
 
     if (file.size > MAX_IMAGE_SIZE_BYTES) {
-      setProfileError("Image must be smaller than 2MB.");
+      setProfileError("Profile photo must be smaller than 2MB.");
       return;
     }
 
@@ -328,7 +328,7 @@ export default function ProfilePage() {
                     onChange={handleImageSelection}
                   />
                   <p className="text-xs text-muted-foreground">
-                    PNG, JPG, or WEBP up to 2MB.
+                    PNG, JPG, or WEBP. Maximum size 2MB.
                   </p>
                 </div>
               </div>
@@ -484,10 +484,6 @@ export default function ProfilePage() {
                 <HelpCircle className="h-4 w-4 text-primary" />
                 Visit FAQ
               </Link>
-              <div className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-muted-foreground">
-                <Phone className="h-4 w-4 text-primary" />
-                <span>+20 111 234 5678</span>
-              </div>
             </div>
           </Card>
         </div>
