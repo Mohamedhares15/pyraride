@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Camera, HelpCircle, Shield, Mail } from "lucide-react";
-import Image from "next/image";
+import NextImage from "next/image";
 
 interface ProfileResponse {
   user: {
@@ -22,8 +22,6 @@ interface ProfileResponse {
     createdAt: string;
   };
 }
-
-const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024;
 
 async function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -38,6 +36,53 @@ async function fileToDataUrl(file: File): Promise<string> {
     reader.onerror = () => reject(new Error("Failed to read file"));
     reader.readAsDataURL(file);
   });
+}
+
+async function optimizeImageFile(file: File): Promise<string> {
+  const supportedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+  if (!supportedTypes.includes(file.type.toLowerCase())) {
+    throw new Error("Please upload a PNG, JPG, or WEBP image.");
+  }
+
+  const imageUrl = URL.createObjectURL(file);
+
+  try {
+    const imageElement = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("Could not load image."));
+      img.src = imageUrl;
+    });
+
+    const maxDimension = 512;
+    const scale =
+      imageElement.width > imageElement.height
+        ? Math.min(1, maxDimension / imageElement.width)
+        : Math.min(1, maxDimension / imageElement.height);
+
+    const targetWidth = Math.max(1, Math.round(imageElement.width * scale));
+    const targetHeight = Math.max(1, Math.round(imageElement.height * scale));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not optimise image.");
+    ctx.drawImage(imageElement, 0, 0, targetWidth, targetHeight);
+
+    const optimizedBlob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/webp", 0.85)
+    );
+    if (!optimizedBlob) throw new Error("Could not optimise image.");
+
+    const optimizedFile = new File([optimizedBlob], "profile.webp", {
+      type: "image/webp",
+    });
+
+    return await fileToDataUrl(optimizedFile);
+  } finally {
+    URL.revokeObjectURL(imageUrl);
+  }
 }
 
 export default function ProfilePage() {
@@ -122,19 +167,16 @@ export default function ProfilePage() {
       return;
     }
 
-    if (file.size > MAX_IMAGE_SIZE_BYTES) {
-      setProfileError("Profile photo must be smaller than 2MB.");
-      return;
-    }
-
     try {
-      const dataUrl = await fileToDataUrl(file);
       setProfileError(null);
-      setProfileImageUrl(dataUrl);
-      setProfileImageDataUrl(dataUrl);
+      const optimizedDataUrl = await optimizeImageFile(file);
+      setProfileImageUrl(optimizedDataUrl);
+      setProfileImageDataUrl(optimizedDataUrl);
     } catch (error) {
       console.error(error);
-      setProfileError("Could not read the selected image.");
+      setProfileError(
+        error instanceof Error ? error.message : "Could not process the image."
+      );
     }
   };
 
@@ -275,7 +317,7 @@ export default function ProfilePage() {
               <div className="flex items-center gap-4">
                 <div className="relative h-24 w-24 overflow-hidden rounded-full border border-border bg-muted">
                   {profileImageUrl ? (
-                    <Image
+                    <NextImage
                       src={profileImageUrl}
                       alt="Profile"
                       fill
@@ -328,7 +370,7 @@ export default function ProfilePage() {
                     onChange={handleImageSelection}
                   />
                   <p className="text-xs text-muted-foreground">
-                    PNG, JPG, or WEBP. Maximum size 2MB.
+                    PNG, JPG, or WEBP. Large images are automatically optimised so your profile loads instantly.
                   </p>
                 </div>
               </div>
