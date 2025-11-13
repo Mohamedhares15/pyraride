@@ -10,6 +10,8 @@ declare module "next-auth" {
       name?: string;
       role: Role;
       phoneNumber?: string | null;
+      // Profile image is NOT stored in session to avoid cookie size limits
+      // Fetch it separately from /api/profile endpoint
     };
   }
 
@@ -18,6 +20,7 @@ declare module "next-auth" {
     email: string;
     role: Role;
     phoneNumber?: string | null;
+    // Profile image is NOT stored in user object to avoid JWT token size limits
   }
 }
 

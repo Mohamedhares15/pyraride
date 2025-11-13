@@ -5,7 +5,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut, User } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import AuthModal from "./AuthModal";
 import Image from "next/image";
 
@@ -14,15 +14,38 @@ export default function Navbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { data: session, status } = useSession();
 
+  const [userImage, setUserImage] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
+
   const displayName = useMemo(() => {
     const user = session?.user as any;
     return user?.name || user?.email || "Profile";
   }, [session?.user]);
 
-  const userImage = useMemo(() => {
-    const user = session?.user as any;
-    return (user?.image as string | null | undefined) ?? null;
-  }, [session?.user]);
+  // Fetch profile image separately from API to avoid JWT cookie size limits
+  useEffect(() => {
+    if (!session?.user?.id) {
+      setUserImage(null);
+      setImageError(false);
+      return;
+    }
+
+    const fetchProfileImage = async () => {
+      try {
+        const response = await fetch("/api/profile");
+        if (response.ok) {
+          const data = await response.json();
+          setUserImage(data.user?.profileImageUrl ?? null);
+          setImageError(false);
+        }
+      } catch (error) {
+        console.error("Failed to fetch profile image:", error);
+        setUserImage(null);
+      }
+    };
+
+    fetchProfileImage();
+  }, [session?.user?.id]);
 
   const initials = useMemo(() => {
     const user = session?.user as any;
@@ -110,7 +133,7 @@ export default function Navbar() {
                   className="flex items-center space-x-3 rounded-full bg-white/10 px-3 py-1 text-white transition hover:bg-white/20"
                 >
                   <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/40 bg-white/20">
-                    {userImage ? (
+                    {userImage && !imageError ? (
                       <Image
                         src={userImage}
                         alt={displayName}
@@ -118,6 +141,7 @@ export default function Navbar() {
                         sizes="32px"
                         className="object-cover"
                         unoptimized
+                        onError={() => setImageError(true)}
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase">
@@ -251,7 +275,7 @@ export default function Navbar() {
                     onClick={() => setIsOpen(false)}
                   >
                     <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/20 bg-white/10">
-                      {userImage ? (
+                      {userImage && !imageError ? (
                         <Image
                           src={userImage}
                           alt={displayName}
@@ -259,6 +283,7 @@ export default function Navbar() {
                           sizes="32px"
                           className="object-cover"
                           unoptimized
+                          onError={() => setImageError(true)}
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase">
