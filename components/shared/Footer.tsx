@@ -4,7 +4,7 @@ import NewsletterSignup from "./NewsletterSignup";
 
 export default function Footer() {
   return (
-    <footer className="bg-secondary border-t">
+    <footer className="bg-secondary border-t hidden md:block">
       <div className="mx-auto max-w-7xl px-4 py-12 md:py-16">
         {/* Newsletter Signup */}
         <div className="mb-12">
@@ -31,9 +31,7 @@ export default function Footer() {
             <h4 className="font-semibold text-sm mb-4">Explore</h4>
             <nav className="flex flex-col gap-2 text-sm text-foreground/70">
               <Link href="/stables" className="hover:text-primary transition-colors">Browse Stables</Link>
-              <Link href="/pricing" className="hover:text-primary transition-colors">Pricing</Link>
               <Link href="/gallery" className="hover:text-primary transition-colors">Photo Gallery</Link>
-              <Link href="/about" className="hover:text-primary transition-colors">About Us</Link>
               <Link href="/contact" className="hover:text-primary transition-colors">Contact</Link>
               <Link href="/faq" className="hover:text-primary transition-colors">FAQ</Link>
             </nav>

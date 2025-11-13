@@ -4,6 +4,7 @@ import AuthProvider from "@/components/providers/AuthProvider";
 import ImageProtectionProvider from "@/components/providers/ImageProtectionProvider";
 import AIAgent from "@/components/shared/AIAgent";
 import CookieConsent from "@/components/shared/CookieConsent";
+import MobileFooter from "@/components/shared/MobileFooter";
 import { GoogleAnalytics, Plausible } from "@/components/shared/Analytics";
 import "./globals.css";
 
@@ -240,9 +241,10 @@ export default function RootLayout({
         
         <AuthProvider>
           <ImageProtectionProvider />
-          <main id="main-content">{children}</main>
+          <main id="main-content" className="pb-16 md:pb-0">{children}</main>
           <AIAgent />
           <CookieConsent />
+          <MobileFooter />
           <GoogleAnalytics trackingId={process.env.NEXT_PUBLIC_GA_ID} />
           <Plausible domain="pyraride.vercel.app" />
         </AuthProvider>

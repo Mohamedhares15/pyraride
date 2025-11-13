@@ -91,18 +91,6 @@ export default function Navbar() {
             >
               Gallery
             </Link>
-            <Link
-              href="/pricing"
-              className="text-xs lg:text-sm font-medium text-white/90 drop-shadow-md transition-colors hover:text-white"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="/about"
-              className="text-xs lg:text-sm font-medium text-white/90 drop-shadow-md transition-colors hover:text-white"
-            >
-              About
-            </Link>
             {session && (
               <Link
                 href="/dashboard"
@@ -206,20 +194,6 @@ export default function Navbar() {
                 onClick={() => setIsOpen(false)}
               >
                 Gallery
-              </Link>
-              <Link
-                href="/pricing"
-                className="text-sm font-medium text-white transition-colors hover:text-white/70"
-                onClick={() => setIsOpen(false)}
-              >
-                Pricing
-              </Link>
-              <Link
-                href="/about"
-                className="text-sm font-medium text-white transition-colors hover:text-white/70"
-                onClick={() => setIsOpen(false)}
-              >
-                About
               </Link>
               {session && (
                 <Link
