@@ -3,27 +3,23 @@
 @tailwind utilities;
 
 /* Prevent scrolling on homepage only */
-body.no-scroll {
-  overflow: hidden;
-  height: 100vh;
-  position: fixed;
-  width: 100%;
+body.no-scroll,
+html.no-scroll {
+  overflow: hidden !important;
+  height: 100vh !important;
+  position: fixed !important;
+  width: 100% !important;
 }
 
 /* Prevent scrolling on homepage for mobile */
 @media (max-width: 428px) {
-  body.no-scroll {
-    overflow: hidden;
-    height: 100vh;
-    position: fixed;
-    width: 100%;
-    touch-action: none;
-  }
-  
-  /* Ensure homepage doesn't scroll */
-  html:has(body.no-scroll) {
-    overflow: hidden;
-    height: 100%;
+  body.no-scroll,
+  html.no-scroll {
+    overflow: hidden !important;
+    height: 100vh !important;
+    position: fixed !important;
+    width: 100% !important;
+    touch-action: none !important;
   }
 }
 
