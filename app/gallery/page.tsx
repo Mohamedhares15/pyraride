@@ -39,7 +39,7 @@ export default function GalleryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background hide-fab safe-area-wrapper">
       {/* Hero with Coming Soon */}
       <div 
         className="relative h-[400px] overflow-hidden"
@@ -76,8 +76,11 @@ export default function GalleryPage() {
             Check back soon!
           </p>
           
+          {/* Section Divider */}
+          <div className="section-divider my-6 md:my-8"></div>
+          
           {/* Photo Upload Option */}
-          <div className="mt-6 md:mt-8 rounded-xl border-2 border-dashed border-primary/30 p-6 md:p-8 bg-muted/30">
+          <div className="gallery-upload-box mt-4 md:mt-6 rounded-xl border-2 border-dashed border-primary/30 bg-muted/30">
             <h3 className="mb-3 md:mb-4 text-lg md:text-xl font-semibold">Have a great photo to share?</h3>
             <p className="mb-3 md:mb-4 text-sm md:text-base text-muted-foreground">
               Upload your horse riding photos for review and they may appear in our gallery!

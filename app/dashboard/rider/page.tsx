@@ -219,18 +219,19 @@ export default function RiderDashboard() {
             </Button>
           </motion.div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-0 safe-area-wrapper">
             {bookings.map((booking, index) => (
               <motion.div
                 key={booking.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.05 }}
+                className="reveal-on-scroll"
               >
-                <Card className="booking-card p-6">
-                  <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <Card className="booking-card">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     {/* Left Section */}
-                    <div className="flex-1 space-y-3">
+                    <div className="flex-1 space-y-2">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <h3 className="mb-1 font-display text-xl font-bold">
@@ -240,7 +241,7 @@ export default function RiderDashboard() {
                             {booking.horse.name}
                           </p>
                         </div>
-                        <div className="flex-shrink-0">
+                        <div className="flex-shrink-0 ml-2">
                           {getStatusBadge(booking.status)}
                         </div>
                       </div>
@@ -298,7 +299,7 @@ export default function RiderDashboard() {
                           Reviewed
                         </Badge>
                       )}
-                      {/* Action Buttons */}
+                      {/* Action Buttons - Same height, slightly smaller */}
                       <div className="flex flex-row gap-2 w-full md:w-auto md:flex-col md:items-end">
                         {booking.status === "confirmed" && (
                           <>
@@ -310,9 +311,9 @@ export default function RiderDashboard() {
                                 setCancelRescheduleMode("reschedule");
                                 setCancelRescheduleModalOpen(true);
                               }}
-                              className="gap-2 flex-1 md:flex-none"
+                              className="gap-2 flex-1 md:flex-none h-9 text-sm"
                             >
-                              <Edit2 className="h-4 w-4" />
+                              <Edit2 className="h-3.5 w-3.5" />
                               Reschedule
                             </Button>
                             <Button
@@ -323,9 +324,9 @@ export default function RiderDashboard() {
                                 setCancelRescheduleMode("cancel");
                                 setCancelRescheduleModalOpen(true);
                               }}
-                              className="gap-2 flex-1 md:flex-none"
+                              className="gap-2 flex-1 md:flex-none h-9 text-sm"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3.5 w-3.5" />
                               Cancel
                             </Button>
                           </>

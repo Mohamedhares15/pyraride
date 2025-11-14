@@ -46,8 +46,8 @@ export default function Hero() {
             backgroundRepeat: "no-repeat"
           }}
         />
-        {/* Dark gradient overlay for text */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
+        {/* Enhanced gradient overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/75" />
       </div>
       
       {/* Glass effect overlay */}
@@ -57,19 +57,19 @@ export default function Hero() {
       <div className="absolute inset-0 bg-black/30 z-[2]" />
 
       {/* Content layer */}
-      <div className="relative z-20 h-screen w-full flex flex-col items-center justify-center text-center px-4">
-        <h1 className="text-white text-3xl md:text-5xl lg:text-7xl font-bold tracking-tight drop-shadow-2xl">
+      <div className="relative z-20 h-screen w-full flex flex-col items-center justify-center text-center px-4 safe-area-wrapper">
+        <h1 className="text-white text-3xl md:text-5xl lg:text-7xl font-bold tracking-tight drop-shadow-2xl mb-2">
           THE PYRAMIDS, UNFORGETTABLE.
         </h1>
-        <h2 className="text-white text-3xl md:text-5xl lg:text-7xl font-bold mt-2 tracking-tight drop-shadow-2xl">
+        <h2 className="text-white text-3xl md:text-5xl lg:text-7xl font-bold tracking-tight drop-shadow-2xl">
           THE RIDE, UNCOMPLICATED.
         </h2>
-        <p className="text-white/95 text-base md:text-xl mt-4 max-w-2xl drop-shadow-md font-light px-4">
+        <p className="text-white/95 text-base md:text-xl mt-3 max-w-2xl drop-shadow-md font-light px-4">
           Book your trusted, vetted ride at Giza and Saqqara.
         </p>
         
-        {/* Value Props - Trust indicators */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-white/90 text-sm">
+        {/* Value Props - Trust indicators - Better alignment */}
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-4 md:gap-6 text-white/95 text-sm md:text-base">
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />

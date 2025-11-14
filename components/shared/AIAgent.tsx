@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bot, Send, X, Minimize2, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,11 @@ interface Message {
 }
 
 export default function AIAgent() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Hide FAB on Gallery, Profile, and Password pages
+  const hideFAB = pathname === "/gallery" || pathname === "/profile" || pathname?.startsWith("/profile");
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -96,11 +101,16 @@ export default function AIAgent() {
     }
   };
 
+  // Don't render FAB on pages where it should be hidden
+  if (hideFAB && !isOpen) {
+    return null;
+  }
+
   if (!isOpen) {
     return (
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-gradient-to-r from-primary via-primary to-purple-600 shadow-xl shadow-primary/30 hover:scale-110 transition-transform hover:shadow-2xl"
+        className="fab fixed bottom-6 right-6 z-50 h-[52px] w-[52px] rounded-full bg-gradient-to-r from-primary via-primary to-purple-600 shadow-md hover:scale-105 transition-transform"
         size="icon"
       >
         <Bot className="h-6 w-6" />

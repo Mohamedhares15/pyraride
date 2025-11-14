@@ -294,7 +294,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-10 md:py-14">
+    <div className="mx-auto max-w-5xl space-y-8 px-4 py-10 md:py-14 hide-fab safe-area-wrapper mobile-container">
       <header className="space-y-3">
         <h1 className="font-display text-3xl font-bold md:text-4xl">
           Your Profile
@@ -311,10 +311,10 @@ export default function ProfilePage() {
       </header>
 
       <div className="grid gap-6 md:grid-cols-[2fr,1fr]">
-        <Card className="p-6 md:p-8">
+        <Card className="profile-section p-6 md:p-8">
           <form className="space-y-6" onSubmit={handleProfileSave}>
             <div className="flex flex-col gap-4 md:flex-row md:items-start">
-              <div className="flex items-start gap-4">
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
                 <div className="profile-image-wrapper relative h-24 w-24 flex-shrink-0 bg-muted">
                   {profileImageUrl ? (
                     <NextImage
@@ -337,7 +337,7 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </div>
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 space-y-2 text-center md:text-left">
                   <Button
                     type="button"
                     variant="outline"
@@ -353,14 +353,16 @@ export default function ProfilePage() {
                     {profileImageUrl ? "Change photo" : "Upload photo"}
                   </Button>
                   {profileImageUrl && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className="text-xs text-red-600 hover:text-red-600 w-full md:w-auto"
-                      onClick={handleRemoveImage}
-                    >
-                      Remove photo
-                    </Button>
+                    <div className="w-full">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="text-xs text-red-600 hover:text-red-600 w-full md:w-auto mx-auto"
+                        onClick={handleRemoveImage}
+                      >
+                        Remove photo
+                      </Button>
+                    </div>
                   )}
                   <input
                     id="profile-image-input"
@@ -440,7 +442,7 @@ export default function ProfilePage() {
         </Card>
 
         <div className="space-y-6">
-          <Card className="space-y-4 p-6 mt-6 md:mt-0">
+          <Card className="profile-section space-y-4 p-6 mt-6 md:mt-0">
             <div className="flex items-center gap-3">
               <Shield className="h-5 w-5 text-primary flex-shrink-0" />
               <div>

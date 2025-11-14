@@ -144,8 +144,8 @@ export default function MobileFooter() {
                   />
                 )}
               </div>
-              <span className={`text-[10px] font-semibold uppercase tracking-wide leading-tight text-center ${
-                active ? "text-primary" : "text-muted-foreground"
+              <span className={`text-[10px] font-medium uppercase tracking-wide leading-tight text-center ${
+                active ? "text-primary font-semibold" : "text-muted-foreground"
               }`}>
                 {item.label}
               </span>
