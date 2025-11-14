@@ -89,7 +89,7 @@ export default function Hero() {
         {/* Search form - Glass effect */}
         <form
           onSubmit={onSearch}
-          className="mt-6 md:mt-8 bg-white/20 backdrop-blur-lg rounded-full shadow-2xl p-3 md:p-4 w-full max-w-3xl mx-auto border border-white/30"
+          className="hero-search-card mt-6 md:mt-8 bg-white/20 backdrop-blur-lg rounded-full shadow-2xl p-3 md:p-4 w-full max-w-3xl mx-auto border border-white/30"
         >
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3">
             <Select value={location} onValueChange={setLocation}>
