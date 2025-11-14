@@ -79,15 +79,47 @@ html.no-scroll {
   --shadow-card: 0 6px 18px rgba(18, 24, 35, 0.06);
 }
 
-/* Typography scale */
+/* Typography scale - Mobile optimized */
 @media (max-width: 428px) {
-  h1 { font-size: 1.75rem; line-height: 2rem; font-weight: 700; }
-  h2 { font-size: 1.5rem; line-height: 2rem; font-weight: 600; }
-  h3 { font-size: 1.25rem; line-height: 1.75rem; font-weight: 600; }
-  h4 { font-size: 1.125rem; line-height: 1.5rem; font-weight: 600; }
-  body { font-size: 0.875rem; line-height: 1.5rem; }
-  .text-sm { font-size: 0.8125rem; line-height: 1.25rem; }
-  .text-xs { font-size: 0.75rem; line-height: 1rem; }
+  h1 { 
+    font-size: 1.5rem; /* 24px minimum */ 
+    line-height: 1.75rem; 
+    font-weight: 700; 
+    letter-spacing: -0.01em;
+  }
+  h2 { 
+    font-size: 1.375rem; /* 22px */ 
+    line-height: 1.75rem; 
+    font-weight: 600; 
+  }
+  h3 { 
+    font-size: 1.25rem; /* 20px */ 
+    line-height: 1.5rem; 
+    font-weight: 600; 
+  }
+  h4 { 
+    font-size: 1.125rem; /* 18px */ 
+    line-height: 1.5rem; 
+    font-weight: 600; 
+  }
+  body { 
+    font-size: 1rem; /* Minimum 16px */ 
+    line-height: 1.5; /* 24px line-height */ 
+  }
+  .text-sm { 
+    font-size: 0.9375rem; /* 15px */ 
+    line-height: 1.5rem; 
+  }
+  .text-xs { 
+    font-size: 0.875rem; /* 14px */ 
+    line-height: 1.25rem; 
+  }
+  
+  /* Larger headings for hero sections */
+  .hero h1 {
+    font-size: 2rem; /* 32px for hero */
+    line-height: 2.25rem;
+  }
 }
 
 /* Mobile-only structural changes - DO NOT modify desktop, colors, or styles */
@@ -236,19 +268,35 @@ html.no-scroll {
     padding-bottom: calc(140px + env(safe-area-inset-bottom));
   }
 
-  .hero h1 {
-    font-size: 1.75rem;
+  .hero h1,
+  .hero h2 {
+    font-size: 2rem; /* 32px for hero headings */
     margin: 0 0 var(--spacing-1);
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 1.25;
     animation: fadeInUp 0.6s ease-out;
   }
 
   .hero h2 {
-    font-size: 1.125rem;
+    font-size: 1.5rem; /* 24px for subtitle */
     margin: 0;
     font-weight: 600;
     animation: fadeInUp 0.6s ease-out 0.1s both;
+  }
+  
+  /* Hero gradient overlay for better text readability >= 4.5:1 contrast */
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.75) 100%);
+    z-index: 1;
+  }
+  
+  .hero .hero-title {
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3);
   }
 
   .hero p {

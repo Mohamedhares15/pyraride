@@ -43,11 +43,11 @@ export default function HomePage() {
         </div>
 
         {/* Sticky Bottom CTA */}
-        <div className="sticky bottom-20 z-40 mt-6 md:hidden">
+        <div className="sticky-bottom-cta md:hidden">
           <Link href="/stables">
             <Button
               size="lg"
-              className="w-full h-14 text-base font-semibold rounded-2xl shadow-lg"
+              className="w-full h-14 text-base font-semibold"
             >
               BOOK YOUR RIDE NOW
               <ArrowRight className="ml-2 h-5 w-5" />
