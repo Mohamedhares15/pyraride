@@ -303,11 +303,11 @@ html.no-scroll {
   .feature-card,
   .testimonial-card {
     background: white;
-    padding: var(--spacing-3);
-    border-radius: var(--radius-lg);
+    padding: var(--spacing-2); /* Reduced from 24px to 16px */
+    border-radius: var(--radius-base); /* 16px everywhere */
     box-shadow: var(--shadow-md);
     text-align: center;
-    transition: all var(--transition-base);
+    transition: all var(--transition-smooth);
   }
 
   .stat-card:active,
