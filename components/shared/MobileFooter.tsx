@@ -68,20 +68,20 @@ export default function MobileFooter() {
       requireAuth: false,
     },
     {
+      href: "/stables",
+      label: "BROWSE",
+      icon: LayoutDashboard, // Using LayoutDashboard as Browse icon
+      requireAuth: false,
+    },
+    {
       href: "/gallery",
       label: "GALLERY",
       icon: ImageIcon,
       requireAuth: false,
     },
     {
-      href: "/dashboard",
-      label: "DASHBOARD",
-      icon: LayoutDashboard,
-      requireAuth: false, // Always show, but page will handle auth
-    },
-    {
-      href: "/profile",
-      label: "PROFILE",
+      href: session ? "/profile" : "/dashboard",
+      label: session ? "PROFILE" : "DASHBOARD",
       icon: User,
       requireAuth: false, // Always show, but page will handle auth
       showAvatar: true,
