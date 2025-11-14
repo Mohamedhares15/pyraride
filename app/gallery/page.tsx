@@ -394,7 +394,7 @@ function UploadForm({ onClose }: { onClose: () => void }) {
 
     try {
       const imageUrl = URL.createObjectURL(file);
-      const img = new Image();
+      const img = document.createElement("img");
       img.src = imageUrl;
 
       await new Promise((resolve) => {
