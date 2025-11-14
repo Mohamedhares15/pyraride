@@ -256,6 +256,20 @@ html.no-scroll {
     padding-bottom: calc(72px + env(safe-area-inset-bottom)) !important; /* 56px + 16px spacing */
   }
   
+  /* Hide Gallery tab on mobile navigation */
+  .nav-gallery {
+    display: none !important;
+  }
+  
+  /* Adjust nav items to distribute space evenly when Gallery is hidden */
+  .mobile-bottom-nav nav {
+    gap: 0;
+  }
+  
+  .mobile-bottom-nav a:not(.nav-gallery) {
+    flex: 1;
+  }
+  
   /* Compact spacing for cards and bookings on mobile */
   .booking-card,
   .stable-card {
