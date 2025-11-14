@@ -93,7 +93,7 @@ export default function MobileFooter() {
   const displayItems = navItems;
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] md:hidden">
+    <footer className="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] md:hidden">
       <nav className="flex items-center justify-around px-1 py-2.5">
         {displayItems.map((item) => {
           const Icon = item.icon;
