@@ -94,44 +94,50 @@ export default function GalleryLightbox({
 
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-
-    if (scale === 1) {
-      if (isLeftSwipe) goToNext();
-      if (isRightSwipe) goToPrevious();
-    }
-  };
-
-  // Pinch zoom
-  const handlePinch = (e: React.TouchEvent) => {
-    if (e.touches.length === 2) {
+    if (e.touches.length === 1) {
+      setTouchStart({ x: e.touches[0].clientX, distance: 0 });
+    } else if (e.touches.length === 2) {
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
       const distance = Math.hypot(
         touch2.clientX - touch1.clientX,
         touch2.clientY - touch1.clientY
       );
+      setTouchStart({ x: 0, distance });
+    }
+  };
 
-      if (touchStart === null) {
-        setTouchStart(distance);
-        return;
-      }
-
-      const scaleChange = distance / touchStart;
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 1 && touchStart) {
+      setTouchEnd(e.touches[0].clientX);
+    } else if (e.touches.length === 2 && touchStart && touchStart.distance > 0) {
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const distance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      );
+      const scaleChange = distance / touchStart.distance;
       setScale(Math.max(1, Math.min(3, scaleChange)));
     }
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart) return;
+
+    if (touchStart.x > 0 && touchEnd !== null) {
+      const distance = touchStart.x - touchEnd;
+      const isLeftSwipe = distance > minSwipeDistance;
+      const isRightSwipe = distance < -minSwipeDistance;
+
+      if (scale === 1) {
+        if (isLeftSwipe) goToNext();
+        if (isRightSwipe) goToPrevious();
+      }
+    }
+
+    setTouchStart(null);
+    setTouchEnd(null);
   };
 
   const handleDoubleTap = () => {
@@ -221,10 +227,7 @@ export default function GalleryLightbox({
             className="relative flex-1 flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
             onTouchStart={onTouchStart}
-            onTouchMove={(e) => {
-              onTouchMove(e);
-              handlePinch(e);
-            }}
+            onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
             onDoubleClick={handleDoubleTap}
           >

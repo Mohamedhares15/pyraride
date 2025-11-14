@@ -38,8 +38,12 @@ export default function StableCard({ stable, index, href }: StableCardProps) {
       whileHover={{ y: -8 }}
       className="will-change-transform hover:shadow-lg transition-shadow h-full"
     >
-      <Link href={href ?? `/stables/${stable.id}`} className="block h-full">
-        <Card className="overflow-hidden h-full cursor-pointer stable-card">
+      <Link 
+        href={href ?? `/stables/${stable.id}`} 
+        className="block h-full min-h-[200px]"
+        aria-label={`View ${stable.name} stable`}
+      >
+        <Card className="overflow-hidden h-full cursor-pointer stable-card active:scale-[0.98] transition-transform">
           {/* Media */}
           <div className="relative w-full aspect-video bg-gradient-to-br from-primary/20 to-secondary/20">
             {stable.imageUrl && stable.imageUrl !== "" ? (

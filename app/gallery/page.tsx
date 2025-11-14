@@ -216,14 +216,15 @@ export default function GalleryPage() {
           <WeatherWidget />
         </div>
 
-        {/* Filter Button */}
+        {/* Filter Button & Collections Header */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Curated Collections</h2>
+          <h2 className="text-lg md:text-xl font-semibold">Curated Collections</h2>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowFilters(true)}
-            className="gap-2 h-10"
+            className="gap-2 h-10 min-h-[48px]"
+            aria-label="Filter and sort photos"
           >
             <Filter className="h-4 w-4" />
             Filter
@@ -235,8 +236,8 @@ export default function GalleryPage() {
           {collections.map((collection) => (
             <Card
               key={collection.id}
-              className="collection-card cursor-pointer"
-              onClick={() => setSelectedCollection(collection)}
+              className="collection-card cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => setSelectedCollection(selectedCollection?.id === collection.id ? null : collection)}
             >
               <div className="relative h-32 mb-2 overflow-hidden rounded-t-2xl">
                 <Image
@@ -252,7 +253,10 @@ export default function GalleryPage() {
                 <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
                   {collection.description}
                 </p>
-                <p className="text-xs text-muted-foreground">{collection.photoCount} photos</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground">{collection.photoCount} photos</p>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </div>
               </div>
             </Card>
           ))}
