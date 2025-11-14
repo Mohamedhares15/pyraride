@@ -108,9 +108,9 @@ export default function GalleryLightbox({
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length === 1 && touchStart) {
+    if (e.touches.length === 1 && isSwipeTouchStart(touchStart)) {
       setTouchEnd(e.touches[0].clientX);
-    } else if (e.touches.length === 2 && touchStart && touchStart.distance > 0) {
+    } else if (e.touches.length === 2 && isPinchTouchStart(touchStart)) {
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
       const distance = Math.hypot(
@@ -125,7 +125,7 @@ export default function GalleryLightbox({
   const onTouchEnd = () => {
     if (!touchStart) return;
 
-    if (touchStart.x > 0 && touchEnd !== null) {
+    if (isSwipeTouchStart(touchStart) && touchEnd !== null) {
       const distance = touchStart.x - touchEnd;
       const isLeftSwipe = distance > minSwipeDistance;
       const isRightSwipe = distance < -minSwipeDistance;
