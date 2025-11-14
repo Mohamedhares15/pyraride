@@ -62,14 +62,14 @@ export default function GalleryPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-8 md:py-16 md:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 md:py-16 md:px-8 mobile-container safe-padding">
         {/* Weather Widget */}
         <div className="mb-6 md:mb-8">
           <WeatherWidget />
         </div>
 
         {/* Coming Soon Message */}
-        <Card className="p-6 md:p-12 text-center">
+        <Card className="gallery-card p-6 md:p-12 text-center">
           <h2 className="mb-4 text-2xl md:text-3xl font-bold">Photo Gallery</h2>
           <p className="text-sm md:text-lg text-muted-foreground mb-6 md:mb-8">
             Our gallery is being curated with beautiful photos from our horse riding experiences at the pyramids.
@@ -77,7 +77,7 @@ export default function GalleryPage() {
           </p>
           
           {/* Photo Upload Option */}
-          <div className="mt-6 md:mt-8 rounded-lg border-2 border-dashed border-primary/30 p-4 md:p-8">
+          <div className="mt-6 md:mt-8 rounded-xl border-2 border-dashed border-primary/30 p-6 md:p-8 bg-muted/30">
             <h3 className="mb-3 md:mb-4 text-lg md:text-xl font-semibold">Have a great photo to share?</h3>
             <p className="mb-3 md:mb-4 text-sm md:text-base text-muted-foreground">
               Upload your horse riding photos for review and they may appear in our gallery!

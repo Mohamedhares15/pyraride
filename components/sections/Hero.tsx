@@ -93,11 +93,11 @@ export default function Hero() {
         {/* Search form - Glass effect */}
         <form
           onSubmit={onSearch}
-          className="hero-search-card mt-6 md:mt-8 bg-white/20 backdrop-blur-lg rounded-full shadow-2xl p-3 md:p-4 w-full max-w-3xl mx-auto border border-white/30"
+          className="hero-search-card"
         >
-          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3">
+          <div className="flex flex-col gap-2">
             <Select value={location} onValueChange={setLocation}>
-              <SelectTrigger className="md:flex-1 w-full rounded-full bg-white/90 backdrop-blur-sm border-white/50 text-left">
+              <SelectTrigger className="w-full bg-white border-gray-200 text-left">
                 <SelectValue placeholder="Choose location" />
               </SelectTrigger>
               <SelectContent>
@@ -110,9 +110,10 @@ export default function Hero() {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="md:w-56 w-full bg-white/90 backdrop-blur-sm border-white/50"
+              className="w-full bg-white border-gray-200"
+              placeholder="Select date"
             />
-            <Button type="submit" variant="primary" className="rounded-full md:w-auto w-full shadow-lg px-8">
+            <Button type="submit" variant="primary" className="w-full">
               Search
             </Button>
           </div>

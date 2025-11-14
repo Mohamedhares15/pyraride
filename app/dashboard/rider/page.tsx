@@ -227,12 +227,12 @@ export default function RiderDashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="p-6">
+                <Card className="booking-card p-6">
                   <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                     {/* Left Section */}
                     <div className="flex-1 space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
                           <h3 className="mb-1 font-display text-xl font-bold">
                             {booking.stable.name}
                           </h3>
@@ -240,7 +240,9 @@ export default function RiderDashboard() {
                             {booking.horse.name}
                           </p>
                         </div>
-                        {getStatusBadge(booking.status)}
+                        <div className="flex-shrink-0">
+                          {getStatusBadge(booking.status)}
+                        </div>
                       </div>
 
                       <div className="grid gap-3 text-sm md:grid-cols-3">
@@ -265,15 +267,15 @@ export default function RiderDashboard() {
                     </div>
 
                     {/* Right Section */}
-                    <div className="flex items-center gap-4 md:flex-col md:items-end">
-                      <div className="text-right">
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="h-5 w-5 text-primary" />
+                    <div className="flex flex-col items-start gap-4 md:flex-col md:items-end">
+                      <div className="text-left md:text-right w-full md:w-auto">
+                        <div className="flex items-center gap-2 md:justify-end">
+                          <DollarSign className="h-5 w-5 text-primary flex-shrink-0" />
                           <span className="text-2xl font-bold">
                             ${parseFloat(booking.totalPrice.toString()).toFixed(2)}
                           </span>
                         </div>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-muted-foreground mt-1">
                           Total Price
                         </p>
                       </div>
@@ -297,7 +299,7 @@ export default function RiderDashboard() {
                         </Badge>
                       )}
                       {/* Action Buttons */}
-                      <div className="flex flex-col gap-2 md:items-end">
+                      <div className="flex flex-row gap-2 w-full md:w-auto md:flex-col md:items-end">
                         {booking.status === "confirmed" && (
                           <>
                             <Button
@@ -308,7 +310,7 @@ export default function RiderDashboard() {
                                 setCancelRescheduleMode("reschedule");
                                 setCancelRescheduleModalOpen(true);
                               }}
-                              className="gap-2"
+                              className="gap-2 flex-1 md:flex-none"
                             >
                               <Edit2 className="h-4 w-4" />
                               Reschedule
@@ -321,7 +323,7 @@ export default function RiderDashboard() {
                                 setCancelRescheduleMode("cancel");
                                 setCancelRescheduleModalOpen(true);
                               }}
-                              className="gap-2"
+                              className="gap-2 flex-1 md:flex-none"
                             >
                               <Trash2 className="h-4 w-4" />
                               Cancel

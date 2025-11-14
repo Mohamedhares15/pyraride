@@ -109,7 +109,7 @@ export default function WeatherWidget({ location }: WeatherWidgetProps) {
   };
 
   return (
-    <Card className="p-4 md:p-6">
+    <Card className="weather-card p-4 md:p-6">
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">

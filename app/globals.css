@@ -23,22 +23,72 @@ html.no-scroll {
   }
 }
 
+/* ============================================
+   GLOBAL DESIGN SYSTEM - 8px SPACING SYSTEM
+   ============================================ */
+
+:root {
+  /* 8px spacing scale */
+  --spacing-1: 0.5rem;   /* 8px */
+  --spacing-2: 1rem;     /* 16px */
+  --spacing-3: 1.5rem;   /* 24px */
+  --spacing-4: 2rem;     /* 32px */
+  --spacing-5: 2.5rem;   /* 40px */
+  --spacing-6: 3rem;     /* 48px */
+  
+  /* Border radius */
+  --radius-sm: 0.5rem;   /* 8px */
+  --radius-md: 0.75rem;  /* 12px */
+  --radius-lg: 1rem;     /* 16px */
+  --radius-xl: 1.5rem;   /* 24px */
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Typography scale */
+@media (max-width: 428px) {
+  h1 { font-size: 1.75rem; line-height: 2rem; font-weight: 700; }
+  h2 { font-size: 1.5rem; line-height: 2rem; font-weight: 600; }
+  h3 { font-size: 1.25rem; line-height: 1.75rem; font-weight: 600; }
+  h4 { font-size: 1.125rem; line-height: 1.5rem; font-weight: 600; }
+  body { font-size: 0.875rem; line-height: 1.5rem; }
+  .text-sm { font-size: 0.8125rem; line-height: 1.25rem; }
+  .text-xs { font-size: 0.75rem; line-height: 1rem; }
+}
+
 /* Mobile-only structural changes - DO NOT modify desktop, colors, or styles */
 /* Only applies to screens 375px - 428px */
 
 @media (max-width: 428px) {
   /* 1. GLOBAL MOBILE CONTAINER */
   .mobile-container {
-    padding: 0 16px;
+    padding: 0 var(--spacing-2);
     max-width: 100%;
     box-sizing: border-box;
   }
 
   /* Safe area handling */
   .safe-padding {
-    padding-bottom: max(24px, env(safe-area-inset-bottom));
-    padding-left: max(16px, env(safe-area-inset-left));
-    padding-right: max(16px, env(safe-area-inset-right));
+    padding-bottom: max(var(--spacing-3), env(safe-area-inset-bottom));
+    padding-left: max(var(--spacing-2), env(safe-area-inset-left));
+    padding-right: max(var(--spacing-2), env(safe-area-inset-right));
+  }
+  
+  /* Safe area wrapper for mobile browsers */
+  .safe-area-wrapper {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: max(var(--spacing-3), env(safe-area-inset-bottom));
+    padding-left: max(var(--spacing-2), env(safe-area-inset-left));
+    padding-right: max(var(--spacing-2), env(safe-area-inset-right));
   }
 
   /* 2. MOBILE NAVIGATION - Hide top nav, show bottom tab bar */
@@ -58,100 +108,177 @@ html.no-scroll {
     display: flex !important;
   }
 
-  /* Mobile bottom nav styling */
+  /* Mobile bottom nav styling - FIXED */
   .mobile-bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 72px;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: calc(72px + env(safe-area-inset-bottom));
+    min-height: 72px;
     background: white;
-    border-top: 1px solid #eee;
+    border-top: 1px solid #e5e7eb;
     display: flex !important;
     justify-content: space-around;
-    align-items: center;
+    align-items: flex-start;
     z-index: 1000;
-    padding-bottom: env(safe-area-inset-bottom);
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    padding-top: var(--spacing-2);
+    padding-bottom: max(var(--spacing-2), env(safe-area-inset-bottom));
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(8px);
+  }
+
+  .mobile-bottom-nav nav {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 var(--spacing-1);
   }
 
   .mobile-bottom-nav a,
   .mobile-bottom-nav button {
     flex: 1;
     text-align: center;
-    font-size: 10px;
-    color: #666;
+    font-size: 0.625rem;
+    color: #6b7280;
     text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-1);
+    padding: var(--spacing-1);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+    min-width: 0;
+  }
+
+  .mobile-bottom-nav a:active,
+  .mobile-bottom-nav button:active {
+    transform: scale(0.95);
   }
 
   .mobile-bottom-nav .active,
   .mobile-bottom-nav a.active {
-    color: #D97706; /* keep your orange accent */
+    color: #D97706;
   }
 
-  .mobile-bottom-nav svg {
+  .mobile-bottom-nav svg,
+  .mobile-bottom-nav .icon-wrapper {
     width: 24px;
     height: 24px;
-    margin-bottom: 4px;
+    flex-shrink: 0;
+    transition: transform var(--transition-base);
   }
 
-  /* 3. HERO SECTION - Stack vertically, add search card */
+  .mobile-bottom-nav a.active svg,
+  .mobile-bottom-nav a.active .icon-wrapper {
+    transform: scale(1.1);
+  }
+  
+  /* Ensure content doesn't overlap bottom nav */
+  main {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+  }
+
+  /* 3. HERO SECTION - Improved */
   .hero {
-    height: 70vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    padding-bottom: 100px;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-4) var(--spacing-2);
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
   }
 
   .hero h1 {
-    font-size: 28px;
-    margin: 0 0 8px;
+    font-size: 1.75rem;
+    margin: 0 0 var(--spacing-1);
+    font-weight: 700;
+    line-height: 1.2;
+    animation: fadeInUp 0.6s ease-out;
   }
 
   .hero h2 {
-    font-size: 18px;
+    font-size: 1.125rem;
     margin: 0;
+    font-weight: 600;
+    animation: fadeInUp 0.6s ease-out 0.1s both;
+  }
+
+  .hero p {
+    animation: fadeInUp 0.6s ease-out 0.2s both;
   }
 
   .hero-search-card {
     position: absolute;
-    bottom: 80px;
-    left: 16px;
-    right: 16px;
+    bottom: calc(100px + env(safe-area-inset-bottom));
+    left: var(--spacing-2);
+    right: var(--spacing-2);
     background: white;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-3);
+    box-shadow: var(--shadow-xl);
+    animation: fadeInUp 0.6s ease-out 0.3s both;
+    max-width: 100%;
   }
 
   .hero-search-card input,
-  .hero-search-card select {
+  .hero-search-card select,
+  .hero-search-card [role="combobox"] {
     width: 100%;
-    padding: 12px;
-    margin: 8px 0;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 16px;
+    padding: var(--spacing-2);
+    margin: var(--spacing-1) 0;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all var(--transition-base);
+  }
+
+  .hero-search-card input:focus,
+  .hero-search-card select:focus {
+    outline: none;
+    border-color: #D97706;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
   }
 
   .hero-search-card button {
     width: 100%;
-    padding: 14px;
-    margin-top: 8px;
-    font-weight: bold;
+    padding: var(--spacing-2) var(--spacing-4);
+    margin-top: var(--spacing-2);
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+  }
+
+  .hero-search-card button:active {
+    transform: scale(0.98);
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   /* 4. CONTENT SECTIONS - Stacked cards, full width */
-  /* Stats, How It Works, Why Us, Testimonials */
   .stats-row,
   .steps-row,
   .features-grid,
   .testimonials {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    padding: 24px 0;
+    gap: var(--spacing-2);
+    padding: var(--spacing-3) 0;
   }
 
   .stat-card,
@@ -159,16 +286,25 @@ html.no-scroll {
   .feature-card,
   .testimonial-card {
     background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: var(--spacing-3);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
     text-align: center;
+    transition: all var(--transition-base);
+  }
+
+  .stat-card:active,
+  .step-card:active,
+  .feature-card:active,
+  .testimonial-card:active {
+    transform: scale(0.98);
   }
 
   /* Horizontal scroll for stats if needed */
   .stats-row {
     overflow-x: auto;
     flex-direction: row;
+    padding-bottom: var(--spacing-2);
   }
 
   .stats-row::-webkit-scrollbar {
@@ -180,27 +316,41 @@ html.no-scroll {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 0;
+    padding: var(--spacing-2) 0;
   }
 
   .filter-btn {
-    background: none;
-    border: 1px solid #ddd;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 14px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    padding: var(--spacing-2) var(--spacing-3);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all var(--transition-base);
+  }
+
+  .filter-btn:active {
+    transform: scale(0.95);
+    background: #f9fafb;
   }
 
   .stables-grid {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: var(--spacing-3);
   }
 
   .stable-card {
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-base);
+    background: white;
+  }
+
+  .stable-card:active {
+    transform: scale(0.98);
+    box-shadow: var(--shadow-lg);
   }
 
   .stable-card img {
@@ -210,18 +360,19 @@ html.no-scroll {
   }
 
   .stable-card-info {
-    padding: 16px;
+    padding: var(--spacing-3);
   }
 
   .stable-card-actions {
     display: flex;
-    gap: 12px;
-    margin-top: 12px;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-2);
   }
 
   .stable-card-actions button {
     flex: 1;
-    padding: 12px;
+    padding: var(--spacing-2);
+    border-radius: var(--radius-md);
   }
 
   /* 6. BOOKING FLOW - Bottom sheet */
@@ -247,14 +398,73 @@ html.no-scroll {
     padding-bottom: calc(16px + env(safe-area-inset-bottom));
   }
 
-  /* Additional mobile spacing adjustments */
-  main {
-    padding-bottom: 88px; /* Space for bottom nav */
+  /* Booking cards improvements */
+  .booking-card {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-base);
+    background: white;
+    padding: var(--spacing-3);
+  }
+
+  .booking-card:active {
+    transform: scale(0.98);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .booking-badge {
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-1) var(--spacing-2);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  /* Profile improvements */
+  .profile-image-wrapper {
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 2px solid #e5e7eb;
+    transition: all var(--transition-base);
+  }
+
+  .profile-input {
+    border-radius: var(--radius-md);
+    padding: var(--spacing-2);
+    border: 1px solid #e5e7eb;
+    transition: all var(--transition-base);
+  }
+
+  .profile-input:focus {
+    outline: none;
+    border-color: #D97706;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+  }
+
+  /* Gallery card improvements */
+  .gallery-card {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-3);
+    background: white;
+    transition: all var(--transition-base);
+  }
+
+  .gallery-card:active {
+    transform: scale(0.98);
+  }
+
+  /* Weather card */
+  .weather-card {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-3);
+    background: white;
   }
 
   /* Grid adjustments for mobile */
   .grid {
     grid-template-columns: 1fr !important;
+    gap: var(--spacing-3);
   }
 
   /* Ensure cards stack vertically */
@@ -265,6 +475,25 @@ html.no-scroll {
   .lg\\:grid-cols-3,
   .lg\\:grid-cols-4 {
     grid-template-columns: 1fr !important;
+  }
+  
+  /* Consistent button styles */
+  button {
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+    font-weight: 500;
+  }
+
+  button:active {
+    transform: scale(0.95);
+  }
+  
+  /* Consistent card styles */
+  [class*="card"],
+  [class*="Card"] {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-base);
   }
 }
 

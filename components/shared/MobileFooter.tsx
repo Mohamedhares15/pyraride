@@ -93,8 +93,8 @@ export default function MobileFooter() {
   const displayItems = navItems;
 
   return (
-    <footer className="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] md:hidden">
-      <nav className="flex items-center justify-around px-1 py-2.5">
+    <footer className="mobile-bottom-nav md:hidden">
+      <nav className="flex items-center justify-around">
         {displayItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
@@ -110,42 +110,42 @@ export default function MobileFooter() {
                   : "text-muted-foreground active:text-primary"
               }`}
             >
-              {showProfileAvatar && userImage && !imageError ? (
-                <div className={`relative h-7 w-7 flex-shrink-0 overflow-hidden rounded-full border-2 transition-all ${
-                  active ? "border-primary shadow-md" : "border-muted-foreground/30"
-                }`}>
-                  <Image
-                    src={userImage}
-                    alt="Profile"
-                    fill
-                    sizes="28px"
-                    className="object-cover"
-                    unoptimized
-                    onError={() => setImageError(true)}
-                  />
-                </div>
-              ) : showProfileAvatar && session ? (
-                <div
-                  className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-all ${
-                    active
-                      ? "bg-primary text-primary-foreground border-primary shadow-md"
-                      : "bg-primary/10 border-muted-foreground/30"
-                  }`}
-                >
-                  {initials()}
-                </div>
-              ) : (
-                <div className={`relative ${active ? "scale-110" : ""} transition-transform`}>
+              <div className="icon-wrapper flex items-center justify-center">
+                {showProfileAvatar && userImage && !imageError ? (
+                  <div className={`relative h-6 w-6 flex-shrink-0 overflow-hidden rounded-full border-2 transition-all ${
+                    active ? "border-primary shadow-md" : "border-muted-foreground/30"
+                  }`}>
+                    <Image
+                      src={userImage}
+                      alt="Profile"
+                      fill
+                      sizes="24px"
+                      className="object-cover"
+                      unoptimized
+                      onError={() => setImageError(true)}
+                    />
+                  </div>
+                ) : showProfileAvatar && session ? (
+                  <div
+                    className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-bold transition-all ${
+                      active
+                        ? "bg-primary text-primary-foreground border-primary shadow-md"
+                        : "bg-primary/10 border-muted-foreground/30 text-muted-foreground"
+                    }`}
+                  >
+                    {initials()}
+                  </div>
+                ) : (
                   <Icon
                     className={`h-6 w-6 flex-shrink-0 ${
                       active ? "fill-primary stroke-primary" : "stroke-current"
                     }`}
                     strokeWidth={active ? 2.5 : 2}
                   />
-                </div>
-              )}
-              <span className={`text-[10px] font-bold uppercase tracking-wide leading-tight text-center ${
-                active ? "text-primary" : ""
+                )}
+              </div>
+              <span className={`text-[10px] font-semibold uppercase tracking-wide leading-tight text-center ${
+                active ? "text-primary" : "text-muted-foreground"
               }`}>
                 {item.label}
               </span>

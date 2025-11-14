@@ -313,9 +313,9 @@ export default function ProfilePage() {
       <div className="grid gap-6 md:grid-cols-[2fr,1fr]">
         <Card className="p-6 md:p-8">
           <form className="space-y-6" onSubmit={handleProfileSave}>
-            <div className="flex flex-col gap-4 md:flex-row">
-              <div className="flex items-center gap-4">
-                <div className="relative h-24 w-24 overflow-hidden rounded-full border border-border bg-muted">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start">
+              <div className="flex items-start gap-4">
+                <div className="profile-image-wrapper relative h-24 w-24 flex-shrink-0 bg-muted">
                   {profileImageUrl ? (
                     <NextImage
                       src={profileImageUrl}
@@ -325,7 +325,7 @@ export default function ProfilePage() {
                       unoptimized
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-3xl">
+                    <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-muted-foreground">
                       {fullName
                         ? fullName
                             .split(" ")
@@ -337,11 +337,11 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </div>
-                <div className="space-y-2">
+                <div className="flex-1 space-y-2">
                   <Button
                     type="button"
                     variant="outline"
-                    className="gap-2"
+                    className="gap-2 w-full md:w-auto"
                     onClick={() => {
                       const input = document.getElementById(
                         "profile-image-input"
@@ -356,7 +356,7 @@ export default function ProfilePage() {
                     <Button
                       type="button"
                       variant="ghost"
-                      className="text-xs text-red-600 hover:text-red-600"
+                      className="text-xs text-red-600 hover:text-red-600 w-full md:w-auto"
                       onClick={handleRemoveImage}
                     >
                       Remove photo
@@ -370,7 +370,7 @@ export default function ProfilePage() {
                     onChange={handleImageSelection}
                   />
                   <p className="text-xs text-muted-foreground">
-                    PNG, JPG, or WEBP. Large images are automatically optimised so your profile loads instantly.
+                    PNG, JPG, or WEBP. Large images are automatically optimised.
                   </p>
                 </div>
               </div>
@@ -385,6 +385,7 @@ export default function ProfilePage() {
                   onChange={(event) => setFullName(event.target.value)}
                   placeholder="Your full name"
                   autoComplete="name"
+                  className="profile-input"
                 />
               </div>
               <div className="space-y-2">
@@ -397,6 +398,7 @@ export default function ProfilePage() {
                   placeholder="you@example.com"
                   autoComplete="email"
                   required
+                  className="profile-input"
                 />
               </div>
               <div className="space-y-2">
@@ -407,6 +409,7 @@ export default function ProfilePage() {
                   onChange={(event) => setPhoneNumber(event.target.value)}
                   placeholder="+201234567890"
                   autoComplete="tel"
+                  className="profile-input"
                 />
               </div>
               <div className="space-y-2">
@@ -415,7 +418,7 @@ export default function ProfilePage() {
                   id="role"
                   value={session?.user?.role ?? "rider"}
                   disabled
-                  className="bg-muted"
+                  className="profile-input bg-muted"
                 />
               </div>
             </div>
@@ -437,9 +440,9 @@ export default function ProfilePage() {
         </Card>
 
         <div className="space-y-6">
-          <Card className="space-y-4 p-6">
+          <Card className="space-y-4 p-6 mt-6 md:mt-0">
             <div className="flex items-center gap-3">
-              <Shield className="h-5 w-5 text-primary" />
+              <Shield className="h-5 w-5 text-primary flex-shrink-0" />
               <div>
                 <h2 className="text-base font-semibold">Change password</h2>
                 <p className="text-xs text-muted-foreground">
@@ -458,6 +461,7 @@ export default function ProfilePage() {
                   onChange={(event) => setCurrentPassword(event.target.value)}
                   autoComplete="current-password"
                   required
+                  className="profile-input"
                 />
               </div>
               <div className="space-y-2">
@@ -469,6 +473,7 @@ export default function ProfilePage() {
                   onChange={(event) => setNewPassword(event.target.value)}
                   autoComplete="new-password"
                   required
+                  className="profile-input"
                 />
               </div>
               <div className="space-y-2">
@@ -480,6 +485,7 @@ export default function ProfilePage() {
                   onChange={(event) => setConfirmPassword(event.target.value)}
                   autoComplete="new-password"
                   required
+                  className="profile-input"
                 />
               </div>
 
