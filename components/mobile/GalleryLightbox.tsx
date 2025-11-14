@@ -36,11 +36,20 @@ export default function GalleryLightbox({
 }: GalleryLightboxProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isLiked, setIsLiked] = useState(false);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchStart, setTouchStart] = useState<{ x: number; distance: number } | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  // Type guards for touchStart
+  const isSwipeTouchStart = (ts: typeof touchStart): ts is { x: number; distance: 0 } => {
+    return ts !== null && ts.x > 0;
+  };
+
+  const isPinchTouchStart = (ts: typeof touchStart): ts is { x: 0; distance: number } => {
+    return ts !== null && ts.distance > 0;
+  };
 
   const currentPhoto = photos[currentIndex];
 
