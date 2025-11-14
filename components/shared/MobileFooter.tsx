@@ -104,7 +104,7 @@ export default function MobileFooter() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center gap-1 px-2 py-1.5 transition-all duration-200 flex-1 min-w-0 ${
+              className={`nav-${item.label.toLowerCase()} flex flex-col items-center justify-center gap-1 px-2 py-1.5 transition-all duration-200 flex-1 min-w-0 ${
                 active
                   ? "text-primary"
                   : "text-muted-foreground active:text-primary"

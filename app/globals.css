@@ -255,6 +255,16 @@ html.no-scroll {
   main {
     padding-bottom: calc(72px + env(safe-area-inset-bottom)) !important; /* 56px + 16px spacing */
   }
+  
+  /* Compact spacing for cards and bookings on mobile */
+  .booking-card,
+  .stable-card {
+    margin-bottom: 16px; /* Reduced from 24px to 16px for tighter spacing */
+  }
+  
+  .stables-grid {
+    gap: 16px; /* Reduced gap between stable cards */
+  }
 
   /* 3. HERO SECTION - Mobile optimized (70vh) */
   .hero {
@@ -289,14 +299,35 @@ html.no-scroll {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.75) 100%);
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.5) 0%,
+      rgba(0, 0, 0, 0.65) 30%,
+      rgba(0, 0, 0, 0.75) 60%,
+      rgba(0, 0, 0, 0.85) 100%
+    );
     z-index: 1;
   }
   
-  .hero .hero-title {
+  .hero .hero-title,
+  .hero h1,
+  .hero h2 {
     position: relative;
     z-index: 2;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3);
+    text-shadow: 
+      0 2px 8px rgba(0, 0, 0, 0.7),
+      0 4px 16px rgba(0, 0, 0, 0.5),
+      0 1px 2px rgba(0, 0, 0, 0.8);
+    color: #ffffff; /* Ensure white text for maximum contrast */
+  }
+  
+  .hero p {
+    position: relative;
+    z-index: 2;
+    text-shadow: 
+      0 1px 4px rgba(0, 0, 0, 0.6),
+      0 2px 8px rgba(0, 0, 0, 0.4);
+    color: rgba(255, 255, 255, 0.98); /* High contrast white */
   }
 
   .hero p {
@@ -321,14 +352,16 @@ html.no-scroll {
   .hero-search-card select,
   .hero-search-card [role="combobox"] {
     width: 100%;
-    padding: 12px 16px; /* 12px vertical, 16px horizontal */
+    padding: 14px 16px; /* Adjusted for 48px total height */
     margin: 8px 0;
     border: 1px solid #e5e7eb;
-    border-radius: 12px;
+    border-radius: 12px; /* 12px rounded corners */
     font-size: 1rem; /* Minimum 16px for mobile */
     transition: all var(--transition-smooth);
     min-height: 48px; /* Touch target >= 48dp */
+    height: 48px; /* Fixed height for consistency */
     line-height: 1.5;
+    box-sizing: border-box;
   }
 
   .hero-search-card input:focus,
@@ -344,9 +377,11 @@ html.no-scroll {
     margin-top: 12px;
     font-weight: 600;
     font-size: 1rem;
-    border-radius: 12px;
+    border-radius: 12px; /* 12px rounded corners */
     transition: all var(--transition-smooth);
     min-height: 48px; /* Touch target >= 48dp */
+    height: 48px; /* Fixed height for CTA */
+    box-sizing: border-box;
   }
 
   .hero-search-card button:active {

@@ -32,11 +32,11 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                className="stat-card flex-shrink-0 min-w-[140px]"
+                className="stat-card flex-shrink-0"
               >
-                <Icon className="h-6 w-6 text-primary mx-auto mb-2" />
-                <div className="text-2xl font-bold text-primary mb-1">{stat.value}</div>
-                <div className="text-xs text-muted-foreground">{stat.label}</div>
+                <Icon className="text-primary mx-auto mb-1" />
+                <div className="font-bold text-primary mb-1">{stat.value}</div>
+                <div className="text-muted-foreground">{stat.label}</div>
               </motion.div>
             );
           })}
