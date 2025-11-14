@@ -30,7 +30,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section className="relative h-screen w-full overflow-hidden hero">
       {/* Horse Riding with Pyramids Background */}
       <div className="fixed inset-0 z-0">
         <div 

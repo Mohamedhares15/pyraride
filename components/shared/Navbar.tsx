@@ -66,7 +66,7 @@ export default function Navbar() {
   return (
     <>
       <motion.nav
-        className="fixed top-0 z-50 w-full border-b border-white/20 bg-white/5 backdrop-blur-md"
+        className="fixed top-0 z-50 w-full border-b border-white/20 bg-white/5 backdrop-blur-md top-nav"
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6 }}
@@ -242,7 +242,7 @@ export default function Navbar() {
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">{displayName}</span>
                       <span className="text-xs text-white/80">View profile</span>
-                    </div>
+                  </div>
                   </Link>
                   <Button
                     variant="outline"

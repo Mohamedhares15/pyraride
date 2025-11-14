@@ -39,7 +39,7 @@ export default function StableCard({ stable, index, href }: StableCardProps) {
       className="will-change-transform hover:shadow-lg transition-shadow h-full"
     >
       <Link href={href ?? `/stables/${stable.id}`} className="block h-full">
-        <Card className="overflow-hidden h-full cursor-pointer">
+        <Card className="overflow-hidden h-full cursor-pointer stable-card">
           {/* Media */}
           <div className="relative w-full aspect-video bg-gradient-to-br from-primary/20 to-secondary/20">
             {stable.imageUrl && stable.imageUrl !== "" ? (

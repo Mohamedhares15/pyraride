@@ -201,7 +201,7 @@ export default function StablesClient() {
         </div>
       </motion.div>
 
-      <div className="mx-auto max-w-7xl px-3 py-4 md:py-8 md:px-8">
+      <div className="mx-auto max-w-7xl px-3 py-4 md:py-8 md:px-8 mobile-container safe-padding">
         <div className="space-y-6 md:space-y-8">
           {/* Weather Widget */}
           <div className="mb-4 md:mb-0">

@@ -76,7 +76,7 @@ export default function StableList({ results, mode, isLoading }: StableListProps
 
   if (mode === "horse") {
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 stables-grid">
         {results.map((item) => {
           if (item.type !== "horse") return null;
           const priceLabel = `$${item.pricePerHour.toFixed(0)}/hour`;
@@ -93,7 +93,7 @@ export default function StableList({ results, mode, isLoading }: StableListProps
               whileHover={{ y: -6 }}
             >
               <Link href={`/stables/${item.stableId}#horse-${item.id}`} className="block h-full">
-                <Card className="overflow-hidden h-full hover:shadow-lg transition-shadow">
+                <Card className="overflow-hidden h-full hover:shadow-lg transition-shadow stable-card">
                   <div className="relative h-48 w-full bg-gradient-to-br from-primary/20 to-secondary/20">
                     <Image
                       src={item.imageUrl || "/hero-bg.webp"}
@@ -139,7 +139,7 @@ export default function StableList({ results, mode, isLoading }: StableListProps
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 stables-grid">
       {results.map((item, index) => {
         if (item.type !== "stable") return null;
         return (

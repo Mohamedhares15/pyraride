@@ -41,12 +41,12 @@ export default function HowItWorks() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 steps-row">
           {steps.map((step, idx) => {
             const Icon = step.icon;
             return (
               <div key={idx} className="relative">
-                <Card className="p-6 h-full hover:shadow-lg transition-all hover:-translate-y-1 duration-300">
+                <Card className="p-6 h-full hover:shadow-lg transition-all hover:-translate-y-1 duration-300 step-card">
                   {/* Step Number Badge */}
                   <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold shadow-lg">
                     {step.number}

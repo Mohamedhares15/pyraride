@@ -13,24 +13,24 @@ export default function HomePage() {
       
       {/* Trust Stats Bar - PLACEHOLDER: Update with real metrics from your database */}
       <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-y">
-        <div className="mx-auto max-w-6xl px-4 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div>
+        <div className="mx-auto max-w-6xl px-4 py-8 mobile-container safe-padding">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center stats-row">
+            <div className="stat-card">
               <div className="text-4xl font-bold text-primary mb-2">[#]</div>
               <p className="text-sm text-muted-foreground">Total Bookings</p>
               <p className="text-xs text-muted-foreground/60 mt-1">(Live from database)</p>
             </div>
-            <div>
+            <div className="stat-card">
               <div className="text-4xl font-bold text-primary mb-2">[#]</div>
               <p className="text-sm text-muted-foreground">Partner Stables</p>
               <p className="text-xs text-muted-foreground/60 mt-1">(Auto-updated)</p>
             </div>
-            <div>
+            <div className="stat-card">
               <div className="text-4xl font-bold text-primary mb-2">[#]/5</div>
               <p className="text-sm text-muted-foreground">Average Rating</p>
               <p className="text-xs text-muted-foreground/60 mt-1">(From real reviews)</p>
             </div>
-            <div>
+            <div className="stat-card">
               <div className="text-4xl font-bold text-primary mb-2">[#]%</div>
               <p className="text-sm text-muted-foreground">Satisfaction Rate</p>
               <p className="text-xs text-muted-foreground/60 mt-1">(Customer surveys)</p>
@@ -44,13 +44,13 @@ export default function HomePage() {
 
       {/* Why Choose PyraRide - Real Value Props */}
       <div className="bg-background py-16">
-        <div className="mx-auto max-w-6xl px-4">
+        <div className="mx-auto max-w-6xl px-4 mobile-container safe-padding">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Why Choose PyraRide
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 features-grid">
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow feature-card">
               <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
                 <Shield className="w-7 h-7 text-blue-600" />
               </div>
@@ -60,7 +60,7 @@ export default function HomePage() {
               </p>
             </Card>
 
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow feature-card">
               <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
                 <Users className="w-7 h-7 text-green-600" />
               </div>
@@ -70,7 +70,7 @@ export default function HomePage() {
               </p>
             </Card>
 
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow feature-card">
               <div className="w-14 h-14 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
                 <Star className="w-7 h-7 text-purple-600" />
               </div>
@@ -80,7 +80,7 @@ export default function HomePage() {
               </p>
             </Card>
 
-            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow feature-card">
               <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-4">
                 <Shield className="w-7 h-7 text-orange-600" />
               </div>
@@ -95,13 +95,13 @@ export default function HomePage() {
 
       {/* Testimonials - PLACEHOLDER: Add real customer testimonials */}
       <div className="bg-muted/30 py-16">
-        <div className="mx-auto max-w-6xl px-4">
+        <div className="mx-auto max-w-6xl px-4 mobile-container safe-padding">
           <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">What Riders Say</h2>
             <p className="text-muted-foreground">Real experiences from real customers</p>
           </div>
           
-          <Card className="p-8 bg-white">
+          <Card className="p-8 bg-white testimonial-card">
             <div className="text-center space-y-4">
               <Star className="w-16 h-16 mx-auto text-primary/40" />
               <h3 className="text-xl font-semibold">Customer Testimonials</h3>
@@ -110,7 +110,7 @@ export default function HomePage() {
                 to build trust and help future riders make informed decisions.
               </p>
               <p className="text-sm text-muted-foreground italic">
-                💡 Reviews are automatically requested 24 hours after each ride
+                Reviews are automatically requested 24 hours after each ride
               </p>
             </div>
           </Card>
@@ -119,7 +119,7 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <div className="bg-gradient-to-r from-primary to-primary/80 text-white py-16">
-        <div className="mx-auto max-w-4xl px-4 text-center">
+        <div className="mx-auto max-w-4xl px-4 text-center mobile-container safe-padding">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Ready for Your Pyramid Adventure?
           </h2>
