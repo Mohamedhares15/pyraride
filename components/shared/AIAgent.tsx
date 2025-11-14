@@ -21,8 +21,8 @@ export default function AIAgent() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   
-  // Hide FAB on Gallery, Profile, and Password pages
-  const hideFAB = pathname === "/gallery" || pathname === "/profile" || pathname?.startsWith("/profile");
+  // Hide FAB on Home, Gallery, Profile, and Dashboard pages
+  const hideFAB = pathname === "/" || pathname === "/gallery" || pathname === "/profile" || pathname === "/dashboard" || pathname?.startsWith("/profile") || pathname?.startsWith("/dashboard");
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {

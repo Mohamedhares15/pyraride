@@ -114,7 +114,7 @@ export default function Hero() {
               placeholder="Select date"
             />
             <Button type="submit" variant="primary" className="w-full">
-              Search
+              Find My Ride
             </Button>
           </div>
         </form>

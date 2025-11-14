@@ -159,7 +159,7 @@ export default function RiderDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background hide-fab safe-area-wrapper">
       {/* Header */}
       <div className="border-b border-border bg-card/50 py-12 backdrop-blur-lg">
         <div className="mx-auto max-w-7xl px-4 md:px-8">

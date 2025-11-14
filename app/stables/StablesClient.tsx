@@ -2,11 +2,17 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
+import { Loader2, ArrowLeft, Filter, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 import SearchFilters from "@/components/sections/SearchFilters";
 import StableList from "@/components/sections/StableList";
 import WeatherWidget from "@/components/shared/WeatherWidget";
-import { Loader2 } from "lucide-react";
+import FilterBottomSheet from "@/components/mobile/FilterBottomSheet";
+import SkeletonLoader from "@/components/mobile/SkeletonLoader";
 
 type StableMode = "stable" | "horse";
 
@@ -49,6 +55,7 @@ export default function StablesClient() {
   const [mode, setMode] = useState<StableMode>("stable");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showFilterSheet, setShowFilterSheet] = useState(false);
 
   const normalizeLocationParam = (value: string | null) => {
     if (!value) return "all";
@@ -201,24 +208,60 @@ export default function StablesClient() {
         </div>
       </motion.div>
 
-      <div className="mx-auto max-w-7xl px-3 py-4 md:py-8 md:px-8 mobile-container safe-padding">
+      <div className="mx-auto max-w-7xl px-3 py-4 md:py-8 md:px-8 mobile-container safe-padding hide-fab">
         <div className="space-y-6 md:space-y-8">
+          {/* Mobile Sticky Header with Back + Filter */}
+          <div className="stables-header md:hidden">
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="gap-2 h-10">
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
+            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 h-10 filter-btn"
+              onClick={() => setShowFilterSheet(true)}
+            >
+              <Filter className="h-4 w-4" />
+              Filter
+            </Button>
+          </div>
+
           {/* Weather Widget */}
           <div className="mb-4 md:mb-0">
           <WeatherWidget location={location} />
           </div>
 
-          <SearchFilters
-            search={search}
-            location={location}
-            minRating={minRating}
-            sort={sort}
-            onSearchChange={handleSearchChange}
-            onLocationChange={handleLocationChange}
-            onRatingChange={handleRatingChange}
-            onSortChange={handleSortChange}
-            onClear={handleClear}
-          />
+          {/* Desktop Search Filters */}
+          <div className="hidden md:block">
+            <SearchFilters
+              search={search}
+              location={location}
+              minRating={minRating}
+              sort={sort}
+              onSearchChange={handleSearchChange}
+              onLocationChange={handleLocationChange}
+              onRatingChange={handleRatingChange}
+              onSortChange={handleSortChange}
+              onClear={handleClear}
+            />
+          </div>
+
+          {/* Mobile Search Input */}
+          <div className="md:hidden">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search for stables..."
+                value={search}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="pl-10 h-12"
+              />
+            </div>
+          </div>
 
           {error ? (
             <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-center">
@@ -248,11 +291,40 @@ export default function StablesClient() {
                 </h2>
               </div>
 
-              <StableList results={results} mode={mode} isLoading={isLoading} />
+              {isLoading ? (
+                <div className="stables-grid">
+                  {[...Array(3)].map((_, i) => (
+                    <SkeletonLoader key={i} variant="card" height="280px" />
+                  ))}
+                </div>
+              ) : results.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground mb-4">No stables found</p>
+                  <Button onClick={handleClear} variant="outline">
+                    Clear Filters
+                  </Button>
+                </Card>
+              ) : (
+                <StableList results={results} mode={mode} isLoading={isLoading} />
+              )}
             </>
           )}
         </div>
       </div>
+
+      {/* Mobile Filter Bottom Sheet */}
+      <FilterBottomSheet
+        isOpen={showFilterSheet}
+        onClose={() => setShowFilterSheet(false)}
+        onApply={(filters) => {
+          // Apply filters
+          if (filters.location.length > 0) {
+            setLocation(filters.location[0]);
+          }
+          setMinRating(filters.minRating.toString());
+          // Apply other filters as needed
+        }}
+      />
     </div>
   );
 }
