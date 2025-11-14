@@ -6,6 +6,25 @@
 body.no-scroll {
   overflow: hidden;
   height: 100vh;
+  position: fixed;
+  width: 100%;
+}
+
+/* Prevent scrolling on homepage for mobile */
+@media (max-width: 428px) {
+  body.no-scroll {
+    overflow: hidden;
+    height: 100vh;
+    position: fixed;
+    width: 100%;
+    touch-action: none;
+  }
+  
+  /* Ensure homepage doesn't scroll */
+  html:has(body.no-scroll) {
+    overflow: hidden;
+    height: 100%;
+  }
 }
 
 /* Mobile-only structural changes - DO NOT modify desktop, colors, or styles */
