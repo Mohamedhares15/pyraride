@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Groq from "groq-sdk";
-import type { ChatCompletionCreateParams } from "groq-sdk/resources/chat/completions.mjs";
+import type { ChatCompletionCreateParams } from "groq-sdk/resources/chat/completions";
 
 const groqApiKey = process.env.GROQ_API_KEY;
 const groqClient = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
