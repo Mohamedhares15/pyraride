@@ -19,6 +19,7 @@ interface Message {
 export default function AIAgent() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -39,6 +40,42 @@ export default function AIAgent() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
+    const handleChange = (event: MediaQueryListEvent | MediaQueryList) => {
+      setIsMobile(event.matches);
+    };
+
+    setIsMobile(mediaQuery.matches);
+    if ("addEventListener" in mediaQuery) {
+      mediaQuery.addEventListener("change", handleChange);
+    } else {
+      // @ts-expect-error - Safari fallback
+      mediaQuery.addListener(handleChange);
+    }
+
+    return () => {
+      if ("removeEventListener" in mediaQuery) {
+        mediaQuery.removeEventListener("change", handleChange);
+      } else {
+        // @ts-expect-error - Safari fallback
+        mediaQuery.removeListener(handleChange);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      document.body.classList.add("ai-chat-open");
+    } else {
+      document.body.classList.remove("ai-chat-open");
+    }
+    return () => {
+      document.body.classList.remove("ai-chat-open");
+    };
+  }, [isMobile, isOpen]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -96,35 +133,48 @@ export default function AIAgent() {
     }
   };
 
-  if (!isOpen) {
-    return (
-      <Button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-gradient-to-r from-primary via-primary to-purple-600 shadow-xl shadow-primary/30 hover:scale-110 transition-transform hover:shadow-2xl"
-        size="icon"
+  const launcherButton = (
+    <Button
+      onClick={() => setIsOpen(true)}
+      className="h-16 w-16 rounded-full bg-gradient-to-r from-primary via-primary to-purple-600 shadow-xl shadow-primary/30 hover:scale-110 transition-transform hover:shadow-2xl"
+      size="icon"
+      aria-label="Open PyraRide AI assistant"
+    >
+      <Bot className="h-6 w-6" />
+      <motion.div
+        className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-green-500 flex items-center justify-center"
+        animate={{ scale: [1, 1.2, 1] }}
+        transition={{ duration: 2, repeat: Infinity }}
       >
-        <Bot className="h-6 w-6" />
-        <motion.div
-          className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-green-500 flex items-center justify-center"
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <Sparkles className="h-3 w-3 text-white" />
-        </motion.div>
-      </Button>
-    );
-  }
+        <Sparkles className="h-3 w-3 text-white" />
+      </motion.div>
+    </Button>
+  );
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, x: 400 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 400 }}
-          className="fixed bottom-6 right-6 z-50 w-[420px]"
-        >
-          <Card className="flex h-[650px] flex-col shadow-2xl border-primary/50 bg-gradient-to-b from-background to-primary/5">
+    <>
+      {!isOpen && <div className="ai-launcher">{launcherButton}</div>}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {isMobile && (
+              <div
+                className="ai-chat__backdrop"
+                onClick={() => setIsOpen(false)}
+                aria-hidden="true"
+              />
+            )}
+            <motion.div
+              initial={{ opacity: 0, x: isMobile ? 0 : 400 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: isMobile ? 0 : 400 }}
+              className={`ai-chat ${isMobile ? "ai-chat--mobile" : "ai-chat--desktop"}`}
+            >
+              <Card
+                className={`flex flex-col shadow-2xl border-primary/50 bg-gradient-to-b from-background to-primary/5 ${
+                  isMobile ? "ai-chat__panel--mobile" : "h-[650px] w-[420px]"
+                }`}
+              >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border bg-gradient-to-r from-primary/20 via-primary/10 to-transparent p-4">
               <div className="flex items-center gap-3">
@@ -290,9 +340,11 @@ export default function AIAgent() {
                 </div>
               </>
             )}
-          </Card>
-        </motion.div>
-      )}
-    </AnimatePresence>
+              </Card>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

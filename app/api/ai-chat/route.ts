@@ -1,18 +1,117 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import OpenAI from "openai";
+
+const openaiApiKey = process.env.OPENAI_API_KEY;
+const openaiClient = openaiApiKey ? new OpenAI({ apiKey: openaiApiKey }) : null;
+
+const SYSTEM_PROMPT = `You are PyraRide AI, a professional concierge for a premium horse-riding booking platform at the Giza and Saqqara pyramids.
+
+Goals:
+- Provide warm, human-like help for riders and stable owners.
+- Understand free-form questions: bookings, pricing, locations, account issues, reviews, cancellation, etc.
+- Always reference live routes when guiding users: /stables, /dashboard/rider, /dashboard/stable, /profile, /faq, /contact, /gallery.
+- Mention safety, verified stables, professional guides, best price guarantee when relevant.
+- If asked for unavailable info, say so and offer alternatives.
+- Respond concisely (2-4 short paragraphs max). Use bullet lists when helpful.
+
+Format strictly as JSON:
+{
+  "answer": "string",
+  "suggestions": ["Show me stables", "..."],
+  "actions": { "Label": "/url" }
+}
+`;
+
+type LLMResult = {
+  answer: string;
+  suggestions: string[];
+  actions: Record<string, string>;
+};
+
+const defaultSuggestions = ["Show me stables", "How do I book?", "Pricing", "Contact support"];
+
+function parseLLMResponse(raw: string): LLMResult {
+  try {
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      return {
+        answer: parsed.answer ?? raw,
+        suggestions: Array.isArray(parsed.suggestions) && parsed.suggestions.length > 0 ? parsed.suggestions : defaultSuggestions,
+        actions: typeof parsed.actions === "object" && parsed.actions !== null ? parsed.actions : {},
+      };
+    }
+  } catch (error) {
+    console.error("Failed to parse LLM response:", error);
+  }
+  return {
+    answer: raw,
+    suggestions: defaultSuggestions,
+    actions: {},
+  };
+}
+
+async function fetchLLMResponse(message: string, history: Message[], session: any): Promise<LLMResult | null> {
+  if (!openaiClient) return null;
+  try {
+    const contextSummary = [
+      "Key features: verified stables, pro guides, best price guarantee, instant booking, Stripe payments.",
+      "Primary areas: Giza Plateau, Saqqara Desert.",
+      "Support email: support@pyraride.com / Contact form: /contact.",
+      `User role: ${session?.user?.role ?? "guest"}.`,
+    ].join(" ");
+
+    const messages = [
+      { role: "system" as const, content: `${SYSTEM_PROMPT}\n\nContext:\n${contextSummary}` },
+      ...history.map((msg) => ({
+        role: msg.role === "assistant" ? "assistant" : "user",
+        content: msg.content,
+      })),
+      { role: "user" as const, content: message },
+    ];
+
+    const completion = await openaiClient.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0.4,
+      messages,
+    });
+
+    const raw = completion.choices[0]?.message?.content?.trim() ?? "";
+    return parseLLMResponse(raw);
+  } catch (error) {
+    console.error("OpenAI error:", error);
+    return null;
+  }
+}
+
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+}
 
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession();
     const body = await req.json();
-    const { message, conversationHistory = [] } = body;
+    const { message, conversationHistory = [] } = body as { message: string; conversationHistory?: Message[] };
 
     if (!message) {
       return NextResponse.json(
         { error: "Message is required" },
         { status: 400 }
       );
+    }
+
+    const llmResponse = await fetchLLMResponse(message, conversationHistory, session);
+    if (llmResponse) {
+      return NextResponse.json({
+        response: llmResponse.answer,
+        suggestions: llmResponse.suggestions,
+        actions: llmResponse.actions,
+        timestamp: new Date().toISOString(),
+      });
     }
 
     const userMessage = message.toLowerCase();
