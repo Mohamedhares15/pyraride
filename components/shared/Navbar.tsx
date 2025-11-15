@@ -4,14 +4,12 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, User } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import AuthModal from "./AuthModal";
-import OffCanvasMenu from "@/components/mobile/OffCanvasMenu";
 import Image from "next/image";
 
 export default function Navbar() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { data: session, status } = useSession();
 
@@ -64,120 +62,212 @@ export default function Navbar() {
     return "P";
   }, [session?.user]);
 
+  const toggleMenu = () => setIsOpen((prev) => !prev);
+  const closeMenu = () => setIsOpen(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add("menu-open");
+    } else {
+      document.body.classList.remove("menu-open");
+    }
+    return () => {
+      document.body.classList.remove("menu-open");
+    };
+  }, [isOpen]);
+
+  const desktopLinks = (
+    <>
+      <li>
+        <Link href="/stables">Stables</Link>
+      </li>
+      <li>
+        <Link href="/gallery">Gallery</Link>
+      </li>
+      {session && (
+        <li>
+          <Link href="/dashboard">Dashboard</Link>
+        </li>
+      )}
+    </>
+  );
+
+  const desktopAuthSection =
+    status === "loading" ? (
+      <li>
+        <div className="h-8 w-20 animate-pulse rounded-md bg-white/20" />
+      </li>
+    ) : session ? (
+      <>
+        <li>
+          <Link href="/profile" className="profile-chip">
+            <div className="profile-chip__avatar">
+              {userImage && !imageError ? (
+                <Image
+                  src={userImage}
+                  alt={displayName}
+                  fill
+                  sizes="32px"
+                  className="object-cover"
+                  unoptimized
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <span>{initials}</span>
+              )}
+            </div>
+            <span>{displayName}</span>
+          </Link>
+        </li>
+        <li>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => signOut()}
+            className="border-white/30 bg-white/10 text-white hover:bg-white/20"
+          >
+            Sign Out
+          </Button>
+        </li>
+      </>
+    ) : (
+      <>
+        <li>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsAuthModalOpen(true)}
+            className="border-white/30 bg-white/10 text-white hover:bg-white/20"
+          >
+            Sign In
+          </Button>
+        </li>
+        <li>
+          <Button
+            size="sm"
+            onClick={() => setIsAuthModalOpen(true)}
+            className="bg-nile-blue text-white hover:bg-nile-blue/90"
+          >
+            Get Started
+          </Button>
+        </li>
+      </>
+    );
+
+  const mobileMenuLinks = (
+    <>
+      <li>
+        <Link href="/stables" onClick={closeMenu}>
+          Stables
+        </Link>
+      </li>
+      <li>
+        <Link href="/gallery" onClick={closeMenu}>
+          Gallery
+        </Link>
+      </li>
+      {session && (
+        <li>
+          <Link href="/dashboard" onClick={closeMenu}>
+            Dashboard
+          </Link>
+        </li>
+      )}
+      {status === "loading" ? (
+        <li>
+          <div className="h-10 w-full animate-pulse rounded-md bg-white/20" />
+        </li>
+      ) : session ? (
+        <>
+          <li>
+            <Link href="/profile" onClick={closeMenu}>
+              Profile
+            </Link>
+          </li>
+          <li>
+            <button
+              type="button"
+              onClick={() => {
+                signOut();
+                closeMenu();
+              }}
+            >
+              Sign Out
+            </button>
+          </li>
+        </>
+      ) : (
+        <>
+          <li>
+            <button
+              type="button"
+              onClick={() => {
+                setIsAuthModalOpen(true);
+                closeMenu();
+              }}
+            >
+              Sign In
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              onClick={() => {
+                setIsAuthModalOpen(true);
+                closeMenu();
+              }}
+            >
+              Get Started
+            </button>
+          </li>
+        </>
+      )}
+    </>
+  );
+
   return (
     <>
-      <motion.nav
-        className="fixed top-0 z-50 w-full border-b border-white/20 bg-white/5 backdrop-blur-md main-header"
+      <motion.header
+        className="main-header"
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-3 py-3 md:px-8 md:py-4">
-          {/* Logo - White for visibility on image */}
-          <Link href="/" className="logo text-white font-bold text-lg md:text-xl drop-shadow-lg">
-            PyraRide
-          </Link>
+        <Link href="/" className="logo">
+          PyraRide
+        </Link>
 
-          {/* Desktop Menu - Hidden on mobile, visible on desktop */}
-          <div className="desktop-nav hidden items-center space-x-2 lg:space-x-4 md:flex">
-            <Link
-              href="/stables"
-              className="text-xs lg:text-sm font-medium text-white/90 drop-shadow-md transition-colors hover:text-white"
-            >
-              Stables
-            </Link>
-            <Link
-              href="/gallery"
-              className="text-xs lg:text-sm font-medium text-white/90 drop-shadow-md transition-colors hover:text-white"
-            >
-              Gallery
-            </Link>
-            {session && (
-              <Link
-                href="/dashboard"
-                className="text-sm font-medium text-white/90 drop-shadow-md transition-colors hover:text-white"
-              >
-                Dashboard
-              </Link>
-            )}
+        <nav className="desktop-nav">
+          <ul>
+            {desktopLinks}
+            {desktopAuthSection}
+          </ul>
+        </nav>
 
-            {status === "loading" ? (
-              <div className="h-8 w-20 animate-pulse rounded-md bg-white/20" />
-            ) : session ? (
-              <>
-                <Link
-                  href="/profile"
-                  className="flex items-center space-x-3 rounded-full bg-white/10 px-3 py-1 text-white transition hover:bg-white/20"
-                >
-                  <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/40 bg-white/20">
-                    {userImage && !imageError ? (
-                      <Image
-                        src={userImage}
-                        alt={displayName}
-                        fill
-                        sizes="32px"
-                        className="object-cover"
-                        unoptimized
-                        onError={() => setImageError(true)}
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase">
-                        {initials}
-                      </div>
-                    )}
-                  </div>
-                  <span className="text-sm font-medium drop-shadow-md">
-                    {displayName}
-                  </span>
-                </Link>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => signOut()}
-                  className="border-white/30 bg-white/10 text-white hover:bg-white/20"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsAuthModalOpen(true)}
-                  className="border-white/30 bg-white/10 text-white hover:bg-white/20"
-                >
-                  Sign In
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => setIsAuthModalOpen(true)}
-                  className="bg-nile-blue text-white hover:bg-nile-blue/90"
-                >
-                  Get Started
-                </Button>
-              </>
-            )}
-          </div>
+        <button
+          type="button"
+          className="hamburger-menu"
+          aria-label="Toggle navigation menu"
+          aria-expanded={isOpen}
+          aria-controls="mobile-nav"
+          onClick={toggleMenu}
+        >
+          {isOpen ? "✕" : "☰"}
+        </button>
+      </motion.header>
 
-          {/* Mobile Hamburger Button - Show on mobile only */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hamburger-menu md:hidden text-white hover:bg-white/10"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-expanded={isMobileMenuOpen}
-            aria-controls="mobile-nav"
-            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-          >
-            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
-        </div>
-      </motion.nav>
+      <div
+        className={`mobile-off-canvas-backdrop ${isOpen ? "is-open" : ""}`}
+        onClick={closeMenu}
+        aria-hidden="true"
+      />
 
-      {/* Off-Canvas Menu - Mobile only */}
-      <OffCanvasMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <nav
+        id="mobile-nav"
+        className={`mobile-off-canvas-menu ${isOpen ? "is-open" : ""}`}
+      >
+        <ul>{mobileMenuLinks}</ul>
+      </nav>
 
       <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
     </>
