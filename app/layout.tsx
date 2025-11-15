@@ -241,10 +241,10 @@ export default function RootLayout({
         
         <AuthProvider>
           <ImageProtectionProvider />
-          <main id="main-content" className="pb-16 md:pb-0">{children}</main>
+          <main id="main-content" className="pb-0 md:pb-0">{children}</main>
           <AIAgent />
           <CookieConsent />
-          <MobileFooter />
+          {/* MobileFooter removed - using off-canvas menu instead */}
           <GoogleAnalytics trackingId={process.env.NEXT_PUBLIC_GA_ID} />
           <Plausible domain="pyraride.vercel.app" />
         </AuthProvider>
