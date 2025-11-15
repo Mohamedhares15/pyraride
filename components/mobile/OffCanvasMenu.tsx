@@ -195,7 +195,7 @@ export default function OffCanvasMenu({ isOpen, onClose }: OffCanvasMenuProps) {
             aria-label="Mobile navigation"
           >
             {/* Header with close button */}
-            <div className="flex items-center justify-between border-b border-gray-200 bg-white p-4">
+            <div className="flex items-center justify-between border-b border-gray-200 bg-white p-4 sticky top-0 z-10" style={{ paddingTop: `calc(16px + env(safe-area-inset-top))` }}>
               <h2 className="text-lg font-semibold">Menu</h2>
               <button
                 onClick={onClose}
@@ -208,7 +208,7 @@ export default function OffCanvasMenu({ isOpen, onClose }: OffCanvasMenuProps) {
             </div>
 
             {/* Scrollable content */}
-            <div className="overflow-y-auto h-[calc(100vh-80px)] pb-4">
+            <div className="overflow-y-auto flex-1 pb-4" style={{ maxHeight: 'calc(100vh - 80px)' }}>
               {/* User Profile Section (if logged in) */}
               {session && (
                 <div className="border-b border-gray-200 p-4">
