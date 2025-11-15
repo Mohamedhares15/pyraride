@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import OpenAI from "openai";
+import Groq from "groq-sdk";
 
-const openaiApiKey = process.env.OPENAI_API_KEY;
-const openaiClient = openaiApiKey ? new OpenAI({ apiKey: openaiApiKey }) : null;
+const groqApiKey = process.env.GROQ_API_KEY;
+const groqClient = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
 
 const SYSTEM_PROMPT = `You are PyraRide AI, a professional concierge for a premium horse-riding booking platform at the Giza and Saqqara pyramids.
 
@@ -54,7 +54,7 @@ function parseLLMResponse(raw: string): LLMResult {
 }
 
 async function fetchLLMResponse(message: string, history: Message[], session: any): Promise<LLMResult | null> {
-  if (!openaiClient) return null;
+  if (!groqClient) return null;
   try {
     const contextSummary = [
       "Key features: verified stables, pro guides, best price guarantee, instant booking, Stripe payments.",
@@ -72,8 +72,8 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
       { role: "user" as const, content: message },
     ];
 
-    const completion = await openaiClient.chat.completions.create({
-      model: "gpt-4o-mini",
+    const completion = await groqClient.chat.completions.create({
+      model: "llama3-70b-8192",
       temperature: 0.4,
       messages,
     });
@@ -81,7 +81,7 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
     const raw = completion.choices[0]?.message?.content?.trim() ?? "";
     return parseLLMResponse(raw);
   } catch (error) {
-    console.error("OpenAI error:", error);
+    console.error("Groq error:", error);
     return null;
   }
 }
