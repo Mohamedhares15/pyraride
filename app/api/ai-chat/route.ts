@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Groq from "groq-sdk";
+import type { ChatCompletionCreateParams } from "groq-sdk/resources/chat/completions.mjs";
 
 const groqApiKey = process.env.GROQ_API_KEY;
 const groqClient = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
@@ -63,13 +64,15 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
       `User role: ${session?.user?.role ?? "guest"}.`,
     ].join(" ");
 
-    const messages = [
-      { role: "system" as const, content: `${SYSTEM_PROMPT}\n\nContext:\n${contextSummary}` },
-      ...history.map((msg) => ({
-        role: msg.role === "assistant" ? "assistant" : "user",
-        content: msg.content,
-      })),
-      { role: "user" as const, content: message },
+    const messages: ChatCompletionCreateParams["messages"] = [
+      { role: "system", content: `${SYSTEM_PROMPT}\n\nContext:\n${contextSummary}` },
+      ...history.map(
+        (msg): ChatCompletionCreateParams["messages"][number] => ({
+          role: msg.role === "assistant" ? "assistant" : "user",
+          content: msg.content,
+        })
+      ),
+      { role: "user", content: message },
     ];
 
     const completion = await groqClient.chat.completions.create({
