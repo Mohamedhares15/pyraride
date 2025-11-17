@@ -36,7 +36,11 @@ export default function Hero() {
   // Prevent scrolling on homepage only
   useEffect(() => {
     document.body.classList.add('no-scroll');
-    return () => document.body.classList.remove('no-scroll');
+    document.documentElement.classList.add('no-scroll');
+    return () => {
+      document.body.classList.remove('no-scroll');
+      document.documentElement.classList.remove('no-scroll');
+    };
   }, []);
 
   function onSearch(e: React.FormEvent) {
@@ -48,7 +52,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative min-h-screen w-full overflow-hidden">
+    <section className="relative h-[100svh] w-full overflow-hidden">
       {/* Horse Riding with Pyramids Background */}
       <div className="fixed inset-0 z-0">
         <div
@@ -71,8 +75,8 @@ export default function Hero() {
       <div className="absolute inset-0 z-[2] bg-black/30" />
 
       {/* Content layer */}
-      <div className="relative z-20 min-h-screen w-full px-4">
-        <div className="flex min-h-screen w-full flex-col items-center justify-between text-center pt-24 pb-[calc(env(safe-area-inset-bottom)+24px)] md:justify-center md:pt-0 md:pb-0">
+      <div className="relative z-20 h-full w-full px-4">
+        <div className="flex h-full w-full flex-col items-center justify-between text-center pt-24 pb-[calc(env(safe-area-inset-bottom)+72px)] md:justify-center md:pt-0 md:pb-0">
           <div className="flex w-full flex-1 flex-col items-center justify-center">
             {/* Desktop headline */}
             <div className="hidden flex-col items-center justify-center text-center md:flex">
@@ -143,10 +147,10 @@ export default function Hero() {
           </div>
 
           {/* Search form */}
-          <div className="w-full max-w-md pt-10 md:mt-8 md:max-w-3xl md:pt-0">
+          <div className="mt-auto w-full max-w-md pb-12 md:mt-8 md:max-w-3xl md:pb-0">
             <form
               onSubmit={onSearch}
-              className="relative w-full rounded-[28px] border border-white/20 bg-black/60 p-5 text-left shadow-[0_25px_60px_rgba(0,0,0,0.55)] backdrop-blur-lg transition-all duration-300 md:rounded-full md:border-white/30 md:bg-white/20 md:p-4 md:text-center md:shadow-2xl"
+              className="relative w-full overflow-visible rounded-[28px] border border-white/20 bg-black/60 p-5 text-left shadow-[0_25px_60px_rgba(0,0,0,0.55)] backdrop-blur-lg transition-all duration-300 md:rounded-full md:border-white/30 md:bg-white/20 md:p-4 md:text-center md:shadow-2xl"
             >
               <div className="mb-4 space-y-1 md:hidden">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.55em] text-white/60">
