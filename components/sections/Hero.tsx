@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState, useEffect } from "react";
+import { CalendarDays } from "lucide-react";
 
 export default function Hero() {
   const getToday = () => {
@@ -21,6 +22,16 @@ export default function Hero() {
 
   const [location, setLocation] = useState("all");
   const [date, setDate] = useState(getToday);
+
+  const displayDate = (value: string) => {
+    if (!value) return "Select date";
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+    return formatter.format(new Date(value));
+  };
   
   // Prevent scrolling on homepage only
   useEffect(() => {
@@ -159,18 +170,17 @@ export default function Hero() {
                 </Select>
 
                 <div className="relative w-full md:w-56">
+                  <div className="flex !h-[56px] w-full items-center justify-between rounded-2xl border border-white/30 bg-white/5 px-4 text-left text-base text-white transition-all duration-200 focus-within:border-white/70 focus-within:ring-2 focus-within:ring-white/60 md:!h-12 md:rounded-full md:border-white/50 md:bg-white/90 md:text-foreground md:focus-within:ring-ring">
+                    <span>{displayDate(date)}</span>
+                    <CalendarDays className="h-4 w-4 text-white/70 md:text-foreground/60" aria-hidden="true" />
+                  </div>
                   <Input
                     type="date"
+                    aria-label="Select ride date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="!h-[56px] rounded-2xl border border-white/30 bg-white/5 px-4 text-base text-white placeholder-white/60 focus:border-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 md:!h-12 md:w-full md:rounded-full md:border-white/50 md:bg-white/90 md:text-foreground md:placeholder:text-foreground/60 md:focus:ring-ring"
+                    className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                   />
-                  <span
-                    className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-white/70 md:text-foreground/60"
-                    aria-hidden="true"
-                  >
-                    📅
-                  </span>
                 </div>
 
                 <Button
