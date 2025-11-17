@@ -6,7 +6,8 @@
 html.no-scroll,
 body.no-scroll {
   overflow: hidden;
-  height: 100vh;
+  height: 100svh;
+  width: 100%;
   overscroll-behavior: none;
 }
 
