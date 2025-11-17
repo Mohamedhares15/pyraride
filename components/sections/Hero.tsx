@@ -10,11 +10,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState, useEffect } from "react";
-import { PencilLine } from "lucide-react";
 
 export default function Hero() {
+  const getToday = () => {
+    const today = new Date();
+    const offset = today.getTimezoneOffset();
+    const local = new Date(today.getTime() - offset * 60000);
+    return local.toISOString().split("T")[0];
+  };
+
   const [location, setLocation] = useState("all");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(getToday);
   
   // Prevent scrolling on homepage only
   useEffect(() => {
@@ -31,7 +37,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section className="relative h-screen w-full overflow-visible">
       {/* Horse Riding with Pyramids Background */}
       <div className="fixed inset-0 z-0">
         <div
@@ -55,7 +61,7 @@ export default function Hero() {
 
       {/* Content layer */}
       <div className="relative z-20 h-screen w-full px-4">
-        <div className="flex h-full w-full flex-col items-center text-center pt-24 pb-[calc(env(safe-area-inset-bottom)+32px)] md:justify-center md:pt-0 md:pb-0">
+        <div className="flex h-full w-full flex-col items-center text-center pt-24 pb-[calc(env(safe-area-inset-bottom)+88px)] md:justify-center md:pt-0 md:pb-0">
           <div className="flex w-full flex-1 flex-col items-center justify-center">
             {/* Desktop headline */}
             <div className="hidden flex-col items-center justify-center text-center md:flex">
@@ -72,26 +78,21 @@ export default function Hero() {
 
             {/* Mobile hero aesthetic */}
             <div className="flex w-full flex-col items-center gap-6 text-white md:hidden">
-              <div className="flex w-full items-center justify-center gap-3 text-[11px] font-semibold uppercase tracking-[0.6em] text-white/70">
-                <span className="flex-1 max-w-[48px] border-t border-dashed border-white/30" />
-                <span className="flex items-center gap-1">
-                  <PencilLine className="h-3.5 w-3.5 text-white" />
-                  PYRARIDE
-                </span>
-                <span className="flex-1 max-w-[48px] border-t border-dashed border-white/30" />
+              <div className="flex w-full items-center justify-center gap-4 text-[11px] font-semibold uppercase tracking-[0.6em] text-white/70">
+                <span className="hero-dash-line flex-1 max-w-[72px]" />
+                <span>PYRARIDE</span>
+                <span className="hero-dash-line flex-1 max-w-[72px]" />
               </div>
 
-              <div className="space-y-1 text-[42px] font-semibold leading-[46px] tracking-[0.04em] drop-shadow-[0_15px_30px_rgba(0,0,0,0.7)]">
+              <div className="relative space-y-2 text-center text-[42px] font-semibold leading-[46px] tracking-[0.04em] drop-shadow-[0_15px_30px_rgba(0,0,0,0.7)]">
                 <span className="block">Ride Into</span>
                 <span className="block">Adventure!</span>
               </div>
 
-              <div className="flex w-full max-w-xs items-center justify-center gap-3">
-                <span className="flex-1 border-t border-dashed border-white/25" />
-                <div className="rounded-full border border-white/35 bg-white/10 p-2 backdrop-blur">
-                  <PencilLine className="h-4 w-4 text-white" />
-                </div>
-                <span className="flex-1 border-t border-dashed border-white/25" />
+              <div className="flex w-full max-w-xs items-center justify-center gap-4">
+                <span className="hero-dash-line flex-1 max-w-[72px]" />
+                <span className="h-2 w-2 rounded-full border border-white/40 bg-white/40 shadow-[0_0_8px_rgba(255,255,255,0.45)]" />
+                <span className="hero-dash-line flex-1 max-w-[72px]" />
               </div>
             </div>
           </div>
@@ -131,10 +132,10 @@ export default function Hero() {
           </div>
 
           {/* Search form */}
-          <div className="mt-auto w-full max-w-md md:mt-8 md:max-w-3xl">
+          <div className="mt-auto w-full max-w-md pb-12 md:mt-8 md:max-w-3xl md:pb-0">
             <form
               onSubmit={onSearch}
-              className="w-full rounded-[28px] border border-white/20 bg-black/60 p-5 text-left shadow-[0_25px_60px_rgba(0,0,0,0.55)] backdrop-blur-lg transition-all duration-300 md:rounded-full md:border-white/30 md:bg-white/20 md:p-4 md:text-center md:shadow-2xl"
+              className="relative w-full overflow-visible rounded-[28px] border border-white/20 bg-black/60 p-5 text-left shadow-[0_25px_60px_rgba(0,0,0,0.55)] backdrop-blur-lg transition-all duration-300 md:rounded-full md:border-white/30 md:bg-white/20 md:p-4 md:text-center md:shadow-2xl"
             >
               <div className="mb-4 space-y-1 md:hidden">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.55em] text-white/60">
@@ -150,24 +151,32 @@ export default function Hero() {
                   <SelectTrigger className="!h-[56px] rounded-2xl border border-white/30 bg-white/5 px-4 text-left text-base text-white placeholder-white/70 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/60 md:!h-12 md:flex-1 md:rounded-full md:border-white/50 md:bg-white/90 md:text-foreground md:focus:ring-ring">
                     <SelectValue placeholder="Choose location" />
                   </SelectTrigger>
-                  <SelectContent className="border-white/15 bg-black/90 text-white md:border-border md:bg-card md:text-foreground">
+                  <SelectContent className="z-[120] border-white/15 bg-black/90 text-white md:border-border md:bg-card md:text-foreground">
                     <SelectItem value="all">All Locations</SelectItem>
                     <SelectItem value="giza">Giza Plateau</SelectItem>
                     <SelectItem value="saqqara">Saqqara Desert</SelectItem>
                   </SelectContent>
                 </Select>
 
-                <Input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="!h-[56px] rounded-2xl border border-white/30 bg-white/5 px-4 text-base text-white placeholder-white/60 focus:border-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 md:!h-12 md:w-56 md:rounded-full md:border-white/50 md:bg-white/90 md:text-foreground md:placeholder:text-foreground/60 md:focus:ring-ring"
-                />
+                <div className="relative w-full md:w-56">
+                  <Input
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="!h-[56px] rounded-2xl border border-white/30 bg-white/5 px-4 text-base text-white placeholder-white/60 focus:border-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 md:!h-12 md:w-full md:rounded-full md:border-white/50 md:bg-white/90 md:text-foreground md:placeholder:text-foreground/60 md:focus:ring-ring"
+                  />
+                  <span
+                    className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-white/70 md:text-foreground/60"
+                    aria-hidden="true"
+                  >
+                    📅
+                  </span>
+                </div>
 
                 <Button
                   type="submit"
                   variant="primary"
-                  className="!h-[56px] w-full rounded-2xl border border-white/30 !bg-white !text-black text-[11px] font-semibold uppercase tracking-[0.35em] shadow-lg transition-transform duration-200 hover:scale-[1.01] active:scale-[0.98] md:!h-12 md:w-auto md:rounded-full md:border-transparent md:px-8 md:tracking-normal md:!bg-primary md:!text-white md:text-base"
+                  className="relative z-[80] !h-[56px] w-full rounded-2xl border border-white/30 !bg-white !text-black text-[11px] font-semibold uppercase tracking-[0.35em] shadow-lg transition-transform duration-200 hover:scale-[1.01] active:scale-[0.98] md:!h-12 md:w-auto md:rounded-full md:border-transparent md:px-8 md:tracking-normal md:!bg-primary md:!text-white md:text-base"
                 >
                   Search
                 </Button>

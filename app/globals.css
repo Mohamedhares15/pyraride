@@ -238,7 +238,7 @@ body.ai-chat-open {
   position: fixed;
   z-index: 60;
   right: clamp(12px, env(safe-area-inset-right) + 12px, 28px);
-  bottom: clamp(16px, env(safe-area-inset-bottom) + 12px, 32px);
+  bottom: clamp(36px, env(safe-area-inset-bottom) + 28px, 56px);
 }
 
 .ai-launcher button {
@@ -283,7 +283,7 @@ body.ai-chat-open {
 @media (max-width: 768px) {
   .ai-launcher {
     right: clamp(12px, env(safe-area-inset-right) + 8px, 24px);
-    bottom: clamp(12px, env(safe-area-inset-bottom) + 8px, 24px);
+    bottom: clamp(32px, env(safe-area-inset-bottom) + 20px, 48px);
   }
 }
 
@@ -398,6 +398,13 @@ body.ai-chat-open {
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
+}
+
+.hero-dash-line {
+  display: block;
+  width: 100%;
+  border-top: 1px dashed rgba(255, 255, 255, 0.45);
+  height: 0;
 }
 
 /* Accessibility improvements */
