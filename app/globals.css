@@ -6,7 +6,8 @@
 html.no-scroll,
 body.no-scroll {
   overflow: hidden;
-  height: 100svh;
+  height: 100dvh;
+  min-height: 100vh;
   width: 100%;
   overscroll-behavior: none;
 }
@@ -286,7 +287,9 @@ body.ai-chat-open {
 @media (max-width: 768px) {
   .ai-launcher {
     right: clamp(12px, env(safe-area-inset-right) + 8px, 24px);
-    bottom: clamp(32px, env(safe-area-inset-bottom) + 20px, 48px);
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
   }
 }
 

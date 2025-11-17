@@ -52,7 +52,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative h-[100svh] w-full overflow-hidden">
+    <section className="relative h-[100dvh] min-h-[100vh] w-full overflow-hidden">
       {/* Horse Riding with Pyramids Background */}
       <div className="fixed inset-0 z-0">
         <div
@@ -76,7 +76,7 @@ export default function Hero() {
 
       {/* Content layer */}
       <div className="relative z-20 h-full w-full px-4">
-        <div className="flex h-full w-full flex-col items-center justify-between text-center pt-24 pb-[calc(env(safe-area-inset-bottom)+32px)] md:justify-center md:pt-0 md:pb-0">
+        <div className="flex h-full w-full flex-col items-center justify-between text-center pt-24 pb-[calc(env(safe-area-inset-bottom)+16px)] md:justify-center md:pt-0 md:pb-0">
           <div className="flex w-full flex-1 flex-col items-center justify-center">
             {/* Desktop headline */}
             <div className="hidden flex-col items-center justify-center text-center md:flex">
@@ -147,7 +147,7 @@ export default function Hero() {
           </div>
 
           {/* Search form */}
-          <div className="mt-auto w-full max-w-md pt-6 md:mt-8 md:max-w-3xl md:pt-0">
+          <div className="w-full max-w-md pt-10 md:mt-8 md:max-w-3xl md:pt-0">
             <form
               onSubmit={onSearch}
               className="relative w-full overflow-visible rounded-[28px] border border-white/20 bg-black/60 p-5 text-left shadow-[0_25px_60px_rgba(0,0,0,0.55)] backdrop-blur-lg transition-all duration-300 md:rounded-full md:border-white/30 md:bg-white/20 md:p-4 md:text-center md:shadow-2xl"
