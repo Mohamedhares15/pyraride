@@ -14,6 +14,7 @@ type Stable = {
   description?: string;
   rating?: number;
   totalBookings?: number;
+  totalReviews?: number;
   startingPrice?: number;
   distanceKm?: number;
   pricePerHour?: number;
@@ -84,11 +85,22 @@ export default function StableCard({ stable, index, href }: StableCardProps) {
             </p>
           )}
 
-          <div className="flex items-center gap-2 text-nile-blue mt-3 md:mt-4">
-            <Star className="h-3 w-3 md:h-4 md:w-4 fill-current" />
-            <span className="font-semibold text-sm md:text-base">{stable.rating?.toFixed(1) || "4.9"}</span>
-            <span className="text-xs md:text-sm text-foreground/70 ml-1">({stable.totalBookings || 120} Reviews)</span>
-          </div>
+          {(stable.totalReviews !== undefined && stable.totalReviews > 0) || stable.rating ? (
+            <div className="flex items-center gap-2 text-nile-blue mt-3 md:mt-4">
+              <Star className="h-3 w-3 md:h-4 md:w-4 fill-current" />
+              <span className="font-semibold text-sm md:text-base">
+                {stable.rating && stable.rating > 0 ? stable.rating.toFixed(1) : "0.0"}
+              </span>
+              <span className="text-xs md:text-sm text-foreground/70 ml-1">
+                ({stable.totalReviews || 0} {stable.totalReviews === 1 ? "Review" : "Reviews"})
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-muted-foreground mt-3 md:mt-4">
+              <Star className="h-3 w-3 md:h-4 md:w-4" />
+              <span className="text-xs md:text-sm">No reviews yet</span>
+            </div>
+          )}
 
           {(stable.startingPrice !== undefined || stable.distanceKm !== undefined) && (
             <div className="mt-3 flex flex-wrap gap-3 text-xs md:text-sm text-foreground/70">

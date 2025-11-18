@@ -254,7 +254,7 @@ export async function GET(req: NextRequest) {
     const stablesWithRating = stables.map((stable: any) => {
       const stableReviewEntries = stableReviewsMap.get(stable.id) ?? [];
       const { rating: stableRating, reviewCount: stableReviewCount } =
-        computeAdjustedRating(stableReviewEntries, "stableRating", 4.7);
+        computeAdjustedRating(stableReviewEntries, "stableRating", 0);
 
       // Get image from first horse if available
       const firstHorseMedia =
@@ -280,7 +280,7 @@ export async function GET(req: NextRequest) {
           computeAdjustedRating(
             horseReviewEntries,
             "horseRating",
-            stableRating > 0 ? stableRating : 4.7
+            stableRating > 0 ? stableRating : 0
           );
 
         return {
