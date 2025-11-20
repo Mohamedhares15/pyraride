@@ -332,6 +332,7 @@ export default function ManageHorsesPage() {
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        unoptimized
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -340,7 +341,43 @@ export default function ManageHorsesPage() {
                     )}
                   </div>
                   <div className="p-6">
-                    <h3 className="mb-2 font-semibold text-xl">{horse.name}</h3>
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-semibold text-xl">{horse.name}</h3>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            alert("Edit functionality coming soon!");
+                          }}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={async () => {
+                            if (confirm(`Are you sure you want to delete ${horse.name}? This cannot be undone.`)) {
+                              try {
+                                const res = await fetch(`/api/horses/${horse.id}`, {
+                                  method: "DELETE",
+                                });
+                                if (res.ok) {
+                                  await fetchHorses();
+                                  alert(`✅ ${horse.name} has been deleted.`);
+                                } else {
+                                  alert("Failed to delete horse. Please try again.");
+                                }
+                              } catch (err) {
+                                alert("An error occurred. Please try again.");
+                              }
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {horse.description}
                     </p>

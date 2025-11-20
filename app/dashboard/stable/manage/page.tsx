@@ -99,15 +99,29 @@ export default function ManageStablePage() {
   }
 
   function handleGoogleDriveUrl() {
-    if (!googleDriveUrl.trim()) return;
+    if (!googleDriveUrl.trim()) {
+      alert("Please paste a Google Drive URL first");
+      return;
+    }
 
     // Convert Google Drive share link to direct URL
     const directUrl = convertGoogleDriveUrl(googleDriveUrl);
+    console.log("Google Drive URL:", googleDriveUrl);
+    console.log("Converted URL:", directUrl);
+    
     if (directUrl) {
       setImagePreview(directUrl);
       setImageFile(null);
+      // Show success feedback
+      const urlInput = document.getElementById("googleDriveUrl") as HTMLInputElement;
+      if (urlInput) {
+        urlInput.style.borderColor = "green";
+        setTimeout(() => {
+          urlInput.style.borderColor = "";
+        }, 2000);
+      }
     } else {
-      alert("Invalid Google Drive URL. Please paste a valid shareable link.");
+      alert("❌ Invalid Google Drive URL.\n\nPlease make sure you:\n1. Right-click the image in Google Drive\n2. Click 'Get link'\n3. Set to 'Anyone with the link'\n4. Copy and paste the full URL here");
     }
   }
 
@@ -252,6 +266,7 @@ export default function ManageStablePage() {
                   alt="Stable preview"
                   fill
                   className="object-cover"
+                  unoptimized
                 />
                 <Button
                   type="button"
@@ -277,15 +292,29 @@ export default function ManageStablePage() {
                   id="googleDriveUrl"
                   value={googleDriveUrl}
                   onChange={(e) => setGoogleDriveUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleGoogleDriveUrl();
+                    }
+                  }}
                   placeholder="https://drive.google.com/file/d/FILE_ID/view"
                   className="font-mono text-sm"
                 />
-                <Button type="button" onClick={handleGoogleDriveUrl} variant="outline">
+                <Button 
+                  type="button" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleGoogleDriveUrl();
+                  }} 
+                  variant="outline"
+                  disabled={!googleDriveUrl.trim()}
+                >
                   Apply
                 </Button>
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
-                💡 Right-click image in Google Drive → "Get link" → Set to "Anyone with the link" → Paste here
+                💡 Right-click image in Google Drive → "Get link" → Set to "Anyone with the link" → Paste and click Apply
               </p>
             </div>
 
