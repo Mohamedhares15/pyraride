@@ -1,0 +1,107 @@
+[
+  {
+    "stableName": "Beit Zeina",
+    "horses": [
+      {
+        "name": "Thunder",
+        "description": "Beautiful black stallion, very gentle and perfect for beginners. Well-trained and calm.",
+        "pricePerHour": 500,
+        "age": 8,
+        "skills": ["Beginner-friendly", "Calm", "Well-trained"],
+        "imageUrls": [
+          "https://drive.google.com/uc?id=YOUR_IMAGE_ID_1",
+          "https://drive.google.com/uc?id=YOUR_IMAGE_ID_2"
+        ]
+      },
+      {
+        "name": "Bella",
+        "description": "Friendly mare, great for family rides. Very gentle with children.",
+        "pricePerHour": 450,
+        "age": 6,
+        "skills": ["Family-friendly", "Calm", "Beginner-friendly"],
+        "imageUrls": [
+          "https://drive.google.com/uc?id=YOUR_IMAGE_ID_3"
+        ]
+      }
+    ]
+  },
+  {
+    "stableName": "Hooves",
+    "horses": [
+      {
+        "name": "Lightning",
+        "description": "Fast Arabian horse for experienced riders. Energetic and spirited.",
+        "pricePerHour": 700,
+        "age": 5,
+        "skills": ["Advanced", "Fast", "Energetic"],
+        "imageUrls": [
+          "https://drive.google.com/uc?id=YOUR_IMAGE_ID_4",
+          "https://drive.google.com/uc?id=YOUR_IMAGE_ID_5"
+        ]
+      },
+      {
+        "name": "Sultan",
+        "description": "Noble Arabian stallion, well-trained and elegant.",
+        "pricePerHour": 600,
+        "age": 7,
+        "skills": ["Well-trained", "Elegant", "Advanced"],
+        "imageUrls": [
+          "https://drive.google.com/uc?id=YOUR_IMAGE_ID_6"
+        ]
+      }
+    ]
+  },
+  {
+    "stableName": "Aseel",
+    "horses": [
+      {
+        "name": "Mirage",
+        "description": "Beautiful white horse, perfect for photography sessions. Calm and photogenic.",
+        "pricePerHour": 550,
+        "age": 4,
+        "skills": ["Photogenic", "Calm", "Beginner-friendly"],
+        "imageUrls": [
+          "https://drive.google.com/uc?id=YOUR_IMAGE_ID_7",
+          "https://drive.google.com/uc?id=YOUR_IMAGE_ID_8"
+        ]
+      },
+      {
+        "name": "Storm",
+        "description": "Powerful horse for experienced riders. Strong and reliable.",
+        "pricePerHour": 650,
+        "age": 6,
+        "skills": ["Advanced", "Strong", "Reliable"],
+        "imageUrls": [
+          "https://drive.google.com/uc?id=YOUR_IMAGE_ID_9"
+        ]
+      }
+    ]
+  },
+  {
+    "stableName": "Alaa",
+    "horses": [
+      {
+        "name": "Star",
+        "description": "Gentle and friendly horse, perfect for all skill levels.",
+        "pricePerHour": 500,
+        "age": 5,
+        "skills": ["Beginner-friendly", "Calm", "Friendly"],
+        "imageUrls": [
+          "https://drive.google.com/uc?id=YOUR_IMAGE_ID_10",
+          "https://drive.google.com/uc?id=YOUR_IMAGE_ID_11"
+        ]
+      },
+      {
+        "name": "Desert Wind",
+        "description": "Fast and agile Arabian horse, ideal for experienced riders.",
+        "pricePerHour": 700,
+        "age": 4,
+        "skills": ["Advanced", "Fast", "Agile"],
+        "imageUrls": [
+          "https://drive.google.com/uc?id=YOUR_IMAGE_ID_12"
+        ]
+      }
+    ]
+  }
+]
+

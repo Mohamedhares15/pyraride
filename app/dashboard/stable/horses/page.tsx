@@ -18,13 +18,16 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import Image from "next/image";
+import { X } from "lucide-react";
 
 interface Horse {
   id: string;
@@ -44,7 +47,11 @@ export default function ManageHorsesPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    pricePerHour: "",
+    age: "",
+    skills: [] as string[],
     imageUrls: [] as string[],
+    googleDriveUrls: "", // Temporary field for pasting multiple URLs
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
@@ -105,12 +112,41 @@ export default function ManageHorsesPage() {
       }
 
       const stableId = stableData.stables[0].id;
-      let imageUrls = formData.imageUrls;
+      let imageUrls = [...formData.imageUrls];
 
-      // Upload image if provided
+      // Process Google Drive URLs if provided
+      if (formData.googleDriveUrls.trim()) {
+        const urls = formData.googleDriveUrls
+          .split("\n")
+          .map(url => url.trim())
+          .filter(url => url.length > 0)
+          .map(url => {
+            // Convert Google Drive share links to direct image URLs
+            const driveMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+            if (driveMatch) {
+              return `https://drive.google.com/uc?id=${driveMatch[1]}`;
+            }
+            // If already in correct format, use as-is
+            if (url.startsWith("http") || url.startsWith("/")) {
+              return url;
+            }
+            return null;
+          })
+          .filter((url): url is string => url !== null);
+        
+        imageUrls = [...imageUrls, ...urls];
+      }
+
+      // Upload image file if provided
       if (imageFile) {
         const imageUrl = await handleImageUpload(imageFile);
-        imageUrls = [imageUrl];
+        imageUrls = [imageUrl, ...imageUrls];
+      }
+
+      // Validate at least one image
+      if (imageUrls.length === 0) {
+        alert("Please add at least one image (upload file or paste Google Drive URLs)");
+        return;
       }
 
       const response = await fetch("/api/horses", {
@@ -118,8 +154,11 @@ export default function ManageHorsesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           stableId,
-          name: formData.name,
-          description: formData.description,
+          name: formData.name.trim(),
+          description: formData.description.trim(),
+          pricePerHour: formData.pricePerHour ? parseFloat(formData.pricePerHour) : null,
+          age: formData.age ? parseInt(formData.age) : null,
+          skills: formData.skills,
           imageUrls,
         }),
       });
@@ -131,13 +170,23 @@ export default function ManageHorsesPage() {
       }
 
       // Reset form
-      setFormData({ name: "", description: "", imageUrls: [] });
+      setFormData({ 
+        name: "", 
+        description: "", 
+        pricePerHour: "",
+        age: "",
+        skills: [],
+        imageUrls: [],
+        googleDriveUrls: "",
+      });
       setImageFile(null);
       setImagePreview("");
       setIsDialogOpen(false);
       
       // Refresh horses list
       await fetchHorses();
+      
+      alert("✅ Horse added successfully!");
     } catch (err) {
       console.error("Error creating horse:", err);
       alert(err instanceof Error ? err.message : "Failed to create horse");
@@ -263,8 +312,12 @@ export default function ManageHorsesPage() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add New Horse</DialogTitle>
+            <DialogDescription>
+              Fill in all the details below. At least one image is required (use Google Drive URLs for easiest upload).
+            </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh] overflow-y-auto px-1">
+            {/* Horse Name */}
             <div>
               <Label htmlFor="name">Horse Name *</Label>
               <Input
@@ -276,9 +329,10 @@ export default function ManageHorsesPage() {
               />
             </div>
 
+            {/* Description */}
             <div>
               <Label htmlFor="description">Description *</Label>
-              <textarea
+              <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) =>
@@ -286,13 +340,91 @@ export default function ManageHorsesPage() {
                 }
                 required
                 rows={4}
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
                 placeholder="Describe the horse's temperament, experience, and special features..."
               />
             </div>
 
+            {/* Price & Age Row */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="pricePerHour">Price Per Hour (EGP)</Label>
+                <Input
+                  id="pricePerHour"
+                  type="number"
+                  min="0"
+                  step="50"
+                  value={formData.pricePerHour}
+                  onChange={(e) => setFormData({ ...formData, pricePerHour: e.target.value })}
+                  placeholder="e.g., 500"
+                />
+              </div>
+              <div>
+                <Label htmlFor="age">Age (Years)</Label>
+                <Input
+                  id="age"
+                  type="number"
+                  min="0"
+                  max="30"
+                  value={formData.age}
+                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                  placeholder="e.g., 8"
+                />
+              </div>
+            </div>
+
+            {/* Skills */}
             <div>
-              <Label htmlFor="image">Horse Photo *</Label>
+              <Label htmlFor="skills">Skills (comma-separated)</Label>
+              <Input
+                id="skills"
+                value={formData.skills.join(", ")}
+                onChange={(e) => {
+                  const skills = e.target.value
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter((s) => s.length > 0);
+                  setFormData({ ...formData, skills });
+                }}
+                placeholder="e.g., Beginner-friendly, Calm, Well-trained"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Separate multiple skills with commas
+              </p>
+            </div>
+
+            {/* Google Drive URLs */}
+            <div>
+              <Label htmlFor="googleDriveUrls">
+                Google Drive Image URLs * (Easiest Method)
+              </Label>
+              <Textarea
+                id="googleDriveUrls"
+                value={formData.googleDriveUrls}
+                onChange={(e) =>
+                  setFormData({ ...formData, googleDriveUrls: e.target.value })
+                }
+                rows={4}
+                placeholder="Paste Google Drive links here (one per line):&#10;https://drive.google.com/file/d/FILE_ID/view&#10;https://drive.google.com/file/d/FILE_ID/view"
+                className="font-mono text-sm"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                💡 Right-click image in Google Drive → "Get link" → Paste here (one link per line)
+              </p>
+            </div>
+
+            {/* OR Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">OR</span>
+              </div>
+            </div>
+
+            {/* File Upload */}
+            <div>
+              <Label htmlFor="image">Upload Photo File</Label>
               <div className="mt-2">
                 <input
                   type="file"
@@ -306,13 +438,26 @@ export default function ManageHorsesPage() {
                   className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/30 p-6 hover:border-primary/50"
                 >
                   {imagePreview ? (
-                    <div className="relative h-48 w-full">
+                    <div className="relative h-32 w-full">
                       <Image
                         src={imagePreview}
                         alt="Preview"
                         fill
                         className="object-cover rounded-lg"
                       />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute right-2 top-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setImageFile(null);
+                          setImagePreview("");
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     </div>
                   ) : (
                     <>
