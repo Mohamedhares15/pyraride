@@ -199,12 +199,21 @@ export default function ManageStablePage() {
               Back to Dashboard
             </Button>
           </Link>
-          <h1 className="mb-2 font-display text-4xl font-bold tracking-tight">
-            Manage Stable
-          </h1>
-          <p className="text-muted-foreground">
-            Update your stable details and card image
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="mb-2 font-display text-4xl font-bold tracking-tight">
+                Manage Stable
+              </h1>
+              <p className="text-muted-foreground">
+                Update your stable details and card image
+              </p>
+            </div>
+            <Link href="/dashboard/stable/horses">
+              <Button variant="outline">
+                Manage Horses
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 

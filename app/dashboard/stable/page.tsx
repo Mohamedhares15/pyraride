@@ -197,8 +197,9 @@ export default function StableOwnerDashboard() {
             </div>
             <div className="flex gap-2">
               <Button asChild variant="outline">
-                <Link href="/dashboard/analytics">
-                  View Analytics
+                <Link href="/dashboard/stable/horses">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Manage Horses
                 </Link>
               </Button>
               <Button asChild>
@@ -268,12 +269,20 @@ export default function StableOwnerDashboard() {
             <p className="mb-6 max-w-md text-muted-foreground">
               Your bookings will appear here once riders start booking your horses!
             </p>
-            <Button asChild>
-              <Link href="/dashboard/stable/horses">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Horses
-              </Link>
-            </Button>
+            <div className="flex gap-3">
+              <Button asChild variant="outline">
+                <Link href="/dashboard/stable/manage">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Manage Stable
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/dashboard/stable/horses">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Horses
+                </Link>
+              </Button>
+            </div>
           </motion.div>
         ) : (
           <div className="space-y-4">

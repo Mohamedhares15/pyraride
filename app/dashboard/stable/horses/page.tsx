@@ -71,8 +71,8 @@ export default function ManageHorsesPage() {
 
   async function fetchHorses() {
     try {
-      // First get stable ID
-      const stableRes = await fetch("/api/stables");
+      // Get owner's stable
+      const stableRes = await fetch("/api/stables?ownerOnly=true");
       const stableData = await stableRes.json();
       
       if (stableData.stables && stableData.stables.length > 0) {
@@ -106,12 +106,13 @@ export default function ManageHorsesPage() {
     setIsSubmitting(true);
 
     try {
-      // Get stable ID
-      const stableRes = await fetch("/api/stables");
+      // Get owner's stable
+      const stableRes = await fetch("/api/stables?ownerOnly=true");
       const stableData = await stableRes.json();
       
       if (!stableData.stables || stableData.stables.length === 0) {
         alert("Please create a stable first");
+        setIsSubmitting(false);
         return;
       }
 
