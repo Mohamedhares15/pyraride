@@ -79,6 +79,9 @@ export default function Navbar() {
   const desktopLinks = (
     <>
       <li>
+        <Link href="/">Home</Link>
+      </li>
+      <li>
         <Link href="/stables">Stables</Link>
       </li>
       <li>
@@ -156,6 +159,11 @@ export default function Navbar() {
 
   const mobileMenuLinks = (
     <>
+      <li>
+        <Link href="/" onClick={closeMenu}>
+          Home
+        </Link>
+      </li>
       <li>
         <Link href="/stables" onClick={closeMenu}>
           Stables

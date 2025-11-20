@@ -62,7 +62,23 @@ export async function POST(req: NextRequest) {
     // Validate required fields
     if (!name || !description || !stableId) {
       return NextResponse.json(
-        { error: "Missing required fields: name, description, stableId" },
+        { error: "Missing required fields: name, description, and stable ID are required" },
+        { status: 400 }
+      );
+    }
+
+    // Validate name length
+    if (name.trim().length < 2) {
+      return NextResponse.json(
+        { error: "Horse name must be at least 2 characters long" },
+        { status: 400 }
+      );
+    }
+
+    // Validate description length
+    if (description.trim().length < 10) {
+      return NextResponse.json(
+        { error: "Description must be at least 10 characters to help riders understand the horse better" },
         { status: 400 }
       );
     }
@@ -70,21 +86,43 @@ export async function POST(req: NextRequest) {
     // Require at least one image
     if (!imageUrls || imageUrls.length === 0) {
       return NextResponse.json(
-        { error: "At least one horse image is required" },
+        { error: "At least one horse image is required for riders to see the horse" },
         { status: 400 }
       );
     }
 
     // Validate image URLs are valid
     const validImageUrls = imageUrls.filter((url: string) => 
-      url && (url.startsWith("http") || url.startsWith("/"))
+      url && typeof url === "string" && (url.startsWith("http") || url.startsWith("/"))
     );
 
     if (validImageUrls.length === 0) {
       return NextResponse.json(
-        { error: "Please provide valid image URLs" },
+        { error: "Please provide valid image URLs (must start with http:// or https://)" },
         { status: 400 }
       );
+    }
+
+    // Validate price if provided
+    if (pricePerHour !== null && pricePerHour !== undefined) {
+      const price = parseFloat(pricePerHour.toString());
+      if (isNaN(price) || price < 0) {
+        return NextResponse.json(
+          { error: "Price per hour must be a positive number" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate age if provided
+    if (age !== null && age !== undefined) {
+      const horseAge = parseInt(age.toString());
+      if (isNaN(horseAge) || horseAge < 1 || horseAge > 30) {
+        return NextResponse.json(
+          { error: "Age must be between 1 and 30 years" },
+          { status: 400 }
+        );
+      }
     }
 
     // Create horse

@@ -145,7 +145,7 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { name, description, address } = body;
+    const { name, description, address, location, imageUrl } = body;
 
     const updatedStable = await prisma.stable.update({
       where: { id: params.id },
@@ -153,6 +153,8 @@ export async function PATCH(
         ...(name && { name }),
         ...(description !== undefined && { description }),
         ...(address !== undefined && { address }),
+        ...(location !== undefined && { location }),
+        ...(imageUrl !== undefined && { imageUrl }),
       },
     });
 
@@ -164,4 +166,11 @@ export async function PATCH(
       { status: 500 }
     );
   }
+}
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return PATCH(req, { params });
 }

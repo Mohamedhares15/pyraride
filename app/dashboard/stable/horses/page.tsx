@@ -13,6 +13,7 @@ import {
   Edit2,
   Upload,
   Loader2,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -28,6 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import Image from "next/image";
 import { X } from "lucide-react";
+import { convertGoogleDriveUrls } from "@/lib/google-drive-utils";
 
 interface Horse {
   id: string;
@@ -44,6 +46,8 @@ export default function ManageHorsesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successHorseName, setSuccessHorseName] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -116,24 +120,7 @@ export default function ManageHorsesPage() {
 
       // Process Google Drive URLs if provided
       if (formData.googleDriveUrls.trim()) {
-        const urls = formData.googleDriveUrls
-          .split("\n")
-          .map(url => url.trim())
-          .filter(url => url.length > 0)
-          .map(url => {
-            // Convert Google Drive share links to direct image URLs
-            const driveMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-            if (driveMatch) {
-              return `https://drive.google.com/uc?id=${driveMatch[1]}`;
-            }
-            // If already in correct format, use as-is
-            if (url.startsWith("http") || url.startsWith("/")) {
-              return url;
-            }
-            return null;
-          })
-          .filter((url): url is string => url !== null);
-        
+        const urls = convertGoogleDriveUrls(formData.googleDriveUrls);
         imageUrls = [...imageUrls, ...urls];
       }
 
@@ -145,7 +132,36 @@ export default function ManageHorsesPage() {
 
       // Validate at least one image
       if (imageUrls.length === 0) {
-        alert("Please add at least one image (upload file or paste Google Drive URLs)");
+        alert("⚠️ At least one image is required. Please either:\n• Upload a photo file, OR\n• Paste Google Drive image links");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Validate name length
+      if (formData.name.trim().length < 2) {
+        alert("⚠️ Horse name must be at least 2 characters long");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Validate description length
+      if (formData.description.trim().length < 10) {
+        alert("⚠️ Description must be at least 10 characters long");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Validate price if provided
+      if (formData.pricePerHour && parseFloat(formData.pricePerHour) < 0) {
+        alert("⚠️ Price cannot be negative");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Validate age if provided
+      if (formData.age && (parseInt(formData.age) < 1 || parseInt(formData.age) > 30)) {
+        alert("⚠️ Age must be between 1 and 30 years");
+        setIsSubmitting(false);
         return;
       }
 
@@ -169,6 +185,9 @@ export default function ManageHorsesPage() {
         throw new Error(result.error || "Failed to create horse");
       }
 
+      // Store horse name for success message
+      const horseName = formData.name.trim();
+      
       // Reset form
       setFormData({ 
         name: "", 
@@ -186,10 +205,14 @@ export default function ManageHorsesPage() {
       // Refresh horses list
       await fetchHorses();
       
-      alert("✅ Horse added successfully!");
+      // Show success notification
+      setSuccessHorseName(horseName);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 5000);
     } catch (err) {
       console.error("Error creating horse:", err);
-      alert(err instanceof Error ? err.message : "Failed to create horse");
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+      alert(`❌ Failed to add horse\n\n${errorMessage}\n\nPlease check your information and try again.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -253,6 +276,27 @@ export default function ManageHorsesPage() {
         </div>
       </div>
 
+      {/* Success Notification */}
+      {showSuccess && (
+        <div className="fixed top-4 right-4 z-[9999] max-w-md w-full shadow-2xl rounded-lg border-2 bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 p-4 flex items-start gap-4 animate-in fade-in slide-in-from-top-5">
+          <div className="flex-shrink-0">
+            <Check className="h-6 w-6 text-green-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-foreground mb-1">Horse Added Successfully! 🐴</h4>
+            <p className="text-sm text-muted-foreground">
+              &quot;{successHorseName}&quot; has been added to your stable and is now available for booking.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowSuccess(false)}
+            className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+      )}
+
       {/* Content */}
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         {horses.length === 0 ? (
@@ -308,15 +352,37 @@ export default function ManageHorsesPage() {
       </div>
 
       {/* Add Horse Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Add New Horse</DialogTitle>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        if (!open && !isSubmitting) {
+          // Confirm if user has entered data
+          const hasData = formData.name || formData.description || formData.googleDriveUrls || imagePreview;
+          if (hasData) {
+            const confirmed = window.confirm("Are you sure you want to close? All entered data will be lost.");
+            if (!confirmed) return;
+          }
+          setFormData({ 
+            name: "", 
+            description: "", 
+            pricePerHour: "",
+            age: "",
+            skills: [],
+            imageUrls: [],
+            googleDriveUrls: "",
+          });
+          setImageFile(null);
+          setImagePreview("");
+        }
+        setIsDialogOpen(open);
+      }}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle className="text-2xl">Add New Horse</DialogTitle>
             <DialogDescription>
-              Fill in all the details below. At least one image is required (use Google Drive URLs for easiest upload).
+              Fill in the details below. At least one image is required (Google Drive URLs recommended for easiest upload).
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh] overflow-y-auto px-1">
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+            <div className="space-y-6 overflow-y-auto px-6 py-4">
             {/* Horse Name */}
             <div>
               <Label htmlFor="name">Horse Name *</Label>
@@ -357,18 +423,24 @@ export default function ManageHorsesPage() {
                   onChange={(e) => setFormData({ ...formData, pricePerHour: e.target.value })}
                   placeholder="e.g., 500"
                 />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Optional - hourly rate for booking
+                </p>
               </div>
               <div>
                 <Label htmlFor="age">Age (Years)</Label>
                 <Input
                   id="age"
                   type="number"
-                  min="0"
+                  min="1"
                   max="30"
                   value={formData.age}
                   onChange={(e) => setFormData({ ...formData, age: e.target.value })}
                   placeholder="e.g., 8"
                 />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Optional - age in years
+                </p>
               </div>
             </div>
 
@@ -395,7 +467,7 @@ export default function ManageHorsesPage() {
             {/* Google Drive URLs */}
             <div>
               <Label htmlFor="googleDriveUrls">
-                Google Drive Image URLs * (Easiest Method)
+                Google Drive Image URLs * (Recommended - Easiest Method)
               </Label>
               <Textarea
                 id="googleDriveUrls"
@@ -407,9 +479,16 @@ export default function ManageHorsesPage() {
                 placeholder="Paste Google Drive links here (one per line):&#10;https://drive.google.com/file/d/FILE_ID/view&#10;https://drive.google.com/file/d/FILE_ID/view"
                 className="font-mono text-sm"
               />
-              <p className="mt-1 text-xs text-muted-foreground">
-                💡 Right-click image in Google Drive → "Get link" → Paste here (one link per line)
-              </p>
+              <div className="mt-2 space-y-1">
+                <p className="text-xs text-muted-foreground">
+                  💡 <strong>How to get links:</strong> Right-click image in Google Drive → "Get link" → Set to "Anyone with the link" → Copy and paste here
+                </p>
+                {formData.googleDriveUrls.trim() && (
+                  <p className="text-xs text-green-600 dark:text-green-400 font-medium">
+                    ✓ {formData.googleDriveUrls.split('\n').filter(line => line.trim()).length} image(s) will be uploaded
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* OR Divider */}
@@ -473,23 +552,47 @@ export default function ManageHorsesPage() {
                 </label>
               </div>
             </div>
+            </div>
 
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-3 px-6 py-4 border-t bg-muted/30">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setIsDialogOpen(false)}
+                onClick={() => {
+                  // Confirm if user has entered data
+                  const hasData = formData.name || formData.description || formData.googleDriveUrls || imagePreview;
+                  if (hasData) {
+                    const confirmed = window.confirm("Are you sure you want to cancel? All entered data will be lost.");
+                    if (!confirmed) return;
+                  }
+                  setFormData({ 
+                    name: "", 
+                    description: "", 
+                    pricePerHour: "",
+                    age: "",
+                    skills: [],
+                    imageUrls: [],
+                    googleDriveUrls: "",
+                  });
+                  setImageFile(null);
+                  setImagePreview("");
+                  setIsDialogOpen(false);
+                }}
+                disabled={isSubmitting}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} size="lg">
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Adding...
+                    Adding Horse...
                   </>
                 ) : (
-                  "Add Horse"
+                  <>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Horse
+                  </>
                 )}
               </Button>
             </div>

@@ -55,6 +55,7 @@ model Stable {
   description String       @db.Text
   location    String       // "Giza" or "Saqqara"
   address     String
+  imageUrl    String?      // Stable card image
   status      StableStatus @default(pending_approval)
   createdAt   DateTime     @default(now())
 
