@@ -105,13 +105,28 @@ export async function GET(req: NextRequest) {
         ` as any,
       ]);
 
+      // Calculate platform commission (15% of total revenue)
+      const totalRevenueValue = parseFloat(totalRevenue._sum.totalPrice?.toString() || "0");
+      const platformCommission = totalRevenueValue * 0.15;
+      const cancellations = await prisma.booking.count({
+        where: {
+          createdAt: { gte: startDate },
+          status: "cancelled",
+        },
+      });
+      const cancellationRate = totalBookings > 0 
+        ? ((cancellations / totalBookings) * 100).toFixed(1) + "%"
+        : "0%";
+
       analytics = {
         overview: {
           totalUsers,
           totalStables,
           totalBookings,
-          totalRevenue: totalRevenue._sum.totalPrice || 0,
+          totalRevenue: totalRevenueValue,
           completedBookings,
+          platformCommission,
+          cancellationRate,
         },
         bookingsByStatus,
         bookingsByMonth,

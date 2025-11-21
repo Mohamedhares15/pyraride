@@ -156,6 +156,18 @@ model Review {
   horse     Horse   @relation(fields: [horseId], references: [id], onDelete: Restrict)
 }
 
+// Stable Owner reviews Riders
+model RiderReview {
+  id                String   @id @default(uuid())
+  bookingId         String   @unique // One review per booking from owner
+  riderId           String   // Rider being reviewed
+  ownerId           String   // Stable owner writing review
+  ridingSkillLevel  Int      // 1-10 scale for future ranking system
+  behaviorRating    Int      // 1-5 stars (kindness, helpfulness, respectfulness)
+  comment           String?  @db.Text
+  createdAt         DateTime @default(now())
+}
+
 model NewsletterSubscriber {
   id           String   @id @default(uuid())
   email        String   @unique

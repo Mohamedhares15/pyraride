@@ -254,18 +254,23 @@ export default function AnalyticsPage() {
                     Platform fee: ${parseFloat((analytics.overview.platformCommission || 0).toString()).toFixed(2)}
                   </p>
                 )}
+                {isAdmin && analytics.overview.platformCommission !== undefined && (
+                  <p className="text-xs text-green-600 font-semibold mt-1">
+                    Commission (15%): ${analytics.overview.platformCommission.toFixed(2)}
+                  </p>
+                )}
               </div>
               <DollarSign className="h-12 w-12 text-secondary" />
             </div>
           </Card>
 
-          {!isAdmin && analytics.overview.cancellationRate && (
+          {analytics.overview.cancellationRate && (
             <Card className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Cancellation Rate</p>
                   <p className="text-3xl font-bold">
-                    {parseFloat(analytics.overview.cancellationRate).toFixed(1)}%
+                    {analytics.overview.cancellationRate}
                   </p>
                 </div>
                 <XCircle className="h-12 w-12 text-muted-foreground" />
