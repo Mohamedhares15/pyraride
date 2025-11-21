@@ -46,6 +46,8 @@ model User {
   reviews       Review[]
   stable        Stable?   // A user can own one stable
   passwordResetTokens PasswordResetToken[]
+  riderReviewsGiven RiderReview[] @relation("StableOwnerReviews")
+  riderReviewsReceived RiderReview[] @relation("RiderReviews")
 }
 
 model Stable {
@@ -132,10 +134,11 @@ model Booking {
   updatedAt       DateTime      @updatedAt
 
   // Relations
-  rider     User    @relation(fields: [riderId], references: [id])
-  stable    Stable  @relation(fields: [stableId], references: [id])
-  horse     Horse   @relation(fields: [horseId], references: [id])
-  review    Review? // A booking can have one review
+  rider       User         @relation(fields: [riderId], references: [id])
+  stable      Stable       @relation(fields: [stableId], references: [id])
+  horse       Horse        @relation(fields: [horseId], references: [id])
+  review      Review?      // A booking can have one review
+  riderReview RiderReview? // A booking can have one rider review from stable owner
 }
 
 model Review {
@@ -161,11 +164,16 @@ model RiderReview {
   id                String   @id @default(uuid())
   bookingId         String   @unique // One review per booking from owner
   riderId           String   // Rider being reviewed
-  ownerId           String   // Stable owner writing review
+  stableOwnerId     String   // Stable owner writing review
   ridingSkillLevel  Int      // 1-10 scale for future ranking system
   behaviorRating    Int      // 1-5 stars (kindness, helpfulness, respectfulness)
   comment           String?  @db.Text
   createdAt         DateTime @default(now())
+
+  // Relations
+  booking       Booking @relation(fields: [bookingId], references: [id])
+  rider         User    @relation("RiderReviews", fields: [riderId], references: [id])
+  stableOwner   User    @relation("StableOwnerReviews", fields: [stableOwnerId], references: [id])
 }
 
 model NewsletterSubscriber {
