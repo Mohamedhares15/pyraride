@@ -479,6 +479,12 @@ export default function ManageHorsesPage() {
                         src={horse.imageUrls[0]}
                         alt={horse.name}
                         className="absolute inset-0 w-full h-full object-cover"
+                        onError={(e) => {
+                          console.error("❌ Failed to load image:", horse.imageUrls[0]);
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                        onLoad={() => console.log("✅ Image loaded successfully:", horse.imageUrls[0])}
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
