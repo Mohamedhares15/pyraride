@@ -145,9 +145,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Calculate price using horse's actual price per hour
-    const pricePerHour = horse.pricePerHour ?? 50; // Default to 50 if not set
+    const pricePerHour = Number(horse.pricePerHour ?? 50); // Default to 50 if not set
     const totalPrice = hours * pricePerHour;
-    const commission = totalPrice * 0.2; // 20% commission
+    const commission = totalPrice * 0.15; // 15% commission
 
     // Create booking
     const booking = await prisma.booking.create({
