@@ -37,6 +37,9 @@ interface Horse {
   description: string;
   imageUrls: string[];
   isActive: boolean;
+  pricePerHour?: number | null;
+  age?: number | null;
+  skills?: string[];
 }
 
 export default function ManageHorsesPage() {
@@ -488,9 +491,9 @@ export default function ManageHorsesPage() {
                             setFormData({
                               name: horse.name,
                               description: horse.description,
-                              pricePerHour: "",
-                              age: "",
-                              skills: "",
+                              pricePerHour: horse.pricePerHour?.toString() || "",
+                              age: horse.age?.toString() || "",
+                              skills: horse.skills || [],
                               googleDriveUrls: horse.imageUrls.join("\n"),
                             });
                             setImagePreviews(horse.imageUrls);
