@@ -40,6 +40,7 @@ interface Horse {
   pricePerHour?: number | null;
   age?: number | null;
   skills?: string[];
+  availabilityStatus?: "available" | "injured" | "unavailable";
 }
 
 export default function ManageHorsesPage() {
@@ -63,6 +64,7 @@ export default function ManageHorsesPage() {
     skills: [] as string[],
     imageUrls: [] as string[],
     googleDriveUrls: "", // Temporary field for pasting multiple URLs
+    availabilityStatus: "available" as "available" | "injured" | "unavailable",
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
@@ -184,6 +186,7 @@ export default function ManageHorsesPage() {
           age: formData.age ? parseInt(formData.age) : null,
           skills: formData.skills,
           imageUrls,
+          availabilityStatus: formData.availabilityStatus,
         }),
       });
 
@@ -205,6 +208,7 @@ export default function ManageHorsesPage() {
         skills: [],
         imageUrls: [],
         googleDriveUrls: "",
+        availabilityStatus: "available",
       });
       setImageFile(null);
       setImagePreview("");
@@ -294,6 +298,7 @@ export default function ManageHorsesPage() {
           age: formData.age ? parseInt(formData.age) : null,
           skills: formData.skills,
           imageUrls,
+          availabilityStatus: formData.availabilityStatus,
         }),
       });
 
@@ -315,6 +320,7 @@ export default function ManageHorsesPage() {
         skills: [],
         imageUrls: [],
         googleDriveUrls: "",
+        availabilityStatus: "available",
       });
       setImageFile(null);
       setImagePreview("");
@@ -478,10 +484,28 @@ export default function ManageHorsesPage() {
                         <ImageIcon className="h-12 w-12 text-muted-foreground" />
                       </div>
                     )}
+                    {/* Availability Badge */}
+                    {horse.availabilityStatus && horse.availabilityStatus !== "available" && (
+                      <div className="absolute top-2 left-2">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/90 backdrop-blur-sm border border-red-400/50 shadow-lg">
+                          <div className="w-2 h-2 rounded-full bg-white animate-pulse"></div>
+                          <span className="text-xs font-semibold text-white uppercase tracking-wide">
+                            {horse.availabilityStatus === "injured" ? "Injured" : "Unavailable"}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-semibold text-xl">{horse.name}</h3>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-xl">{horse.name}</h3>
+                        {horse.availabilityStatus && horse.availabilityStatus !== "available" && (
+                          <p className="text-xs text-red-600 dark:text-red-400 font-medium mt-0.5">
+                            Not available for booking
+                          </p>
+                        )}
+                      </div>
                       <div className="flex gap-2">
                         <Button
                           size="sm"
@@ -494,7 +518,9 @@ export default function ManageHorsesPage() {
                               pricePerHour: horse.pricePerHour?.toString() || "",
                               age: horse.age?.toString() || "",
                               skills: horse.skills || [],
+                              imageUrls: [],
                               googleDriveUrls: horse.imageUrls.join("\n"),
+                              availabilityStatus: horse.availabilityStatus || "available",
                             });
                             setImagePreviews(horse.imageUrls);
                             setIsEditDialogOpen(true);
@@ -632,6 +658,24 @@ export default function ManageHorsesPage() {
               />
               <p className="mt-1 text-xs text-muted-foreground">
                 Separate multiple skills with commas
+              </p>
+            </div>
+
+            {/* Availability Status */}
+            <div>
+              <Label htmlFor="availabilityStatus">Availability Status *</Label>
+              <select
+                id="availabilityStatus"
+                value={formData.availabilityStatus}
+                onChange={(e) => setFormData({ ...formData, availabilityStatus: e.target.value as "available" | "injured" | "unavailable" })}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="available">Available for Riding</option>
+                <option value="injured">Injured - Not Available</option>
+                <option value="unavailable">Unavailable</option>
+              </select>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Set to "Injured" or "Unavailable" if the horse cannot be booked
               </p>
             </div>
 
@@ -868,6 +912,24 @@ export default function ManageHorsesPage() {
                 }}
                 placeholder="e.g., Beginner-friendly, Calm, Well-trained"
               />
+            </div>
+
+            {/* Availability Status */}
+            <div>
+              <Label htmlFor="edit-availabilityStatus">Availability Status *</Label>
+              <select
+                id="edit-availabilityStatus"
+                value={formData.availabilityStatus}
+                onChange={(e) => setFormData({ ...formData, availabilityStatus: e.target.value as "available" | "injured" | "unavailable" })}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="available">Available for Riding</option>
+                <option value="injured">Injured - Not Available</option>
+                <option value="unavailable">Unavailable</option>
+              </select>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Set to "Injured" or "Unavailable" if the horse cannot be booked
+              </p>
             </div>
 
             {/* Image Previews */}

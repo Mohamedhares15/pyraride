@@ -67,15 +67,16 @@ model Stable {
 }
 
 model Horse {
-  id           String    @id @default(uuid())
-  stableId     String
-  name         String
-  description  String    @db.Text
-  imageUrls    String[]
-  pricePerHour Decimal?  @db.Decimal(10, 2)
-  age          Int?
-  skills       String[]  @default([])
-  isActive     Boolean   @default(true)
+  id                 String              @id @default(uuid())
+  stableId           String
+  name               String
+  description        String              @db.Text
+  imageUrls          String[]
+  pricePerHour       Decimal?            @db.Decimal(10, 2)
+  age                Int?
+  skills             String[]            @default([])
+  isActive           Boolean             @default(true)
+  availabilityStatus AvailabilityStatus? @default(available)
 
   // Relations
   stable       Stable    @relation(fields: [stableId], references: [id], onDelete: Cascade)
@@ -99,6 +100,12 @@ model HorseMedia {
 enum HorseMediaType {
   image
   video
+}
+
+enum AvailabilityStatus {
+  available
+  injured
+  unavailable
 }
 
 model Booking {

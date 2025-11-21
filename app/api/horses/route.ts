@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { stableId, name, description, imageUrls, pricePerHour, age, skills } = body;
+    const { stableId, name, description, imageUrls, pricePerHour, age, skills, availabilityStatus } = body;
 
     // Verify the stable belongs to this owner
     const stable = await prisma.stable.findUnique({
@@ -134,6 +134,7 @@ export async function POST(req: NextRequest) {
         pricePerHour: pricePerHour ? parseFloat(pricePerHour.toString()) : null,
         age: age ? parseInt(age.toString()) : null,
         skills: Array.isArray(skills) ? skills.map((s: string) => s.trim()).filter((s: string) => s.length > 0) : [],
+        availabilityStatus: availabilityStatus || "available",
         stableId,
         isActive: true,
       },

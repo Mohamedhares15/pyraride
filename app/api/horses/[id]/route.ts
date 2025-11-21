@@ -45,7 +45,7 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { name, description, imageUrls, pricePerHour, age, skills } = body;
+    const { name, description, imageUrls, pricePerHour, age, skills, availabilityStatus } = body;
 
     // Validate required fields
     if (!name || !description) {
@@ -78,6 +78,7 @@ export async function PATCH(
         pricePerHour: pricePerHour ? parseFloat(pricePerHour.toString()) : null,
         age: age ? parseInt(age.toString()) : null,
         skills: Array.isArray(skills) ? skills.map((s: string) => s.trim()).filter((s: string) => s.length > 0) : [],
+        availabilityStatus: availabilityStatus || horse.availabilityStatus || "available",
       },
     });
 
