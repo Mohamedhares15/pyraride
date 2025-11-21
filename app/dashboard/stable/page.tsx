@@ -32,6 +32,7 @@ interface Booking {
     name: string;
   };
   rider: {
+    id: string;
     fullName: string | null;
     email: string;
   };
