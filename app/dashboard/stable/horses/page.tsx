@@ -45,9 +45,13 @@ export default function ManageHorsesPage() {
   const [horses, setHorses] = useState<Horse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingHorse, setEditingHorse] = useState<Horse | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
   const [successHorseName, setSuccessHorseName] = useState("");
+  const [deletedHorseName, setDeletedHorseName] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -219,6 +223,117 @@ export default function ManageHorsesPage() {
     }
   }
 
+  async function handleDeleteHorse(horse: Horse) {
+    if (!confirm(`Are you sure you want to delete ${horse.name}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/horses/${horse.id}`, {
+        method: "DELETE",
+      });
+      
+      if (res.ok) {
+        await fetchHorses();
+        setDeletedHorseName(horse.name);
+        setShowDeleteSuccess(true);
+        setTimeout(() => setShowDeleteSuccess(false), 5000);
+      } else {
+        const error = await res.json();
+        alert(`❌ Failed to delete horse\n\n${error.error || "Please try again."}`);
+      }
+    } catch (err) {
+      console.error("Error deleting horse:", err);
+      alert("❌ An error occurred while deleting the horse. Please try again.");
+    }
+  }
+
+  async function handleEditSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingHorse) return;
+    
+    setIsSubmitting(true);
+
+    try {
+      let imageUrls: string[] = [];
+
+      // Convert Google Drive URLs
+      if (formData.googleDriveUrls) {
+        const convertedUrls = convertGoogleDriveUrls(formData.googleDriveUrls);
+        imageUrls = [...convertedUrls];
+      }
+
+      // Upload image file if provided
+      if (imageFile) {
+        const imageUrl = await handleImageUpload(imageFile);
+        imageUrls = [imageUrl, ...imageUrls];
+      }
+
+      // If no new images, keep existing ones
+      if (imageUrls.length === 0) {
+        imageUrls = editingHorse.imageUrls;
+      }
+
+      // Validate at least one image
+      if (imageUrls.length === 0) {
+        alert("⚠️ At least one image is required.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const response = await fetch(`/api/horses/${editingHorse.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          description: formData.description.trim(),
+          pricePerHour: formData.pricePerHour ? parseFloat(formData.pricePerHour) : null,
+          age: formData.age ? parseInt(formData.age) : null,
+          skills: formData.skills,
+          imageUrls,
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to update horse");
+      }
+
+      // Store horse name for success message
+      const horseName = formData.name.trim();
+      
+      // Reset form
+      setFormData({ 
+        name: "", 
+        description: "", 
+        pricePerHour: "",
+        age: "",
+        skills: [],
+        imageUrls: [],
+        googleDriveUrls: "",
+      });
+      setImageFile(null);
+      setImagePreview("");
+      setIsEditDialogOpen(false);
+      setEditingHorse(null);
+      
+      // Refresh horses list
+      await fetchHorses();
+      
+      // Show success notification
+      setSuccessHorseName(horseName);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 5000);
+    } catch (err) {
+      console.error("Error updating horse:", err);
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+      alert(`❌ Failed to update horse\n\n${errorMessage}\n\nPlease check your information and try again.`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -284,13 +399,36 @@ export default function ManageHorsesPage() {
             <Check className="h-6 w-6 text-green-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-foreground mb-1">Horse Added Successfully! 🐴</h4>
+            <h4 className="font-semibold text-foreground mb-1">
+              {isEditDialogOpen ? "Horse Updated Successfully! 🐴" : "Horse Added Successfully! 🐴"}
+            </h4>
             <p className="text-sm text-muted-foreground">
-              &quot;{successHorseName}&quot; has been added to your stable and is now available for booking.
+              &quot;{successHorseName}&quot; has been {isEditDialogOpen ? "updated" : "added to your stable and is now available for booking"}.
             </p>
           </div>
           <button
             onClick={() => setShowSuccess(false)}
+            className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+      )}
+
+      {/* Delete Success Notification */}
+      {showDeleteSuccess && (
+        <div className="fixed top-4 right-4 z-[9999] max-w-md w-full shadow-2xl rounded-lg border-2 bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 p-4 flex items-start gap-4 animate-in fade-in slide-in-from-top-5">
+          <div className="flex-shrink-0">
+            <Trash2 className="h-6 w-6 text-red-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-foreground mb-1">Horse Deleted Successfully</h4>
+            <p className="text-sm text-muted-foreground">
+              &quot;{deletedHorseName}&quot; has been permanently removed from your stable.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowDeleteSuccess(false)}
             className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
           >
             <X className="h-5 w-5" />
@@ -326,13 +464,11 @@ export default function ManageHorsesPage() {
                 <Card className="overflow-hidden">
                   <div className="relative h-48 w-full bg-gradient-to-br from-primary/20 to-secondary/20">
                     {horse.imageUrls && horse.imageUrls.length > 0 ? (
-                      <Image
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
                         src={horse.imageUrls[0]}
                         alt={horse.name}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        unoptimized
+                        className="absolute inset-0 w-full h-full object-cover"
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -348,7 +484,17 @@ export default function ManageHorsesPage() {
                           size="sm"
                           variant="ghost"
                           onClick={() => {
-                            alert("Edit functionality coming soon!");
+                            setEditingHorse(horse);
+                            setFormData({
+                              name: horse.name,
+                              description: horse.description,
+                              pricePerHour: "",
+                              age: "",
+                              skills: "",
+                              googleDriveUrls: horse.imageUrls.join("\n"),
+                            });
+                            setImagePreviews(horse.imageUrls);
+                            setIsEditDialogOpen(true);
                           }}
                         >
                           <Edit2 className="h-4 w-4" />
@@ -356,23 +502,7 @@ export default function ManageHorsesPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={async () => {
-                            if (confirm(`Are you sure you want to delete ${horse.name}? This cannot be undone.`)) {
-                              try {
-                                const res = await fetch(`/api/horses/${horse.id}`, {
-                                  method: "DELETE",
-                                });
-                                if (res.ok) {
-                                  await fetchHorses();
-                                  alert(`✅ ${horse.name} has been deleted.`);
-                                } else {
-                                  alert("Failed to delete horse. Please try again.");
-                                }
-                              } catch (err) {
-                                alert("An error occurred. Please try again.");
-                              }
-                            }
-                          }}
+                          onClick={() => handleDeleteHorse(horse)}
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
@@ -630,6 +760,186 @@ export default function ManageHorsesPage() {
                   <>
                     <Plus className="mr-2 h-4 w-4" />
                     Add Horse
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Horse Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
+        if (!open && !isSubmitting) {
+          setFormData({ 
+            name: "", 
+            description: "", 
+            pricePerHour: "",
+            age: "",
+            skills: [],
+            imageUrls: [],
+            googleDriveUrls: "",
+          });
+          setImageFile(null);
+          setImagePreview("");
+          setEditingHorse(null);
+        }
+        setIsEditDialogOpen(open);
+      }}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle className="text-2xl">Edit Horse</DialogTitle>
+            <DialogDescription>
+              Update the details below. At least one image is required.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="flex flex-col flex-1 overflow-hidden">
+            <div className="space-y-6 overflow-y-auto px-6 py-4">
+            {/* Horse Name */}
+            <div>
+              <Label htmlFor="edit-name">Horse Name *</Label>
+              <Input
+                id="edit-name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+                placeholder="e.g., Desert Wind"
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <Label htmlFor="edit-description">Description *</Label>
+              <Textarea
+                id="edit-description"
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                required
+                rows={4}
+                placeholder="Describe the horse's temperament, experience, and special features..."
+              />
+            </div>
+
+            {/* Price & Age Row */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-pricePerHour">Price Per Hour (EGP)</Label>
+                <Input
+                  id="edit-pricePerHour"
+                  type="number"
+                  min="0"
+                  step="50"
+                  value={formData.pricePerHour}
+                  onChange={(e) => setFormData({ ...formData, pricePerHour: e.target.value })}
+                  placeholder="e.g., 500"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-age">Age (Years)</Label>
+                <Input
+                  id="edit-age"
+                  type="number"
+                  min="1"
+                  max="30"
+                  value={formData.age}
+                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                  placeholder="e.g., 8"
+                />
+              </div>
+            </div>
+
+            {/* Skills */}
+            <div>
+              <Label htmlFor="edit-skills">Skills (comma-separated)</Label>
+              <Input
+                id="edit-skills"
+                value={Array.isArray(formData.skills) ? formData.skills.join(", ") : ""}
+                onChange={(e) => {
+                  const skills = e.target.value
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter((s) => s.length > 0);
+                  setFormData({ ...formData, skills });
+                }}
+                placeholder="e.g., Beginner-friendly, Calm, Well-trained"
+              />
+            </div>
+
+            {/* Image Previews */}
+            {imagePreviews.length > 0 && (
+              <div>
+                <Label>Current Images</Label>
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  {imagePreviews.map((url, idx) => (
+                    <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={url}
+                        alt={`Preview ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Google Drive URLs */}
+            <div>
+              <Label htmlFor="edit-googleDriveUrls">
+                Update Images (Google Drive URLs)
+              </Label>
+              <Textarea
+                id="edit-googleDriveUrls"
+                value={formData.googleDriveUrls}
+                onChange={(e) =>
+                  setFormData({ ...formData, googleDriveUrls: e.target.value })
+                }
+                rows={4}
+                placeholder="Paste new Google Drive links here (one per line)"
+                className="font-mono text-sm"
+              />
+              <p className="mt-2 text-xs text-muted-foreground">
+                💡 Leave empty to keep existing images, or paste new links to replace them
+              </p>
+            </div>
+            </div>
+
+            <div className="flex justify-end gap-3 px-6 py-4 border-t bg-muted/30">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setFormData({ 
+                    name: "", 
+                    description: "", 
+                    pricePerHour: "",
+                    age: "",
+                    skills: [],
+                    imageUrls: [],
+                    googleDriveUrls: "",
+                  });
+                  setImageFile(null);
+                  setImagePreview("");
+                  setEditingHorse(null);
+                  setIsEditDialogOpen(false);
+                }}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting} size="lg">
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    <Check className="mr-2 h-4 w-4" />
+                    Update Horse
                   </>
                 )}
               </Button>

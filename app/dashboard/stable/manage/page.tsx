@@ -260,13 +260,12 @@ export default function ManageStablePage() {
 
             {/* Current Image Preview */}
             {imagePreview && (
-              <div className="relative mb-6 h-64 w-full overflow-hidden rounded-lg">
-                <Image
+              <div className="relative mb-6 h-64 w-full overflow-hidden rounded-lg border">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={imagePreview}
                   alt="Stable preview"
-                  fill
-                  className="object-cover"
-                  unoptimized
+                  className="w-full h-full object-cover"
                 />
                 <Button
                   type="button"
