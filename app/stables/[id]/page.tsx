@@ -177,14 +177,23 @@ export default function StableDetailPage() {
   const openPortfolio = (horseName: string, items: HorseMediaItem[], startIndex = 0) => {
     if (!items || items.length === 0) return;
     
-    // Lock scroll and save current position
+    // Lock scroll and save current position - Complete lock
     const scrollY = window.scrollY;
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = '100%';
-    document.body.style.left = '0';
-    document.body.style.right = '0';
+    const html = document.documentElement;
+    const body = document.body;
+    
+    body.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.touchAction = 'none';
+    
+    html.style.overflow = 'hidden';
+    html.style.position = 'fixed';
+    html.style.width = '100%';
+    html.style.height = '100%';
     
     // Push history state so back button closes portfolio instead of navigating away
     window.history.pushState({ portfolioOpen: true }, '', window.location.href);
@@ -197,14 +206,24 @@ export default function StableDetailPage() {
   };
 
   const closePortfolio = () => {
-    // Restore scroll position
+    // Restore scroll position and unlock scroll
     const scrollY = document.body.style.top;
-    document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
-    document.body.style.left = '';
-    document.body.style.right = '';
+    const html = document.documentElement;
+    const body = document.body;
+    
+    body.style.overflow = '';
+    body.style.position = '';
+    body.style.top = '';
+    body.style.width = '';
+    body.style.left = '';
+    body.style.right = '';
+    body.style.touchAction = '';
+    
+    html.style.overflow = '';
+    html.style.position = '';
+    html.style.width = '';
+    html.style.height = '';
+    
     window.scrollTo(0, parseInt(scrollY || '0') * -1);
     
     setPortfolioViewer(null);
@@ -237,12 +256,22 @@ export default function StableDetailPage() {
         // User pressed back button while portfolio is open
         // Restore scroll position without triggering history.back() again
         const scrollY = document.body.style.top;
-        document.body.style.overflow = '';
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        document.body.style.left = '';
-        document.body.style.right = '';
+        const html = document.documentElement;
+        const body = document.body;
+        
+        body.style.overflow = '';
+        body.style.position = '';
+        body.style.top = '';
+        body.style.width = '';
+        body.style.left = '';
+        body.style.right = '';
+        body.style.touchAction = '';
+        
+        html.style.overflow = '';
+        html.style.position = '';
+        html.style.width = '';
+        html.style.height = '';
+        
         window.scrollTo(0, parseInt(scrollY || '0') * -1);
         
         setPortfolioViewer(null);
@@ -639,33 +668,38 @@ export default function StableDetailPage() {
         />
       )}
 
-      {/* Fullscreen Portfolio Viewer */}
+      {/* Fullscreen Portfolio Viewer - Fixed Position */}
       {portfolioViewer && (
         <div 
-          className="fixed inset-0 z-[100] bg-white/15"
+          className="fixed inset-0 z-[9999] bg-white/15 overflow-hidden"
           style={{
             backdropFilter: 'blur(60px) saturate(200%) brightness(1.1)',
             WebkitBackdropFilter: 'blur(60px) saturate(200%) brightness(1.1)',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
           }}
         >
           {/* Header with Liquid Glass Effect - Clean Design */}
           <div 
-            className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 md:p-6"
+            className="fixed top-0 left-0 right-0 z-[10000] flex items-center justify-between p-4 md:p-6"
           >
             <button
               onClick={closePortfolio}
-              className="flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-all border-2 border-white/60 shadow-2xl hover:scale-110 backdrop-blur-xl"
+              className="flex h-14 w-14 items-center justify-center rounded-full bg-black/70 text-white hover:bg-black/90 transition-all border-2 border-white/70 shadow-2xl hover:scale-110 backdrop-blur-xl"
               aria-label="Close"
             >
-              <ArrowLeft className="h-7 w-7 md:h-8 md:w-8 stroke-[2.5]" />
+              <ArrowLeft className="h-8 w-8 stroke-[3]" />
             </button>
-            <div className="text-white text-sm md:text-base font-semibold bg-black/50 px-4 py-2 rounded-full backdrop-blur-md border border-white/40 shadow-lg">
+            <div className="text-white text-base md:text-lg font-bold bg-black/60 px-5 py-2.5 rounded-full backdrop-blur-md border border-white/50 shadow-xl">
               {portfolioViewer.index + 1} / {portfolioViewer.items.length}
             </div>
           </div>
 
           {/* Main Image - Crystal Clear & Centered */}
-          <div className="absolute inset-0 flex items-center justify-center pt-20 pb-28 md:pt-24 md:pb-32 px-4 md:px-8">
+          <div className="fixed inset-0 flex items-center justify-center pt-20 pb-28 md:pt-24 md:pb-32 px-4 md:px-8">
             {portfolioViewer.items[portfolioViewer.index]?.type === "video" ? (
               <video
                 key={portfolioViewer.items[portfolioViewer.index]?.url}
@@ -699,7 +733,7 @@ export default function StableDetailPage() {
               <button
                 type="button"
                 onClick={showPreviousMedia}
-                className="absolute left-4 top-1/2 -translate-y-1/2 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 transition-all z-10 border border-white/50 shadow-2xl hover:scale-110"
+                className="fixed left-4 top-1/2 -translate-y-1/2 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 transition-all z-[9999] border border-white/50 shadow-2xl hover:scale-110"
                 style={{
                   backdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
                   WebkitBackdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
@@ -711,7 +745,7 @@ export default function StableDetailPage() {
               <button
                 type="button"
                 onClick={showNextMedia}
-                className="absolute right-4 top-1/2 -translate-y-1/2 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 transition-all z-10 border border-white/50 shadow-2xl hover:scale-110"
+                className="fixed right-4 top-1/2 -translate-y-1/2 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 transition-all z-[9999] border border-white/50 shadow-2xl hover:scale-110"
                 style={{
                   backdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
                   WebkitBackdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
@@ -726,7 +760,7 @@ export default function StableDetailPage() {
           {/* Thumbnail Strip with Liquid Glass Effect */}
           {portfolioViewer.items.length > 1 && (
             <div 
-              className="absolute bottom-0 left-0 right-0 z-10 bg-white/15 border-t border-white/30 p-4 pb-safe shadow-2xl"
+              className="fixed bottom-0 left-0 right-0 z-[9999] bg-white/15 border-t border-white/30 p-4 pb-safe shadow-2xl"
               style={{
                 backdropFilter: 'blur(30px) saturate(200%) brightness(1.15)',
                 WebkitBackdropFilter: 'blur(30px) saturate(200%) brightness(1.15)',
