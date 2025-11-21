@@ -249,7 +249,7 @@ export async function GET(req: NextRequest) {
           cancellationRate,
           aov,
           clv,
-          avgLeadTime: parseFloat(avgLeadTime).toFixed(1),
+          avgLeadTime: Number(avgLeadTime).toFixed(1),
         },
         bookingsByStatus,
         bookingsByMonth,
