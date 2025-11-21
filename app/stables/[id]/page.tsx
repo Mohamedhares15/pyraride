@@ -668,24 +668,60 @@ export default function StableDetailPage() {
         />
       )}
 
-      {/* Fullscreen Portfolio Viewer - Mobile-Optimized Fixed Layers */}
+      {/* Fullscreen Portfolio Viewer - Apple Liquid Glass Effect */}
       {portfolioViewer && (
         <>
-          {/* Backdrop Layer - Mobile viewport fix */}
+          {/* Layer 1: Base Blur - Creates the frosted glass foundation */}
           <div 
             style={{
               position: 'fixed',
               top: 0,
               left: 0,
               width: '100vw',
-              height: '100dvh', // Dynamic viewport height for mobile
-              maxHeight: '100vh', // Fallback for older browsers
-              zIndex: 9998,
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(60px) saturate(200%) brightness(1.1)',
-              WebkitBackdropFilter: 'blur(60px) saturate(200%) brightness(1.1)',
+              height: '100dvh',
+              maxHeight: '100vh',
+              zIndex: 9996,
+              backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
               overflow: 'hidden',
-              transform: 'translateZ(0)', // Force hardware acceleration
+              transform: 'translateZ(0)',
+              WebkitTransform: 'translateZ(0)',
+            }}
+          />
+          
+          {/* Layer 2: Color Tint - Warm golden overlay for desert/pyramid soul */}
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100dvh',
+              maxHeight: '100vh',
+              zIndex: 9997,
+              background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.08) 0%, rgba(184, 134, 11, 0.06) 50%, rgba(139, 69, 19, 0.04) 100%)',
+              overflow: 'hidden',
+              transform: 'translateZ(0)',
+              WebkitTransform: 'translateZ(0)',
+            }}
+          />
+          
+          {/* Layer 3: Vibrancy & Luminosity - Apple's signature glow */}
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100dvh',
+              maxHeight: '100vh',
+              zIndex: 9998,
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'brightness(1.15) contrast(1.05)',
+              WebkitBackdropFilter: 'brightness(1.15) contrast(1.05)',
+              mixBlendMode: 'overlay',
+              overflow: 'hidden',
+              transform: 'translateZ(0)',
               WebkitTransform: 'translateZ(0)',
             }}
           />
@@ -728,31 +764,46 @@ export default function StableDetailPage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: '50%',
-                  backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%)',
                   color: 'white',
-                  border: '3px solid rgba(255, 255, 255, 0.8)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                  border: '0.5px solid rgba(255, 255, 255, 0.3)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
                   cursor: 'pointer',
                   zIndex: 1001,
-                  backdropFilter: 'blur(12px)',
-                  WebkitBackdropFilter: 'blur(12px)',
+                  backdropFilter: 'blur(30px) saturate(180%) brightness(1.2)',
+                  WebkitBackdropFilter: 'blur(30px) saturate(180%) brightness(1.2)',
+                  transform: 'translateZ(0)',
+                  WebkitTransform: 'translateZ(0)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
                 }}
                 aria-label="Close"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05) translateZ(0)';
+                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.25) 100%)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1) translateZ(0)';
+                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%)';
+                }}
               >
-                <ArrowLeft className="h-8 w-8 stroke-[3]" />
+                <ArrowLeft className="h-7 w-7 stroke-[2.5]" style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3))' }} />
               </button>
               <div 
                 style={{
                   color: 'white',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  letterSpacing: '0.3px',
+                  background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.35) 0%, rgba(184, 134, 11, 0.25) 100%)',
                   padding: '10px 20px',
                   borderRadius: '999px',
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(255, 255, 255, 0.5)',
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
+                  backdropFilter: 'blur(30px) saturate(180%) brightness(1.1)',
+                  WebkitBackdropFilter: 'blur(30px) saturate(180%) brightness(1.1)',
+                  border: '0.5px solid rgba(255, 255, 255, 0.25)',
+                  boxShadow: '0 4px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
+                  textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                  transform: 'translateZ(0)',
+                  WebkitTransform: 'translateZ(0)',
                 }}
               >
                 {portfolioViewer.index + 1} / {portfolioViewer.items.length}
@@ -794,16 +845,20 @@ export default function StableDetailPage() {
                 key={portfolioViewer.items[portfolioViewer.index]?.url}
                 src={portfolioViewer.items[portfolioViewer.index]?.url || "/hero-bg.webp"}
                 alt={`${portfolioViewer.horseName} portfolio`}
-                className="max-h-full max-w-full object-contain rounded-2xl shadow-2xl"
+                className="max-h-full max-w-full object-contain"
                 style={{
-                  filter: 'contrast(1.05) brightness(1.02)',
+                  filter: 'contrast(1.08) brightness(1.03) saturate(1.1)',
+                  borderRadius: '20px',
+                  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(255, 255, 255, 0.1)',
+                  transform: 'translateZ(0)',
+                  WebkitTransform: 'translateZ(0)',
                 }}
                 draggable={false}
               />
             )}
             </div>
 
-            {/* Navigation Arrows with Liquid Glass */}
+            {/* Navigation Arrows - Apple Liquid Glass with Desert Warmth */}
             {portfolioViewer.items.length > 1 && (
               <>
                 <button
@@ -813,26 +868,35 @@ export default function StableDetailPage() {
                     position: 'absolute',
                     left: '16px',
                     top: '50%',
-                    transform: 'translateY(-50%)',
-                    WebkitTransform: 'translateY(-50%)',
+                    transform: 'translateY(-50%) translateZ(0)',
+                    WebkitTransform: 'translateY(-50%) translateZ(0)',
                     display: 'flex',
                     width: '56px',
                     height: '56px',
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderRadius: '50%',
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(218, 165, 32, 0.15) 100%)',
                     color: 'white',
-                    border: '1px solid rgba(255, 255, 255, 0.5)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                    border: '0.5px solid rgba(255, 255, 255, 0.3)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
                     cursor: 'pointer',
                     zIndex: 100,
-                    backdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
-                    WebkitBackdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
+                    backdropFilter: 'blur(30px) saturate(180%) brightness(1.2)',
+                    WebkitBackdropFilter: 'blur(30px) saturate(180%) brightness(1.2)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(218, 165, 32, 0.25) 100%)';
+                    e.currentTarget.style.transform = 'translateY(-50%) translateZ(0) scale(1.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(218, 165, 32, 0.15) 100%)';
+                    e.currentTarget.style.transform = 'translateY(-50%) translateZ(0) scale(1)';
                   }}
                   aria-label="Previous"
                 >
-                  <ChevronLeft className="h-7 w-7" />
+                  <ChevronLeft className="h-7 w-7" style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))' }} />
                 </button>
                 <button
                   type="button"
@@ -841,31 +905,40 @@ export default function StableDetailPage() {
                     position: 'absolute',
                     right: '16px',
                     top: '50%',
-                    transform: 'translateY(-50%)',
-                    WebkitTransform: 'translateY(-50%)',
+                    transform: 'translateY(-50%) translateZ(0)',
+                    WebkitTransform: 'translateY(-50%) translateZ(0)',
                     display: 'flex',
                     width: '56px',
                     height: '56px',
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderRadius: '50%',
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(218, 165, 32, 0.15) 100%)',
                     color: 'white',
-                    border: '1px solid rgba(255, 255, 255, 0.5)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                    border: '0.5px solid rgba(255, 255, 255, 0.3)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
                     cursor: 'pointer',
                     zIndex: 100,
-                    backdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
-                    WebkitBackdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
+                    backdropFilter: 'blur(30px) saturate(180%) brightness(1.2)',
+                    WebkitBackdropFilter: 'blur(30px) saturate(180%) brightness(1.2)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(218, 165, 32, 0.25) 100%)';
+                    e.currentTarget.style.transform = 'translateY(-50%) translateZ(0) scale(1.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(218, 165, 32, 0.15) 100%)';
+                    e.currentTarget.style.transform = 'translateY(-50%) translateZ(0) scale(1)';
                   }}
                   aria-label="Next"
                 >
-                  <ChevronRight className="h-7 w-7" />
+                  <ChevronRight className="h-7 w-7" style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))' }} />
                 </button>
               </>
             )}
 
-            {/* Thumbnail Strip with Liquid Glass Effect */}
+            {/* Thumbnail Strip - Apple Liquid Glass with Golden Warmth */}
             {portfolioViewer.items.length > 1 && (
               <div 
                 style={{
@@ -873,14 +946,16 @@ export default function StableDetailPage() {
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                  borderTop: '1px solid rgba(255, 255, 255, 0.3)',
+                  background: 'linear-gradient(180deg, rgba(218, 165, 32, 0.18) 0%, rgba(184, 134, 11, 0.15) 50%, rgba(139, 69, 19, 0.12) 100%)',
+                  borderTop: '0.5px solid rgba(255, 255, 255, 0.25)',
                   padding: '16px',
                   paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
-                  boxShadow: '0 -4px 24px rgba(0, 0, 0, 0.3)',
+                  boxShadow: '0 -8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                   zIndex: 50,
-                  backdropFilter: 'blur(30px) saturate(200%) brightness(1.15)',
-                  WebkitBackdropFilter: 'blur(30px) saturate(200%) brightness(1.15)',
+                  backdropFilter: 'blur(40px) saturate(180%) brightness(1.15)',
+                  WebkitBackdropFilter: 'blur(40px) saturate(180%) brightness(1.15)',
+                  transform: 'translateZ(0)',
+                  WebkitTransform: 'translateZ(0)',
                 }}
               >
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-center">
