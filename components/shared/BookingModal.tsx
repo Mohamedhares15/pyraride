@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -66,9 +66,8 @@ export default function BookingModal({
   const [addons, setAddons] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [bookingSuccess, setBookingSuccess] = useState(false);
-  const [bookingId, setBookingId] = useState<string | null>(null);
-  const [bookingData, setBookingData] = useState<any>(null);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [bookingDetails, setBookingDetails] = useState<{horseName: string; date: string; time: string} | null>(null);
   const [stableCoordinates, setStableCoordinates] = useState<{ lat: number; lng: number; address?: string } | null>(null);
   
   // Fetch stable coordinates on mount
@@ -212,20 +211,34 @@ export default function BookingModal({
         throw new Error(errorMsg);
       }
 
-      // Store booking data for confirmation modal
-      if (data.bookingId || data.success) {
-        setBookingData({
-          bookingId: data.bookingId || `BOOK-${Date.now()}`,
-          horseName: selectedHorse?.name || "Unknown",
-          date: selectedDate,
-          startTime,
-          endTime,
-          location: stableCoordinates?.address || stableName,
-          totalPrice,
-          riders: selectedRiders,
+      // Show success toast and close modal
+      if (data.bookingId || data.success || data.booking) {
+        const bookingDate = new Date(selectedDate).toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric',
+          year: 'numeric'
         });
-        setBookingId(data.bookingId || null);
-        setBookingSuccess(true);
+        setBookingDetails({
+          horseName: selectedHorse?.name || "Unknown",
+          date: bookingDate,
+          time: `${startTime} – ${endTime}`
+        });
+        setShowSuccessToast(true);
+        
+        // Close modal after short delay
+        setTimeout(() => {
+          onOpenChange(false);
+          // Reset form
+          setSelectedHorseId("");
+          setSelectedDate(getInitialDate());
+          setStartTime("09:00");
+          setEndTime("10:00");
+          setSelectedRiders(1);
+          setPickupRequested(false);
+          setAddons([]);
+          setShowSuccessToast(false);
+          setBookingDetails(null);
+        }, 3000);
       } else if (data.checkoutUrl) {
         // Redirect to payment
         window.location.href = data.checkoutUrl;
@@ -245,222 +258,6 @@ export default function BookingModal({
   
   // Get selected horse name for success message
   const selectedHorse = horses.find(h => h.id === selectedHorseId);
-
-  // Set dark blurred background on overlay when modal opens and booking is successful
-  useEffect(() => {
-    if (open && bookingSuccess && bookingData) {
-      // Use multiple attempts to ensure overlay element exists after Radix renders
-      let timeoutId: NodeJS.Timeout;
-      let attempts = 0;
-      const maxAttempts = 10;
-
-      const applyBackground = () => {
-        attempts++;
-        const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
-        if (overlay) {
-          // Set blurred pyramid background matching design.png
-          overlay.style.backgroundImage = "url('/gallery5.jpeg')";
-          overlay.style.backgroundSize = "cover";
-          overlay.style.backgroundPosition = "center";
-          overlay.style.backgroundRepeat = "no-repeat";
-          overlay.style.filter = "blur(8px) brightness(0.4)";
-          overlay.style.transform = "scale(1.1)";
-          overlay.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
-        } else if (attempts < maxAttempts) {
-          timeoutId = setTimeout(applyBackground, 100);
-        }
-      };
-
-      timeoutId = setTimeout(applyBackground, 50);
-
-      return () => {
-        clearTimeout(timeoutId);
-        const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
-        if (overlay) {
-          overlay.style.backgroundImage = '';
-          overlay.style.filter = '';
-          overlay.style.transform = '';
-          overlay.style.backgroundColor = '';
-          overlay.style.backgroundSize = '';
-          overlay.style.backgroundPosition = '';
-          overlay.style.backgroundRepeat = '';
-        }
-      };
-    }
-    return undefined;
-  }, [open, bookingSuccess, bookingData]);
-
-  // Helper to format Google Maps directions URL (only if booking success)
-  const gmapsLink = bookingSuccess && bookingData && bookingData.location
-    ? `https://maps.google.com/?daddr=${encodeURIComponent(bookingData.location)}`
-    : undefined;
-
-  // Format date for calendar icon display (only if booking success)
-  const bookingDate = bookingSuccess && bookingData ? new Date(bookingData.date) : null;
-  const dayOfMonth = bookingDate ? bookingDate.getDate() : 0;
-
-  // Success screen or booking form - use direct conditional return
-  if (bookingSuccess && bookingData && bookingDate) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent 
-          className="max-w-md p-0 overflow-hidden bg-transparent border-0 shadow-none [&>button]:hidden"
-        >
-          {/* DARK card container - IDENTICAL to design.png */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="relative rounded-3xl overflow-hidden shadow-2xl w-full max-w-md"
-            style={{
-              background: "rgba(28, 28, 30, 0.95)",
-              backdropFilter: "blur(20px)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-            }}
-          >
-            {/* Header with checkmark and title */}
-            <div className="px-8 py-8 text-center">
-              <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
-                className="mb-6"
-              >
-                <div 
-                  className="mx-auto flex h-20 w-20 items-center justify-center rounded-full" 
-                  style={{ 
-                    background: "linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.2) 100%)", 
-                    border: "2px solid rgba(16, 185, 129, 0.5)",
-                    boxShadow: "0 0 20px rgba(16, 185, 129, 0.3), inset 0 0 10px rgba(16, 185, 129, 0.1)"
-                  }}
-                >
-                  <CheckCircle className="h-10 w-10" style={{ color: "#10b981", filter: "drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))" }} />
-                </div>
-              </motion.div>
-              <motion.h2 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-3xl font-bold mb-2 text-white"
-              >
-                Booking Confirmed!
-              </motion.h2>
-              <motion.p 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="text-base text-gray-300"
-              >
-                Your adventure awaits! 🐴
-              </motion.p>
-            </div>
-
-            {/* Details in ONE dark card - IDENTICAL to design.png */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="px-8 pb-8 space-y-6"
-            >
-              {/* Date & Time */}
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-                className="flex items-start gap-4"
-              >
-                <Calendar className="w-8 h-8 text-white flex-shrink-0 mt-1" />
-                <div className="flex-1">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">DATE & TIME</p>
-                  <p className="text-base font-semibold text-white">
-                    {new Date(bookingData.date).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </p>
-                  <p className="text-sm text-gray-300 mt-0.5">
-                    {bookingData.startTime} – {bookingData.endTime}
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* Horse Information */}
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 }}
-                className="flex items-start gap-4"
-              >
-                <svg className="w-8 h-8 text-white flex-shrink-0 mt-1" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 7c-2 0-3.5 1-4.5 2.5-1-1-2-1-2.5-0.5-0.5 0.5-1 1-0.5 2s1 1 1.5 0.5c0.5-0.2 1-0.5 1.5-1 0.5 0.5 1 1.5 2 2 1 0.5 2 0.5 2.5 0 0.5 0.5 1 0.5 2 0.5 1 0 1.5-0.2 2-0.5 1 0.5 2 0.5 2.5 0 1-0.5 2-1 2-1.5 0.5 0.5 1 1 1.5 0.5 0.5-0.5 0.5-1.5 0-2-0.5-0.5-1.5 0-2.5 0.5-1-1.5-2.5-2.5-4.5-2.5z" />
-                </svg>
-                <div className="flex-1">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">HORSE INFORMATION</p>
-                  <p className="text-base font-semibold text-white">{bookingData.horseName}</p>
-                  <p className="text-sm text-gray-300 mt-0.5">
-                    {bookingData.riders} {bookingData.riders === 1 ? 'rider' : 'riders'}
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* Location */}
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7 }}
-                className="flex items-start gap-4"
-              >
-                <MapPin className="w-8 h-8 text-white flex-shrink-0 mt-1" />
-                <div className="flex-1">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">LOCATION</p>
-                  <p className="text-base font-semibold text-white mb-4">{bookingData.location}</p>
-                  {gmapsLink && (
-                    <a
-                      href={gmapsLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center w-full rounded-2xl transition-all text-white font-semibold"
-                      style={{
-                        height: "52px",
-                        padding: "0 24px",
-                        background: "linear-gradient(90deg, #0d9488 0%, #2563eb 100%)",
-                        fontSize: "15px",
-                      }}
-                    >
-                      Get Directions
-                    </a>
-                  )}
-                </div>
-              </motion.div>
-
-              {/* Total Amount */}
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8 }}
-                className="flex items-start gap-4 pt-6" 
-                style={{ borderTop: "1px solid rgba(255, 255, 255, 0.1)" }}
-              >
-                <svg className="w-8 h-8 text-white flex-shrink-0 mt-1" viewBox="0 0 24 24" fill="currentColor">
-                  <rect x="5" y="7" width="14" height="10" rx="1" />
-                  <path d="M5 7 Q6 6 7 7 Q8 6 9 7 Q10 6 11 7 Q12 6 13 7 Q14 6 15 7 Q16 6 17 7 Q18 6 19 7" stroke="rgba(28, 28, 30, 0.95)" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-                </svg>
-                <div className="flex-1">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">TOTAL AMOUNT</p>
-                  <p className="text-2xl font-bold text-white mb-2">${bookingData.totalPrice.toFixed(2)}</p>
-                  <p className="text-xs text-gray-400 italic">
-                    Payment will be processed on-site or via your preferred method
-                  </p>
-                </div>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
 
   // Booking form
   return (
@@ -638,6 +435,36 @@ export default function BookingModal({
           </div>
         </form>
       </DialogContent>
+
+      {/* Success Toast Notification */}
+      <AnimatePresence>
+        {showSuccessToast && bookingDetails && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="fixed top-4 right-4 z-[10000] max-w-md w-full shadow-2xl rounded-lg border-2 bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 p-4 flex items-start gap-4"
+          >
+            <div className="flex-shrink-0">
+              <CheckCircle className="h-6 w-6 text-green-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className="font-semibold text-foreground mb-1">
+                Booking Confirmed! 🐴
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                "{bookingDetails.horseName}" booked for {bookingDetails.date} at {bookingDetails.time}
+              </p>
+            </div>
+            <button
+              onClick={() => setShowSuccessToast(false)}
+              className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Dialog>
   );
 }

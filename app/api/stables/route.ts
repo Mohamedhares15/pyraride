@@ -256,16 +256,21 @@ export async function GET(req: NextRequest) {
       const { rating: stableRating, reviewCount: stableReviewCount } =
         computeAdjustedRating(stableReviewEntries, "stableRating", 0);
 
-      // Get image from first horse if available
-      const firstHorseMedia =
-        stable.horses.flatMap((horse: any) => horse.media ?? []).find(
-          (media: any) => media.type === "image"
-        );
-      const imageUrl =
-        firstHorseMedia?.url ||
-        (stable.horses.length > 0 && stable.horses[0].imageUrls?.length > 0
-          ? stable.horses[0].imageUrls[0]
-          : "/hero-bg.webp");
+      // Use stable's own image first, then fallback to first horse if available
+      let imageUrl = stable.imageUrl || null;
+      
+      // If no stable image, get image from first horse
+      if (!imageUrl) {
+        const firstHorseMedia =
+          stable.horses.flatMap((horse: any) => horse.media ?? []).find(
+            (media: any) => media.type === "image"
+          );
+        imageUrl =
+          firstHorseMedia?.url ||
+          (stable.horses.length > 0 && stable.horses[0].imageUrls?.length > 0
+            ? stable.horses[0].imageUrls[0]
+            : "/hero-bg.webp");
+      }
 
       const distanceKey = typeof stable.location === "string" ? stable.location.toLowerCase() : "";
       const distanceKm =

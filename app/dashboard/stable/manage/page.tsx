@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Upload, X, Loader2, Check } from "lucide-react";
+import { ArrowLeft, Upload, X, Loader2, Check, Home } from "lucide-react";
 import { convertGoogleDriveUrl } from "@/lib/google-drive-utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -207,12 +207,20 @@ export default function ManageStablePage() {
       {/* Header */}
       <div className="border-b border-border bg-card/50 py-12 backdrop-blur-lg">
         <div className="mx-auto max-w-4xl px-4 md:px-8">
-          <Link href="/dashboard/stable">
-            <Button variant="ghost" size="sm" className="mb-4 gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
-            </Button>
-          </Link>
+          <div className="mb-4 flex items-center gap-4">
+            <Link href="/dashboard/stable">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Button>
+            </Link>
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <Home className="h-4 w-4" />
+                Home
+              </Button>
+            </Link>
+          </div>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="mb-2 font-display text-4xl font-bold tracking-tight">

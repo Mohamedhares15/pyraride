@@ -14,6 +14,8 @@ import {
   Activity,
   Target,
   Loader2,
+  ArrowLeft,
+  Home,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -144,6 +146,14 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="border-b border-border bg-card/50 py-12 backdrop-blur-lg">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
+          <div className="mb-4 flex items-center gap-4">
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <Home className="h-4 w-4" />
+                Home
+              </Button>
+            </Link>
+          </div>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="mb-2 font-display text-4xl font-bold tracking-tight">
