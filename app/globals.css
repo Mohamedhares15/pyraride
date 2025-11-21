@@ -286,10 +286,10 @@ body.ai-chat-open {
 
 @media (max-width: 768px) {
   .ai-launcher {
-    right: clamp(12px, env(safe-area-inset-right) + 8px, 24px);
-    top: 50%;
-    bottom: auto;
-    transform: translateY(-50%);
+    right: clamp(16px, env(safe-area-inset-right) + 12px, 24px);
+    bottom: clamp(24px, env(safe-area-inset-bottom) + 24px, 40px);
+    top: auto;
+    transform: none;
   }
 }
 

@@ -255,7 +255,7 @@ export default function StableDetailPage() {
       </div>
 
       {/* Content */}
-      <div className="mx-auto max-w-5xl px-4 py-8 md:px-8">
+      <div className="mx-auto max-w-5xl px-6 py-8 md:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -297,9 +297,9 @@ export default function StableDetailPage() {
           </div>
         </motion.div>
 
-        <div className="grid gap-8 md:grid-cols-3">
+        <div className="grid gap-8 md:grid-cols-3 items-start">
           {/* Main Content */}
-          <div className="md:col-span-2 space-y-8">
+          <div className="md:col-span-2 space-y-8 w-full">
             {/* Location & Map */}
             <Card className="p-6">
               <div className="mb-4 flex items-start gap-4">
@@ -406,9 +406,9 @@ export default function StableDetailPage() {
                             </div>
 
                             {galleryItems.length > 0 && (
-                              <div className="mb-4 space-y-2">
-                                <h4 className="text-sm font-semibold">Horse Portfolio</h4>
-                                <div className="grid grid-cols-2 gap-3">
+                              <div className="mb-4 space-y-4">
+                                <h4 className="text-base font-semibold">Horse Portfolio</h4>
+                                <div className="grid grid-cols-2 gap-4">
                                   {galleryItems.map((media, idx) => {
                                     const url = media.url as string;
                                     const modalIndex =
@@ -423,7 +423,7 @@ export default function StableDetailPage() {
                                         key={previewKey}
                                         type="button"
                                         onClick={openAtIndex}
-                                        className="group relative h-32 w-full overflow-hidden rounded-lg bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                        className="group relative aspect-square w-full overflow-hidden rounded-xl bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-md transition-transform hover:scale-[1.02]"
                                       >
                                         <video
                                           className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
@@ -434,9 +434,9 @@ export default function StableDetailPage() {
                                           <source src={url} />
                                           Your browser does not support the video tag.
                                         </video>
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                          <span className="rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-white">
-                                            Play video
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                          <span className="rounded-full bg-white/90 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg">
+                                            ▶ Play video
                                           </span>
                                         </div>
                                       </button>
@@ -445,15 +445,16 @@ export default function StableDetailPage() {
                                         key={previewKey}
                                         type="button"
                                         onClick={openAtIndex}
-                                        className="group relative h-32 w-full overflow-hidden rounded-lg bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                        className="group relative aspect-square w-full overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-md transition-transform hover:scale-[1.02]"
                                       >
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img
                                           src={url}
                                           alt={`${horse.name} media ${idx + 1}`}
-                                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                           draggable={false}
                                         />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                       </button>
                                     );
                                   })}
@@ -557,7 +558,7 @@ export default function StableDetailPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-6 w-full">
             {/* Owner Info */}
             <Card className="p-6">
               <h3 className="mb-4 font-semibold">Stable Owner</h3>

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, Send, X, Minimize2, Loader2, Sparkles } from "lucide-react";
+import { MessageCircle, Send, X, Minimize2, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -136,18 +136,16 @@ export default function AIAgent() {
   const launcherButton = (
     <Button
       onClick={() => setIsOpen(true)}
-      className="h-16 w-16 rounded-full bg-gradient-to-r from-primary via-primary to-purple-600 shadow-xl shadow-primary/30 hover:scale-110 transition-transform hover:shadow-2xl"
+      className="h-14 w-14 rounded-full bg-gradient-to-br from-primary to-primary/90 shadow-lg shadow-primary/25 hover:scale-105 transition-all hover:shadow-xl border-2 border-white/20"
       size="icon"
       aria-label="Open PyraRide AI assistant"
     >
-      <Bot className="h-6 w-6" />
+      <MessageCircle className="h-6 w-6" />
       <motion.div
-        className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-green-500 flex items-center justify-center"
-        animate={{ scale: [1, 1.2, 1] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        <Sparkles className="h-3 w-3 text-white" />
-      </motion.div>
+        className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 shadow-sm"
+        animate={{ scale: [1, 1.15, 1] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      />
     </Button>
   );
 
