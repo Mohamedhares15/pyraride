@@ -49,7 +49,9 @@ export function convertGoogleDriveUrl(url: string): string | null {
   }
 
   if (fileId) {
-    return `https://drive.google.com/uc?id=${fileId}&export=view`;
+    // Use thumbnail endpoint with large size for better reliability
+    // sz=w2000 ensures high quality while avoiding CORS issues
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w2000`;
   }
 
   // If it's already a full HTTP URL but not Google Drive, return as-is
