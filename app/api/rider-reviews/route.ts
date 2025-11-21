@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
       data: {
         bookingId,
         riderId,
-        stableOwnerId: session.user.id,
+        ownerId: session.user.id,
         ridingSkillLevel,
         behaviorRating,
         comment: comment || null,
@@ -139,7 +139,7 @@ export async function GET(req: NextRequest) {
 
     // Stable owners can only see reviews they wrote
     if (session.user.role === "stable_owner") {
-      where.stableOwnerId = session.user.id;
+      where.ownerId = session.user.id;
     }
 
     const reviews = await prisma.riderReview.findMany({

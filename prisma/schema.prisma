@@ -164,7 +164,7 @@ model RiderReview {
   id                String   @id @default(uuid())
   bookingId         String   @unique // One review per booking from owner
   riderId           String   // Rider being reviewed
-  stableOwnerId     String   // Stable owner writing review
+  ownerId           String   // Stable owner writing review
   ridingSkillLevel  Int      // 1-10 scale for future ranking system
   behaviorRating    Int      // 1-5 stars (kindness, helpfulness, respectfulness)
   comment           String?  @db.Text
@@ -173,7 +173,7 @@ model RiderReview {
   // Relations
   booking       Booking @relation(fields: [bookingId], references: [id])
   rider         User    @relation("RiderReviews", fields: [riderId], references: [id])
-  stableOwner   User    @relation("StableOwnerReviews", fields: [stableOwnerId], references: [id])
+  stableOwner   User    @relation("StableOwnerReviews", fields: [ownerId], references: [id])
 }
 
 model NewsletterSubscriber {
