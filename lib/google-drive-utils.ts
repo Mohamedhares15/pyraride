@@ -12,27 +12,16 @@ export function convertGoogleDriveUrl(url: string): string | null {
 
   const trimmed = url.trim();
   
-  // Already in direct format
-  if (trimmed.includes("drive.google.com/uc?id=") || trimmed.includes("drive.google.com/uc?export=")) {
-    // Ensure it has export=view for images
-    if (!trimmed.includes("export=")) {
-      return trimmed.includes("?") 
-        ? `${trimmed}&export=view`
-        : `${trimmed}?export=view`;
-    }
-    return trimmed;
-  }
-
-  // Extract file ID from various formats
+  // Extract file ID from ANY Google Drive URL format
   let fileId: string | null = null;
 
-  // Format 1: /file/d/FILE_ID/view
+  // Format 1: /file/d/FILE_ID/view or /file/d/FILE_ID
   const viewMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
   if (viewMatch) {
     fileId = viewMatch[1];
   }
 
-  // Format 2: /open?id=FILE_ID
+  // Format 2: /open?id=FILE_ID or /uc?id=FILE_ID
   if (!fileId) {
     const openMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
     if (openMatch) {
@@ -48,15 +37,26 @@ export function convertGoogleDriveUrl(url: string): string | null {
     }
   }
 
+  // Format 4: Already in thumbnail or usercontent format - extract ID and reconvert
+  if (!fileId && trimmed.includes("drive.google")) {
+    const idMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (idMatch) {
+      fileId = idMatch[1];
+    }
+  }
+
   if (fileId) {
-    // Use thumbnail endpoint with large size for better reliability
-    // sz=w2000 ensures high quality while avoiding CORS issues
-    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w2000`;
+    // Use usercontent.google.com domain which doesn't have CORS restrictions
+    // This format works reliably for embedding images in websites
+    return `https://drive.usercontent.google.com/download?id=${fileId}&export=view&authuser=0`;
   }
 
   // If it's already a full HTTP URL but not Google Drive, return as-is
   if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-    return trimmed;
+    // Only return non-Google-Drive URLs as-is
+    if (!trimmed.includes("drive.google.com") && !trimmed.includes("googleusercontent.com")) {
+      return trimmed;
+    }
   }
 
   // If it's a relative path, return as-is
