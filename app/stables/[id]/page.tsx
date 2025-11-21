@@ -176,6 +176,16 @@ export default function StableDetailPage() {
 
   const openPortfolio = (horseName: string, items: HorseMediaItem[], startIndex = 0) => {
     if (!items || items.length === 0) return;
+    
+    // Lock scroll and save current position
+    const scrollY = window.scrollY;
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    
     setPortfolioViewer({
       horseName,
       items,
@@ -183,7 +193,19 @@ export default function StableDetailPage() {
     });
   };
 
-  const closePortfolio = () => setPortfolioViewer(null);
+  const closePortfolio = () => {
+    // Restore scroll position
+    const scrollY = document.body.style.top;
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    
+    setPortfolioViewer(null);
+  };
 
   const showPreviousMedia = () =>
     setPortfolioViewer((current) => {
@@ -646,26 +668,30 @@ export default function StableDetailPage() {
       {/* Fullscreen Portfolio Viewer */}
       {portfolioViewer && (
         <div 
-          className="fixed inset-0 z-[100] bg-black/40"
+          className="fixed inset-0 z-[100] bg-white/15"
           style={{
-            backdropFilter: 'blur(40px) saturate(120%)',
-            WebkitBackdropFilter: 'blur(40px) saturate(120%)',
+            backdropFilter: 'blur(60px) saturate(200%) brightness(1.1)',
+            WebkitBackdropFilter: 'blur(60px) saturate(200%) brightness(1.1)',
           }}
         >
           {/* Header with Liquid Glass Effect */}
           <div 
-            className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-white/10 border-b border-white/20"
+            className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-white/15 border-b border-white/30 shadow-lg"
             style={{
-              backdropFilter: 'blur(20px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              backdropFilter: 'blur(30px) saturate(200%) brightness(1.15)',
+              WebkitBackdropFilter: 'blur(30px) saturate(200%) brightness(1.15)',
             }}
           >
             <button
               onClick={closePortfolio}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30 transition border border-white/30"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/25 text-white hover:bg-white/40 transition-all border border-white/50 shadow-lg hover:scale-105"
+              style={{
+                backdropFilter: 'blur(20px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(200%)',
+              }}
               aria-label="Close"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-6 w-6" />
             </button>
             <div className="text-white text-sm font-semibold drop-shadow-lg">
               {portfolioViewer.horseName} - {portfolioViewer.index + 1}/{portfolioViewer.items.length}
@@ -708,26 +734,26 @@ export default function StableDetailPage() {
               <button
                 type="button"
                 onClick={showPreviousMedia}
-                className="absolute left-4 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all z-10 border border-white/40 shadow-lg hover:scale-110"
+                className="absolute left-4 top-1/2 -translate-y-1/2 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 transition-all z-10 border border-white/50 shadow-2xl hover:scale-110"
                 style={{
-                  backdropFilter: 'blur(16px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+                  backdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
+                  WebkitBackdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
                 }}
                 aria-label="Previous"
               >
-                <ChevronLeft className="h-6 w-6" />
+                <ChevronLeft className="h-7 w-7" />
               </button>
               <button
                 type="button"
                 onClick={showNextMedia}
-                className="absolute right-4 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all z-10 border border-white/40 shadow-lg hover:scale-110"
+                className="absolute right-4 top-1/2 -translate-y-1/2 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 transition-all z-10 border border-white/50 shadow-2xl hover:scale-110"
                 style={{
-                  backdropFilter: 'blur(16px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+                  backdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
+                  WebkitBackdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
                 }}
                 aria-label="Next"
               >
-                <ChevronRight className="h-6 w-6" />
+                <ChevronRight className="h-7 w-7" />
               </button>
             </>
           )}
@@ -735,10 +761,10 @@ export default function StableDetailPage() {
           {/* Thumbnail Strip with Liquid Glass Effect */}
           {portfolioViewer.items.length > 1 && (
             <div 
-              className="absolute bottom-0 left-0 right-0 z-10 bg-white/10 border-t border-white/20 p-4 pb-safe"
+              className="absolute bottom-0 left-0 right-0 z-10 bg-white/15 border-t border-white/30 p-4 pb-safe shadow-2xl"
               style={{
-                backdropFilter: 'blur(20px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                backdropFilter: 'blur(30px) saturate(200%) brightness(1.15)',
+                WebkitBackdropFilter: 'blur(30px) saturate(200%) brightness(1.15)',
               }}
             >
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-center">
