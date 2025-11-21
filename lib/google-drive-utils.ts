@@ -46,9 +46,9 @@ export function convertGoogleDriveUrl(url: string): string | null {
   }
 
   if (fileId) {
-    // Use usercontent.google.com domain which doesn't have CORS restrictions
-    // This format works reliably for embedding images in websites
-    return `https://drive.usercontent.google.com/download?id=${fileId}&export=view&authuser=0`;
+    // Use thumbnail endpoint which is designed for embedding
+    // sz=w2000 gives high quality, and this endpoint doesn't have CORS restrictions
+    return `https://lh3.googleusercontent.com/d/${fileId}`;
   }
 
   // If it's already a full HTTP URL but not Google Drive, return as-is
