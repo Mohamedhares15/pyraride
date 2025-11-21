@@ -68,6 +68,7 @@ export default function ManageHorsesPage() {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   useEffect(() => {
     if (status === "loading") return;
