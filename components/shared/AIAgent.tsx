@@ -177,7 +177,7 @@ export default function AIAgent() {
             <div className="flex items-center justify-between border-b border-border bg-gradient-to-r from-primary/20 via-primary/10 to-transparent p-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-primary to-purple-600">
-                  <Bot className="h-6 w-6 text-white" />
+                  <MessageCircle className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <h3 className="font-bold text-lg flex items-center gap-2">
