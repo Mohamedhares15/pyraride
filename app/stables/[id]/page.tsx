@@ -623,7 +623,7 @@ export default function StableDetailPage() {
                     className="w-full"
                     size="lg"
                     variant="outline"
-                    onClick={() => router.push("/signin?callbackUrl=/stables/" + id)}
+                    onClick={() => router.push("/api/auth/signin?callbackUrl=/stables/" + id)}
                   >
                     Sign In to Book
                   </Button>
