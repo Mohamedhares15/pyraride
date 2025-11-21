@@ -28,6 +28,7 @@ interface Horse {
   description: string;
   imageUrls: string[];
   isActive: boolean;
+  pricePerHour?: number | null;
 }
 
 interface BookingModalProps {
@@ -49,7 +50,15 @@ export default function BookingModal({
 }: BookingModalProps) {
   const { data: session } = useSession();
   const [selectedHorseId, setSelectedHorseId] = useState<string>("");
-  const [selectedDate, setSelectedDate] = useState<string>("");
+  
+  // Get initial date from URL params or use today
+  const getInitialDate = () => {
+    if (typeof window === 'undefined') return "";
+    const params = new URLSearchParams(window.location.search);
+    return params.get('date') || new Date().toISOString().split("T")[0];
+  };
+  
+  const [selectedDate, setSelectedDate] = useState<string>(getInitialDate());
   const [startTime, setStartTime] = useState<string>("09:00");
   const [endTime, setEndTime] = useState<string>("10:00");
   const [selectedRiders, setSelectedRiders] = useState<number>(1);
@@ -84,6 +93,13 @@ export default function BookingModal({
   // Calculate minimum date (today)
   const minDate = new Date().toISOString().split("T")[0];
 
+  // Get selected horse's price
+  const getSelectedHorsePrice = () => {
+    if (!selectedHorseId) return pricePerHour;
+    const horse = horses.find(h => h.id === selectedHorseId);
+    return horse?.pricePerHour ?? pricePerHour;
+  };
+
   // Calculate price
   const calculatePrice = () => {
     if (!selectedDate || !startTime || !endTime) return 0;
@@ -91,8 +107,9 @@ export default function BookingModal({
     const start = new Date(`${selectedDate}T${startTime}`);
     const end = new Date(`${selectedDate}T${endTime}`);
     const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+    const horsePrice = getSelectedHorsePrice();
 
-    return hours > 0 ? hours * pricePerHour : 0;
+    return hours > 0 ? hours * horsePrice : 0;
   };
 
   const calculateHours = () => {
@@ -224,6 +241,7 @@ export default function BookingModal({
 
   const hours = calculateHours();
   const totalPrice = calculatePrice();
+  const currentHorsePrice = getSelectedHorsePrice();
   
   // Get selected horse name for success message
   const selectedHorse = horses.find(h => h.id === selectedHorseId);
@@ -303,26 +321,54 @@ export default function BookingModal({
             {/* Header with checkmark and title */}
             <div className="px-8 py-8 text-center">
               <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
                 className="mb-6"
               >
                 <div 
-                  className="mx-auto flex h-16 w-16 items-center justify-center rounded-full" 
-                  style={{ background: "rgba(16, 185, 129, 0.2)", border: "2px solid rgba(16, 185, 129, 0.4)" }}
+                  className="mx-auto flex h-20 w-20 items-center justify-center rounded-full" 
+                  style={{ 
+                    background: "linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.2) 100%)", 
+                    border: "2px solid rgba(16, 185, 129, 0.5)",
+                    boxShadow: "0 0 20px rgba(16, 185, 129, 0.3), inset 0 0 10px rgba(16, 185, 129, 0.1)"
+                  }}
                 >
-                  <CheckCircle className="h-8 w-8" style={{ color: "#10b981" }} />
+                  <CheckCircle className="h-10 w-10" style={{ color: "#10b981", filter: "drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))" }} />
                 </div>
               </motion.div>
-              <h2 className="text-3xl font-bold mb-2 text-white">Booking Confirmed</h2>
-              <p className="text-base text-gray-300">Your adventure is ready!</p>
+              <motion.h2 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-3xl font-bold mb-2 text-white"
+              >
+                Booking Confirmed!
+              </motion.h2>
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-base text-gray-300"
+              >
+                Your adventure awaits! 🐴
+              </motion.p>
             </div>
 
             {/* Details in ONE dark card - IDENTICAL to design.png */}
-            <div className="px-8 pb-8 space-y-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="px-8 pb-8 space-y-6"
+            >
               {/* Date & Time */}
-              <div className="flex items-start gap-4">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+                className="flex items-start gap-4"
+              >
                 <Calendar className="w-8 h-8 text-white flex-shrink-0 mt-1" />
                 <div className="flex-1">
                   <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">DATE & TIME</p>
@@ -338,10 +384,15 @@ export default function BookingModal({
                     {bookingData.startTime} – {bookingData.endTime}
                   </p>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Horse Information */}
-              <div className="flex items-start gap-4">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 }}
+                className="flex items-start gap-4"
+              >
                 <svg className="w-8 h-8 text-white flex-shrink-0 mt-1" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 7c-2 0-3.5 1-4.5 2.5-1-1-2-1-2.5-0.5-0.5 0.5-1 1-0.5 2s1 1 1.5 0.5c0.5-0.2 1-0.5 1.5-1 0.5 0.5 1 1.5 2 2 1 0.5 2 0.5 2.5 0 0.5 0.5 1 0.5 2 0.5 1 0 1.5-0.2 2-0.5 1 0.5 2 0.5 2.5 0 1-0.5 2-1 2-1.5 0.5 0.5 1 1 1.5 0.5 0.5-0.5 0.5-1.5 0-2-0.5-0.5-1.5 0-2.5 0.5-1-1.5-2.5-2.5-4.5-2.5z" />
                 </svg>
@@ -352,10 +403,15 @@ export default function BookingModal({
                     {bookingData.riders} {bookingData.riders === 1 ? 'rider' : 'riders'}
                   </p>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Location */}
-              <div className="flex items-start gap-4">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.7 }}
+                className="flex items-start gap-4"
+              >
                 <MapPin className="w-8 h-8 text-white flex-shrink-0 mt-1" />
                 <div className="flex-1">
                   <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">LOCATION</p>
@@ -377,10 +433,16 @@ export default function BookingModal({
                     </a>
                   )}
                 </div>
-              </div>
+              </motion.div>
 
               {/* Total Amount */}
-              <div className="flex items-start gap-4 pt-6" style={{ borderTop: "1px solid rgba(255, 255, 255, 0.1)" }}>
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.8 }}
+                className="flex items-start gap-4 pt-6" 
+                style={{ borderTop: "1px solid rgba(255, 255, 255, 0.1)" }}
+              >
                 <svg className="w-8 h-8 text-white flex-shrink-0 mt-1" viewBox="0 0 24 24" fill="currentColor">
                   <rect x="5" y="7" width="14" height="10" rx="1" />
                   <path d="M5 7 Q6 6 7 7 Q8 6 9 7 Q10 6 11 7 Q12 6 13 7 Q14 6 15 7 Q16 6 17 7 Q18 6 19 7" stroke="rgba(28, 28, 30, 0.95)" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
@@ -392,8 +454,8 @@ export default function BookingModal({
                     Payment will be processed on-site or via your preferred method
                   </p>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </motion.div>
         </DialogContent>
       </Dialog>
@@ -442,6 +504,11 @@ export default function BookingModal({
                     <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
                       {horse.description}
                     </p>
+                    {horse.pricePerHour && (
+                      <p className="mt-2 text-sm font-semibold text-primary">
+                        ${horse.pricePerHour}/hour
+                      </p>
+                    )}
                   </div>
                 </Card>
               ))}
@@ -450,16 +517,28 @@ export default function BookingModal({
 
           {/* Select Date */}
           <div className="space-y-2">
-            <Label htmlFor="date">Select Date *</Label>
+            <Label htmlFor="date">
+              Select Date *
+              {selectedDate && (
+                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                  ({new Date(selectedDate).toLocaleDateString('en-US', { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric' 
+                  })})
+                </span>
+              )}
+            </Label>
             <div className="relative">
-              <CalendarIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+              <CalendarIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground pointer-events-none z-10" />
               <input
                 id="date"
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 min={minDate}
-                className="h-10 w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-12 w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
                 required
               />
             </div>
@@ -470,13 +549,14 @@ export default function BookingModal({
             <div className="space-y-2">
               <Label htmlFor="start-time">Start Time *</Label>
               <div className="relative">
-                <Clock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                <Clock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground pointer-events-none z-10" />
                 <input
                   id="start-time"
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="h-10 w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="h-12 w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
                   required
                 />
               </div>
@@ -485,13 +565,14 @@ export default function BookingModal({
             <div className="space-y-2">
               <Label htmlFor="end-time">End Time *</Label>
               <div className="relative">
-                <Clock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                <Clock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground pointer-events-none z-10" />
                 <input
                   id="end-time"
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="h-10 w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="h-12 w-full rounded-md border border-input bg-background px-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
                   required
                 />
               </div>
@@ -531,7 +612,7 @@ export default function BookingModal({
                 </div>
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
-                ${pricePerHour}/hour × {hours.toFixed(1)} hours
+                ${currentHorsePrice}/hour × {hours.toFixed(1)} hours
               </p>
             </motion.div>
           )}

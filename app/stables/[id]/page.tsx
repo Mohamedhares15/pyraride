@@ -623,7 +623,7 @@ export default function StableDetailPage() {
                     className="w-full"
                     size="lg"
                     variant="outline"
-                    onClick={() => alert("Please sign in as a rider to book")}
+                    onClick={() => router.push("/api/auth/signin?callbackUrl=/stables/" + id)}
                   >
                     Sign In to Book
                   </Button>
@@ -664,7 +664,6 @@ export default function StableDetailPage() {
           stableId={stable.id}
           stableName={stable.name}
           horses={stable.horses}
-          pricePerHour={50}
         />
       )}
 

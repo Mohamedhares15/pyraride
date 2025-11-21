@@ -32,16 +32,6 @@ export default function Hero() {
     });
     return formatter.format(new Date(value));
   };
-  
-  // Prevent scrolling on homepage only
-  useEffect(() => {
-    document.body.classList.add('no-scroll');
-    document.documentElement.classList.add('no-scroll');
-    return () => {
-      document.body.classList.remove('no-scroll');
-      document.documentElement.classList.remove('no-scroll');
-    };
-  }, []);
 
   function onSearch(e: React.FormEvent) {
     e.preventDefault();

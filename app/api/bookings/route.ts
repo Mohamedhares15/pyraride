@@ -144,8 +144,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Calculate price (50 USD per hour) - hours already calculated above
-    const totalPrice = hours * 50;
+    // Calculate price using horse's actual price per hour
+    const pricePerHour = horse.pricePerHour ?? 50; // Default to 50 if not set
+    const totalPrice = hours * pricePerHour;
     const commission = totalPrice * 0.2; // 20% commission
 
     // Create booking
