@@ -678,8 +678,8 @@ export default function StableDetailPage() {
               top: 0,
               left: 0,
               width: '100vw',
-              height: '100vh',
               height: '100dvh', // Dynamic viewport height for mobile
+              maxHeight: '100vh', // Fallback for older browsers
               zIndex: 9998,
               backgroundColor: 'rgba(255, 255, 255, 0.15)',
               backdropFilter: 'blur(60px) saturate(200%) brightness(1.1)',
@@ -697,8 +697,8 @@ export default function StableDetailPage() {
               top: 0,
               left: 0,
               width: '100vw',
-              height: '100vh',
               height: '100dvh', // Dynamic viewport height for mobile
+              maxHeight: '100vh', // Fallback for older browsers
               zIndex: 9999,
               overflow: 'hidden',
               transform: 'translateZ(0)', // Force hardware acceleration
