@@ -132,8 +132,8 @@ export default function StableOwnerDashboard() {
       const reviewsRes = await fetch("/api/rider-reviews");
       if (reviewsRes.ok) {
         const reviewsData = await reviewsRes.json();
-        const reviewedBookingIds = new Set(
-          reviewsData.reviews?.map((r: any) => r.bookingId) || []
+        const reviewedBookingIds = new Set<string>(
+          reviewsData.reviews?.map((r: any) => r.bookingId as string) || []
         );
         setRiderReviews(reviewedBookingIds);
       }
