@@ -186,6 +186,9 @@ export default function StableDetailPage() {
     document.body.style.left = '0';
     document.body.style.right = '0';
     
+    // Push history state so back button closes portfolio instead of navigating away
+    window.history.pushState({ portfolioOpen: true }, '', window.location.href);
+    
     setPortfolioViewer({
       horseName,
       items,
@@ -205,6 +208,11 @@ export default function StableDetailPage() {
     window.scrollTo(0, parseInt(scrollY || '0') * -1);
     
     setPortfolioViewer(null);
+    
+    // Go back in history if portfolio was opened (to remove the pushed state)
+    if (window.history.state?.portfolioOpen) {
+      window.history.back();
+    }
   };
 
   const showPreviousMedia = () =>
@@ -221,6 +229,29 @@ export default function StableDetailPage() {
       const nextIndex = (current.index + 1) % current.items.length;
       return { ...current, index: nextIndex };
     });
+
+  // Handle browser back button when portfolio is open
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (portfolioViewer && !event.state?.portfolioOpen) {
+        // User pressed back button while portfolio is open
+        // Restore scroll position without triggering history.back() again
+        const scrollY = document.body.style.top;
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+        
+        setPortfolioViewer(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [portfolioViewer]);
 
   if (isLoading) {
     return (
@@ -617,31 +648,24 @@ export default function StableDetailPage() {
             WebkitBackdropFilter: 'blur(60px) saturate(200%) brightness(1.1)',
           }}
         >
-          {/* Header with Liquid Glass Effect */}
+          {/* Header with Liquid Glass Effect - Clean Design */}
           <div 
-            className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-white/15 border-b border-white/30 shadow-lg"
-            style={{
-              backdropFilter: 'blur(30px) saturate(200%) brightness(1.15)',
-              WebkitBackdropFilter: 'blur(30px) saturate(200%) brightness(1.15)',
-            }}
+            className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 md:p-6"
           >
             <button
               onClick={closePortfolio}
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-all border-2 border-white/60 shadow-2xl hover:scale-110 backdrop-blur-xl"
+              className="flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-all border-2 border-white/60 shadow-2xl hover:scale-110 backdrop-blur-xl"
               aria-label="Close"
             >
-              <ArrowLeft className="h-7 w-7 stroke-[2.5]" />
+              <ArrowLeft className="h-7 w-7 md:h-8 md:w-8 stroke-[2.5]" />
             </button>
-            <div className="text-white text-base font-bold drop-shadow-2xl tracking-wide">
-              {portfolioViewer.horseName}
-            </div>
-            <div className="text-white text-xs font-medium bg-white/20 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/40">
-              {portfolioViewer.index + 1}/{portfolioViewer.items.length}
+            <div className="text-white text-sm md:text-base font-semibold bg-black/50 px-4 py-2 rounded-full backdrop-blur-md border border-white/40 shadow-lg">
+              {portfolioViewer.index + 1} / {portfolioViewer.items.length}
             </div>
           </div>
 
-          {/* Main Image - Crystal Clear */}
-          <div className="absolute inset-0 flex items-center justify-center pt-16 pb-24 px-4">
+          {/* Main Image - Crystal Clear & Centered */}
+          <div className="absolute inset-0 flex items-center justify-center pt-20 pb-28 md:pt-24 md:pb-32 px-4 md:px-8">
             {portfolioViewer.items[portfolioViewer.index]?.type === "video" ? (
               <video
                 key={portfolioViewer.items[portfolioViewer.index]?.url}

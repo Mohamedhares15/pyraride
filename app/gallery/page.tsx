@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import WeatherWidget from "@/components/shared/WeatherWidget";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Home } from "lucide-react";
 
 export default function GalleryPage() {
   const [isUploading, setIsUploading] = useState(false);
@@ -63,6 +65,16 @@ export default function GalleryPage() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-8 md:py-16 md:px-8">
+        {/* Return to Home Button */}
+        <div className="mb-6">
+          <Link href="/">
+            <Button variant="ghost" size="sm" className="gap-2">
+              <Home className="h-4 w-4" />
+              Return to Home
+            </Button>
+          </Link>
+        </div>
+
         {/* Weather Widget */}
         <div className="mb-6 md:mb-8">
           <WeatherWidget />

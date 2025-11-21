@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import SearchFilters from "@/components/sections/SearchFilters";
 import StableList from "@/components/sections/StableList";
 import WeatherWidget from "@/components/shared/WeatherWidget";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Home } from "lucide-react";
 
 type StableMode = "stable" | "horse";
 
@@ -186,6 +188,14 @@ export default function StablesClient() {
         className="border-b border-border bg-card/50 py-12 backdrop-blur-lg"
       >
         <div className="mx-auto max-w-7xl px-3 md:px-8">
+          <div className="mb-6">
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <Home className="h-4 w-4" />
+                Return to Home
+              </Button>
+            </Link>
+          </div>
           <div className="max-w-3xl">
             <h1 className="mb-4 font-display text-2xl md:text-4xl lg:text-5xl font-bold tracking-tight">
               Discover Your Next{" "}
