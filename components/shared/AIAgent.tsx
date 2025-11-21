@@ -196,7 +196,7 @@ export default function AIAgent() {
                   onClick={() => setIsMinimized(!isMinimized)}
                 >
                   {isMinimized ? (
-                    <Bot className="h-4 w-4" />
+                    <MessageCircle className="h-4 w-4" />
                   ) : (
                     <Minimize2 className="h-4 w-4" />
                   )}
@@ -226,7 +226,7 @@ export default function AIAgent() {
                     >
                       {message.role === "assistant" && (
                         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-primary to-purple-600">
-                          <Bot className="h-5 w-5 text-white" />
+                          <MessageCircle className="h-5 w-5 text-white" />
                         </div>
                       )}
                       <div className="flex flex-col gap-2 max-w-[80%]">
