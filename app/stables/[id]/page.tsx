@@ -255,12 +255,12 @@ export default function StableDetailPage() {
       </div>
 
       {/* Content */}
-      <div className="mx-auto max-w-5xl px-6 py-8 md:px-8">
+      <div className="mx-auto max-w-5xl px-4 py-8 md:px-8 overflow-x-hidden">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-8 max-w-full"
         >
           <div className="mb-4 flex items-center gap-2">
             <Badge className="bg-primary/90 text-primary-foreground">
@@ -297,9 +297,9 @@ export default function StableDetailPage() {
           </div>
         </motion.div>
 
-        <div className="grid gap-8 md:grid-cols-3 items-start">
+        <div className="grid gap-8 md:grid-cols-3 items-start max-w-full">
           {/* Main Content */}
-          <div className="md:col-span-2 space-y-8 w-full">
+          <div className="md:col-span-2 space-y-8 w-full min-w-0">
             {/* Location & Map */}
             <Card className="p-6">
               <div className="mb-4 flex items-start gap-4">
@@ -558,7 +558,7 @@ export default function StableDetailPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6 w-full">
+          <div className="space-y-6 w-full min-w-0">
             {/* Owner Info */}
             <Card className="p-6">
               <h3 className="mb-4 font-semibold">Stable Owner</h3>
@@ -643,73 +643,102 @@ export default function StableDetailPage() {
         />
       )}
 
-      <Dialog open={Boolean(portfolioViewer)} onOpenChange={(open) => {
-        if (!open) {
-          closePortfolio();
-        }
-      }}>
-        <DialogContent className="max-w-3xl overflow-hidden border border-border bg-background p-0">
-          {portfolioViewer && (
-            <div className="relative">
-              <div className="relative aspect-video w-full bg-black">
-                {portfolioViewer.items[portfolioViewer.index]?.type === "video" ? (
-                  <video
-                    key={portfolioViewer.items[portfolioViewer.index]?.url}
-                    controls
-                    className="h-full w-full object-contain"
-                  >
-                    <source src={portfolioViewer.items[portfolioViewer.index]?.url} />
-                    Your browser does not support the video tag.
-                  </video>
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key={portfolioViewer.items[portfolioViewer.index]?.url}
-                    src={portfolioViewer.items[portfolioViewer.index]?.url || "/hero-bg.webp"}
-                    alt={`${portfolioViewer.horseName} portfolio`}
-                    className="absolute inset-0 w-full h-full object-contain"
-                    draggable={false}
-                  />
-                )}
+      {/* Fullscreen Portfolio Viewer */}
+      {portfolioViewer && (
+        <div className="fixed inset-0 z-[100] bg-black">
+          {/* Header */}
+          <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 to-transparent">
+            <button
+              onClick={closePortfolio}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition"
+              aria-label="Close"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div className="text-white text-sm font-medium">
+              {portfolioViewer.horseName} - {portfolioViewer.index + 1}/{portfolioViewer.items.length}
+            </div>
+            <div className="w-10" />
+          </div>
 
-                {portfolioViewer.items.length > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={showPreviousMedia}
-                      className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                      aria-label="Previous media"
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={showNextMedia}
-                      className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                      aria-label="Next media"
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </button>
-                  </>
-                )}
-              </div>
-              <div className="flex items-center justify-between border-t border-border bg-card/80 px-4 py-3">
-                <div>
-                  <DialogTitle className="text-lg font-semibold">
-                    {portfolioViewer.horseName}
-                  </DialogTitle>
-                  <DialogDescription className="text-sm text-muted-foreground">
-                    Media {portfolioViewer.index + 1} of {portfolioViewer.items.length}
-                  </DialogDescription>
-                </div>
-                <Button size="sm" variant="ghost" onClick={closePortfolio}>
-                  Close
-                </Button>
+          {/* Main Image */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            {portfolioViewer.items[portfolioViewer.index]?.type === "video" ? (
+              <video
+                key={portfolioViewer.items[portfolioViewer.index]?.url}
+                controls
+                className="max-h-full max-w-full object-contain"
+              >
+                <source src={portfolioViewer.items[portfolioViewer.index]?.url} />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={portfolioViewer.items[portfolioViewer.index]?.url}
+                src={portfolioViewer.items[portfolioViewer.index]?.url || "/hero-bg.webp"}
+                alt={`${portfolioViewer.horseName} portfolio`}
+                className="max-h-full max-w-full object-contain"
+                draggable={false}
+              />
+            )}
+          </div>
+
+          {/* Navigation Arrows */}
+          {portfolioViewer.items.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={showPreviousMedia}
+                className="absolute left-4 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition z-10"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+              <button
+                type="button"
+                onClick={showNextMedia}
+                className="absolute right-4 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition z-10"
+                aria-label="Next"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </button>
+            </>
+          )}
+
+          {/* Thumbnail Strip */}
+          {portfolioViewer.items.length > 1 && (
+            <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/90 to-transparent p-4">
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide justify-center">
+                {portfolioViewer.items.map((item, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setPortfolioViewer(prev => prev ? { ...prev, index: idx } : null)}
+                    className={`flex-shrink-0 h-16 w-16 rounded-lg overflow-hidden border-2 transition ${
+                      idx === portfolioViewer.index
+                        ? "border-white scale-110"
+                        : "border-white/30 opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    {item.type === "video" ? (
+                      <div className="h-full w-full bg-gray-800 flex items-center justify-center">
+                        <span className="text-white text-xs">▶</span>
+                      </div>
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={item.url}
+                        alt={`Thumbnail ${idx + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                    )}
+                  </button>
+                ))}
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </div>
   );
 }

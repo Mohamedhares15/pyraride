@@ -136,11 +136,11 @@ export default function AIAgent() {
   const launcherButton = (
     <Button
       onClick={() => setIsOpen(true)}
-      className="h-14 w-14 rounded-full bg-gradient-to-br from-primary to-primary/90 shadow-lg shadow-primary/25 hover:scale-105 transition-all hover:shadow-xl border-2 border-white/20"
+      className="h-14 w-14 rounded-full bg-primary/80 backdrop-blur-md shadow-lg shadow-primary/20 hover:bg-primary/90 hover:scale-105 transition-all hover:shadow-xl border-2 border-white/30"
       size="icon"
       aria-label="Open PyraRide AI assistant"
     >
-      <MessageCircle className="h-6 w-6" />
+      <MessageCircle className="h-6 w-6 text-white" />
       <motion.div
         className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 shadow-sm"
         animate={{ scale: [1, 1.15, 1] }}
