@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import StarRating from "./StarRating";
-import { Star, Loader2 } from "lucide-react";
+import { Star, Loader2, CheckCircle, X } from "lucide-react";
 
 interface ReviewModalProps {
   open: boolean;
@@ -39,6 +39,7 @@ export default function ReviewModal({
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,16 +70,20 @@ export default function ReviewModal({
         throw new Error(data.error || "Failed to submit review");
       }
 
-      // Success!
-      alert("Review submitted successfully!");
-      onOpenChange(false);
-      onReviewSubmitted?.();
-      router.refresh();
-
-      // Reset form
-      setStableRating(0);
-      setHorseRating(0);
-      setComment("");
+      // Success! Show toast and auto-close
+      setShowSuccessToast(true);
+      
+      setTimeout(() => {
+        onOpenChange(false);
+        onReviewSubmitted?.();
+        router.refresh();
+        
+        // Reset form
+        setStableRating(0);
+        setHorseRating(0);
+        setComment("");
+        setShowSuccessToast(false);
+      }, 2500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit review");
     } finally {
@@ -177,6 +182,36 @@ export default function ReviewModal({
           </div>
         </form>
       </DialogContent>
+
+      {/* Success Toast Notification */}
+      <AnimatePresence>
+        {showSuccessToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="fixed top-4 right-4 z-[10000] max-w-md w-full shadow-2xl rounded-lg border-2 bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 p-4 flex items-start gap-4"
+          >
+            <div className="flex-shrink-0">
+              <CheckCircle className="h-6 w-6 text-green-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className="font-semibold text-foreground mb-1">
+                Review Submitted! ⭐
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                Thank you for sharing your experience!
+              </p>
+            </div>
+            <button
+              onClick={() => setShowSuccessToast(false)}
+              className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Dialog>
   );
 }

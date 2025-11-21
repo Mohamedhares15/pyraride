@@ -11,6 +11,10 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  pages: {
+    signIn: "/signin",
+    error: "/signin",
+  },
   providers: [
     CredentialsProvider({
       name: "Credentials",
