@@ -199,9 +199,10 @@ export async function GET(req: NextRequest) {
       }
 
       // Average Ratings
-      let avgRatings = { _avg: { stableRating: 0, horseRating: 0 } };
+      let avgStableRating = 0;
+      let avgHorseRating = 0;
       try {
-        avgRatings = await prisma.review.aggregate({
+        const avgRatings = await prisma.review.aggregate({
           where: {
             createdAt: { gte: startDate },
           },
@@ -210,6 +211,8 @@ export async function GET(req: NextRequest) {
             horseRating: true,
           },
         });
+        avgStableRating = avgRatings._avg.stableRating || 0;
+        avgHorseRating = avgRatings._avg.horseRating || 0;
       } catch (e) {
         console.error("Error calculating average ratings:", e);
       }
@@ -272,8 +275,8 @@ export async function GET(req: NextRequest) {
         },
         horseUtilization,
         customerFeedback: {
-          avgStableRating: avgRatings._avg.stableRating || 0,
-          avgHorseRating: avgRatings._avg.horseRating || 0,
+          avgStableRating,
+          avgHorseRating,
           totalReviews: totalBookings > 0 ? await prisma.review.count({
             where: { createdAt: { gte: startDate } },
           }).catch(() => 0) : 0,
