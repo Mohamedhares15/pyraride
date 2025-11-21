@@ -427,63 +427,6 @@ export default function StableDetailPage() {
                               <p className="text-sm text-muted-foreground mb-4">{horse.description}</p>
                             </div>
 
-                            {galleryItems.length > 0 && (
-                              <div className="mb-4 space-y-4">
-                                <h4 className="text-base font-semibold">Horse Portfolio</h4>
-                                <div className="grid grid-cols-2 gap-4">
-                                  {galleryItems.map((media, idx) => {
-                                    const url = media.url as string;
-                                    const modalIndex =
-                                      heroImage && modalItems.length > galleryItems.length
-                                        ? idx + 1
-                                        : idx;
-                                    const previewKey = `${horse.id}-media-${idx}`;
-                                    const openAtIndex = () =>
-                                      openPortfolio(horse.name, modalItems, modalIndex);
-                                    return media.type === "video" ? (
-                                      <button
-                                        key={previewKey}
-                                        type="button"
-                                        onClick={openAtIndex}
-                                        className="group relative aspect-square w-full overflow-hidden rounded-xl bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-md transition-transform hover:scale-[1.02]"
-                                      >
-                                        <video
-                                          className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
-                                          muted
-                                          playsInline
-                                          preload="metadata"
-                                        >
-                                          <source src={url} />
-                                          Your browser does not support the video tag.
-                                        </video>
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                                          <span className="rounded-full bg-white/90 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg">
-                                            ▶ Play video
-                                          </span>
-                                        </div>
-                                      </button>
-                                    ) : (
-                                      <button
-                                        key={previewKey}
-                                        type="button"
-                                        onClick={openAtIndex}
-                                        className="group relative aspect-square w-full overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-md transition-transform hover:scale-[1.02]"
-                                      >
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img
-                                          src={url}
-                                          alt={`${horse.name} media ${idx + 1}`}
-                                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                          draggable={false}
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            )}
-
                             {/* Horse Details Footer */}
                             <div className="space-y-3 border-t pt-4">
                               <div className="flex items-center justify-between text-sm">
@@ -684,19 +627,17 @@ export default function StableDetailPage() {
           >
             <button
               onClick={closePortfolio}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/25 text-white hover:bg-white/40 transition-all border border-white/50 shadow-lg hover:scale-105"
-              style={{
-                backdropFilter: 'blur(20px) saturate(200%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(200%)',
-              }}
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-all border-2 border-white/60 shadow-2xl hover:scale-110 backdrop-blur-xl"
               aria-label="Close"
             >
-              <ArrowLeft className="h-6 w-6" />
+              <ArrowLeft className="h-7 w-7 stroke-[2.5]" />
             </button>
-            <div className="text-white text-sm font-semibold drop-shadow-lg">
-              {portfolioViewer.horseName} - {portfolioViewer.index + 1}/{portfolioViewer.items.length}
+            <div className="text-white text-base font-bold drop-shadow-2xl tracking-wide">
+              {portfolioViewer.horseName}
             </div>
-            <div className="w-10" />
+            <div className="text-white text-xs font-medium bg-white/20 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/40">
+              {portfolioViewer.index + 1}/{portfolioViewer.items.length}
+            </div>
           </div>
 
           {/* Main Image - Crystal Clear */}
