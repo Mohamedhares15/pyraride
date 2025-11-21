@@ -645,29 +645,44 @@ export default function StableDetailPage() {
 
       {/* Fullscreen Portfolio Viewer */}
       {portfolioViewer && (
-        <div className="fixed inset-0 z-[100] bg-black">
-          {/* Header */}
-          <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 to-transparent">
+        <div 
+          className="fixed inset-0 z-[100] bg-black/40"
+          style={{
+            backdropFilter: 'blur(40px) saturate(120%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(120%)',
+          }}
+        >
+          {/* Header with Liquid Glass Effect */}
+          <div 
+            className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-white/10 border-b border-white/20"
+            style={{
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            }}
+          >
             <button
               onClick={closePortfolio}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/30 transition border border-white/30"
               aria-label="Close"
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
-            <div className="text-white text-sm font-medium">
+            <div className="text-white text-sm font-semibold drop-shadow-lg">
               {portfolioViewer.horseName} - {portfolioViewer.index + 1}/{portfolioViewer.items.length}
             </div>
             <div className="w-10" />
           </div>
 
-          {/* Main Image */}
-          <div className="absolute inset-0 flex items-center justify-center">
+          {/* Main Image - Crystal Clear */}
+          <div className="absolute inset-0 flex items-center justify-center pt-16 pb-24 px-4">
             {portfolioViewer.items[portfolioViewer.index]?.type === "video" ? (
               <video
                 key={portfolioViewer.items[portfolioViewer.index]?.url}
                 controls
-                className="max-h-full max-w-full object-contain"
+                className="max-h-full max-w-full object-contain rounded-2xl shadow-2xl"
+                style={{
+                  filter: 'contrast(1.05) brightness(1.02)',
+                }}
               >
                 <source src={portfolioViewer.items[portfolioViewer.index]?.url} />
                 Your browser does not support the video tag.
@@ -678,19 +693,26 @@ export default function StableDetailPage() {
                 key={portfolioViewer.items[portfolioViewer.index]?.url}
                 src={portfolioViewer.items[portfolioViewer.index]?.url || "/hero-bg.webp"}
                 alt={`${portfolioViewer.horseName} portfolio`}
-                className="max-h-full max-w-full object-contain"
+                className="max-h-full max-w-full object-contain rounded-2xl shadow-2xl"
+                style={{
+                  filter: 'contrast(1.05) brightness(1.02)',
+                }}
                 draggable={false}
               />
             )}
           </div>
 
-          {/* Navigation Arrows */}
+          {/* Navigation Arrows with Liquid Glass */}
           {portfolioViewer.items.length > 1 && (
             <>
               <button
                 type="button"
                 onClick={showPreviousMedia}
-                className="absolute left-4 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition z-10"
+                className="absolute left-4 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all z-10 border border-white/40 shadow-lg hover:scale-110"
+                style={{
+                  backdropFilter: 'blur(16px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+                }}
                 aria-label="Previous"
               >
                 <ChevronLeft className="h-6 w-6" />
@@ -698,7 +720,11 @@ export default function StableDetailPage() {
               <button
                 type="button"
                 onClick={showNextMedia}
-                className="absolute right-4 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition z-10"
+                className="absolute right-4 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all z-10 border border-white/40 shadow-lg hover:scale-110"
+                style={{
+                  backdropFilter: 'blur(16px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+                }}
                 aria-label="Next"
               >
                 <ChevronRight className="h-6 w-6" />
@@ -706,23 +732,29 @@ export default function StableDetailPage() {
             </>
           )}
 
-          {/* Thumbnail Strip */}
+          {/* Thumbnail Strip with Liquid Glass Effect */}
           {portfolioViewer.items.length > 1 && (
-            <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/90 to-transparent p-4">
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide justify-center">
+            <div 
+              className="absolute bottom-0 left-0 right-0 z-10 bg-white/10 border-t border-white/20 p-4 pb-safe"
+              style={{
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              }}
+            >
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-center">
                 {portfolioViewer.items.map((item, idx) => (
                   <button
                     key={idx}
                     onClick={() => setPortfolioViewer(prev => prev ? { ...prev, index: idx } : null)}
-                    className={`flex-shrink-0 h-16 w-16 rounded-lg overflow-hidden border-2 transition ${
+                    className={`flex-shrink-0 h-16 w-16 rounded-xl overflow-hidden border-2 transition-all ${
                       idx === portfolioViewer.index
-                        ? "border-white scale-110"
-                        : "border-white/30 opacity-60 hover:opacity-100"
+                        ? "border-white scale-110 shadow-lg shadow-white/25"
+                        : "border-white/40 opacity-70 hover:opacity-100 hover:scale-105"
                     }`}
                   >
                     {item.type === "video" ? (
-                      <div className="h-full w-full bg-gray-800 flex items-center justify-center">
-                        <span className="text-white text-xs">▶</span>
+                      <div className="h-full w-full bg-gray-800/50 backdrop-blur-sm flex items-center justify-center">
+                        <span className="text-white text-sm">▶</span>
                       </div>
                     ) : (
                       // eslint-disable-next-line @next/next/no-img-element
