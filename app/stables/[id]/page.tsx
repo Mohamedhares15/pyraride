@@ -75,6 +75,7 @@ interface Stable {
   description: string;
   location: string;
   address: string;
+  imageUrl?: string | null;
   rating: number;
   totalBookings: number;
   totalReviews: number;
@@ -244,8 +245,8 @@ export default function StableDetailPage() {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: stable.horses.length > 0 && stable.horses[0].imageUrls.length > 0
-              ? `url(${stable.horses[0].imageUrls[0]})`
+            backgroundImage: stable.imageUrl
+              ? `url(${stable.imageUrl})`
               : "url(/hero-bg.webp)",
           }}
         />
@@ -377,13 +378,12 @@ export default function StableDetailPage() {
                             aria-label={`Open ${horse.name} portfolio`}
                           >
                             {heroImage ? (
-                              <Image
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
                                 src={heroImage}
                                 alt={horse.name}
-                                fill
-                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                 draggable={false}
-                                sizes="(max-width: 768px) 100vw, 50vw"
                               />
                             ) : (
                               <div className="absolute inset-0 flex items-center justify-center">
@@ -447,11 +447,11 @@ export default function StableDetailPage() {
                                         onClick={openAtIndex}
                                         className="group relative h-32 w-full overflow-hidden rounded-lg bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                                       >
-                                        <Image
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
                                           src={url}
                                           alt={`${horse.name} media ${idx + 1}`}
-                                          fill
-                                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                           draggable={false}
                                         />
                                       </button>
@@ -661,12 +661,12 @@ export default function StableDetailPage() {
                     Your browser does not support the video tag.
                   </video>
                 ) : (
-                  <Image
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
                     key={portfolioViewer.items[portfolioViewer.index]?.url}
                     src={portfolioViewer.items[portfolioViewer.index]?.url || "/hero-bg.webp"}
                     alt={`${portfolioViewer.horseName} portfolio`}
-                    fill
-                    className="object-contain"
+                    className="absolute inset-0 w-full h-full object-contain"
                     draggable={false}
                   />
                 )}

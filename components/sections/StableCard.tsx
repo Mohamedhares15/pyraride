@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { MapPin, Star } from "lucide-react";
@@ -44,14 +43,12 @@ export default function StableCard({ stable, index, href }: StableCardProps) {
           {/* Media */}
           <div className="relative w-full aspect-video bg-gradient-to-br from-primary/20 to-secondary/20">
             {stable.imageUrl && stable.imageUrl !== "" ? (
-              <Image
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
                 src={imageSrc}
                 alt={stable.name}
-                fill
-                className="object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
                 draggable={false}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-                priority={index !== undefined && index < 6}
                 loading={index !== undefined && index >= 6 ? "lazy" : undefined}
               />
             ) : (
