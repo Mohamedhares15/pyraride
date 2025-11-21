@@ -668,56 +668,114 @@ export default function StableDetailPage() {
         />
       )}
 
-      {/* Fullscreen Portfolio Viewer - Portal Style with Separate Backdrop */}
+      {/* Fullscreen Portfolio Viewer - Mobile-Optimized Fixed Layers */}
       {portfolioViewer && (
         <>
-          {/* Backdrop Layer - Separate to avoid containing block issues */}
+          {/* Backdrop Layer - Mobile viewport fix */}
           <div 
-            className="fixed inset-0 overflow-hidden"
             style={{
-              zIndex: 9998,
               position: 'fixed',
               top: 0,
               left: 0,
-              right: 0,
-              bottom: 0,
+              width: '100vw',
+              height: '100vh',
+              height: '100dvh', // Dynamic viewport height for mobile
+              zIndex: 9998,
               backgroundColor: 'rgba(255, 255, 255, 0.15)',
               backdropFilter: 'blur(60px) saturate(200%) brightness(1.1)',
               WebkitBackdropFilter: 'blur(60px) saturate(200%) brightness(1.1)',
+              overflow: 'hidden',
+              transform: 'translateZ(0)', // Force hardware acceleration
+              WebkitTransform: 'translateZ(0)',
             }}
           />
           
-          {/* Content Layer - No backdrop-filter here! */}
+          {/* Content Layer - Mobile viewport fix */}
           <div 
-            className="fixed inset-0 overflow-hidden"
             style={{
-              zIndex: 9999,
               position: 'fixed',
               top: 0,
               left: 0,
-              right: 0,
-              bottom: 0,
+              width: '100vw',
+              height: '100vh',
+              height: '100dvh', // Dynamic viewport height for mobile
+              zIndex: 9999,
+              overflow: 'hidden',
+              transform: 'translateZ(0)', // Force hardware acceleration
+              WebkitTransform: 'translateZ(0)',
             }}
           >
             {/* Header with Liquid Glass Effect - Clean Design */}
             <div 
-              className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 md:p-6"
-              style={{ zIndex: 10 }}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '16px',
+                zIndex: 1000,
+              }}
             >
               <button
                 onClick={closePortfolio}
-                className="flex h-14 w-14 items-center justify-center rounded-full bg-black/70 text-white hover:bg-black/90 transition-all border-2 border-white/70 shadow-2xl hover:scale-110 backdrop-blur-xl"
+                style={{
+                  display: 'flex',
+                  width: '56px',
+                  height: '56px',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                  color: 'white',
+                  border: '3px solid rgba(255, 255, 255, 0.8)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                  cursor: 'pointer',
+                  zIndex: 1001,
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                }}
                 aria-label="Close"
               >
                 <ArrowLeft className="h-8 w-8 stroke-[3]" />
               </button>
-              <div className="text-white text-base md:text-lg font-bold bg-black/60 px-5 py-2.5 rounded-full backdrop-blur-md border border-white/50 shadow-xl">
+              <div 
+                style={{
+                  color: 'white',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                  padding: '10px 20px',
+                  borderRadius: '999px',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255, 255, 255, 0.5)',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
+                }}
+              >
                 {portfolioViewer.index + 1} / {portfolioViewer.items.length}
               </div>
             </div>
 
             {/* Main Image - Crystal Clear & Centered */}
-            <div className="absolute inset-0 flex items-center justify-center pt-20 pb-28 md:pt-24 md:pb-32 px-4 md:px-8">
+            <div 
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingTop: '80px',
+                paddingBottom: '120px',
+                paddingLeft: '16px',
+                paddingRight: '16px',
+              }}
+            >
             {portfolioViewer.items[portfolioViewer.index]?.type === "video" ? (
               <video
                 key={portfolioViewer.items[portfolioViewer.index]?.url}
@@ -751,11 +809,26 @@ export default function StableDetailPage() {
                 <button
                   type="button"
                   onClick={showPreviousMedia}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 transition-all border border-white/50 shadow-2xl hover:scale-110"
                   style={{
+                    position: 'absolute',
+                    left: '16px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    WebkitTransform: 'translateY(-50%)',
+                    display: 'flex',
+                    width: '56px',
+                    height: '56px',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '50%',
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    color: 'white',
+                    border: '1px solid rgba(255, 255, 255, 0.5)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                    cursor: 'pointer',
+                    zIndex: 100,
                     backdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
                     WebkitBackdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
-                    zIndex: 20,
                   }}
                   aria-label="Previous"
                 >
@@ -764,11 +837,26 @@ export default function StableDetailPage() {
                 <button
                   type="button"
                   onClick={showNextMedia}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/35 transition-all border border-white/50 shadow-2xl hover:scale-110"
                   style={{
+                    position: 'absolute',
+                    right: '16px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    WebkitTransform: 'translateY(-50%)',
+                    display: 'flex',
+                    width: '56px',
+                    height: '56px',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '50%',
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    color: 'white',
+                    border: '1px solid rgba(255, 255, 255, 0.5)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                    cursor: 'pointer',
+                    zIndex: 100,
                     backdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
                     WebkitBackdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
-                    zIndex: 20,
                   }}
                   aria-label="Next"
                 >
@@ -780,11 +868,19 @@ export default function StableDetailPage() {
             {/* Thumbnail Strip with Liquid Glass Effect */}
             {portfolioViewer.items.length > 1 && (
               <div 
-                className="absolute bottom-0 left-0 right-0 bg-white/15 border-t border-white/30 p-4 pb-safe shadow-2xl"
                 style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.3)',
+                  padding: '16px',
+                  paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
+                  boxShadow: '0 -4px 24px rgba(0, 0, 0, 0.3)',
+                  zIndex: 50,
                   backdropFilter: 'blur(30px) saturate(200%) brightness(1.15)',
                   WebkitBackdropFilter: 'blur(30px) saturate(200%) brightness(1.15)',
-                  zIndex: 10,
                 }}
               >
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-center">
