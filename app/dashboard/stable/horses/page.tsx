@@ -566,6 +566,7 @@ export default function ManageHorsesPage() {
             skills: [],
             imageUrls: [],
             googleDriveUrls: "",
+            availabilityStatus: "available",
           });
           setImageFile(null);
           setImagePreview("");
@@ -789,6 +790,7 @@ export default function ManageHorsesPage() {
                     skills: [],
                     imageUrls: [],
                     googleDriveUrls: "",
+                    availabilityStatus: "available",
                   });
                   setImageFile(null);
                   setImagePreview("");
@@ -827,6 +829,7 @@ export default function ManageHorsesPage() {
             skills: [],
             imageUrls: [],
             googleDriveUrls: "",
+            availabilityStatus: "available",
           });
           setImageFile(null);
           setImagePreview("");
@@ -986,6 +989,7 @@ export default function ManageHorsesPage() {
                     skills: [],
                     imageUrls: [],
                     googleDriveUrls: "",
+                    availabilityStatus: "available",
                   });
                   setImageFile(null);
                   setImagePreview("");
