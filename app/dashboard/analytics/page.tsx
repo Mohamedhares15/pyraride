@@ -35,6 +35,9 @@ interface AnalyticsData {
     cancellationRate?: string;
     netEarnings?: number;
     platformCommission?: number;
+    aov?: number;
+    clv?: number;
+    avgLeadTime?: string;
   };
   ratings?: {
     averageStableRating: number;
@@ -45,6 +48,22 @@ interface AnalyticsData {
   revenueByMonth?: any[];
   bookingsByStatus?: any[];
   topStables?: any[];
+  peakTimes?: any[];
+  customerSegmentation?: {
+    newRiders: number;
+    returningRiders: number;
+    byExperience: {
+      beginners: number;
+      intermediate: number;
+      advanced: number;
+    };
+  };
+  horseUtilization?: any[];
+  customerFeedback?: {
+    avgStableRating: number;
+    avgHorseRating: number;
+    totalReviews: number;
+  };
 }
 
 export default function AnalyticsPage() {
@@ -314,6 +333,217 @@ export default function AnalyticsPage() {
               </div>
             </Card>
           </div>
+        )}
+
+        {/* Advanced Metrics (Admin Only) */}
+        {isAdmin && (
+          <>
+            {/* AOV, CLV, Lead Time */}
+            <div className="mb-8 grid gap-6 md:grid-cols-3">
+              {analytics.overview.aov !== undefined && (
+                <Card className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Average Order Value</p>
+                      <p className="text-3xl font-bold">
+                        ${analytics.overview.aov.toFixed(2)}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Revenue per booking
+                      </p>
+                    </div>
+                    <TrendingUp className="h-12 w-12 text-green-500" />
+                  </div>
+                </Card>
+              )}
+              {analytics.overview.clv !== undefined && (
+                <Card className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Customer Lifetime Value</p>
+                      <p className="text-3xl font-bold">
+                        ${analytics.overview.clv.toFixed(2)}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Avg revenue per user
+                      </p>
+                    </div>
+                    <Users className="h-12 w-12 text-purple-500" />
+                  </div>
+                </Card>
+              )}
+              {analytics.overview.avgLeadTime && (
+                <Card className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Avg Lead Time</p>
+                      <p className="text-3xl font-bold">
+                        {analytics.overview.avgLeadTime} days
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Booking to ride date
+                      </p>
+                    </div>
+                    <Calendar className="h-12 w-12 text-blue-500" />
+                  </div>
+                </Card>
+              )}
+            </div>
+
+            {/* Customer Segmentation */}
+            {analytics.customerSegmentation && (
+              <Card className="p-6 mb-8">
+                <h3 className="mb-6 font-display text-2xl font-bold">Customer Segmentation</h3>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <h4 className="mb-4 font-semibold text-lg">New vs Returning</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                        <span className="font-medium">New Riders</span>
+                        <span className="text-2xl font-bold text-green-600">
+                          {analytics.customerSegmentation.newRiders}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                        <span className="font-medium">Returning Riders</span>
+                        <span className="text-2xl font-bold text-blue-600">
+                          {analytics.customerSegmentation.returningRiders}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="mb-4 font-semibold text-lg">By Experience Level</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg">
+                        <span className="font-medium">Beginners (1 ride)</span>
+                        <span className="text-2xl font-bold text-yellow-600">
+                          {analytics.customerSegmentation.byExperience.beginners}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
+                        <span className="font-medium">Intermediate (2-5 rides)</span>
+                        <span className="text-2xl font-bold text-orange-600">
+                          {analytics.customerSegmentation.byExperience.intermediate}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
+                        <span className="font-medium">Advanced (6+ rides)</span>
+                        <span className="text-2xl font-bold text-purple-600">
+                          {analytics.customerSegmentation.byExperience.advanced}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {/* Horse Utilization */}
+            {analytics.horseUtilization && analytics.horseUtilization.length > 0 && (
+              <Card className="p-6 mb-8">
+                <h3 className="mb-6 font-display text-2xl font-bold">Horse Utilization Rate</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="pb-3 text-left font-semibold">Horse Name</th>
+                        <th className="pb-3 text-left font-semibold">Stable</th>
+                        <th className="pb-3 text-right font-semibold">Bookings</th>
+                        <th className="pb-3 text-right font-semibold">Utilization</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {analytics.horseUtilization.map((horse: any, idx: number) => {
+                        const totalPossibleBookings = 100; // Approximate max bookings per period
+                        const utilizationRate = ((parseInt(horse.bookings) / totalPossibleBookings) * 100).toFixed(1);
+                        return (
+                          <tr key={idx} className="border-b">
+                            <td className="py-3">{horse.name}</td>
+                            <td className="py-3 text-muted-foreground">{horse.stable_name}</td>
+                            <td className="py-3 text-right font-semibold">{horse.bookings}</td>
+                            <td className="py-3 text-right">
+                              <span className={`font-bold ${
+                                parseFloat(utilizationRate) > 70 ? "text-green-600" : 
+                                parseFloat(utilizationRate) > 40 ? "text-yellow-600" : 
+                                "text-red-600"
+                              }`}>
+                                {utilizationRate}%
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            )}
+
+            {/* Peak Booking Times */}
+            {analytics.peakTimes && analytics.peakTimes.length > 0 && (
+              <Card className="p-6 mb-8">
+                <h3 className="mb-6 font-display text-2xl font-bold">Peak Booking Times</h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {analytics.peakTimes.slice(0, 6).map((time: any, idx: number) => {
+                    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                    const dayName = daysOfWeek[parseInt(time.day_of_week)];
+                    const hour = parseInt(time.hour);
+                    const timeStr = hour === 0 ? "12 AM" : hour < 12 ? `${hour} AM` : hour === 12 ? "12 PM" : `${hour - 12} PM`;
+                    
+                    return (
+                      <div key={idx} className="flex items-center justify-between p-4 bg-primary/5 rounded-lg">
+                        <div>
+                          <p className="font-semibold">{dayName}</p>
+                          <p className="text-sm text-muted-foreground">{timeStr}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-primary">{time.booking_count}</p>
+                          <p className="text-xs text-muted-foreground">bookings</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Card>
+            )}
+
+            {/* Customer Feedback */}
+            {analytics.customerFeedback && (
+              <Card className="p-6 mb-8">
+                <h3 className="mb-6 font-display text-2xl font-bold">Customer Feedback & Ratings</h3>
+                <div className="grid gap-6 md:grid-cols-3">
+                  <div className="flex items-center justify-between p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Avg Stable Rating</p>
+                      <p className="text-3xl font-bold text-yellow-600">
+                        {analytics.customerFeedback.avgStableRating.toFixed(1)}
+                      </p>
+                    </div>
+                    <Star className="h-12 w-12 text-yellow-400 fill-yellow-400" />
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Avg Horse Rating</p>
+                      <p className="text-3xl font-bold text-green-600">
+                        {analytics.customerFeedback.avgHorseRating.toFixed(1)}
+                      </p>
+                    </div>
+                    <Star className="h-12 w-12 text-green-500 fill-green-500" />
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Reviews</p>
+                      <p className="text-3xl font-bold text-blue-600">
+                        {analytics.customerFeedback.totalReviews}
+                      </p>
+                    </div>
+                    <Users className="h-12 w-12 text-blue-500" />
+                  </div>
+                </div>
+              </Card>
+            )}
+          </>
         )}
 
         {/* Charts Placeholder */}

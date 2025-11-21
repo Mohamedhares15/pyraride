@@ -118,6 +118,94 @@ export async function GET(req: NextRequest) {
         ? ((cancellations / totalBookings) * 100).toFixed(1) + "%"
         : "0%";
 
+      // Average Order Value (AOV) = Total Revenue / Total Bookings
+      const aov = completedBookings > 0 ? totalRevenueValue / completedBookings : 0;
+
+      // Customer Lifetime Value (CLV) - Average revenue per user
+      const clv = totalUsers > 0 ? totalRevenueValue / totalUsers : 0;
+
+      // Lead Time - Average days between booking creation and ride date
+      const bookingsWithLeadTime = await prisma.$queryRaw`
+        SELECT AVG(EXTRACT(DAY FROM ("startTime" - "createdAt"))) as avg_lead_time
+        FROM "Booking"
+        WHERE "createdAt" >= ${startDate}
+      ` as any;
+      const avgLeadTime = bookingsWithLeadTime[0]?.avg_lead_time || 0;
+
+      // Peak Booking Times - Group by day of week and hour
+      const peakTimes = await prisma.$queryRaw`
+        SELECT 
+          EXTRACT(DOW FROM "startTime") as day_of_week,
+          EXTRACT(HOUR FROM "startTime") as hour,
+          COUNT(*) as booking_count
+        FROM "Booking"
+        WHERE "createdAt" >= ${startDate}
+        GROUP BY EXTRACT(DOW FROM "startTime"), EXTRACT(HOUR FROM "startTime")
+        ORDER BY booking_count DESC
+        LIMIT 10
+      ` as any;
+
+      // Customer Segmentation - New vs Returning riders
+      const newRiders = await prisma.user.count({
+        where: {
+          role: "rider",
+          createdAt: { gte: startDate },
+        },
+      });
+      const returningRiders = await prisma.$queryRaw`
+        SELECT COUNT(DISTINCT "riderId") as count
+        FROM "Booking"
+        WHERE "riderId" IN (
+          SELECT "riderId"
+          FROM "Booking"
+          GROUP BY "riderId"
+          HAVING COUNT(*) > 1
+        ) AND "createdAt" >= ${startDate}
+      ` as any;
+
+      // Horse Utilization Rate
+      const horseUtilization = await prisma.$queryRaw`
+        SELECT 
+          h.id,
+          h.name,
+          COUNT(b.id) as bookings,
+          s.name as stable_name
+        FROM "Horse" h
+        LEFT JOIN "Booking" b ON h.id = b."horseId" AND b."createdAt" >= ${startDate}
+        LEFT JOIN "Stable" s ON h."stableId" = s.id
+        GROUP BY h.id, h.name, s.name
+        ORDER BY bookings DESC
+        LIMIT 10
+      ` as any;
+
+      // Average Ratings
+      const avgRatings = await prisma.review.aggregate({
+        where: {
+          createdAt: { gte: startDate },
+        },
+        _avg: {
+          stableRating: true,
+          horseRating: true,
+        },
+      });
+
+      // Booking by Experience Level
+      const experienceSegmentation = await prisma.booking.groupBy({
+        by: ["riderId"],
+        where: {
+          createdAt: { gte: startDate },
+        },
+        _count: true,
+      });
+
+      // Convert to new/intermediate/advanced based on booking count
+      let beginners = 0, intermediate = 0, advanced = 0;
+      experienceSegmentation.forEach((seg: any) => {
+        if (seg._count === 1) beginners++;
+        else if (seg._count <= 5) intermediate++;
+        else advanced++;
+      });
+
       analytics = {
         overview: {
           totalUsers,
@@ -127,6 +215,9 @@ export async function GET(req: NextRequest) {
           completedBookings,
           platformCommission,
           cancellationRate,
+          aov,
+          clv,
+          avgLeadTime: parseFloat(avgLeadTime).toFixed(1),
         },
         bookingsByStatus,
         bookingsByMonth,
@@ -140,6 +231,24 @@ export async function GET(req: NextRequest) {
           }))
         ),
         revenueByMonth,
+        peakTimes,
+        customerSegmentation: {
+          newRiders,
+          returningRiders: parseInt(returningRiders[0]?.count || "0"),
+          byExperience: {
+            beginners,
+            intermediate,
+            advanced,
+          },
+        },
+        horseUtilization,
+        customerFeedback: {
+          avgStableRating: avgRatings._avg.stableRating || 0,
+          avgHorseRating: avgRatings._avg.horseRating || 0,
+          totalReviews: await prisma.review.count({
+            where: { createdAt: { gte: startDate } },
+          }),
+        },
       };
     } else if (role === "stable_owner") {
       // Stable owner analytics
