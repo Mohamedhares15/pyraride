@@ -62,8 +62,8 @@ function SignInContent() {
               open={isOpen} 
               onOpenChange={(open) => {
                 setIsOpen(open);
-                // If closing and not authenticated, go to home
-                if (!open && status !== "authenticated") {
+                // If closing without authentication, go to home
+                if (!open) {
                   router.push("/");
                 }
               }} 
