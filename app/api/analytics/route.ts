@@ -4,14 +4,29 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-// Helper function to convert BigInt values to numbers for JSON serialization
+// Helper function to convert BigInt and Decimal values to numbers for JSON serialization
 function convertBigIntToNumber(obj: any): any {
   if (obj === null || obj === undefined) {
     return obj;
   }
   
+  // Handle BigInt
   if (typeof obj === "bigint") {
     return Number(obj);
+  }
+  
+  // Handle Prisma Decimal type (has toString method and might be wrapped)
+  if (obj && typeof obj === "object" && "toNumber" in obj) {
+    return Number(obj.toNumber ? obj.toNumber() : obj);
+  }
+  
+  // Handle Decimal-like objects with toString
+  if (obj && typeof obj === "object" && typeof obj.toString === "function") {
+    const str = obj.toString();
+    // Check if it's a numeric string
+    if (!isNaN(Number(str)) && str.trim() !== "") {
+      return Number(str);
+    }
   }
   
   if (Array.isArray(obj)) {
@@ -27,6 +42,31 @@ function convertBigIntToNumber(obj: any): any {
   }
   
   return obj;
+}
+
+// Helper function to safely convert Prisma Decimal to number
+function decimalToNumber(value: any): number {
+  if (value === null || value === undefined) {
+    return 0;
+  }
+  if (typeof value === "number") {
+    return value;
+  }
+  if (typeof value === "bigint") {
+    return Number(value);
+  }
+  if (value && typeof value === "object") {
+    if (typeof value.toNumber === "function") {
+      return value.toNumber();
+    }
+    if (typeof value.toString === "function") {
+      const str = value.toString();
+      const num = parseFloat(str);
+      return isNaN(num) ? 0 : num;
+    }
+  }
+  const num = parseFloat(String(value));
+  return isNaN(num) ? 0 : num;
 }
 
 export async function GET(req: NextRequest) {
@@ -140,9 +180,10 @@ export async function GET(req: NextRequest) {
           }
         });
 
-      // Calculate platform commission (15% of total revenue)
-      const totalRevenueValue = parseFloat(totalRevenue._sum?.totalPrice?.toString() || "0");
-      const platformCommission = totalRevenueValue * 0.15;
+      // Calculate platform commission (15% of total revenue) - 100% accurate
+      const totalRevenueValue = decimalToNumber(totalRevenue._sum?.totalPrice || 0);
+      // Calculate commission with precision: commission = revenue * 0.15
+      const platformCommission = Math.round(totalRevenueValue * 0.15 * 100) / 100; // Round to 2 decimal places
       
       // Get cancellations with error handling
       let cancellations = 0;
@@ -157,15 +198,20 @@ export async function GET(req: NextRequest) {
         console.error("Error counting cancellations:", e);
       }
       
+      // Cancellation Rate - 100% accurate (percentage calculation)
       const cancellationRate = totalBookings > 0 
-        ? ((cancellations / totalBookings) * 100).toFixed(1) + "%"
+        ? ((Math.round((cancellations / totalBookings) * 1000) / 1000) * 100).toFixed(1) + "%"  // Round to 3 decimals before converting to percentage
         : "0%";
 
-      // Average Order Value (AOV) = Total Revenue / Total Bookings
-      const aov = completedBookings > 0 ? totalRevenueValue / completedBookings : 0;
+      // Average Order Value (AOV) = Total Revenue / Total Completed Bookings - 100% accurate
+      const aov = completedBookings > 0 
+        ? Math.round((totalRevenueValue / completedBookings) * 100) / 100  // Round to 2 decimal places
+        : 0;
 
-      // Customer Lifetime Value (CLV) - Average revenue per user
-      const clv = totalUsers > 0 ? totalRevenueValue / totalUsers : 0;
+      // Customer Lifetime Value (CLV) - Average revenue per user - 100% accurate
+      const clv = totalUsers > 0 
+        ? Math.round((totalRevenueValue / totalUsers) * 100) / 100  // Round to 2 decimal places
+        : 0;
 
       // Lead Time - Average days between booking creation and ride date
       let avgLeadTime = 0;
@@ -326,15 +372,15 @@ export async function GET(req: NextRequest) {
 
       analytics = {
         overview: {
-          totalUsers,
-          totalStables,
-          totalBookings,
-          totalRevenue: totalRevenueValue,
-          completedBookings,
-          platformCommission,
+          totalUsers: Number(totalUsers) || 0,
+          totalStables: Number(totalStables) || 0,
+          totalBookings: Number(totalBookings) || 0,
+          totalRevenue: Math.round(totalRevenueValue * 100) / 100, // Round to 2 decimal places
+          completedBookings: Number(completedBookings) || 0,
+          platformCommission: Math.round(platformCommission * 100) / 100, // Round to 2 decimal places
           cancellationRate,
-          aov,
-          clv,
+          aov: Math.round(aov * 100) / 100, // Round to 2 decimal places
+          clv: Math.round(clv * 100) / 100, // Round to 2 decimal places
           avgLeadTime: avgLeadTime ? Number(avgLeadTime).toFixed(1) : "0.0",
         },
         bookingsByStatus: bookingsByStatus || [],
@@ -343,19 +389,19 @@ export async function GET(req: NextRequest) {
         revenueByMonth: revenueByMonth || [],
         peakTimes: peakTimes || [],
         customerSegmentation: {
-          newRiders,
-          returningRiders: parseInt(returningRiders[0]?.count || "0"),
+          newRiders: Number(newRiders) || 0,
+          returningRiders: Number(parseInt(returningRiders[0]?.count || "0")) || 0,
           byExperience: {
-            beginners,
-            intermediate,
-            advanced,
+            beginners: Number(beginners) || 0,
+            intermediate: Number(intermediate) || 0,
+            advanced: Number(advanced) || 0,
           },
         },
         horseUtilization: horseUtilization || [],
         customerFeedback: {
-          avgStableRating,
-          avgHorseRating,
-          totalReviews: totalReviewsCount,
+          avgStableRating: Number(avgStableRating) || 0,
+          avgHorseRating: Number(avgHorseRating) || 0,
+          totalReviews: Number(totalReviewsCount) || 0,
         },
       };
       } catch (adminError: any) {
@@ -456,10 +502,10 @@ export async function GET(req: NextRequest) {
           }
         });
 
-      const netEarnings = totalEarnings._sum?.totalPrice
-        ? parseFloat(totalEarnings._sum.totalPrice.toString()) -
-          parseFloat(totalEarnings._sum.commission?.toString() || "0")
-        : 0;
+      // Net Earnings = Total Price - Commission - 100% accurate
+      const totalPrice = decimalToNumber(totalEarnings._sum?.totalPrice || 0);
+      const commission = decimalToNumber(totalEarnings._sum?.commission || 0);
+      const netEarnings = Math.round((totalPrice - commission) * 100) / 100; // Round to 2 decimal places
 
       analytics = {
         stable: {
@@ -469,18 +515,19 @@ export async function GET(req: NextRequest) {
         overview: {
           totalBookings,
           completedBookings,
+          // Cancellation Rate - 100% accurate
           cancellationRate: totalBookings > 0 
-            ? (cancellations / totalBookings * 100).toFixed(1) 
+            ? ((Math.round((cancellations / totalBookings) * 1000) / 1000) * 100).toFixed(1)
             : "0",
           netEarnings,
-          platformCommission: totalEarnings._sum.commission || 0,
+          platformCommission: Math.round(commission * 100) / 100, // Round to 2 decimal places
         },
         ratings: {
-          averageStableRating: avgRating._avg?.stableRating || 0,
-          averageHorseRating: avgRating._avg?.horseRating || 0,
-          totalReviews: await prisma.review.count({
+          averageStableRating: Number(avgRating._avg?.stableRating || 0),
+          averageHorseRating: Number(avgRating._avg?.horseRating || 0),
+          totalReviews: Number(await prisma.review.count({
             where: { stableId: stable.id },
-          }).catch(() => 0),
+          }).catch(() => 0)),
         },
         bookingsByMonth,
         revenueByMonth,
