@@ -513,13 +513,13 @@ export async function GET(req: NextRequest) {
           location: stable.location,
         },
         overview: {
-          totalBookings,
-          completedBookings,
+          totalBookings: Number(totalBookings) || 0,
+          completedBookings: Number(completedBookings) || 0,
           // Cancellation Rate - 100% accurate
           cancellationRate: totalBookings > 0 
             ? ((Math.round((cancellations / totalBookings) * 1000) / 1000) * 100).toFixed(1)
             : "0",
-          netEarnings,
+          netEarnings: Math.round(netEarnings * 100) / 100, // Round to 2 decimal places
           platformCommission: Math.round(commission * 100) / 100, // Round to 2 decimal places
         },
         ratings: {
