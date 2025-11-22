@@ -5,8 +5,9 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
+  let session;
   try {
-    const session = await getServerSession();
+    session = await getServerSession();
 
     if (!session || !session.user) {
       return NextResponse.json(
