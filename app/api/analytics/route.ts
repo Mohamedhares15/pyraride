@@ -29,18 +29,9 @@ export async function GET(req: NextRequest) {
     let analytics = {};
 
     if (role === "admin") {
-      // Admin analytics - platform-wide
-      const [
-        totalUsers,
-        totalStables,
-        totalBookings,
-        totalRevenue,
-        completedBookings,
-        bookingsByStatus,
-        bookingsByMonth,
-        topStables,
-        revenueByMonth,
-      ] = await Promise.all([
+      try {
+        // Admin analytics - platform-wide
+        const results = await Promise.allSettled([
         prisma.user.count(),
         prisma.stable.count({ where: { status: "approved" } }),
         prisma.booking.count({
@@ -104,10 +95,28 @@ export async function GET(req: NextRequest) {
           GROUP BY DATE_TRUNC('month', "createdAt")
           ORDER BY month
         ` as any,
-      ]);
+        ]);
+
+        // Extract results with error handling
+        const totalUsers = results[0].status === "fulfilled" ? results[0].value : 0;
+        const totalStables = results[1].status === "fulfilled" ? results[1].value : 0;
+        const totalBookings = results[2].status === "fulfilled" ? results[2].value : 0;
+        const totalRevenue = results[3].status === "fulfilled" ? results[3].value : { _sum: { totalPrice: null } };
+        const completedBookings = results[4].status === "fulfilled" ? results[4].value : 0;
+        const bookingsByStatus = results[5].status === "fulfilled" ? results[5].value : [];
+        const bookingsByMonth = results[6].status === "fulfilled" ? results[6].value : [];
+        const topStables = results[7].status === "fulfilled" ? results[7].value : [];
+        const revenueByMonth = results[8].status === "fulfilled" ? results[8].value : [];
+
+        // Log any failed queries
+        results.forEach((result, index) => {
+          if (result.status === "rejected") {
+            console.error(`Query ${index} failed:`, result.reason);
+          }
+        });
 
       // Calculate platform commission (15% of total revenue)
-      const totalRevenueValue = parseFloat(totalRevenue._sum.totalPrice?.toString() || "0");
+      const totalRevenueValue = parseFloat(totalRevenue._sum?.totalPrice?.toString() || "0");
       const platformCommission = totalRevenueValue * 0.15;
       const cancellations = await prisma.booking.count({
         where: {
@@ -316,11 +325,16 @@ export async function GET(req: NextRequest) {
           totalReviews: totalReviewsCount,
         },
       };
+      } catch (adminError: any) {
+        console.error("Error in admin analytics:", adminError);
+        throw new Error(`Admin analytics failed: ${adminError?.message || "Unknown error"}`);
+      }
     } else if (role === "stable_owner") {
-      // Stable owner analytics
-      const stable = await prisma.stable.findUnique({
-        where: { ownerId: userId },
-      });
+      try {
+        // Stable owner analytics
+        const stable = await prisma.stable.findUnique({
+          where: { ownerId: userId },
+        });
 
       if (!stable) {
         return NextResponse.json(
@@ -332,15 +346,7 @@ export async function GET(req: NextRequest) {
         );
       }
 
-      const [
-        totalBookings,
-        completedBookings,
-        totalEarnings,
-        bookingsByMonth,
-        revenueByMonth,
-        cancellations,
-        avgRating,
-      ] = await Promise.all([
+      const ownerResults = await Promise.allSettled([
         prisma.booking.count({
           where: {
             stableId: stable.id,
@@ -401,7 +407,23 @@ export async function GET(req: NextRequest) {
         }),
       ]);
 
-      const netEarnings = totalEarnings._sum.totalPrice
+        // Extract results with error handling
+        const totalBookings = ownerResults[0].status === "fulfilled" ? ownerResults[0].value : 0;
+        const completedBookings = ownerResults[1].status === "fulfilled" ? ownerResults[1].value : 0;
+        const totalEarnings = ownerResults[2].status === "fulfilled" ? ownerResults[2].value : { _sum: { totalPrice: null, commission: null } };
+        const bookingsByMonth = ownerResults[3].status === "fulfilled" ? ownerResults[3].value : [];
+        const revenueByMonth = ownerResults[4].status === "fulfilled" ? ownerResults[4].value : [];
+        const cancellations = ownerResults[5].status === "fulfilled" ? ownerResults[5].value : 0;
+        const avgRating = ownerResults[6].status === "fulfilled" ? ownerResults[6].value : { _avg: { stableRating: null, horseRating: null } };
+
+        // Log any failed queries
+        ownerResults.forEach((result, index) => {
+          if (result.status === "rejected") {
+            console.error(`Owner query ${index} failed:`, result.reason);
+          }
+        });
+
+      const netEarnings = totalEarnings._sum?.totalPrice
         ? parseFloat(totalEarnings._sum.totalPrice.toString()) -
           parseFloat(totalEarnings._sum.commission?.toString() || "0")
         : 0;
@@ -421,15 +443,31 @@ export async function GET(req: NextRequest) {
           platformCommission: totalEarnings._sum.commission || 0,
         },
         ratings: {
-          averageStableRating: avgRating._avg.stableRating || 0,
-          averageHorseRating: avgRating._avg.horseRating || 0,
+          averageStableRating: avgRating._avg?.stableRating || 0,
+          averageHorseRating: avgRating._avg?.horseRating || 0,
           totalReviews: await prisma.review.count({
             where: { stableId: stable.id },
-          }),
+          }).catch(() => 0),
         },
         bookingsByMonth,
         revenueByMonth,
       };
+      } catch (ownerError: any) {
+        console.error("Error in stable owner analytics:", ownerError);
+        throw new Error(`Stable owner analytics failed: ${ownerError?.message || "Unknown error"}`);
+      }
+    } else {
+      return NextResponse.json(
+        { 
+          error: `Invalid role: ${role}. Analytics only available for admin or stable_owner.`,
+          analytics: null 
+        },
+        { status: 403 }
+      );
+    }
+
+    if (!analytics || Object.keys(analytics).length === 0) {
+      throw new Error("Analytics object is empty after processing");
     }
 
     return NextResponse.json({ analytics });
