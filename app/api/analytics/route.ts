@@ -4,6 +4,31 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
+// Helper function to convert BigInt values to numbers for JSON serialization
+function convertBigIntToNumber(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+  
+  if (typeof obj === "bigint") {
+    return Number(obj);
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(convertBigIntToNumber);
+  }
+  
+  if (typeof obj === "object") {
+    const converted: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      converted[key] = convertBigIntToNumber(value);
+    }
+    return converted;
+  }
+  
+  return obj;
+}
+
 export async function GET(req: NextRequest) {
   let session;
   try {
@@ -478,7 +503,10 @@ export async function GET(req: NextRequest) {
       throw new Error("Analytics object is empty after processing");
     }
 
-    return NextResponse.json({ analytics });
+    // Convert all BigInt values to numbers before serialization
+    const serializableAnalytics = convertBigIntToNumber(analytics);
+
+    return NextResponse.json({ analytics: serializableAnalytics });
   } catch (error: any) {
     console.error("Error fetching analytics:", error);
     console.error("Error stack:", error?.stack);
