@@ -7,12 +7,21 @@ import type { ChatCompletionCreateParams } from "groq-sdk/resources/chat/complet
 const groqApiKey = process.env.GROQ_API_KEY;
 const groqClient = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
 
-const SYSTEM_PROMPT = `You are PyraRide AI, an intelligent and knowledgeable concierge assistant for PyraRide - Egypt's premier horse-riding booking platform at the Giza Pyramids and Saqqara necropolis.
+const SYSTEM_PROMPT = `You are PyraRide AI, an intelligent and powerful concierge assistant with FULL ACCESS to PyraRide's booking platform. You can search stables, find horses, filter by price, and even create bookings directly for users.
+
+YOUR CAPABILITIES:
+- 🔍 Search and filter stables by location, rating, price range
+- 🐴 Find horses by price range, stable, or availability
+- 📅 Check availability and suggest booking times
+- 💳 Create bookings directly for authenticated users
+- 📊 Access real-time data from the database
+- 🎯 Make intelligent recommendations based on user preferences
 
 YOUR PERSONALITY:
 - Warm, friendly, and professional
 - Enthusiastic about horse riding and ancient Egyptian history
 - Helpful and patient with all user questions
+- Proactive - suggest actions, not just information
 - Clear and concise in explanations
 - Always ready to guide users to the right solution
 
@@ -284,17 +293,38 @@ export async function POST(req: NextRequest) {
     let actions: Record<string, string> = {};
 
     // Enhanced AI understanding with better intent recognition
-    const isBookingQuery = /book|booking|reserve|schedule|ride|appointment/i.test(userMessage);
+    const isBookingQuery = /book|booking|reserve|schedule|ride|appointment|make a booking/i.test(userMessage);
     const isCancellationQuery = /cancel|cancellation|refund|cancel my/i.test(userMessage);
     const isRescheduleQuery = /reschedule|change|modify|move my/i.test(userMessage);
     const isReviewQuery = /review|rating|rate|feedback|star/i.test(userMessage);
-    const isStableQuery = /stable|stables|find|where|location|places|available/i.test(userMessage);
-    const isPriceQuery = /price|cost|pricing|money|payment|how much|fee/i.test(userMessage);
+    const isStableQuery = /stable|stables|find|where|location|places|available|show me/i.test(userMessage);
+    const isPriceQuery = /price|cost|pricing|money|payment|how much|fee|cheap|expensive|budget/i.test(userMessage);
+    const isPriceRangeQuery = /(\$|usd|egp)?\s*(\d+)\s*(to|-|and)\s*(\$|usd|egp)?\s*(\d+)|under\s*(\$|usd|egp)?\s*(\d+)|less than|more than|above|below/i.test(userMessage);
     const isLocationQuery = /giza|pyramid|saqqara|egypt|where/i.test(userMessage);
     const isAccountQuery = /login|sign in|account|register|sign up/i.test(userMessage);
     const isDashboardQuery = /dashboard|my bookings|my rides|bookings/i.test(userMessage);
     const isHelpQuery = /help|how|what|guide|tutorial|assist/i.test(userMessage);
     const isGreetingQuery = /hello|hi|hey|greetings|good morning|good evening/i.test(userMessage);
+    
+    // Extract price range from message
+    let minPrice: number | null = null;
+    let maxPrice: number | null = null;
+    if (isPriceRangeQuery) {
+      const priceMatches = userMessage.match(/(\d+)\s*(to|-|and)\s*(\d+)|under\s*(\d+)|less than\s*(\d+)|more than\s*(\d+)|above\s*(\d+)|below\s*(\d+)/i);
+      if (priceMatches) {
+        if (priceMatches[1] && priceMatches[3]) {
+          // Range format: "50 to 100"
+          minPrice = parseInt(priceMatches[1]);
+          maxPrice = parseInt(priceMatches[3]);
+        } else if (priceMatches[4] || priceMatches[5]) {
+          // "under X" or "less than X"
+          maxPrice = parseInt(priceMatches[4] || priceMatches[5] || "0");
+        } else if (priceMatches[6] || priceMatches[7]) {
+          // "more than X" or "above X"
+          minPrice = parseInt(priceMatches[6] || priceMatches[7] || "0");
+        }
+      }
+    }
 
     // Generate context-aware response
     if (isGreetingQuery) {
@@ -376,10 +406,99 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
         response = `🐴 We're setting up amazing stables near the Pyramids! Check back soon or contact us for exclusive early access.`;
       }
     }
-    else if (isPriceQuery) {
-      response = `💰 **Pricing Information:**\n\n**Standard Rates:**\n- $50 per hour (most stables)\n- $40-60 range depending on stable and location\n\n**Platform Fees:**\n- **15% commission** (platform fee)\n- You pay **85% to the stable owner**, 15% to platform\n- Full transparency - no hidden fees\n\n**Payment:**\n✅ Secure Stripe integration\n✅ Full payment required at booking\n✅ Instant confirmation\n\n**What's Included:**\n- Professional guide\n- Quality horse\n- Safety equipment\n- Unforgettable pyramid experience\n\n**Special Offers:**\n- Group discounts available (ask stable)\n- Multi-hour bookings may have discounts\n- Sunset rides: premium pricing`;
+    else if (isPriceQuery || isPriceRangeQuery) {
+      // If price range specified, search for horses in that range
+      if (minPrice !== null || maxPrice !== null) {
+        const whereClause: any = {
+          isActive: true,
+          stable: {
+            status: "approved",
+          },
+        };
 
-      suggestions = ["Book now", "Show stables", "What's included?"];
+        if (minPrice !== null && maxPrice !== null) {
+          whereClause.pricePerHour = { gte: minPrice, lte: maxPrice };
+        } else if (minPrice !== null) {
+          whereClause.pricePerHour = { gte: minPrice };
+        } else if (maxPrice !== null) {
+          whereClause.pricePerHour = { lte: maxPrice };
+        }
+
+        const horsesInRange = await prisma.horse.findMany({
+          where: whereClause,
+          include: {
+            stable: {
+              select: {
+                id: true,
+                name: true,
+                location: true,
+              },
+            },
+            media: {
+              where: { type: "image" },
+              take: 1,
+              orderBy: { sortOrder: "asc" },
+            },
+          },
+          orderBy: {
+            pricePerHour: "asc",
+          },
+          take: 10,
+        }).catch(() => []);
+
+        if (horsesInRange.length > 0) {
+          const priceRangeText = minPrice !== null && maxPrice !== null
+            ? `$${minPrice}-$${maxPrice}`
+            : minPrice !== null
+            ? `above $${minPrice}`
+            : `under $${maxPrice}`;
+
+          const horseList = horsesInRange.slice(0, 5).map((horse: any) => {
+            const price = horse.pricePerHour ? Number(horse.pricePerHour) : 50;
+            const imageUrl = horse.media?.[0]?.url || (horse.imageUrls && horse.imageUrls.length > 0 ? horse.imageUrls[0] : null);
+            return `🐴 **${horse.name}** - ${horse.stable.name} (${horse.stable.location})\n   $${price}/hour${imageUrl ? " ✅" : ""}`;
+          }).join("\n\n");
+
+          response = `💰 **Found ${horsesInRange.length} horse(s) in your price range (${priceRangeText}/hour):**\n\n${horseList}${horsesInRange.length > 5 ? `\n\n...and ${horsesInRange.length - 5} more horses in this range!` : ""}\n\n✨ Would you like to book one? I can help you create a booking directly! Just tell me which horse and when you'd like to ride.`;
+
+          suggestions = ["Book a horse", "Show all horses", "Filter by location"];
+          actions = { 
+            "Browse Horses": `/stables?sort=price-asc`,
+            "View Stables": "/stables"
+          };
+        } else {
+          response = `💰 I couldn't find any horses in the price range ${minPrice !== null && maxPrice !== null ? `$${minPrice}-$${maxPrice}` : minPrice !== null ? `above $${minPrice}` : `under $${maxPrice}`}.\n\n**Available Price Range:**\n- Most horses: $40-100/hour\n- Premium horses: $100+/hour\n\nTry adjusting your price range, or let me show you all available horses!`;
+
+          suggestions = ["Show all horses", "Show stables", "Find horses under $60"];
+          actions = { "Browse All Horses": "/stables?sort=price-asc" };
+        }
+      } else {
+        // General pricing information
+        const allHorses = await prisma.horse.findMany({
+          where: {
+            isActive: true,
+            stable: { status: "approved" },
+            pricePerHour: { not: null },
+          },
+          select: {
+            pricePerHour: true,
+          },
+          take: 100,
+        }).catch(() => []);
+
+        const prices = allHorses
+          .map((h: any) => h.pricePerHour ? Number(h.pricePerHour) : null)
+          .filter((p: any): p is number => p !== null);
+        
+        const minPriceAvailable = prices.length > 0 ? Math.min(...prices) : 40;
+        const maxPriceAvailable = prices.length > 0 ? Math.max(...prices) : 100;
+        const avgPrice = prices.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 50;
+
+        response = `💰 **Pricing Information:**\n\n**Price Range:**\n- Starting from: **$${minPriceAvailable}/hour**\n- Average: **$${avgPrice}/hour**\n- Up to: **$${maxPriceAvailable}/hour**\n\n**Platform Fees:**\n- **15% commission** (platform fee)\n- You pay **85% to the stable owner**, 15% to platform\n- Full transparency - no hidden fees\n\n**Payment:**\n✅ Secure Stripe integration\n✅ Full payment required at booking\n✅ Instant confirmation\n\n**What's Included:**\n- Professional guide\n- Quality horse\n- Safety equipment\n- Unforgettable pyramid experience\n\n**Try asking me:**\n- "Show me horses under $60"\n- "Find horses between $50 and $80"\n- "Book a horse around $50/hour"`;
+
+        suggestions = ["Horses under $60", "Horses $50-$80", "Browse all"];
+        actions = { "Browse Horses": "/stables?sort=price-asc" };
+      }
     }
     else if (isCancellationQuery) {
       if (session) {
