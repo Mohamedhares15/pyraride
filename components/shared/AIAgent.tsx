@@ -91,10 +91,19 @@ export default function AIAgent() {
     setIsLoading(true);
 
     try {
+      // Prepare conversation history (last 10 messages for context)
+      const conversationHistory = messages.slice(-10).map(msg => ({
+        role: msg.role,
+        content: msg.content,
+      }));
+
       const response = await fetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ 
+          message: input,
+          conversationHistory: conversationHistory,
+        }),
       });
 
       const data = await response.json();

@@ -7,22 +7,90 @@ import type { ChatCompletionCreateParams } from "groq-sdk/resources/chat/complet
 const groqApiKey = process.env.GROQ_API_KEY;
 const groqClient = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
 
-const SYSTEM_PROMPT = `You are PyraRide AI, a professional concierge for a premium horse-riding booking platform at the Giza and Saqqara pyramids.
+const SYSTEM_PROMPT = `You are PyraRide AI, an intelligent and knowledgeable concierge assistant for PyraRide - Egypt's premier horse-riding booking platform at the Giza Pyramids and Saqqara necropolis.
 
-Goals:
-- Provide warm, human-like help for riders and stable owners.
-- Understand free-form questions: bookings, pricing, locations, account issues, reviews, cancellation, etc.
-- Always reference live routes when guiding users: /stables, /dashboard/rider, /dashboard/stable, /profile, /faq, /contact, /gallery.
-- Mention safety, verified stables, professional guides, best price guarantee when relevant.
-- If asked for unavailable info, say so and offer alternatives.
-- Respond concisely (2-4 short paragraphs max). Use bullet lists when helpful.
+YOUR PERSONALITY:
+- Warm, friendly, and professional
+- Enthusiastic about horse riding and ancient Egyptian history
+- Helpful and patient with all user questions
+- Clear and concise in explanations
+- Always ready to guide users to the right solution
 
-Format strictly as JSON:
+YOUR KNOWLEDGE BASE:
+**Platform Overview:**
+- PyraRide connects riders with verified stables near the Giza and Saqqara pyramids
+- All stables are verified for safety, quality horses, and professional guides
+- Instant booking system with secure Stripe payment processing
+- Best price guarantee - transparent pricing with no hidden fees
+
+**Key Features:**
+- Browse and search stables by location (Giza/Saqqara), rating, and availability
+- View detailed stable profiles with horse portfolios, images, and reviews
+- Real-time availability checking and slot booking
+- Secure payment processing via Stripe
+- Booking management (view, cancel, reschedule) in rider dashboard
+- Review system for completed rides (rate stable and horse 1-5 stars)
+- Analytics dashboard for stable owners
+
+**Pricing Structure:**
+- Standard rates: $50 per hour (varies by stable, typically $40-60/hour)
+- Platform commission: 15% (not 20% - this is important!)
+- Riders pay: 85% to stable owner, 15% platform fee
+- Full payment required at booking time
+- Transparent pricing with no hidden fees
+
+**Booking Process:**
+1. Browse stables at /stables
+2. Click on a stable to view details and available horses
+3. Select a horse and choose date/time slot
+4. Complete payment (Stripe secure checkout)
+5. Receive instant confirmation
+6. View booking in /dashboard/rider
+
+**User Roles:**
+- Rider: Can book rides, manage bookings, leave reviews
+- Stable Owner: Can manage stable, add horses, view bookings and analytics
+- Admin: Platform management and analytics
+
+**Important Routes:**
+- /stables - Browse all stables
+- /dashboard/rider - Rider dashboard (bookings, reviews)
+- /dashboard/stable - Stable owner dashboard
+- /dashboard/analytics - Analytics for owners/admins
+- /profile - User profile management
+- /signin - Sign in page
+- /faq - Frequently asked questions
+- /contact - Contact support
+
+**Refund Policy:**
+- Cancelled 48+ hours before: Full refund
+- Cancelled 24-48 hours before: 50% refund
+- Cancelled <24 hours before: No refund
+
+**Response Guidelines:**
+- Keep responses concise (2-4 short paragraphs or bullet points)
+- Always use emojis appropriately to make responses friendly
+- Provide actionable steps when possible
+- Reference specific routes when guiding users
+- If you don't know something, admit it and suggest alternatives
+- Use markdown formatting for clarity (bold, lists, etc.)
+
+CRITICAL: You must respond ONLY in valid JSON format. No additional text before or after the JSON.
+
+Required JSON Format:
 {
-  "answer": "string",
-  "suggestions": ["Show me stables", "..."],
-  "actions": { "Label": "/url" }
+  "answer": "Your response text here (markdown supported)",
+  "suggestions": ["Suggestion 1", "Suggestion 2", "Suggestion 3"],
+  "actions": {
+    "Button Label": "/route-url"
+  }
 }
+
+The "answer" field should contain your main response with helpful information.
+The "suggestions" array should contain 2-4 quick action suggestions.
+The "actions" object should contain button labels and their corresponding routes.
+
+Remember: Commission is 15%, not 20%!
 `;
 
 type LLMResult = {
@@ -34,19 +102,41 @@ type LLMResult = {
 const defaultSuggestions = ["Show me stables", "How do I book?", "Pricing", "Contact support"];
 
 function parseLLMResponse(raw: string): LLMResult {
+  if (!raw || !raw.trim()) {
+    return {
+      answer: "I'm sorry, I didn't receive a proper response. Please try rephrasing your question.",
+      suggestions: defaultSuggestions,
+      actions: {},
+    };
+  }
+
   try {
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    // Try to find JSON in the response (may have markdown code blocks or extra text)
+    let jsonString = raw;
+    
+    // Remove markdown code blocks if present
+    jsonString = jsonString.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    
+    // Find JSON object in the string
+    const jsonMatch = jsonString.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
       return {
-        answer: parsed.answer ?? raw,
-        suggestions: Array.isArray(parsed.suggestions) && parsed.suggestions.length > 0 ? parsed.suggestions : defaultSuggestions,
-        actions: typeof parsed.actions === "object" && parsed.actions !== null ? parsed.actions : {},
+        answer: parsed.answer || parsed.response || raw,
+        suggestions: Array.isArray(parsed.suggestions) && parsed.suggestions.length > 0 
+          ? parsed.suggestions.slice(0, 4) 
+          : defaultSuggestions,
+        actions: typeof parsed.actions === "object" && parsed.actions !== null && !Array.isArray(parsed.actions)
+          ? parsed.actions
+          : {},
       };
     }
-  } catch (error) {
-    console.error("Failed to parse LLM response:", error);
+  } catch (error: any) {
+    console.error("Failed to parse LLM response:", error?.message);
+    console.error("Raw response:", raw.substring(0, 200));
   }
+  
+  // If no JSON found, return the raw text as answer
   return {
     answer: raw,
     suggestions: defaultSuggestions,
@@ -57,16 +147,35 @@ function parseLLMResponse(raw: string): LLMResult {
 async function fetchLLMResponse(message: string, history: Message[], session: any): Promise<LLMResult | null> {
   if (!groqClient) return null;
   try {
-    const contextSummary = [
-      "Key features: verified stables, pro guides, best price guarantee, instant booking, Stripe payments.",
-      "Primary areas: Giza Plateau, Saqqara Desert.",
-      "Support email: support@pyraride.com / Contact form: /contact.",
-      `User role: ${session?.user?.role ?? "guest"}.`,
-    ].join(" ");
+    // Fetch real-time context data for better responses
+    const [stablesCount, bookingsCount] = await Promise.all([
+      prisma.stable.count({ where: { status: "approved" } }).catch(() => 0),
+      session?.user?.id 
+        ? prisma.booking.count({ where: { riderId: session.user.id } }).catch(() => 0)
+        : Promise.resolve(0),
+    ]);
 
+    const userName = session?.user?.name || session?.user?.email || "Guest";
+    const userRole = session?.user?.role || "guest";
+
+    const contextSummary = [
+      `Current user: ${userName} (${userRole})`,
+      userRole === "rider" ? `User has ${bookingsCount} booking(s)` : "",
+      `Platform has ${stablesCount} verified stables available`,
+      "Key features: verified stables, professional guides, best price guarantee, instant booking, Stripe payments",
+      "Primary locations: Giza Plateau (Great Pyramids area), Saqqara Desert (Step Pyramid area)",
+      "Pricing: $50/hour average, platform commission is 15% (not 20%)",
+      "Support: support@pyraride.com or visit /contact",
+      "Important: Always use current data when available, commission is 15%",
+    ].filter(Boolean).join(". ");
+
+    // Build conversation messages with context
     const messages: ChatCompletionCreateParams["messages"] = [
-      { role: "system", content: `${SYSTEM_PROMPT}\n\nContext:\n${contextSummary}` },
-      ...history.map(
+      { 
+        role: "system", 
+        content: `${SYSTEM_PROMPT}\n\nCURRENT CONTEXT:\n${contextSummary}\n\nRemember: Commission is 15%, not 20%!` 
+      },
+      ...history.slice(-8).map( // Limit history to last 8 messages to stay within token limits
         (msg): ChatCompletionCreateParams["messages"][number] => ({
           role: msg.role === "assistant" ? "assistant" : "user",
           content: msg.content,
@@ -76,15 +185,28 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
     ];
 
     const completion = await groqClient.chat.completions.create({
-      model: "llama3-70b-8192",
-      temperature: 0.4,
+      model: "llama3-70b-8192", // You can also try "mixtral-8x7b-32768" or "llama3-8b-8192" for faster responses
+      temperature: 0.7, // Increased slightly for more natural responses
+      max_tokens: 1000,
       messages,
     });
 
     const raw = completion.choices[0]?.message?.content?.trim() ?? "";
-    return parseLLMResponse(raw);
-  } catch (error) {
+    const parsed = parseLLMResponse(raw);
+    
+    // If parsing failed but we got a response, try to extract just the answer
+    if (!parsed.answer && raw) {
+      return {
+        answer: raw,
+        suggestions: defaultSuggestions,
+        actions: {},
+      };
+    }
+    
+    return parsed;
+  } catch (error: any) {
     console.error("Groq error:", error);
+    console.error("Error details:", error?.message, error?.code);
     return null;
   }
 }
@@ -216,7 +338,7 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
       }
     }
     else if (isPriceQuery) {
-      response = `💰 **Pricing Information:**\n\n**Standard Rates:**\n- $50 per hour (most stables)\n- $40-60 range depending on location\n\n**Platform Fees:**\n- 20% commission\n- You pay 80% to the stable\n- Full transparency\n\n**Payment:**\n✅ Secure Stripe integration\n✅ Full payment at booking\n✅ Instant confirmation\n\n**Special Offers:**\n- Group discounts available\n- Multi-hour bookings save 10%\n- Sunset rides: premium pricing`;
+      response = `💰 **Pricing Information:**\n\n**Standard Rates:**\n- $50 per hour (most stables)\n- $40-60 range depending on stable and location\n\n**Platform Fees:**\n- **15% commission** (platform fee)\n- You pay **85% to the stable owner**, 15% to platform\n- Full transparency - no hidden fees\n\n**Payment:**\n✅ Secure Stripe integration\n✅ Full payment required at booking\n✅ Instant confirmation\n\n**What's Included:**\n- Professional guide\n- Quality horse\n- Safety equipment\n- Unforgettable pyramid experience\n\n**Special Offers:**\n- Group discounts available (ask stable)\n- Multi-hour bookings may have discounts\n- Sunset rides: premium pricing`;
 
       suggestions = ["Book now", "Show stables", "What's included?"];
     }
