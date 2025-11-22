@@ -56,10 +56,16 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
       if (result?.error) {
         setError("Invalid credentials. Please check your email/phone and password.");
       } else {
-        onOpenChange(false);
         setSignInIdentifier("");
         setSignInPassword("");
-        router.refresh();
+        onOpenChange(false);
+        // Check if we're on a callback URL (from signin page)
+        const callbackUrl = new URL(window.location.href).searchParams.get("callbackUrl");
+        if (callbackUrl) {
+          router.push(callbackUrl);
+        } else {
+          router.refresh();
+        }
       }
     } catch (error) {
       setError("An error occurred. Please try again.");

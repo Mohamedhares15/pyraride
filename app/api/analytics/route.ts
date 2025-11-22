@@ -238,6 +238,49 @@ export async function GET(req: NextRequest) {
         console.error("Error calculating experience segmentation:", e);
       }
 
+      // Safely fetch top stables with error handling
+      let topStablesWithDetails: any[] = [];
+      try {
+        topStablesWithDetails = await Promise.all(
+          topStables.map(async (stable: any) => {
+            try {
+              const stableDetails = await prisma.stable.findUnique({
+                where: { id: stable.stableId },
+                select: { name: true, location: true },
+              });
+              return {
+                ...stable,
+                stable: stableDetails,
+              };
+            } catch (e) {
+              console.error(`Error fetching stable ${stable.stableId}:`, e);
+              return {
+                ...stable,
+                stable: { name: "Unknown", location: "Unknown" },
+              };
+            }
+          })
+        );
+      } catch (e) {
+        console.error("Error fetching top stables details:", e);
+        topStablesWithDetails = topStables.map((stable: any) => ({
+          ...stable,
+          stable: { name: "Unknown", location: "Unknown" },
+        }));
+      }
+
+      // Safely count reviews
+      let totalReviewsCount = 0;
+      try {
+        if (totalBookings > 0) {
+          totalReviewsCount = await prisma.review.count({
+            where: { createdAt: { gte: startDate } },
+          });
+        }
+      } catch (e) {
+        console.error("Error counting reviews:", e);
+      }
+
       analytics = {
         overview: {
           totalUsers,
@@ -249,21 +292,13 @@ export async function GET(req: NextRequest) {
           cancellationRate,
           aov,
           clv,
-          avgLeadTime: Number(avgLeadTime).toFixed(1),
+          avgLeadTime: avgLeadTime ? Number(avgLeadTime).toFixed(1) : "0.0",
         },
-        bookingsByStatus,
-        bookingsByMonth,
-        topStables: await Promise.all(
-          topStables.map(async (stable: any) => ({
-            ...stable,
-            stable: await prisma.stable.findUnique({
-              where: { id: stable.stableId },
-              select: { name: true, location: true },
-            }),
-          }))
-        ),
-        revenueByMonth,
-        peakTimes,
+        bookingsByStatus: bookingsByStatus || [],
+        bookingsByMonth: bookingsByMonth || [],
+        topStables: topStablesWithDetails,
+        revenueByMonth: revenueByMonth || [],
+        peakTimes: peakTimes || [],
         customerSegmentation: {
           newRiders,
           returningRiders: parseInt(returningRiders[0]?.count || "0"),
@@ -273,13 +308,11 @@ export async function GET(req: NextRequest) {
             advanced,
           },
         },
-        horseUtilization,
+        horseUtilization: horseUtilization || [],
         customerFeedback: {
           avgStableRating,
           avgHorseRating,
-          totalReviews: totalBookings > 0 ? await prisma.review.count({
-            where: { createdAt: { gte: startDate } },
-          }).catch(() => 0) : 0,
+          totalReviews: totalReviewsCount,
         },
       };
     } else if (role === "stable_owner") {
@@ -399,10 +432,23 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ analytics });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching analytics:", error);
+    console.error("Error stack:", error?.stack);
+    console.error("Error details:", {
+      message: error?.message,
+      name: error?.name,
+      role: session?.user?.role,
+      userId: session?.user?.id,
+    });
+    
+    // Return more detailed error for debugging
+    const errorMessage = error?.message || "Failed to fetch analytics";
     return NextResponse.json(
-      { error: "Failed to fetch analytics" },
+      { 
+        error: "Failed to fetch analytics",
+        details: process.env.NODE_ENV === "development" ? errorMessage : undefined,
+      },
       { status: 500 }
     );
   }
