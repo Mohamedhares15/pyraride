@@ -642,7 +642,7 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
         // User has premium access - show premium features
         // Fetch owner's stable data for premium insights
         const ownerStable = await prisma.stable.findFirst({
-        where: { ownerId: (session as any)?.user?.id },
+          where: { ownerId: (session as any)?.user?.id },
         include: {
           horses: {
             where: { isActive: true },
