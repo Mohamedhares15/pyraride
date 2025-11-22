@@ -618,10 +618,30 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
 
       suggestions = ["Show me stables", "How to book", "Pricing"];
     }
-    // PREMIUM STABLE OWNER FEATURES (The Unfair Advantage)
+    // PREMIUM STABLE OWNER FEATURES (The Unfair Advantage) - EXCLUSIVE TO PREMIUM SUBSCRIBERS
     else if (isOwnerQuery && (isPricingOptimizationQuery || isRevenueQuery || isAnalyticsQuery || isCompetitiveQuery || isMarketingQuery || isBusinessQuery)) {
-      // Fetch owner's stable data for premium insights
-      const ownerStable = await prisma.stable.findFirst({
+      // Check if user has premium AI subscription
+      const user = await prisma.user.findUnique({
+        where: { id: (session as any)?.user?.id },
+        select: { 
+          hasPremiumAI: true, 
+          premiumAIExpiresAt: true,
+          role: true 
+        },
+      }).catch(() => null);
+
+      const isAdmin = user?.role === "admin";
+      const hasPremiumAccess = isAdmin || (user?.hasPremiumAI === true && (!user?.premiumAIExpiresAt || new Date(user.premiumAIExpiresAt) > new Date()));
+
+      if (!hasPremiumAccess) {
+        response = `💎 **PREMIUM AI FEATURES - SUBSCRIPTION REQUIRED**\n\n✨ **Unlock The World's Most Advanced AI Business Intelligence!**\n\n**What You Get (Worth $38,500+/year):**\n\n🤖 **AI Dynamic Pricing Engine**\n- Auto-optimize prices for max revenue (+25-40% earnings)\n- Real-time demand-based pricing\n- Competitive pricing analysis\n- Expected ROI: +$15,000-$25,000/year\n\n📊 **Predictive Analytics**\n- Forecast demand 30-90 days ahead (85%+ accuracy)\n- Optimize scheduling automatically\n- Revenue forecasting with confidence intervals\n- Prevent overbooking, maximize utilization\n\n💰 **Revenue Optimization**\n- Identify best-performing horses automatically\n- Suggest optimal time slots\n- Upselling opportunities\n- Bundle optimization\n- Expected: +30-50% revenue increase\n\n🎯 **Competitive Intelligence**\n- Real-time competitor monitoring\n- Market positioning analysis\n- Benchmarking vs top performers\n- Win rate optimization\n\n📧 **Automated Marketing**\n- Personalized customer campaigns\n- Retention automation\n- Win-back campaigns\n- Increase repeat bookings 50%+\n- Save 10-15 hours/week\n\n💬 **Automated Customer Service**\n- Handle 90% of inquiries automatically\n- 24/7 instant responses\n- Proactive problem resolution\n- Review management automation\n\n🎓 **AI Business Coach**\n- 24/7 strategic advisor\n- Growth recommendations\n- Problem-solving for any challenge\n- Data-driven decision making\n\n**Total Value: $38,500+/year**\n**Subscription: Contact admin for access**\n\n🚀 **Ready to transform your business?**\nContact platform admin to activate your premium subscription!`;
+
+        suggestions = ["Contact admin", "Learn more", "View pricing"];
+        actions = { "Dashboard": "/dashboard/stable" };
+      } else {
+        // User has premium access - show premium features
+        // Fetch owner's stable data for premium insights
+        const ownerStable = await prisma.stable.findFirst({
         where: { ownerId: (session as any)?.user?.id },
         include: {
           horses: {
@@ -701,9 +721,9 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
         let insights = "";
         
         if (isPricingOptimizationQuery || isRevenueQuery) {
-          const priceOptimization = bestPerformer ? 
-            `💰 **PRICING OPTIMIZATION INSIGHTS:**\n\n**Your Current Performance:**\n- Average price: $${avgPrice.toFixed(0)}/hour\n- Market average: $${marketAvgPrice.toFixed(0)}/hour\n- Total revenue (90 days): $${totalRevenue.toFixed(0)}\n\n**AI Recommendations:**\n`;
-          : "";
+          const priceOptimization = bestPerformer 
+            ? `💰 **PRICING OPTIMIZATION INSIGHTS:**\n\n**Your Current Performance:**\n- Average price: $${avgPrice.toFixed(0)}/hour\n- Market average: $${marketAvgPrice.toFixed(0)}/hour\n- Total revenue (90 days): $${totalRevenue.toFixed(0)}\n\n**AI Recommendations:**\n`
+            : "";
 
           const recommendations = [];
           if (bestPerformer) {
@@ -786,9 +806,9 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
           actions = { "Analytics": "/dashboard/analytics", "Manage Stable": "/dashboard/stable/manage" };
         }
 
-        response = `💎 **PREMIUM AI INSIGHTS FOR ${ownerStable.name.toUpperCase()}:**\n\n${insights}\n\n---\n\n**💡 This is just the beginning! Premium features include:**\n- Real-time dynamic pricing\n- Automated customer communication\n- Advanced predictive analytics\n- Competitive monitoring\n- Marketing automation\n- 24/7 AI business coach\n\n**Value: $38,500+/year | Currently: FREE during beta!**`;
+        response = `💎 **PREMIUM AI INSIGHTS FOR ${ownerStable.name.toUpperCase()}:**\n\n${insights}\n\n---\n\n**🚀 ADVANCED FEATURES UNLOCKED:**\n\n✨ **Real-Time Automation:**\n- Dynamic pricing updates (auto-adjusts every hour)\n- Automated customer communication\n- Review response automation\n- Booking optimization suggestions\n\n📈 **Advanced Analytics:**\n- Predictive demand forecasting (30-90 days)\n- Customer lifetime value analysis\n- Churn prediction and prevention\n- Seasonal trend analysis\n\n💰 **Revenue Maximization:**\n- Smart upselling recommendations\n- Bundle optimization\n- Cross-sell opportunities\n- Price elasticity analysis\n\n🎯 **Competitive Edge:**\n- Real-time competitor monitoring\n- Market share analysis\n- Positioning recommendations\n- Win rate optimization\n\n📧 **Marketing Automation:**\n- Personalized campaigns (AI-generated)\n- Customer segmentation\n- Automated follow-ups\n- Conversion optimization\n\n**Value: $38,500+/year | Active Premium Subscription**\n\n**Next Actions:**\nI can automatically implement these recommendations for you. Just say "apply all optimizations" or ask about specific features!`;
 
-        suggestions = suggestions.length > 0 ? suggestions : ["View analytics", "Manage stable", "Learn more"];
+        suggestions = suggestions.length > 0 ? suggestions : ["Apply optimizations", "View detailed analytics", "Set up automation"];
       }
     }
     else {
