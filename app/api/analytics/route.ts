@@ -118,12 +118,20 @@ export async function GET(req: NextRequest) {
       // Calculate platform commission (15% of total revenue)
       const totalRevenueValue = parseFloat(totalRevenue._sum?.totalPrice?.toString() || "0");
       const platformCommission = totalRevenueValue * 0.15;
-      const cancellations = await prisma.booking.count({
-        where: {
-          createdAt: { gte: startDate },
-          status: "cancelled",
-        },
-      });
+      
+      // Get cancellations with error handling
+      let cancellations = 0;
+      try {
+        cancellations = await prisma.booking.count({
+          where: {
+            createdAt: { gte: startDate },
+            status: "cancelled",
+          },
+        });
+      } catch (e) {
+        console.error("Error counting cancellations:", e);
+      }
+      
       const cancellationRate = totalBookings > 0 
         ? ((cancellations / totalBookings) * 100).toFixed(1) + "%"
         : "0%";
@@ -479,14 +487,23 @@ export async function GET(req: NextRequest) {
       name: error?.name,
       role: session?.user?.role,
       userId: session?.user?.id,
+      code: error?.code,
+      meta: error?.meta,
     });
     
-    // Return more detailed error for debugging
+    // Return more detailed error for debugging (always include in production for now)
     const errorMessage = error?.message || "Failed to fetch analytics";
+    const errorDetails = {
+      message: errorMessage,
+      name: error?.name,
+      code: error?.code,
+      role: session?.user?.role,
+    };
+    
     return NextResponse.json(
       { 
         error: "Failed to fetch analytics",
-        details: process.env.NODE_ENV === "development" ? errorMessage : undefined,
+        details: errorDetails,
       },
       { status: 500 }
     );

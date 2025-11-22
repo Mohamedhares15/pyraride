@@ -91,17 +91,21 @@ export default function AnalyticsPage() {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error("Analytics API error:", errorData);
         throw new Error(errorData.error || `Failed to fetch analytics: ${response.status}`);
       }
 
       const data = await response.json();
       if (!data.analytics) {
+        console.error("Invalid analytics data:", data);
         throw new Error("Invalid analytics data received");
       }
       
       setAnalytics(data.analytics);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error fetching analytics:", err);
+      console.error("Error message:", err?.message);
+      console.error("Error details:", err);
       setAnalytics(null);
     } finally {
       setIsLoading(false);
