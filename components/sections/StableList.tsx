@@ -153,6 +153,7 @@ export default function StableList({ results, mode, isLoading }: StableListProps
               description: item.description,
               rating: item.rating,
               totalBookings: item.totalBookings,
+              totalReviews: item.totalReviews ?? 0,
             }}
             index={index}
           />

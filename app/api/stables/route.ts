@@ -279,7 +279,9 @@ export async function GET(req: NextRequest) {
       const horses = stable.horses.map((horse: any) => {
         const primaryMedia = horse.media?.find((m: any) => m.type === "image");
         const fallbackImage =
-          horse.imageUrls && horse.imageUrls.length > 0 ? horse.imageUrls[0] : imageUrl;
+          horse.imageUrls && horse.imageUrls.length > 0 
+            ? horse.imageUrls[0] 
+            : imageUrl || "/hero-bg.webp";
         const horseReviewEntries = horseReviewsMap.get(horse.id) ?? [];
         const { rating: horseRating, reviewCount: horseReviewCount } =
           computeAdjustedRating(
@@ -291,7 +293,7 @@ export async function GET(req: NextRequest) {
         return {
           id: horse.id,
           name: horse.name,
-          imageUrl: primaryMedia?.url ?? fallbackImage,
+          imageUrl: primaryMedia?.url ?? fallbackImage ?? "/hero-bg.webp",
           pricePerHour:
             horse.pricePerHour !== null && horse.pricePerHour !== undefined
               ? Number(horse.pricePerHour)
@@ -366,7 +368,7 @@ export async function GET(req: NextRequest) {
               distanceKm: horse.distanceKm,
               id: horse.id,
               name: horse.name,
-              imageUrl: horse.imageUrl,
+              imageUrl: horse.imageUrl || "/hero-bg.webp",
               pricePerHour: Number(horse.pricePerHour),
               rating: horse.rating ?? stable.rating,
               totalBookings: horse.totalBookings ?? stable.totalBookings,
