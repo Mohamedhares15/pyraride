@@ -184,12 +184,51 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
       { role: "user", content: message },
     ];
 
-    const completion = await groqClient.chat.completions.create({
-      model: "llama3-70b-8192", // You can also try "mixtral-8x7b-32768" or "llama3-8b-8192" for faster responses
-      temperature: 0.7, // Increased slightly for more natural responses
-      max_tokens: 1000,
-      messages,
-    });
+    // Use currently supported Groq models (llama3-70b-8192 was decommissioned)
+    // Try models in order of preference
+    const supportedModels = [
+      "llama-3.3-70b-versatile", // Latest recommended replacement for llama3-70b-8192
+      "llama-3.1-70b-versatile", // Alternative if 3.3 not available
+      "llama-3.1-8b-instant",    // Faster, lighter alternative
+      "mixtral-8x7b-32768",      // Alternative model option
+    ];
+
+    let completion;
+    let lastError: any = null;
+
+    // Try each model until one works
+    for (const model of supportedModels) {
+      try {
+        completion = await groqClient.chat.completions.create({
+          model: model,
+          temperature: 0.7,
+          max_tokens: 1000,
+          messages,
+        });
+        console.log(`Successfully using model: ${model}`);
+        break; // Success, exit loop
+      } catch (error: any) {
+        lastError = error;
+        const errorCode = error?.error?.code || error?.code;
+        const isModelError = error?.status === 400 && (
+          errorCode === "model_decommissioned" || 
+          errorCode === "model_not_found" ||
+          error?.error?.message?.includes("model")
+        );
+        
+        if (isModelError) {
+          console.warn(`Model ${model} failed (${errorCode}), trying next model...`);
+          continue; // Try next model
+        }
+        // For non-model errors (rate limit, auth, etc.), throw immediately
+        throw error;
+      }
+    }
+
+    if (!completion) {
+      console.error("All models failed. Last error:", lastError);
+      throw lastError || new Error("All Groq models failed. Please check API key and model availability.");
+    }
 
     const raw = completion.choices[0]?.message?.content?.trim() ?? "";
     const parsed = parseLLMResponse(raw);
