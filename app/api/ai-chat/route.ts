@@ -644,27 +644,27 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
         const ownerStable = await prisma.stable.findFirst({
           where: { ownerId: (session as any)?.user?.id },
           include: {
-          horses: {
-            where: { isActive: true },
-            include: {
-              bookings: {
-                where: {
-                  createdAt: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) }, // Last 90 days
+            horses: {
+              where: { isActive: true },
+              include: {
+                bookings: {
+                  where: {
+                    createdAt: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) }, // Last 90 days
+                  },
                 },
+                _count: { select: { bookings: true } },
               },
-              _count: { select: { bookings: true } },
+            },
+            bookings: {
+              where: {
+                createdAt: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
+              },
+              include: {
+                horse: { select: { name: true, pricePerHour: true } },
+              },
             },
           },
-          bookings: {
-            where: {
-              createdAt: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
-            },
-            include: {
-              horse: { select: { name: true, pricePerHour: true } },
-            },
-          },
-        },
-      }).catch(() => null);
+        }).catch(() => null);
 
       if (!ownerStable) {
         response = `💎 **Premium AI Features Available!**\n\nI can help you with:\n\n🤖 **Dynamic Pricing Optimization**\n- Auto-adjust prices for max revenue (increases earnings 25-40%)\n- Demand-based pricing\n- Competitive pricing analysis\n\n📊 **Predictive Analytics**\n- Forecast demand 30-90 days ahead\n- Optimize scheduling\n- Revenue forecasting with 85%+ accuracy\n\n💰 **Revenue Optimization**\n- Identify best-performing horses\n- Suggest optimal time slots\n- Upselling opportunities\n\n🎯 **Competitive Intelligence**\n- Real-time market analysis\n- Competitor pricing monitoring\n- Positioning recommendations\n\n📧 **Automated Marketing**\n- Personalized campaigns\n- Customer retention\n- Increase repeat bookings 50%+\n\n💬 **Automated Customer Service**\n- Handle 90% of inquiries automatically\n- Save 10-15 hours/week\n\n**To activate premium features, ensure your stable is registered!**`;
