@@ -806,13 +806,19 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
           actions = { "Analytics": "/dashboard/analytics", "Manage Stable": "/dashboard/stable/manage" };
         }
 
+        // Ensure insights is set before using it
+        if (!insights) {
+          insights = "📊 **PREMIUM AI DASHBOARD:**\n\nUse specific queries to get insights:\n- \"How can I optimize pricing?\"\n- \"Show me analytics\"\n- \"Help me increase revenue\"\n- \"Compare me to competitors\"\n- \"Marketing recommendations\"\n- \"Business advice\"";
+        }
+
         response = `💎 **PREMIUM AI INSIGHTS FOR ${ownerStable.name.toUpperCase()}:**\n\n${insights}\n\n---\n\n**🚀 ADVANCED FEATURES UNLOCKED:**\n\n✨ **Real-Time Automation:**\n- Dynamic pricing updates (auto-adjusts every hour)\n- Automated customer communication\n- Review response automation\n- Booking optimization suggestions\n\n📈 **Advanced Analytics:**\n- Predictive demand forecasting (30-90 days)\n- Customer lifetime value analysis\n- Churn prediction and prevention\n- Seasonal trend analysis\n\n💰 **Revenue Maximization:**\n- Smart upselling recommendations\n- Bundle optimization\n- Cross-sell opportunities\n- Price elasticity analysis\n\n🎯 **Competitive Edge:**\n- Real-time competitor monitoring\n- Market share analysis\n- Positioning recommendations\n- Win rate optimization\n\n📧 **Marketing Automation:**\n- Personalized campaigns (AI-generated)\n- Customer segmentation\n- Automated follow-ups\n- Conversion optimization\n\n**Value: $38,500+/year | Active Premium Subscription**\n\n**Next Actions:**\nI can automatically implement these recommendations for you. Just say "apply all optimizations" or ask about specific features!`;
 
         suggestions = suggestions.length > 0 ? suggestions : ["Apply optimizations", "View detailed analytics", "Set up automation"];
       }
     }
-    else {
-      // Fallback with helpful suggestions
+    
+    // Final fallback for any unmatched queries
+    if (!response) {
       response = `I understand you're asking about: "${message}"\n\n**Let me help you with:**\n\n🐴 Finding and booking stables\n💰 Understanding prices\n📅 Managing bookings\n⭐ Leaving reviews\n📍 Location information\n\n**Try asking:**\n- "Show me stables"\n- "How do I book a ride?"\n- "What are the prices?"\n- "Find stables in Giza"\n\nWhat would you like to know?`;
 
       suggestions = ["Show stables", "How to book", "Pricing", "Help me"];
