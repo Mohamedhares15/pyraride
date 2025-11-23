@@ -767,16 +767,12 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
 
           suggestions = ["View detailed analytics", "Export report", "Set up alerts"];
           actions = { "Full Analytics": "/dashboard/analytics" };
-        }
-        
-        else if (isCompetitiveQuery) {
+        } else if (isCompetitiveQuery) {
           insights = `🎯 **COMPETITIVE INTELLIGENCE:**\n\n**Market Position:**\n- Your average price: $${avgPrice.toFixed(0)}/hour\n- Market average: $${marketAvgPrice.toFixed(0)}/hour\n- Price position: ${avgPrice > marketAvgPrice ? "PREMIUM" : avgPrice < marketAvgPrice ? "BUDGET" : "MARKET RATE"}\n\n**Competitive Analysis:**\n- ${allStables.length} competitors in ${ownerStable.location}\n- Your bookings: ${totalBookings} (90 days)\n- Market share: *Calculating...*\n\n**AI Recommendations:**\n${avgPrice < marketAvgPrice * 0.9 ? "🚀 **UNDERVALUED:** You're pricing 10%+ below market. Consider increasing prices 10-15% for premium positioning." : avgPrice > marketAvgPrice * 1.1 ? "💎 **PREMIUM POSITIONING:** You're priced above market. Ensure quality/service matches premium pricing." : "✅ **WELL POSITIONED:** Your pricing aligns with market average."}\n\n**Competitor Insights:**\n- Monitor top 3 competitors weekly\n- Track their pricing changes\n- Analyze their peak booking times\n\n**Strategic Positioning:**\n1. Differentiate through unique experiences\n2. Emphasize quality in marketing\n3. Build repeat customer base (higher retention = less price sensitivity)`;
 
           suggestions = ["View market data", "Update pricing", "Competitor analysis"];
           actions = { "Manage Stable": "/dashboard/stable/manage" };
-        }
-        
-        else if (isMarketingQuery) {
+        } else if (isMarketingQuery) {
           const repeatCustomers = new Set(ownerStable.bookings.map((b: any) => b.riderId)).size;
           const repeatRate = totalBookings > 0 ? (repeatCustomers / totalBookings) * 100 : 0;
 
@@ -784,9 +780,7 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
 
           suggestions = ["Activate campaigns", "View customer list", "Create custom campaign"];
           actions = { "Dashboard": "/dashboard/stable" };
-        }
-        
-        else if (isBusinessQuery) {
+        } else if (isBusinessQuery) {
           const utilizationRate = horses.length > 0 
             ? (totalBookings / (horses.length * 90)) * 100 
             : 0;
