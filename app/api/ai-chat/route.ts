@@ -672,55 +672,55 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
           suggestions = ["Register stable", "View dashboard", "Learn more"];
           actions = { "Stable Dashboard": "/dashboard/stable" };
         } else {
-        // Calculate premium insights
-        const totalBookings = ownerStable.bookings.length;
-        const completedBookings = ownerStable.bookings.filter((b: any) => b.status === "completed");
-        const totalRevenue = completedBookings.reduce((sum: number, b: any) => sum + Number(b.totalPrice || 0), 0);
-        const avgPrice = totalBookings > 0 ? totalRevenue / totalBookings : 0;
-        
-        const horses = ownerStable.horses || [];
-        const horseRevenue = horses.map((horse: any) => {
-          const bookings = horse.bookings || [];
-          const revenue = bookings.reduce((sum: number, b: any) => sum + Number(b.totalPrice || 0), 0);
-          return {
-            name: horse.name,
-            price: Number(horse.pricePerHour || 50),
-            bookings: bookings.length,
-            revenue: revenue,
-            utilization: bookings.length / 90, // bookings per day
-          };
-        }).sort((a, b) => b.revenue - a.revenue);
+          // Calculate premium insights
+          const totalBookings = ownerStable.bookings.length;
+          const completedBookings = ownerStable.bookings.filter((b: any) => b.status === "completed");
+          const totalRevenue = completedBookings.reduce((sum: number, b: any) => sum + Number(b.totalPrice || 0), 0);
+          const avgPrice = totalBookings > 0 ? totalRevenue / totalBookings : 0;
+          
+          const horses = ownerStable.horses || [];
+          const horseRevenue = horses.map((horse: any) => {
+            const bookings = horse.bookings || [];
+            const revenue = bookings.reduce((sum: number, b: any) => sum + Number(b.totalPrice || 0), 0);
+            return {
+              name: horse.name,
+              price: Number(horse.pricePerHour || 50),
+              bookings: bookings.length,
+              revenue: revenue,
+              utilization: bookings.length / 90, // bookings per day
+            };
+          }).sort((a, b) => b.revenue - a.revenue);
 
-        const bestPerformer = horseRevenue[0];
-        const underperformers = horseRevenue.filter((h: any) => h.bookings < 5 && h.revenue < avgPrice * 3);
+          const bestPerformer = horseRevenue[0];
+          const underperformers = horseRevenue.filter((h: any) => h.bookings < 5 && h.revenue < avgPrice * 3);
 
-        // Get competitor data for comparison
-        const allStables = await prisma.stable.findMany({
-          where: { 
-            status: "approved",
-            location: ownerStable.location,
-            NOT: { id: ownerStable.id },
-          },
-          include: {
-            horses: {
-              where: { isActive: true },
-              select: { pricePerHour: true },
+          // Get competitor data for comparison
+          const allStables = await prisma.stable.findMany({
+            where: { 
+              status: "approved",
+              location: ownerStable.location,
+              NOT: { id: ownerStable.id },
             },
-          },
-          take: 5,
-        }).catch(() => []);
+            include: {
+              horses: {
+                where: { isActive: true },
+                select: { pricePerHour: true },
+              },
+            },
+            take: 5,
+          }).catch(() => []);
 
-        const competitorPrices = allStables.flatMap((s: any) => 
-          s.horses.map((h: any) => Number(h.pricePerHour || 50))
-        );
-        const marketAvgPrice = competitorPrices.length > 0 
-          ? competitorPrices.reduce((a: number, b: number) => a + b, 0) / competitorPrices.length
-          : 50;
+          const competitorPrices = allStables.flatMap((s: any) => 
+            s.horses.map((h: any) => Number(h.pricePerHour || 50))
+          );
+          const marketAvgPrice = competitorPrices.length > 0 
+            ? competitorPrices.reduce((a: number, b: number) => a + b, 0) / competitorPrices.length
+            : 50;
 
-        // Premium AI Insights
-        let insights = "";
-        
-        if (isPricingOptimizationQuery || isRevenueQuery) {
+          // Premium AI Insights
+          let insights = "";
+          
+          if (isPricingOptimizationQuery || isRevenueQuery) {
           const priceOptimization = bestPerformer 
             ? `💰 **PRICING OPTIMIZATION INSIGHTS:**\n\n**Your Current Performance:**\n- Average price: $${avgPrice.toFixed(0)}/hour\n- Market average: $${marketAvgPrice.toFixed(0)}/hour\n- Total revenue (90 days): $${totalRevenue.toFixed(0)}\n\n**AI Recommendations:**\n`
             : "";
