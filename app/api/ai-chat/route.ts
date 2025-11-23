@@ -643,7 +643,7 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
         // Fetch owner's stable data for premium insights
         const ownerStable = await prisma.stable.findFirst({
           where: { ownerId: (session as any)?.user?.id },
-        include: {
+          include: {
           horses: {
             where: { isActive: true },
             include: {
