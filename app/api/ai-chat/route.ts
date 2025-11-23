@@ -663,15 +663,15 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
                 horse: { select: { name: true, pricePerHour: true } },
               },
             },
-          },
-        }).catch(() => null);
+        },
+      }).catch(() => null);
 
-      if (!ownerStable) {
-        response = `💎 **Premium AI Features Available!**\n\nI can help you with:\n\n🤖 **Dynamic Pricing Optimization**\n- Auto-adjust prices for max revenue (increases earnings 25-40%)\n- Demand-based pricing\n- Competitive pricing analysis\n\n📊 **Predictive Analytics**\n- Forecast demand 30-90 days ahead\n- Optimize scheduling\n- Revenue forecasting with 85%+ accuracy\n\n💰 **Revenue Optimization**\n- Identify best-performing horses\n- Suggest optimal time slots\n- Upselling opportunities\n\n🎯 **Competitive Intelligence**\n- Real-time market analysis\n- Competitor pricing monitoring\n- Positioning recommendations\n\n📧 **Automated Marketing**\n- Personalized campaigns\n- Customer retention\n- Increase repeat bookings 50%+\n\n💬 **Automated Customer Service**\n- Handle 90% of inquiries automatically\n- Save 10-15 hours/week\n\n**To activate premium features, ensure your stable is registered!**`;
-        
-        suggestions = ["Register stable", "View dashboard", "Learn more"];
-        actions = { "Stable Dashboard": "/dashboard/stable" };
-      } else {
+        if (!ownerStable) {
+          response = `💎 **Premium AI Features Available!**\n\nI can help you with:\n\n🤖 **Dynamic Pricing Optimization**\n- Auto-adjust prices for max revenue (increases earnings 25-40%)\n- Demand-based pricing\n- Competitive pricing analysis\n\n📊 **Predictive Analytics**\n- Forecast demand 30-90 days ahead\n- Optimize scheduling\n- Revenue forecasting with 85%+ accuracy\n\n💰 **Revenue Optimization**\n- Identify best-performing horses\n- Suggest optimal time slots\n- Upselling opportunities\n\n🎯 **Competitive Intelligence**\n- Real-time market analysis\n- Competitor pricing monitoring\n- Positioning recommendations\n\n📧 **Automated Marketing**\n- Personalized campaigns\n- Customer retention\n- Increase repeat bookings 50%+\n\n💬 **Automated Customer Service**\n- Handle 90% of inquiries automatically\n- Save 10-15 hours/week\n\n**To activate premium features, ensure your stable is registered!**`;
+          
+          suggestions = ["Register stable", "View dashboard", "Learn more"];
+          actions = { "Stable Dashboard": "/dashboard/stable" };
+        } else {
         // Calculate premium insights
         const totalBookings = ownerStable.bookings.length;
         const completedBookings = ownerStable.bookings.filter((b: any) => b.status === "completed");
