@@ -753,9 +753,7 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
 
           suggestions = ["Apply recommendations", "View analytics", "Optimize all horses"];
           actions = { "Analytics Dashboard": "/dashboard/analytics", "Manage Stable": "/dashboard/stable/manage" };
-        }
-        
-        else if (isAnalyticsQuery) {
+        } else if (isAnalyticsQuery) {
           const bookingsByDay = ownerStable.bookings.reduce((acc: any, b: any) => {
             const day = new Date(b.startTime).toLocaleDateString('en-US', { weekday: 'long' });
             acc[day] = (acc[day] || 0) + 1;
