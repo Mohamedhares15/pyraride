@@ -24,17 +24,6 @@ export async function ensureAuthSchema() {
       ON "User"("phoneNumber");
     `);
 
-    // Add premium AI columns if they don't exist
-    await prisma.$executeRawUnsafe(`
-      ALTER TABLE "User"
-      ADD COLUMN IF NOT EXISTS "hasPremiumAI" BOOLEAN DEFAULT false;
-    `);
-
-    await prisma.$executeRawUnsafe(`
-      ALTER TABLE "User"
-      ADD COLUMN IF NOT EXISTS "premiumAIExpiresAt" TIMESTAMP(3);
-    `);
-
     await prisma.$executeRawUnsafe(`
       ALTER TABLE "Horse"
       ADD COLUMN IF NOT EXISTS "pricePerHour" NUMERIC(10,2) DEFAULT 500;

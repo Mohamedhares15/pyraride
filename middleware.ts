@@ -2,6 +2,38 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  
+  // Check if coming soon mode is enabled
+  const isComingSoon = process.env.COMING_SOON === "true";
+  
+  // Public paths that don't require authentication (even in coming soon mode)
+  const publicPaths = [
+    '/api/auth',
+    '/api/coming-soon',
+    '/api/health',
+    '/_next',
+    '/favicon.ico',
+    '/robots.txt',
+    '/sitemap.xml',
+  ];
+  
+  const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
+  
+  // If coming soon is enabled and this is not a public path, require authentication
+  if (isComingSoon && !isPublicPath) {
+    // Check for auth token in cookies
+    const sessionToken = request.cookies.get('next-auth.session-token') || 
+                         request.cookies.get('__Secure-next-auth.session-token');
+    
+    // If no session token, redirect to home which will show sign in modal
+    if (!sessionToken && pathname !== '/') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
+      return NextResponse.redirect(url);
+    }
+  }
+  
   // Security: Add rate limiting headers (basic implementation)
   const response = NextResponse.next();
   
@@ -11,7 +43,7 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-Permitted-Cross-Domain-Policies', 'none');
   
   // CORS for API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
+  if (pathname.startsWith('/api/')) {
     response.headers.set('Access-Control-Allow-Credentials', 'true');
     response.headers.set('Access-Control-Allow-Origin', '*');
     response.headers.set('Access-Control-Allow-Methods', 'GET,DELETE,PATCH,POST,PUT');

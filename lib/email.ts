@@ -309,3 +309,37 @@ export async function sendPasswordResetEmail(
   }
 }
 
+// Generic email sending function
+interface SendEmailOptions {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+}
+
+export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
+  try {
+    const transporter = createTransporter();
+
+    if (!transporter) {
+      console.warn("Email transporter not configured. Skipping email send.");
+      return false;
+    }
+
+    const mailOptions = {
+      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+      text: options.text,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw error;
+  }
+}
+
