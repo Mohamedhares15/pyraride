@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
+import { Button } from "@/components/ui/button";
 
 // Dynamically import AuthModal to avoid SSR issues
 const AuthModal = dynamic(() => import("./AuthModal"), { ssr: false });
@@ -25,7 +26,11 @@ export default function ComingSoon({ children }: { children: React.ReactNode }) 
   // Auto-open sign-in modal for unauthenticated users in coming soon mode
   useEffect(() => {
     if (isComingSoon && status === "unauthenticated") {
-      setShowAuthModal(true);
+      // Small delay to ensure modal component is loaded
+      const timer = setTimeout(() => {
+        setShowAuthModal(true);
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [isComingSoon, status]);
 
@@ -44,53 +49,76 @@ export default function ComingSoon({ children }: { children: React.ReactNode }) 
     return <>{children}</>;
   }
 
-  // Show coming soon overlay
+  // Show coming soon overlay with website's aesthetic
   return (
     <>
       <div className="relative min-h-screen">
-        {/* Blurred background */}
-        <div className="filter blur-sm pointer-events-none">{children}</div>
+        {/* Blurred background - matches website's papyrus white theme */}
+        <div className="filter blur-[2px] pointer-events-none opacity-60">{children}</div>
 
-        {/* Coming soon overlay */}
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="max-w-md w-full mx-4 bg-white/95 dark:bg-gray-900/95 rounded-2xl shadow-2xl p-8 text-center space-y-6 backdrop-blur-md relative">
-            {/* Logo/Brand */}
-            <div className="space-y-2">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                PyraRide
-              </h1>
-              <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full"></div>
-            </div>
+        {/* Coming soon overlay - matches website's minimalist design */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-papyrus-white/95 backdrop-blur-md">
+          <div className="max-w-lg w-full mx-4 relative">
+            {/* Main Card - matches website's rounded-5xl cards */}
+            <div className="bg-white rounded-5xl shadow-2xl p-8 md:p-12 text-center space-y-8 border border-border/50">
+              {/* Logo/Brand - matches website styling */}
+              <div className="space-y-3">
+                <h1 className="text-5xl md:text-6xl font-bold text-obsidian tracking-tight">
+                  PyraRide
+                </h1>
+                <div className="w-24 h-1 bg-nile-blue mx-auto rounded-full"></div>
+              </div>
 
-            {/* Coming Soon Message */}
-            <div className="space-y-4">
-              <div className="text-6xl">🚀</div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Coming Soon!
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300 text-lg">
-                We&apos;re putting the finishing touches on something amazing.
-              </p>
-              <p className="text-gray-500 dark:text-gray-400">
-                We&apos;ll notify you by email as soon as we&apos;re ready to launch!
-              </p>
-            </div>
-
-            {/* User Info */}
-            {session?.user && (
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Signed in as <span className="font-semibold">{session.user.email}</span>
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                  You&apos;ll receive an email when we launch
+              {/* Coming Soon Message */}
+              <div className="space-y-6">
+                <div className="text-7xl">🐴</div>
+                <div>
+                  <h2 className="text-3xl md:text-4xl font-bold text-obsidian mb-3">
+                    Coming Soon!
+                  </h2>
+                  <p className="text-lg text-foreground/80 max-w-md mx-auto leading-relaxed">
+                    We&apos;re putting the finishing touches on an amazing experience for you.
+                  </p>
+                </div>
+                <p className="text-base text-muted-foreground">
+                  Sign up now and we&apos;ll notify you by email as soon as we&apos;re ready to launch!
                 </p>
               </div>
-            )}
 
-            {/* Decorative elements */}
-            <div className="absolute top-4 right-4 w-16 h-16 bg-blue-500/10 rounded-full blur-xl"></div>
-            <div className="absolute bottom-4 left-4 w-20 h-20 bg-purple-500/10 rounded-full blur-xl"></div>
+              {/* Sign Up Button for unauthenticated users */}
+              {status === "unauthenticated" && (
+                <div className="pt-4">
+                  <Button
+                    onClick={() => setShowAuthModal(true)}
+                    className="rounded-full px-8 py-6 text-lg font-semibold bg-nile-blue hover:bg-nile-blue/90 text-white shadow-lg hover:shadow-xl transition-all"
+                    size="lg"
+                  >
+                    Get Started Free
+                  </Button>
+                </div>
+              )}
+
+              {/* User Info for authenticated users */}
+              {session?.user && (
+                <div className="pt-6 border-t border-border">
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Signed in as
+                    </p>
+                    <p className="text-base font-semibold text-obsidian">
+                      {session.user.email}
+                    </p>
+                    <p className="text-xs text-muted-foreground pt-2">
+                      ✓ You&apos;ll receive an email when we launch
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Subtle decorative accent */}
+              <div className="absolute -top-2 -right-2 w-20 h-20 bg-accent/20 rounded-full blur-2xl"></div>
+              <div className="absolute -bottom-2 -left-2 w-24 h-24 bg-nile-blue/10 rounded-full blur-2xl"></div>
+            </div>
           </div>
         </div>
       </div>
