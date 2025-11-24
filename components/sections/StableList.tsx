@@ -20,6 +20,7 @@ interface StableListProps {
         description: string;
         rating: number;
         totalBookings: number;
+        totalReviews?: number;
         imageUrl?: string;
         createdAt: string;
         distanceKm?: number;
