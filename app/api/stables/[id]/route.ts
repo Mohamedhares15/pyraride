@@ -12,7 +12,11 @@ export async function GET(
   try {
     await ensureAuthSchema();
 
-    const stable = await prisma.stable.findUnique({
+    const session = await getServerSession();
+    const isAdmin = session?.user?.role === "admin";
+
+    // First, get the stable without the hidden filter
+    const stable = await prisma.stable.findFirst({
       where: {
         id: params.id,
         status: "approved",
@@ -80,6 +84,15 @@ export async function GET(
     });
 
     if (!stable) {
+      return NextResponse.json(
+        { error: "Stable not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check if stable is hidden (unless admin or stable owner viewing their own stable)
+    const isOwner = session?.user?.role === "stable_owner" && stable.ownerId === session.user.id;
+    if (stable.isHidden && !isAdmin && !isOwner) {
       return NextResponse.json(
         { error: "Stable not found" },
         { status: 404 }

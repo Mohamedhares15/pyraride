@@ -96,17 +96,6 @@ export async function GET(req: NextRequest) {
   try {
     await ensureAuthSchema();
 
-    // Check if stables should be visible
-    const showStables = process.env.SHOW_STABLES !== "false";
-    
-    if (!showStables) {
-      // Return empty results when stables are hidden
-      return NextResponse.json({
-        stables: [],
-        mode: "stable",
-      });
-    }
-
     const session = await getServerSession();
     const searchParams = req.nextUrl.searchParams;
     const location = searchParams.get("location");
@@ -114,11 +103,17 @@ export async function GET(req: NextRequest) {
     const minRating = searchParams.get("minRating");
     const ownerOnly = searchParams.get("ownerOnly") === "true"; // Get only owner's stable
     const sort = searchParams.get("sort") || "recommended";
+    const isAdmin = session?.user?.role === "admin";
 
     // Build where clause
     const where: any = {
       status: "approved",
     };
+
+    // Hide stables marked as hidden (unless admin viewing)
+    if (!isAdmin && !ownerOnly) {
+      where.isHidden = false;
+    }
 
     // If ownerOnly is true and user is logged in as stable owner, return only their stable
     if (ownerOnly && session?.user?.role === "stable_owner") {

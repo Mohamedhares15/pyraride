@@ -176,6 +176,13 @@ export default function AnalyticsPage() {
                 Home
               </Button>
             </Link>
+            {isAdmin && (
+              <Link href="/dashboard/admin/stables">
+                <Button variant="outline" size="sm" className="gap-2">
+                  Manage Stables
+                </Button>
+              </Link>
+            )}
           </div>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>

@@ -61,6 +61,7 @@ model Stable {
   address     String
   imageUrl    String? // Stable card image
   status      StableStatus @default(pending_approval)
+  isHidden    Boolean      @default(false) // Admin can hide/show stables individually
   createdAt   DateTime     @default(now())
 
   // Relations
