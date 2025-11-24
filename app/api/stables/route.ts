@@ -96,6 +96,17 @@ export async function GET(req: NextRequest) {
   try {
     await ensureAuthSchema();
 
+    // Check if stables should be visible
+    const showStables = process.env.SHOW_STABLES !== "false";
+    
+    if (!showStables) {
+      // Return empty results when stables are hidden
+      return NextResponse.json({
+        stables: [],
+        mode: "stable",
+      });
+    }
+
     const session = await getServerSession();
     const searchParams = req.nextUrl.searchParams;
     const location = searchParams.get("location");
