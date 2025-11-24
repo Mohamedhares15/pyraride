@@ -362,13 +362,13 @@ export async function GET(req: NextRequest) {
             })
             .map((horse: any) => ({
               type: "horse",
-              stableId: horse.stableId,
-              stableName: horse.stableName,
-              stableLocation: horse.stableLocation,
-              distanceKm: horse.distanceKm,
+              stableId: horse.stableId || stable.id,
+              stableName: horse.stableName || stable.name,
+              stableLocation: horse.stableLocation || stable.location,
+              distanceKm: horse.distanceKm || stable.distanceKm,
               id: horse.id,
               name: horse.name,
-              imageUrl: horse.imageUrl || "/hero-bg.webp",
+              imageUrl: horse.imageUrl || stable.imageUrl || "/hero-bg.webp",
               pricePerHour: Number(horse.pricePerHour),
               rating: horse.rating ?? stable.rating,
               totalBookings: horse.totalBookings ?? stable.totalBookings,
