@@ -34,6 +34,8 @@ interface StableListProps {
         stableName: string;
         stableLocation: string;
         imageUrl?: string;
+        imageUrls?: string[];
+        media?: Array<{ url: string; type: string }>;
         rating: number;
         reviewCount: number;
         totalBookings: number;
