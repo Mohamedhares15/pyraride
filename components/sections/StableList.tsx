@@ -109,14 +109,22 @@ export default function StableList({ results, mode, isLoading }: StableListProps
               <Link href={`/stables/${item.stableId}#horse-${item.id}`} className="block h-full">
                 <Card className="overflow-hidden h-full hover:shadow-lg transition-shadow">
                   <div className="relative h-48 w-full bg-gradient-to-br from-primary/20 to-secondary/20">
-                    <Image
-                      src={heroImage}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                      draggable={false}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-                    />
+                    {heroImage && heroImage !== "/hero-bg.webp" ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={heroImage}
+                        alt={item.name}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        draggable={false}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="mx-auto mb-2 text-5xl">🐴</div>
+                          <p className="text-sm text-muted-foreground">{item.name}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <CardContent className="space-y-3 p-5">
                     <div className="flex items-center justify-between gap-4">
