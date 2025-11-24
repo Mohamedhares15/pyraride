@@ -278,10 +278,6 @@ export async function GET(req: NextRequest) {
 
       const horses = stable.horses.map((horse: any) => {
         const primaryMedia = horse.media?.find((m: any) => m.type === "image");
-        const fallbackImage =
-          horse.imageUrls && horse.imageUrls.length > 0 
-            ? horse.imageUrls[0] 
-            : imageUrl || "/hero-bg.webp";
         const horseReviewEntries = horseReviewsMap.get(horse.id) ?? [];
         const { rating: horseRating, reviewCount: horseReviewCount } =
           computeAdjustedRating(
@@ -290,10 +286,20 @@ export async function GET(req: NextRequest) {
             stableRating > 0 ? stableRating : 0
           );
 
+        // Determine horse image URL with proper fallback chain
+        let horseImageUrl = "/hero-bg.webp"; // Default fallback
+        if (primaryMedia?.url) {
+          horseImageUrl = primaryMedia.url;
+        } else if (horse.imageUrls && Array.isArray(horse.imageUrls) && horse.imageUrls.length > 0 && horse.imageUrls[0]) {
+          horseImageUrl = horse.imageUrls[0];
+        } else if (imageUrl) {
+          horseImageUrl = imageUrl; // Use stable's image as fallback
+        }
+
         return {
           id: horse.id,
           name: horse.name,
-          imageUrl: primaryMedia?.url ?? fallbackImage ?? "/hero-bg.webp",
+          imageUrl: horseImageUrl,
           pricePerHour:
             horse.pricePerHour !== null && horse.pricePerHour !== undefined
               ? Number(horse.pricePerHour)
@@ -360,23 +366,30 @@ export async function GET(req: NextRequest) {
               }
               return stable.rating >= minRatingValue;
             })
-            .map((horse: any) => ({
-              type: "horse",
-              stableId: horse.stableId || stable.id,
-              stableName: horse.stableName || stable.name,
-              stableLocation: horse.stableLocation || stable.location,
-              distanceKm: horse.distanceKm || stable.distanceKm,
-              id: horse.id,
-              name: horse.name,
-              imageUrl: horse.imageUrl || stable.imageUrl || "/hero-bg.webp",
-              pricePerHour: Number(horse.pricePerHour),
-              rating: horse.rating ?? stable.rating,
-              totalBookings: horse.totalBookings ?? stable.totalBookings,
-              reviewCount: horse.reviewCount ?? 0,
-              description: horse.description,
-              skills: horse.skills,
-              age: horse.age,
-            }))
+            .map((horse: any) => {
+              // Ensure imageUrl is always set with proper fallback
+              const finalImageUrl = horse.imageUrl && horse.imageUrl !== "" 
+                ? horse.imageUrl 
+                : (stable.imageUrl && stable.imageUrl !== "" ? stable.imageUrl : "/hero-bg.webp");
+              
+              return {
+                type: "horse",
+                stableId: horse.stableId || stable.id,
+                stableName: horse.stableName || stable.name,
+                stableLocation: horse.stableLocation || stable.location,
+                distanceKm: horse.distanceKm || stable.distanceKm,
+                id: horse.id,
+                name: horse.name,
+                imageUrl: finalImageUrl,
+                pricePerHour: Number(horse.pricePerHour),
+                rating: horse.rating ?? stable.rating,
+                totalBookings: horse.totalBookings ?? stable.totalBookings,
+                reviewCount: horse.reviewCount ?? 0,
+                description: horse.description,
+                skills: horse.skills,
+                age: horse.age,
+              };
+            })
         )
         .filter((entry: any) => Number.isFinite(entry.pricePerHour));
 
