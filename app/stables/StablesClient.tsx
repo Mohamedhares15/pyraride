@@ -40,6 +40,7 @@ interface HorseResult {
   pricePerHour: number;
   imageUrl?: string;
   imageUrls?: string[];
+  media?: Array<{ url: string; type: string }>;
   distanceKm?: number;
 }
 
@@ -94,6 +95,8 @@ export default function StablesClient() {
                 id: item.id,
                 name: item.name,
                 imageUrl: item.imageUrl || "/hero-bg.webp",
+                imageUrls: item.imageUrls || [],
+                media: item.media || [],
                 rating: item.rating,
                 reviewCount: item.reviewCount ?? 0,
                 totalBookings: item.totalBookings,
