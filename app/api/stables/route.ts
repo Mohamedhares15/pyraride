@@ -300,6 +300,8 @@ export async function GET(req: NextRequest) {
           id: horse.id,
           name: horse.name,
           imageUrl: horseImageUrl,
+          imageUrls: Array.isArray(horse.imageUrls) ? horse.imageUrls : [],
+          media: Array.isArray(horse.media) ? horse.media : [],
           pricePerHour:
             horse.pricePerHour !== null && horse.pricePerHour !== undefined
               ? Number(horse.pricePerHour)
@@ -367,11 +369,6 @@ export async function GET(req: NextRequest) {
               return stable.rating >= minRatingValue;
             })
             .map((horse: any) => {
-              // Ensure imageUrl is always set with proper fallback
-              const finalImageUrl = horse.imageUrl && horse.imageUrl !== "" 
-                ? horse.imageUrl 
-                : (stable.imageUrl && stable.imageUrl !== "" ? stable.imageUrl : "/hero-bg.webp");
-              
               return {
                 type: "horse",
                 stableId: horse.stableId || stable.id,
@@ -380,7 +377,9 @@ export async function GET(req: NextRequest) {
                 distanceKm: horse.distanceKm || stable.distanceKm,
                 id: horse.id,
                 name: horse.name,
-                imageUrl: finalImageUrl,
+                imageUrl: horse.imageUrl || stable.imageUrl || "/hero-bg.webp",
+                imageUrls: Array.isArray(horse.imageUrls) ? horse.imageUrls : [],
+                media: Array.isArray(horse.media) ? horse.media : [],
                 pricePerHour: Number(horse.pricePerHour),
                 rating: horse.rating ?? stable.rating,
                 totalBookings: horse.totalBookings ?? stable.totalBookings,

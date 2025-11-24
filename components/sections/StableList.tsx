@@ -80,6 +80,17 @@ export default function StableList({ results, mode, isLoading }: StableListProps
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {results.map((item) => {
           if (item.type !== "horse") return null;
+          
+          // Use the same image selection logic as stable detail page
+          const portfolioItems = (item as any).media?.filter(
+            (m: any) => m && typeof m.url === "string"
+          ) ?? [];
+          const heroImage = 
+            portfolioItems.find((m: any) => m.type === "image")?.url || 
+            (item.imageUrls && item.imageUrls[0]) ||
+            item.imageUrl || 
+            "/hero-bg.webp";
+          
           const priceLabel = `$${item.pricePerHour.toFixed(0)}/hour`;
           const ratingLabel =
             typeof item.rating === "number" && item.rating > 0
@@ -97,7 +108,7 @@ export default function StableList({ results, mode, isLoading }: StableListProps
                 <Card className="overflow-hidden h-full hover:shadow-lg transition-shadow">
                   <div className="relative h-48 w-full bg-gradient-to-br from-primary/20 to-secondary/20">
                     <Image
-                      src={item.imageUrl || "/hero-bg.webp"}
+                      src={heroImage}
                       alt={item.name}
                       fill
                       className="object-cover"

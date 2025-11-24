@@ -39,6 +39,7 @@ interface HorseResult {
   totalBookings: number;
   pricePerHour: number;
   imageUrl?: string;
+  imageUrls?: string[];
   distanceKm?: number;
 }
 
