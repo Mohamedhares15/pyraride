@@ -15,13 +15,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get all users with email addresses
+    // Get all users (email is required in schema, so no need to filter for null)
     const users = await prisma.user.findMany({
-      where: {
-        email: {
-          not: null,
-        },
-      },
       select: {
         id: true,
         email: true,
