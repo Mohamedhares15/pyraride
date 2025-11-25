@@ -13,7 +13,7 @@ function TikTokIcon({ className }: { className?: string }) {
 
 export default function Footer() {
   return (
-    <footer className="bg-secondary border-t hidden md:block">
+    <footer className="bg-secondary border-t">
       <div className="mx-auto max-w-7xl px-4 py-12 md:py-16">
         {/* Newsletter Signup */}
         <div className="mb-12">
@@ -75,7 +75,7 @@ export default function Footer() {
             <div className="flex items-center gap-3">
               <Link 
                 aria-label="Instagram" 
-                href="https://instagram.com/pyraride" 
+                href="https://instagram.com/pyrarides" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-primary transition-colors"
@@ -102,7 +102,7 @@ export default function Footer() {
               </Link>
               <Link 
                 aria-label="TikTok" 
-                href="https://tiktok.com/@pyraride" 
+                href="https://tiktok.com/@pyrarides" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-primary transition-colors"

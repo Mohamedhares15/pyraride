@@ -56,11 +56,8 @@ export default function HomePage() {
           <h2 className="mb-4 text-center font-display text-2xl font-bold tracking-tight text-white drop-shadow-lg md:text-3xl">
             Frequently Asked Questions
           </h2>
-          <p className="mx-auto mb-4 max-w-3xl text-center text-base text-white/90 drop-shadow md:text-lg font-medium">
+          <p className="mx-auto mb-10 max-w-3xl text-center text-base text-white/90 drop-shadow md:text-lg font-medium">
             <strong className="text-white">PyraRide is Egypt's first and only online marketplace</strong> for booking horse riding experiences at the Giza and Saqqara Pyramids. Unlike single-stable websites, we bring multiple verified stables into one platform, making it easy to compare prices, read reviews, and book instantly.
-          </p>
-          <p className="mx-auto mb-10 max-w-3xl text-center text-sm text-white/80 drop-shadow md:text-base">
-            These quick answers help search engines and AI assistants understand exactly what we offer, and help riders book with confidence.
           </p>
           <div className="grid gap-6 md:grid-cols-2">
             {homepageFaq.map((item) => (

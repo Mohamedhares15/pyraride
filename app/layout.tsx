@@ -4,6 +4,7 @@ import AuthProvider from "@/components/providers/AuthProvider";
 import ImageProtectionProvider from "@/components/providers/ImageProtectionProvider";
 import AIAgent from "@/components/shared/AIAgent";
 import CookieConsent from "@/components/shared/CookieConsent";
+import Footer from "@/components/shared/Footer";
 import { GoogleAnalytics, Plausible } from "@/components/shared/Analytics";
 import "./globals.css";
 
@@ -182,11 +183,11 @@ export default function RootLayout({
                 "worstRating": "1"
               },
               "sameAs": [
-                "https://facebook.com/pyraride",
-                "https://instagram.com/pyraride",
-                "https://twitter.com/pyraride",
-                "https://tiktok.com/@pyraride",
-                "https://youtube.com/@pyraride"
+                "https://facebook.com/pyrarides",
+                "https://instagram.com/pyrarides",
+                "https://twitter.com/pyrarides",
+                "https://tiktok.com/@pyrarides",
+                "https://youtube.com/@pyrarides"
               ],
               "contactPoint": {
                 "@type": "ContactPoint",
@@ -266,11 +267,11 @@ export default function RootLayout({
                 "worstRating": "1"
               },
               "sameAs": [
-                "https://facebook.com/pyraride",
-                "https://instagram.com/pyraride",
-                "https://twitter.com/pyraride",
-                "https://tiktok.com/@pyraride",
-                "https://youtube.com/@pyraride"
+                "https://facebook.com/pyrarides",
+                "https://instagram.com/pyrarides",
+                "https://twitter.com/pyrarides",
+                "https://tiktok.com/@pyrarides",
+                "https://youtube.com/@pyrarides"
               ]
             }),
           }}
@@ -321,6 +322,7 @@ export default function RootLayout({
         <AuthProvider>
           <ImageProtectionProvider />
           <main id="main-content" className="pb-0">{children}</main>
+          <Footer />
           <AIAgent />
           <CookieConsent />
           <GoogleAnalytics trackingId={process.env.NEXT_PUBLIC_GA_ID} />
