@@ -63,6 +63,10 @@ export default function FAQPage() {
             <Search className="w-5 h-5 text-primary" />
             <span className="text-sm font-medium">Experience</span>
           </a>
+          <a href="#platform" className="flex items-center gap-2 p-4 rounded-lg border hover:border-primary transition-colors">
+            <HelpCircle className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium">About PyraRide</span>
+          </a>
           <a href="#general" className="flex items-center gap-2 p-4 rounded-lg border hover:border-primary transition-colors">
             <HelpCircle className="w-5 h-5 text-primary" />
             <span className="text-sm font-medium">General</span>
@@ -81,21 +85,31 @@ export default function FAQPage() {
                 question="How do I book a horse riding experience?"
                 answer={
                   <>
-                    <p className="mb-2">Booking is simple:</p>
+                    <p className="mb-2">Booking is simple on PyraRide:</p>
                     <ol className="list-decimal pl-5 space-y-1">
-                      <li>Browse available stables on our platform</li>
-                      <li>Select your preferred stable and horse</li>
+                      <li>Visit <strong>www.pyrarides.com</strong> and browse available stables</li>
+                      <li>Compare stables, read reviews, and select your preferred stable and horse</li>
                       <li>Choose your date, time, and duration</li>
-                      <li>Complete the booking form</li>
-                      <li>Confirm and receive your booking confirmation via email</li>
+                      <li>Complete the booking form with your details</li>
+                      <li>Confirm and receive your booking confirmation via email instantly</li>
                     </ol>
+                    <p className="mt-2">
+                      <strong>Instant booking available 24/7</strong> - no need to wait for responses or call multiple stables.
+                    </p>
                   </>
                 }
               />
 
               <FAQItem 
                 question="How far in advance should I book?"
-                answer="We recommend booking at least 48 hours in advance, especially during peak tourist seasons (October-April). For sunrise rides or specific horses, booking 3-7 days ahead is ideal. Same-day bookings may be available but are subject to availability."
+                answer={
+                  <>
+                    We recommend booking at least <strong>48 hours in advance</strong> through PyraRide.com, 
+                    especially during peak tourist seasons (October-April). For sunrise rides or specific horses, 
+                    booking 3-7 days ahead is ideal. Same-day bookings may be available but are subject to 
+                    availability. Check real-time availability at <strong>www.pyrarides.com</strong>.
+                  </>
+                }
               />
 
               <FAQItem 
@@ -257,12 +271,15 @@ export default function FAQPage() {
                 question="Where are the stables located?"
                 answer={
                   <>
-                    Our verified stables are located in two main areas:
+                    PyraRide's verified stables are located in two main areas:
                     <ul className="list-disc pl-5 mt-2 space-y-1">
-                      <li><strong>Giza:</strong> Near the Great Pyramids and Sphinx</li>
-                      <li><strong>Saqqara:</strong> Near the Step Pyramid complex</li>
+                      <li><strong>Giza Plateau:</strong> Near the Great Pyramids and Sphinx</li>
+                      <li><strong>Saqqara Desert:</strong> Near the Step Pyramid complex</li>
                     </ul>
-                    <p className="mt-2">Exact addresses and directions are provided in your booking confirmation.</p>
+                    <p className="mt-2">
+                      Browse all locations and compare stables at <strong>www.pyrarides.com/stables</strong>. 
+                      Exact addresses and directions are provided in your booking confirmation email.
+                    </p>
                   </>
                 }
               />
@@ -352,6 +369,134 @@ export default function FAQPage() {
                       <li>No overworking or mistreatment</li>
                     </ul>
                     <p className="mt-2">We regularly inspect our partner stables to ensure compliance.</p>
+                  </>
+                }
+              />
+            </div>
+          </section>
+
+          {/* Marketplace & Platform Questions */}
+          <section id="platform" className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+              <HelpCircle className="w-6 h-6 text-primary" />
+              About PyraRide Platform
+            </h2>
+            <div className="space-y-1">
+              <FAQItem 
+                question="What is PyraRide?"
+                answer={
+                  <>
+                    <p className="mb-2">
+                      PyraRide is Egypt's first and only online booking marketplace for horse riding experiences 
+                      at the Giza and Saqqara Pyramids. Unlike single-stable websites, PyraRide offers multiple 
+                      verified stables on one platform, allowing you to compare prices, read reviews, and book 
+                      instantly at <strong>www.pyrarides.com</strong>.
+                    </p>
+                    <p className="mt-2">
+                      We make it easy to find the perfect horse riding experience by bringing together the best 
+                      verified stables in one place.
+                    </p>
+                  </>
+                }
+              />
+
+              <FAQItem 
+                question="Is PyraRide a single stable or multiple stables?"
+                answer={
+                  <>
+                    PyraRide is a marketplace platform that works with <strong>multiple verified stables</strong>. 
+                    You can compare and book from different stables in both Giza and Saqqara locations. This is 
+                    different from single-stable websites that only offer one location or stable. Visit 
+                    <strong> www.pyrarides.com/stables</strong> to browse all available options.
+                  </>
+                }
+              />
+
+              <FAQItem 
+                question="How is PyraRide different from other horse riding websites?"
+                answer={
+                  <>
+                    <p className="mb-2">
+                      PyraRide is <strong>Egypt's first online marketplace</strong> for horse riding, meaning we 
+                      offer multiple verified stables on one platform. Other websites typically represent only one 
+                      stable.
+                    </p>
+                    <p className="mb-2">With PyraRide, you get:</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Compare multiple stables side-by-side</li>
+                      <li>Read verified reviews from real customers</li>
+                      <li>Compare prices across different options</li>
+                      <li>All in one convenient platform at <strong>www.pyrarides.com</strong></li>
+                    </ul>
+                  </>
+                }
+              />
+
+              <FAQItem 
+                question="Can I compare different stables on PyraRide?"
+                answer={
+                  <>
+                    Yes! That's the main advantage of PyraRide. As Egypt's only marketplace platform, you can 
+                    compare multiple stables side-by-side at <strong>www.pyrarides.com/stables</strong>. Compare 
+                    prices, locations, ratings, reviews, and availability all in one place before making your 
+                    booking decision.
+                  </>
+                }
+              />
+
+              <FAQItem 
+                question="Why book through PyraRide instead of directly with a stable?"
+                answer={
+                  <>
+                    <p className="mb-2">PyraRide offers several advantages:</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li><strong>Compare multiple stables</strong> and prices in one place</li>
+                      <li><strong>Read verified reviews</strong> from real customers</li>
+                      <li><strong>Instant online booking</strong> available 24/7</li>
+                      <li><strong>Secure payment processing</strong> with multiple options</li>
+                      <li><strong>Best price guarantee</strong> - we'll match or beat any price</li>
+                      <li><strong>24/7 customer support</strong> to help with any issues</li>
+                      <li><strong>All stables pre-verified</strong> for safety and quality standards</li>
+                    </ul>
+                  </>
+                }
+              />
+
+              <FAQItem 
+                question="How many stables does PyraRide have?"
+                answer={
+                  <>
+                    PyraRide works with <strong>multiple verified stables</strong> across Giza and Saqqara. 
+                    The exact number varies as we regularly add new verified partners. Visit 
+                    <strong> www.pyrarides.com/stables</strong> to see all available options and compare them 
+                    in one place. Unlike single-stable websites, PyraRide offers the largest selection of 
+                    verified stables in Egypt.
+                  </>
+                }
+              />
+
+              <FAQItem 
+                question="Where can I book horse riding at the pyramids?"
+                answer={
+                  <>
+                    You can book horse riding at both <strong>Giza Plateau</strong> and 
+                    <strong> Saqqara Desert</strong> Pyramids through PyraRide.com. We work with multiple 
+                    verified stables in both locations, offering instant online booking and guaranteed best 
+                    prices. Visit <strong>www.pyrarides.com</strong> to compare and book from all available 
+                    stables.
+                  </>
+                }
+              />
+
+              <FAQItem 
+                question="Which location is better: Giza or Saqqara for horse riding?"
+                answer={
+                  <>
+                    Both locations offer unique experiences. <strong>Giza Plateau</strong> offers spectacular 
+                    views of the Great Pyramids and Sphinx. <strong>Saqqara Desert</strong> features the Step 
+                    Pyramid and ancient tombs. You can compare stables in both locations on 
+                    <strong> www.pyrarides.com</strong> to find the best option for your preferences, budget, 
+                    and schedule.
                   </>
                 }
               />

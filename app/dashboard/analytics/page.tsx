@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import SimpleLineChart from "@/components/shared/SimpleLineChart";
 import Link from "next/link";
 
 interface AnalyticsData {
@@ -557,19 +558,43 @@ export default function AnalyticsPage() {
           </>
         )}
 
-        {/* Charts Placeholder */}
+        {/* Charts */}
         <div className="grid gap-6 md:grid-cols-2">
           <Card className="p-6">
             <h3 className="mb-4 font-semibold">Bookings Over Time</h3>
-            <div className="flex h-64 items-center justify-center text-muted-foreground">
-              <p>Chart visualization coming soon</p>
-            </div>
+            {analytics.bookingsByMonth && analytics.bookingsByMonth.length > 0 ? (
+              <SimpleLineChart
+                data={analytics.bookingsByMonth.map((item: any) => ({
+                  month: item.month,
+                  value: Number(item.count || item.booking_count || 0),
+                }))}
+                label="Bookings"
+                valueFormatter={(v) => Math.round(v).toString()}
+                color="hsl(var(--primary))"
+              />
+            ) : (
+              <div className="flex h-64 items-center justify-center text-muted-foreground">
+                <p>No booking data available</p>
+              </div>
+            )}
           </Card>
           <Card className="p-6">
             <h3 className="mb-4 font-semibold">Revenue Over Time</h3>
-            <div className="flex h-64 items-center justify-center text-muted-foreground">
-              <p>Chart visualization coming soon</p>
-            </div>
+            {analytics.revenueByMonth && analytics.revenueByMonth.length > 0 ? (
+              <SimpleLineChart
+                data={analytics.revenueByMonth.map((item: any) => ({
+                  month: item.month,
+                  value: Number(item.revenue || 0),
+                }))}
+                label="Revenue"
+                valueFormatter={(v) => `$${v.toFixed(2)}`}
+                color="hsl(var(--secondary))"
+              />
+            ) : (
+              <div className="flex h-64 items-center justify-center text-muted-foreground">
+                <p>No revenue data available</p>
+              </div>
+            )}
           </Card>
         </div>
       </div>

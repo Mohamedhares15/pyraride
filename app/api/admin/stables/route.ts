@@ -65,6 +65,7 @@ export async function GET(req: NextRequest) {
         imageUrl: stable.imageUrl,
         status: stable.status,
         isHidden: stable.isHidden,
+        commissionRate: stable.commissionRate ? Number(stable.commissionRate) : 0.15, // Default to 15% if not set
         createdAt: stable.createdAt.toISOString(),
         owner: stable.owner,
         rating: Number(avgRating.toFixed(1)),

@@ -44,12 +44,24 @@ export async function POST(
       );
     }
 
-    // Get booking
+    // Get booking with stable and horse details
     const booking = await prisma.booking.findUnique({
       where: { id: params.id },
       include: {
         rider: { select: { id: true } },
-        horse: { select: { id: true, isActive: true } },
+        horse: { 
+          select: { 
+            id: true, 
+            isActive: true,
+            pricePerHour: true 
+          } 
+        },
+        stable: {
+          select: {
+            id: true,
+            commissionRate: true,
+          },
+        },
       },
     });
 
@@ -121,8 +133,14 @@ export async function POST(
 
     // Calculate new price (in case duration changed)
     const hours = (newEnd.getTime() - newStart.getTime()) / (1000 * 60 * 60);
-    const newPrice = hours * 50;
-    const newCommission = newPrice * 0.2;
+    const pricePerHour = Number(booking.horse.pricePerHour ?? 50); // Default to 50 if not set
+    const newPrice = hours * pricePerHour;
+    
+    // Get commission rate from stable (default to 0.15 if not set)
+    const commissionRate = booking.stable.commissionRate 
+      ? Number(booking.stable.commissionRate) 
+      : 0.15; // Default 15%
+    const newCommission = newPrice * commissionRate;
 
     // Update booking
     const updatedBooking = await prisma.booking.update({

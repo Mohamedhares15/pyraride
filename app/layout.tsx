@@ -17,25 +17,37 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: {
-    default: "PyraRide - Book Your Trusted Giza Horse Riding Experience",
-    template: "%s | PyraRide",
+    default: "Book Horse Riding at Pyramids Egypt | PyraRide - #1 Marketplace",
+    template: "%s | PyraRide - Egypt's Horse Riding Booking Platform",
   },
-  description: "Book your trusted, vetted ride at the Giza and Saqqara Pyramids. Professional horse stables with verified reviews and safety certifications. Instant booking, secure payments, best price guarantee.",
+  description: "PyraRide is Egypt's first online marketplace for booking horse riding experiences at the Giza and Saqqara Pyramids. Compare and book from multiple verified stables in one platform. 100% verified, instant booking, best prices guaranteed. ⭐ 4.9/5 rating.",
   keywords: [
+    // Primary keywords
+    "horse riding Egypt",
+    "horse riding pyramids",
     "horse riding Giza",
-    "horse riding pyramids Egypt",
-    "Giza horse riding tours",
-    "horse riding near pyramids",
+    "book horse riding Egypt",
+    "horse riding booking Egypt",
+    // Marketplace keywords
+    "horse riding marketplace Egypt",
+    "compare horse riding stables",
+    "horse riding platform Egypt",
+    "online horse riding booking Egypt",
+    // Location keywords
+    "Giza horse riding",
     "Saqqara horse riding",
+    "horse riding near pyramids",
     "pyramid horse tours",
     "horse stables Giza",
     "Egypt horse riding",
     "Cairo horse riding",
     "book horse ride Giza",
+    // Experience keywords
     "safe horse riding Egypt",
     "Arabian horse riding",
     "sunset horse riding pyramids",
     "horse riding experience Egypt",
+    "best horse riding Egypt",
   ],
   authors: [{ name: "PyraRide" }],
   creator: "PyraRide",
@@ -116,9 +128,27 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "PyraRide",
+              "alternateName": "PyraRide - Horse Riding Booking Platform",
               "url": "https://www.pyrarides.com",
               "logo": "https://www.pyrarides.com/logo.png",
-              "description": "Book your trusted, vetted ride at the Giza and Saqqara Pyramids",
+              "description": "Egypt's first and only online booking marketplace for horse riding experiences at the Giza and Saqqara Pyramids. Book from multiple verified stables in one platform.",
+              "knowsAbout": [
+                "Horse Riding Tours",
+                "Giza Pyramids",
+                "Saqqara Pyramids",
+                "Egypt Tourism",
+                "Adventure Travel",
+                "Online Booking Platform",
+                "Travel Marketplace"
+              ],
+              "makesOffer": {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Online Horse Riding Booking Platform",
+                  "description": "Book from multiple verified horse stables at Giza and Saqqara Pyramids"
+                }
+              },
               "sameAs": [
                 "https://facebook.com/pyraride",
                 "https://instagram.com/pyraride",
@@ -162,7 +192,7 @@ export default function RootLayout({
               "@type": "LocalBusiness",
               "name": "PyraRide",
               "image": "https://www.pyrarides.com/logo.png",
-              "description": "Egypt's #1 trusted platform for booking horse riding experiences at the Giza and Saqqara Pyramids",
+              "description": "Egypt's first online marketplace for booking horse riding experiences at the Giza and Saqqara Pyramids. Compare and book from multiple verified stables in one platform. Unlike single-stable websites, PyraRide offers the largest selection of verified stables.",
               "address": {
                 "@type": "PostalAddress",
                 "streetAddress": "Giza District",

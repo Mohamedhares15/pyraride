@@ -325,7 +325,7 @@ export default function StableDetailPage() {
       </div>
 
       {/* Hero Image */}
-      <div className="relative h-[400px] w-full overflow-hidden">
+      <div className="relative h-[400px] w-full overflow-hidden" role="img" aria-label={`${stable.name} - Horse riding stable in ${stable.location}, Egypt`}>
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -402,6 +402,50 @@ export default function StableDetailPage() {
               />
             </Card>
 
+            {/* SEO Content Section */}
+            <Card className="p-6 space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold mb-4">About {stable.name}</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  {stable.description}
+                </p>
+                <p className="text-muted-foreground leading-relaxed mt-4">
+                  Located at <strong>{stable.location} Pyramids</strong>, {stable.name} offers authentic horse riding 
+                  experiences with stunning views of Egypt's most iconic landmarks. Book your adventure 
+                  through <strong>PyraRide.com</strong> - Egypt's trusted booking marketplace for horse riding experiences 
+                  at the pyramids. As part of PyraRide's verified stable network, {stable.name} has been thoroughly 
+                  inspected for safety, quality, and animal welfare standards.
+                </p>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-bold mb-4">Why Book {stable.name} on PyraRide?</h2>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                  <li><strong>Instant booking confirmation</strong> - No waiting for responses</li>
+                  <li><strong>Verified stable</strong> with {stable.rating > 0 ? `${stable.rating.toFixed(1)}⭐` : 'excellent'} rating from {stable.totalReviews} {stable.totalReviews === 1 ? 'review' : 'reviews'}</li>
+                  <li><strong>Secure online payment</strong> with multiple payment options</li>
+                  <li><strong>Best price guarantee</strong> - We'll match or beat any price</li>
+                  <li><strong>24/7 customer support</strong> to help with any questions</li>
+                  <li><strong>Compare with other stables</strong> before booking - only on PyraRide</li>
+                  <li><strong>Verified for safety</strong> - All PyraRide stables meet strict safety and quality standards</li>
+                </ul>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-bold mb-4">Location & Directions</h2>
+                <p className="text-muted-foreground mb-2">
+                  {stable.address ? `${stable.address}, ` : ''}<strong>{stable.location}</strong>, Egypt. 
+                  Easily accessible from Cairo city center, typically a 30-45 minute drive. 
+                  Free parking is available at most stables.
+                </p>
+                <p className="text-muted-foreground">
+                  GPS coordinates and detailed Google Maps directions are provided in your booking confirmation email. 
+                  Most hotels in Cairo can arrange transportation, or you can use taxi/Uber services. Some stables 
+                  offer hotel pickup services for an additional fee.
+                </p>
+              </div>
+            </Card>
+
             {/* Horses */}
             <div>
               <h2 className="mb-6 font-display text-2xl font-bold">Our Horses</h2>
@@ -465,9 +509,10 @@ export default function StableDetailPage() {
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
                                 src={heroImage}
-                                alt={horse.name}
+                                alt={`${horse.name} - Horse available for riding at ${stable.name} in ${stable.location}, Egypt. ${horse.description ? horse.description.substring(0, 80) : 'Professional horse with excellent training.'}`}
                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                 draggable={false}
+                                loading="lazy"
                               />
                             ) : (
                               <div className="absolute inset-0 flex items-center justify-center">
@@ -845,7 +890,7 @@ export default function StableDetailPage() {
               <img
                 key={portfolioViewer.items[portfolioViewer.index]?.url}
                 src={portfolioViewer.items[portfolioViewer.index]?.url || "/hero-bg.webp"}
-                alt={`${portfolioViewer.horseName} portfolio`}
+                alt={`${portfolioViewer.horseName} - Photo ${portfolioViewer.index + 1} of ${portfolioViewer.items.length} from ${stable.name} horse riding stable in ${stable.location}, Egypt`}
                 className="max-h-full max-w-full object-contain"
                 style={{
                   filter: 'contrast(1.08) brightness(1.03) saturate(1.1)',
@@ -978,8 +1023,9 @@ export default function StableDetailPage() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={item.url}
-                        alt={`Thumbnail ${idx + 1}`}
+                        alt={`${portfolioViewer.horseName} - Thumbnail ${idx + 1} of ${portfolioViewer.items.length} from ${stable.name} portfolio`}
                         className="h-full w-full object-cover"
+                        loading="lazy"
                       />
                     )}
                   </button>

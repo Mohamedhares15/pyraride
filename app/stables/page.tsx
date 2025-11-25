@@ -7,22 +7,38 @@ export const revalidate = 3600; // Revalidate every hour
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Browse Stables in Giza and Saqqara | PyraRide",
-    description: "Find trusted horse stables in Giza and Saqqara. Book your unforgettable riding experience at the pyramids with verified reviews and safety certifications.",
-    keywords: ["horse stables", "Giza", "Saqqara", "pyramids", "horse riding", "Egypt", "tourist attractions"],
+    title: "Browse 20+ Horse Riding Stables at Giza & Saqqara | PyraRide",
+    description: "Compare and book from 20+ verified horse riding stables at Giza and Saqqara Pyramids. Read reviews, compare prices, instant booking. Egypt's #1 horse riding marketplace at www.pyrarides.com.",
+    keywords: [
+      "horse stables Egypt",
+      "Giza horse riding stables",
+      "Saqqara horse riding",
+      "compare horse riding stables",
+      "horse riding marketplace Egypt",
+      "pyramid horse stables",
+      "horse stables",
+      "Giza",
+      "Saqqara",
+      "pyramids",
+      "horse riding",
+      "Egypt",
+      "tourist attractions",
+      "book horse riding online",
+      "horse riding platform Egypt"
+    ],
     alternates: {
       canonical: "https://www.pyrarides.com/stables",
     },
     openGraph: {
-      title: "Browse Stables in Giza and Saqqara",
-      description: "Find trusted horse stables in Giza and Saqqara",
+      title: "Browse 20+ Horse Riding Stables at Giza & Saqqara | PyraRide",
+      description: "Compare and book from 20+ verified horse riding stables. Egypt's #1 marketplace for pyramid horse riding experiences.",
       type: "website",
       url: "https://www.pyrarides.com/stables",
     },
     twitter: {
       card: "summary_large_image",
-      title: "Browse Stables in Giza and Saqqara",
-      description: "Find trusted horse stables in Giza and Saqqara",
+      title: "Browse 20+ Horse Riding Stables at Giza & Saqqara",
+      description: "Compare and book from 20+ verified stables. Egypt's #1 marketplace for pyramid horse riding.",
     },
   };
 }

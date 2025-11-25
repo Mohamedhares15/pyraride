@@ -86,6 +86,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Get commission rate from stable (default to 0.15 if not set)
+    const commissionRate = stable.commissionRate 
+      ? Number(stable.commissionRate) 
+      : 0.15; // Default 15%
+
     // Check if horse exists and is active
     const horse = await prisma.horse.findUnique({
       where: {
@@ -147,7 +152,7 @@ export async function POST(req: NextRequest) {
     // Calculate price using horse's actual price per hour
     const pricePerHour = Number(horse.pricePerHour ?? 50); // Default to 50 if not set
     const totalPrice = hours * pricePerHour;
-    const commission = totalPrice * 0.15; // 15% commission
+    const commission = totalPrice * commissionRate;
 
     // Create booking
     const booking = await prisma.booking.create({

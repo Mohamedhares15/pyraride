@@ -204,14 +204,17 @@ export default function StablesClient() {
           </div>
           <div className="max-w-3xl">
             <h1 className="mb-4 font-display text-2xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-              Discover Your Next{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                Adventure
-              </span>
+              Book Horse Riding at Giza & Saqqara Pyramids
             </h1>
-            <p className="text-sm md:text-lg text-muted-foreground">
-              Explore our curated selection of trusted stables in Giza and Saqqara.
-              Each stable is vetted for quality, safety, and unforgettable experiences.
+            <p className="text-sm md:text-lg text-muted-foreground mb-4">
+              <strong>PyraRide is Egypt's first online marketplace</strong> for booking horse riding experiences 
+              at the pyramids. Compare multiple verified stables, read authentic reviews, and book instantly 
+              with guaranteed best prices.
+            </p>
+            <p className="text-sm md:text-base text-muted-foreground">
+              <strong>Why choose PyraRide?</strong> Unlike single-stable websites, we offer multiple stables 
+              in one platform, making it easy to compare prices, locations, and reviews. All stables are 
+              verified for safety and quality. Instant booking, secure payments, 24/7 support.
             </p>
           </div>
         </div>

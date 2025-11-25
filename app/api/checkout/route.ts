@@ -67,6 +67,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Get commission rate from stable (default to 0.15 if not set)
+    const commissionRate = stable.commissionRate 
+      ? Number(stable.commissionRate) 
+      : 0.15; // Default 15%
+
     // Check if horse exists and is active
     const horse = await prisma.horse.findUnique({
       where: {
@@ -139,7 +144,7 @@ export async function POST(req: NextRequest) {
             startTime,
             endTime,
             totalPrice: parseFloat(totalPrice.toString()),
-            commission: parseFloat(totalPrice.toString()) * 0.2,
+            commission: parseFloat(totalPrice.toString()) * commissionRate,
             status: "confirmed",
             stripePaymentId: null, // Will be updated after payment
             cancellationReason: bookingMeta, // Temporarily store stable location here

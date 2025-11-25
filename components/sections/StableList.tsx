@@ -113,9 +113,10 @@ export default function StableList({ results, mode, isLoading }: StableListProps
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={heroImage}
-                        alt={item.name}
+                        alt={`${item.name} - Horse riding experience at ${item.stableLocation}, Egypt. Starting at ${priceLabel}.`}
                         className="absolute inset-0 w-full h-full object-cover"
                         draggable={false}
+                        loading={index !== undefined && index >= 6 ? "lazy" : undefined}
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">

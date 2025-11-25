@@ -49,8 +49,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
         : 0;
 
     const location = stable.location === "Giza" ? "Giza Plateau" : "Saqqara Desert";
-    const title = `${stable.name} - ${location} Horse Riding | PyraRide`;
-    const description = `${stable.description.substring(0, 150)}... Book your trusted horse riding experience at ${stable.location} pyramids. ${stable._count.reviews} reviews, ${avgRating.toFixed(1)}⭐ rating.`;
+    const title = `${stable.name} - Horse Riding in ${location} | Book on PyraRide`;
+    const description = `Book ${stable.name} at ${location} Pyramids through PyraRide - Egypt's #1 horse riding marketplace. ${stable.description.substring(0, 120)}... ${stable._count.reviews} reviews, ${avgRating.toFixed(1)}⭐ rating. Instant booking at www.pyrarides.com.`;
 
     const ogImage = stable.imageUrl || "https://www.pyrarides.com/og-image.jpg";
 
@@ -58,10 +58,16 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       title,
       description,
       keywords: [
+        `${stable.name} horse riding`,
         `horse riding ${stable.location}`,
-        `${stable.location} stables`,
+        `${stable.location} horse stables`,
+        `${stable.location} pyramids horse riding`,
+        `book ${stable.name}`,
+        `${stable.location} horse stable`,
         "pyramid horse tours",
         "Egypt horse riding",
+        "book horse ride Egypt",
+        "horse riding marketplace Egypt",
         stable.name.toLowerCase(),
         "book horse ride",
         "Giza pyramids horse",

@@ -14,10 +14,14 @@ import {
   MapPin,
   Star,
   Calendar,
+  DollarSign,
+  Settings,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
 interface Stable {
@@ -28,6 +32,7 @@ interface Stable {
   status: "pending_approval" | "approved" | "rejected";
   isHidden: boolean;
   imageUrl?: string | null;
+  commissionRate?: number; // Commission rate (0.15 = 15%)
   createdAt: string;
   owner: {
     id: string;
@@ -51,6 +56,9 @@ export default function AdminStablesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "visible" | "hidden">("all");
+  const [editingCommission, setEditingCommission] = useState<string | null>(null);
+  const [commissionRate, setCommissionRate] = useState<{ [key: string]: number }>({});
+  const [updatingCommission, setUpdatingCommission] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -132,6 +140,48 @@ export default function AdminStablesPage() {
       alert(error.message || "Failed to update visibility");
     } finally {
       setTogglingId(null);
+    }
+  }
+
+  async function updateCommission(stableId: string) {
+    try {
+      setUpdatingCommission(stableId);
+      const rate = commissionRate[stableId];
+      
+      if (rate === undefined || rate < 0 || rate > 1) {
+        alert("Commission rate must be between 0 and 1 (e.g., 0.15 for 15%)");
+        return;
+      }
+
+      const response = await fetch(`/api/admin/stables/${stableId}/commission`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ commissionRate: rate }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to update commission rate");
+      }
+
+      // Update local state
+      setStables((prev) =>
+        prev.map((stable) =>
+          stable.id === stableId
+            ? { ...stable, commissionRate: rate }
+            : stable
+        )
+      );
+
+      setEditingCommission(null);
+      alert(`Commission rate updated to ${(rate * 100).toFixed(1)}%`);
+    } catch (error: any) {
+      console.error("Error updating commission:", error);
+      alert(error.message || "Failed to update commission rate");
+    } finally {
+      setUpdatingCommission(null);
     }
   }
 
@@ -311,41 +361,125 @@ export default function AdminStablesPage() {
                         {stable.status.replace("_", " ").toUpperCase()}
                       </span>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">Commission: </span>
+                      <span className="font-medium">
+                        {((stable.commissionRate ?? 0.15) * 100).toFixed(1)}%
+                      </span>
+                    </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-2">
-                    <Button
-                      variant={stable.isHidden ? "default" : "outline"}
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => toggleVisibility(stable.id, stable.isHidden)}
-                      disabled={togglingId === stable.id}
-                    >
-                      {togglingId === stable.id ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Updating...
-                        </>
-                      ) : stable.isHidden ? (
-                        <>
-                          <Eye className="mr-2 h-4 w-4" />
-                          Show
-                        </>
-                      ) : (
-                        <>
-                          <EyeOff className="mr-2 h-4 w-4" />
-                          Hide
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild
-                    >
-                      <Link href={`/stables/${stable.id}`}>View</Link>
-                    </Button>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-2">
+                      <Button
+                        variant={stable.isHidden ? "default" : "outline"}
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => toggleVisibility(stable.id, stable.isHidden)}
+                        disabled={togglingId === stable.id}
+                      >
+                        {togglingId === stable.id ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Updating...
+                          </>
+                        ) : stable.isHidden ? (
+                          <>
+                            <Eye className="mr-2 h-4 w-4" />
+                            Show
+                          </>
+                        ) : (
+                          <>
+                            <EyeOff className="mr-2 h-4 w-4" />
+                            Hide
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                      >
+                        <Link href={`/stables/${stable.id}`}>View</Link>
+                      </Button>
+                    </div>
+                    <Dialog open={editingCommission === stable.id} onOpenChange={(open) => {
+                      if (!open) setEditingCommission(null);
+                      else {
+                        setEditingCommission(stable.id);
+                        setCommissionRate(prev => ({
+                          ...prev,
+                          [stable.id]: stable.commissionRate ?? 0.15
+                        }));
+                      }
+                    }}>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                        >
+                          <Settings className="mr-2 h-4 w-4" />
+                          Set Commission
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Set Commission Rate</DialogTitle>
+                          <DialogDescription>
+                            Set the commission rate for {stable.name}. This rate will be applied to all future bookings.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="commission">Commission Rate (%)</Label>
+                            <Input
+                              id="commission"
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.1"
+                              value={((commissionRate[stable.id] ?? stable.commissionRate ?? 0.15) * 100).toFixed(1)}
+                              onChange={(e) => {
+                                const value = parseFloat(e.target.value) / 100;
+                                setCommissionRate(prev => ({
+                                  ...prev,
+                                  [stable.id]: value
+                                }));
+                              }}
+                              placeholder="15.0"
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Enter as percentage (e.g., 15 for 15%). Current: {((stable.commissionRate ?? 0.15) * 100).toFixed(1)}%
+                            </p>
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button
+                            variant="outline"
+                            onClick={() => setEditingCommission(null)}
+                            disabled={updatingCommission === stable.id}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={() => updateCommission(stable.id)}
+                            disabled={updatingCommission === stable.id}
+                          >
+                            {updatingCommission === stable.id ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Updating...
+                              </>
+                            ) : (
+                              "Save"
+                            )}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </Card>
               </motion.div>

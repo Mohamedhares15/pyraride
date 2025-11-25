@@ -42,9 +42,9 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative h-[100dvh] min-h-[100vh] w-full overflow-hidden">
+    <section className="relative h-[100dvh] min-h-[100vh] w-full overflow-hidden" aria-label="Hero section - Book your horse riding experience at the Giza and Saqqara Pyramids">
       {/* Horse Riding with Pyramids Background */}
-      <div className="fixed inset-0 z-0">
+      <div className="fixed inset-0 z-0" role="img" aria-label="Horse riding at the Giza Pyramids, Egypt">
         <div
           className="absolute inset-0 h-full w-full"
           style={{

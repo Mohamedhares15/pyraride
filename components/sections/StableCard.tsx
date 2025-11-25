@@ -46,7 +46,7 @@ export default function StableCard({ stable, index, href }: StableCardProps) {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={imageSrc}
-                alt={stable.name}
+                alt={`${stable.name} - Horse riding stable in ${stable.location}, Egypt. ${stable.description ? stable.description.substring(0, 100) : 'Professional horse stables with verified reviews and safety certifications.'}`}
                 className="absolute inset-0 w-full h-full object-cover"
                 draggable={false}
                 loading={index !== undefined && index >= 6 ? "lazy" : undefined}

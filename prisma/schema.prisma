@@ -53,16 +53,17 @@ model User {
 }
 
 model Stable {
-  id          String       @id @default(uuid())
-  ownerId     String       @unique // Each stable has one owner
-  name        String
-  description String       @db.Text
-  location    String // "Giza" or "Saqqara"
-  address     String
-  imageUrl    String? // Stable card image
-  status      StableStatus @default(pending_approval)
-  isHidden    Boolean      @default(false) // Admin can hide/show stables individually
-  createdAt   DateTime     @default(now())
+  id            String       @id @default(uuid())
+  ownerId       String       @unique // Each stable has one owner
+  name          String
+  description   String       @db.Text
+  location      String // "Giza" or "Saqqara"
+  address       String
+  imageUrl      String? // Stable card image
+  status        StableStatus @default(pending_approval)
+  isHidden      Boolean      @default(false) // Admin can hide/show stables individually
+  commissionRate Decimal      @default(0.15) @db.Decimal(5, 4) // Commission rate (0.15 = 15%), can be customized per stable
+  createdAt     DateTime     @default(now())
 
   // Relations
   owner    User      @relation(fields: [ownerId], references: [id])

@@ -53,10 +53,34 @@ export function FAQPageSchema() {
     "mainEntity": [
       {
         "@type": "Question",
+        "name": "What is PyraRide?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "PyraRide is Egypt's first and only online booking marketplace for horse riding experiences at the Giza and Saqqara Pyramids. Unlike single-stable websites, PyraRide offers multiple verified stables on one platform, allowing you to compare prices, read reviews, and book instantly at www.pyrarides.com."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Where can I book horse riding at the pyramids?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You can book horse riding at both Giza and Saqqara Pyramids through PyraRide.com. We work with multiple verified stables in both locations, offering instant online booking and guaranteed best prices. Visit www.pyrarides.com to compare and book."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is PyraRide a single stable or multiple stables?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "PyraRide is a marketplace platform that works with multiple verified stables. You can compare and book from different stables in Giza and Saqqara, unlike single-stable websites that only offer one location."
+        }
+      },
+      {
+        "@type": "Question",
         "name": "How do I book a horse riding experience?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Booking is simple: Browse available stables on our platform, select your preferred stable and horse, choose your date, time, and duration, complete the booking form, and receive your booking confirmation via email."
+          "text": "Booking is simple on PyraRide: Browse available stables at www.pyrarides.com, select your preferred stable and horse, choose your date, time, and duration, complete the booking form, and receive your booking confirmation via email. Instant booking available 24/7."
         }
       },
       {
@@ -64,7 +88,7 @@ export function FAQPageSchema() {
         "name": "What payment methods do you accept?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "We accept major credit cards (Visa, Mastercard), debit cards, and some local payment methods. Some stables may also accept cash payment on-site."
+          "text": "PyraRide accepts major credit cards (Visa, Mastercard), debit cards, and some local payment methods. Some stables may also accept cash payment on-site. Payment options are displayed during checkout."
         }
       },
       {
@@ -72,7 +96,7 @@ export function FAQPageSchema() {
         "name": "Can I cancel my booking?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes! 48+ hours before: 100% refund. 24-48 hours before: 50% refund. Less than 24 hours: No refund. Modifications are free if made 48+ hours in advance."
+          "text": "Yes! Cancellation policy on PyraRide: 48+ hours before: 100% refund. 24-48 hours before: 50% refund. Less than 24 hours: No refund. Modifications are free if made 48+ hours in advance."
         }
       },
       {
@@ -80,7 +104,7 @@ export function FAQPageSchema() {
         "name": "Is horse riding safe for beginners?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes! All our verified stables offer beginner-friendly horses, safety equipment, professional guides, and safety briefings before each ride."
+          "text": "Yes! All PyraRide verified stables offer beginner-friendly horses, safety equipment, professional guides, and safety briefings before each ride. No prior experience needed."
         }
       },
       {
@@ -88,7 +112,63 @@ export function FAQPageSchema() {
         "name": "How much does a horse riding experience cost?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Prices vary by stable and experience. Standard 1-hour rides: $30-50 USD. Premium Arabian horses: $50-80 USD per hour. Sunrise/sunset tours: $60-100 USD."
+          "text": "Prices on PyraRide vary by stable and experience. Standard 1-hour rides: EGP 300-500 (approx $30-50 USD). Premium Arabian horses: EGP 500-800 per hour. Sunrise/sunset tours: EGP 600-1000. Visit www.pyrarides.com to see current prices."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I compare different stables on PyraRide?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes! That's the main advantage of PyraRide. As Egypt's only marketplace platform, you can compare multiple stables side-by-side, read reviews, compare prices, and choose the best option for your needs. Visit www.pyrarides.com/stables to browse all options."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is PyraRide different from other horse riding websites?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "PyraRide is Egypt's first online marketplace for horse riding, meaning we offer multiple verified stables on one platform. Other websites typically represent only one stable. With PyraRide, you can compare prices, locations, and reviews all in one place at www.pyrarides.com."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Where can I go horse riding at the pyramids?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You can book horse riding at both Giza Plateau and Saqqara Desert Pyramids through PyraRide.com. We offer verified stables in both locations, allowing you to choose based on your preference. All bookings can be made instantly online."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which location is better: Giza or Saqqara for horse riding?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Both locations offer unique experiences. Giza Plateau offers views of the Great Pyramids and Sphinx. Saqqara features the Step Pyramid and ancient tombs. You can compare stables in both locations on PyraRide.com to find the best option for your preferences."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need to book in advance?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We recommend booking at least 48 hours in advance through PyraRide.com, especially during peak tourist seasons (October-April). For sunrise rides or specific horses, booking 3-7 days ahead is ideal. Same-day bookings may be available but subject to availability."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How many stables does PyraRide have?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "PyraRide works with multiple verified stables across Giza and Saqqara. The exact number varies as we regularly add new verified partners. Visit www.pyrarides.com/stables to see all available options and compare them in one place."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why book through PyraRide instead of directly with a stable?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "PyraRide offers several advantages: Compare multiple stables and prices in one place, read verified reviews from real customers, instant online booking 24/7, secure payment processing, best price guarantee, and 24/7 customer support. All stables are pre-verified for safety and quality."
         }
       }
     ]
