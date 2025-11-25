@@ -4,6 +4,35 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
+// Helper function to safely convert month/date values returned from SQL queries
+function serializeMonthlyData(data: any[] = []) {
+  return data.map((item) => {
+    let monthValue = item.month;
+
+    if (monthValue instanceof Date) {
+      monthValue = monthValue.toISOString();
+    } else if (
+      monthValue &&
+      typeof monthValue === "object" &&
+      "toISOString" in monthValue
+    ) {
+      monthValue = new Date(monthValue as any).toISOString();
+    } else if (typeof monthValue === "string") {
+      const parsed = new Date(monthValue);
+      monthValue = isNaN(parsed.getTime())
+        ? new Date().toISOString()
+        : parsed.toISOString();
+    } else {
+      monthValue = new Date().toISOString();
+    }
+
+    return {
+      ...item,
+      month: monthValue,
+    };
+  });
+}
+
 // Helper function to convert BigInt and Decimal values to numbers for JSON serialization
 function convertBigIntToNumber(obj: any): any {
   if (obj === null || obj === undefined) {
@@ -169,9 +198,11 @@ export async function GET(req: NextRequest) {
         const totalRevenue = results[3].status === "fulfilled" ? results[3].value : { _sum: { totalPrice: null } };
         const completedBookings = results[4].status === "fulfilled" ? results[4].value : 0;
         const bookingsByStatus = results[5].status === "fulfilled" ? results[5].value : [];
-        const bookingsByMonth = results[6].status === "fulfilled" ? results[6].value : [];
+        const bookingsByMonthRaw = results[6].status === "fulfilled" ? results[6].value : [];
         const topStables = results[7].status === "fulfilled" ? results[7].value : [];
-        const revenueByMonth = results[8].status === "fulfilled" ? results[8].value : [];
+        const revenueByMonthRaw = results[8].status === "fulfilled" ? results[8].value : [];
+        const bookingsByMonth = serializeMonthlyData(bookingsByMonthRaw as any[]);
+        const revenueByMonth = serializeMonthlyData(revenueByMonthRaw as any[]);
 
         // Log any failed queries
         results.forEach((result, index) => {
@@ -490,8 +521,10 @@ export async function GET(req: NextRequest) {
         const totalBookings = ownerResults[0].status === "fulfilled" ? ownerResults[0].value : 0;
         const completedBookings = ownerResults[1].status === "fulfilled" ? ownerResults[1].value : 0;
         const totalEarnings = ownerResults[2].status === "fulfilled" ? ownerResults[2].value : { _sum: { totalPrice: null, commission: null } };
-        const bookingsByMonth = ownerResults[3].status === "fulfilled" ? ownerResults[3].value : [];
-        const revenueByMonth = ownerResults[4].status === "fulfilled" ? ownerResults[4].value : [];
+        const bookingsByMonthRaw = ownerResults[3].status === "fulfilled" ? ownerResults[3].value : [];
+        const revenueByMonthRaw = ownerResults[4].status === "fulfilled" ? ownerResults[4].value : [];
+        const bookingsByMonth = serializeMonthlyData(bookingsByMonthRaw as any[]);
+        const revenueByMonth = serializeMonthlyData(revenueByMonthRaw as any[]);
         const cancellations = ownerResults[5].status === "fulfilled" ? ownerResults[5].value : 0;
         const avgRating = ownerResults[6].status === "fulfilled" ? ownerResults[6].value : { _avg: { stableRating: null, horseRating: null } };
 
