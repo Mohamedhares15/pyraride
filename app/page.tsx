@@ -82,8 +82,8 @@ export default function HomePage() {
             ))}
           </div>
           
-          {/* Social Icons - Mobile Only (under last two FAQ items) */}
-          <div className="flex items-center justify-center gap-6 mt-8 md:hidden">
+          {/* Social Icons - Desktop and Mobile (under FAQ items) */}
+          <div className="flex items-center justify-center gap-6 mt-8">
             <Link 
               href="https://instagram.com/pyrarides" 
               target="_blank"

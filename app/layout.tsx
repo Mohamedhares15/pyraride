@@ -5,6 +5,7 @@ import ImageProtectionProvider from "@/components/providers/ImageProtectionProvi
 import AIAgent from "@/components/shared/AIAgent";
 import CookieConsent from "@/components/shared/CookieConsent";
 import Footer from "@/components/shared/Footer";
+import OrientationLock from "@/components/shared/OrientationLock";
 import { GoogleAnalytics, Plausible } from "@/components/shared/Analytics";
 import "./globals.css";
 
@@ -323,6 +324,7 @@ export default function RootLayout({
         
         <AuthProvider>
           <ImageProtectionProvider />
+          <OrientationLock />
           <main id="main-content" className="pb-0">{children}</main>
           <Footer />
           <AIAgent />
