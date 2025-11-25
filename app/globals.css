@@ -2,8 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Mobile-specific improvements */
+/* Mobile-specific improvements - Lock to portrait orientation */
 @media (max-width: 768px) {
+  /* Prevent landscape layout on mobile - enforce portrait-only view */
+  @media screen and (orientation: landscape) and (max-height: 600px) {
+    body {
+      overflow: hidden;
+    }
+    
+    body::before {
+      content: "Please rotate your device to portrait mode for the best experience.";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      z-index: 9999;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+  }
+  
   /* Better font sizes on mobile */
   h1 { font-size: clamp(1.75rem, 5vw, 2.25rem) !important; line-height: 1.2 !important; }
   h2 { font-size: clamp(1.5rem, 4vw, 2rem) !important; line-height: 1.3 !important; }

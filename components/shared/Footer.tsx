@@ -13,7 +13,7 @@ function TikTokIcon({ className }: { className?: string }) {
 
 export default function Footer() {
   return (
-    <footer className="bg-secondary border-t">
+    <footer className="bg-secondary border-t hidden md:block">
       <div className="mx-auto max-w-7xl px-4 py-12 md:py-16">
         {/* Newsletter Signup */}
         <div className="mb-12">
