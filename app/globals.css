@@ -4,28 +4,22 @@
 
 /* Mobile-specific improvements - Lock to portrait orientation */
 @media (max-width: 768px) {
-  /* Prevent landscape view on mobile by forcing portrait dimensions */
+  /* Force portrait layout even when device rotates to landscape */
   @media screen and (orientation: landscape) {
-    html, body {
-      width: 100vw !important;
-      height: 100vh !important;
-      overflow: hidden !important;
-      position: fixed !important;
-    }
-    
-    /* Show message to rotate device */
-    body::before {
-      content: "";
+    html {
+      width: 100vh;
+      height: 100vw;
+      transform: rotate(90deg);
+      transform-origin: 0 0;
       position: fixed;
       top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.98);
-      z-index: 99999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      left: 100vw;
+    }
+    
+    body {
+      width: 100vh;
+      height: 100vw;
+      overflow-x: hidden;
     }
   }
   
