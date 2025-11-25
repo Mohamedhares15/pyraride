@@ -564,10 +564,23 @@ export default function AnalyticsPage() {
             <h3 className="mb-4 font-semibold">Bookings Over Time</h3>
             {analytics.bookingsByMonth && analytics.bookingsByMonth.length > 0 ? (
               <SimpleLineChart
-                data={analytics.bookingsByMonth.map((item: any) => ({
-                  month: item.month,
-                  value: Number(item.count || item.booking_count || 0),
-                }))}
+                data={analytics.bookingsByMonth.map((item: any) => {
+                  // Handle month conversion - it might be a string or Date-like object
+                  let month: string | Date = item.month;
+                  if (item.month && typeof item.month === 'object' && 'toISOString' in item.month) {
+                    month = new Date(item.month);
+                  } else if (typeof month === 'string') {
+                    // Already a string, pass through
+                    month = month;
+                  } else {
+                    // Try to convert to ISO string if it's a date-like object
+                    month = new Date(item.month).toISOString();
+                  }
+                  return {
+                    month: month,
+                    value: Number(item.count || item.booking_count || 0),
+                  };
+                })}
                 label="Bookings"
                 valueFormatter={(v) => Math.round(v).toString()}
                 color="hsl(var(--primary))"
@@ -582,10 +595,23 @@ export default function AnalyticsPage() {
             <h3 className="mb-4 font-semibold">Revenue Over Time</h3>
             {analytics.revenueByMonth && analytics.revenueByMonth.length > 0 ? (
               <SimpleLineChart
-                data={analytics.revenueByMonth.map((item: any) => ({
-                  month: item.month,
-                  value: Number(item.revenue || 0),
-                }))}
+                data={analytics.revenueByMonth.map((item: any) => {
+                  // Handle month conversion - it might be a string or Date-like object
+                  let month: string | Date = item.month;
+                  if (item.month && typeof item.month === 'object' && 'toISOString' in item.month) {
+                    month = new Date(item.month);
+                  } else if (typeof month === 'string') {
+                    // Already a string, pass through
+                    month = month;
+                  } else {
+                    // Try to convert to ISO string if it's a date-like object
+                    month = new Date(item.month).toISOString();
+                  }
+                  return {
+                    month: month,
+                    value: Number(item.revenue || 0),
+                  };
+                })}
                 label="Revenue"
                 valueFormatter={(v) => `$${v.toFixed(2)}`}
                 color="hsl(var(--secondary))"

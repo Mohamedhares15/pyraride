@@ -29,11 +29,29 @@ export default function SimpleLineChart({
 
   // Convert month strings/dates to Date objects and sort
   const sortedData = [...data]
-    .map((d) => ({
-      ...d,
-      month: typeof d.month === "string" ? new Date(d.month) : d.month,
-      value: typeof d.value === "number" ? d.value : parseFloat(String(d.value)) || 0,
-    }))
+    .map((d) => {
+      let monthDate: Date;
+      if (d.month instanceof Date) {
+        monthDate = d.month;
+      } else if (typeof d.month === "string") {
+        monthDate = new Date(d.month);
+        // Validate date
+        if (isNaN(monthDate.getTime())) {
+          console.warn("Invalid date:", d.month);
+          monthDate = new Date(); // Fallback to current date
+        }
+      } else {
+        console.warn("Invalid month format:", d.month);
+        monthDate = new Date(); // Fallback to current date
+      }
+      
+      return {
+        ...d,
+        month: monthDate,
+        value: typeof d.value === "number" ? d.value : parseFloat(String(d.value)) || 0,
+      };
+    })
+    .filter((d) => !isNaN(d.month.getTime())) // Filter out invalid dates
     .sort((a, b) => a.month.getTime() - b.month.getTime());
 
   // Calculate chart dimensions
@@ -85,7 +103,14 @@ export default function SimpleLineChart({
 
   // Format month for display
   const formatMonth = (date: Date) => {
-    return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+      return "Invalid Date";
+    }
+    try {
+      return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    } catch (e) {
+      return date.toString();
+    }
   };
 
   return (
