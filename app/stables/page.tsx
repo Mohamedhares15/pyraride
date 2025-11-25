@@ -11,13 +11,13 @@ export async function generateMetadata(): Promise<Metadata> {
     description: "Find trusted horse stables in Giza and Saqqara. Book your unforgettable riding experience at the pyramids with verified reviews and safety certifications.",
     keywords: ["horse stables", "Giza", "Saqqara", "pyramids", "horse riding", "Egypt", "tourist attractions"],
     alternates: {
-      canonical: "https://pyraride.vercel.app/stables",
+      canonical: "https://www.pyrarides.com/stables",
     },
     openGraph: {
       title: "Browse Stables in Giza and Saqqara",
       description: "Find trusted horse stables in Giza and Saqqara",
       type: "website",
-      url: "https://pyraride.vercel.app/stables",
+      url: "https://www.pyrarides.com/stables",
     },
     twitter: {
       card: "summary_large_image",

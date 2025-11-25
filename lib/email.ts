@@ -168,7 +168,7 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
             <td style="padding:24px 32px;text-align:center;background:transparent;border-top:1px solid rgba(255,255,255,0.1);">
               <div style="font-size:13px;color:#6B7280;line-height:1.6;">
                 <div style="margin-bottom:8px;">
-                  <a href="https://pyraride.vercel.app" style="color:#FFFFFF;text-decoration:none;font-weight:600;">PyraRide</a>
+                  <a href="https://www.pyrarides.com" style="color:#FFFFFF;text-decoration:none;font-weight:600;">PyraRide</a>
                 </div>
                 <div style="margin-bottom:4px;">
                   <a href="mailto:support@pyraride.com" style="color:#10b981;text-decoration:none;">support@pyraride.com</a>
@@ -263,7 +263,7 @@ function generatePasswordResetEmail(data: PasswordResetEmailData): string {
             <td style="padding:24px 32px;text-align:center;background:transparent;border-top:1px solid rgba(255,255,255,0.1);">
               <div style="font-size:12px;color:#6B7280;line-height:1.6;">
                 <div style="margin-bottom:8px;">
-                  <a href="https://pyraride.vercel.app" style="color:#FFFFFF;text-decoration:none;font-weight:600;">PyraRide</a>
+                  <a href="https://www.pyrarides.com" style="color:#FFFFFF;text-decoration:none;font-weight:600;">PyraRide</a>
                 </div>
                 <div style="margin-bottom:4px;">
                   Need help? <a href="mailto:support@pyraride.com" style="color:#10b981;text-decoration:none;">support@pyraride.com</a>

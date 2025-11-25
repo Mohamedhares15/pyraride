@@ -20,8 +20,23 @@ export const metadata: Metadata = {
     default: "PyraRide - Book Your Trusted Giza Horse Riding Experience",
     template: "%s | PyraRide",
   },
-  description: "Book your trusted, vetted ride at the Giza and Saqqara Pyramids. Professional horse stables with verified reviews and safety certifications.",
-  keywords: ["horse riding", "Giza", "Saqqara", "Egypt", "tourism", "pyramids", "horses", "ancient egypt"],
+  description: "Book your trusted, vetted ride at the Giza and Saqqara Pyramids. Professional horse stables with verified reviews and safety certifications. Instant booking, secure payments, best price guarantee.",
+  keywords: [
+    "horse riding Giza",
+    "horse riding pyramids Egypt",
+    "Giza horse riding tours",
+    "horse riding near pyramids",
+    "Saqqara horse riding",
+    "pyramid horse tours",
+    "horse stables Giza",
+    "Egypt horse riding",
+    "Cairo horse riding",
+    "book horse ride Giza",
+    "safe horse riding Egypt",
+    "Arabian horse riding",
+    "sunset horse riding pyramids",
+    "horse riding experience Egypt",
+  ],
   authors: [{ name: "PyraRide" }],
   creator: "PyraRide",
   publisher: "PyraRide",
@@ -30,7 +45,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://pyraride.vercel.app"),
+  metadataBase: new URL("https://www.pyrarides.com"),
   alternates: {
     canonical: "/",
     languages: {
@@ -41,13 +56,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "PyraRide - Book Your Trusted Giza Horse Riding Experience",
     description: "The Pyramids, Unforgettable. The Ride, Uncomplicated. Book your trusted, vetted ride at Giza and Saqqara.",
-    url: "https://pyraride.vercel.app",
+    url: "https://www.pyrarides.com",
     siteName: "PyraRide",
     locale: "en_US",
     type: "website",
     images: [
       {
-        url: "https://pyraride.vercel.app/og-image.jpg",
+        url: "https://www.pyrarides.com/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "PyraRide - Horse Riding at the Pyramids",
@@ -59,7 +74,7 @@ export const metadata: Metadata = {
     title: "PyraRide - Book Your Trusted Giza Horse Riding Experience",
     description: "The Pyramids, Unforgettable. The Ride, Uncomplicated.",
     creator: "@PyraRide",
-    images: ["https://pyraride.vercel.app/og-image.jpg"],
+        images: ["https://www.pyrarides.com/og-image.jpg"],
   },
   robots: {
     index: true,
@@ -101,8 +116,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "PyraRide",
-              "url": "https://pyraride.vercel.app",
-              "logo": "https://pyraride.vercel.app/logo.png",
+              "url": "https://www.pyrarides.com",
+              "logo": "https://www.pyrarides.com/logo.png",
               "description": "Book your trusted, vetted ride at the Giza and Saqqara Pyramids",
               "sameAs": [
                 "https://facebook.com/pyraride",
@@ -128,10 +143,10 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               "name": "PyraRide",
-              "url": "https://pyraride.vercel.app",
+              "url": "https://www.pyrarides.com",
               "potentialAction": {
                 "@type": "SearchAction",
-                "target": "https://pyraride.vercel.app/stables?search={search_term_string}",
+                "target": "https://www.pyrarides.com/stables?search={search_term_string}",
                 "query-input": "required name=search_term_string",
               },
             }),
@@ -146,7 +161,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
               "name": "PyraRide",
-              "image": "https://pyraride.vercel.app/logo.png",
+              "image": "https://www.pyrarides.com/logo.png",
               "description": "Egypt's #1 trusted platform for booking horse riding experiences at the Giza and Saqqara Pyramids",
               "address": {
                 "@type": "PostalAddress",
@@ -159,7 +174,7 @@ export default function RootLayout({
                 "latitude": 29.9773,
                 "longitude": 31.1325
               },
-              "url": "https://pyraride.vercel.app",
+              "url": "https://www.pyrarides.com",
               "telephone": "+20-123-456-7890",
               "email": "support@pyraride.com",
               "priceRange": "$$",
@@ -205,7 +220,7 @@ export default function RootLayout({
               "@type": "LocalBusiness",
               "name": "PyraRide",
               "description": "Trusted horse riding experiences at Giza and Saqqara Pyramids",
-              "url": "https://pyraride.vercel.app",
+              "url": "https://www.pyrarides.com",
               "telephone": "+20-123-456-7890",
               "email": "support@pyraride.com",
               "address": {
@@ -244,7 +259,7 @@ export default function RootLayout({
           <AIAgent />
           <CookieConsent />
           <GoogleAnalytics trackingId={process.env.NEXT_PUBLIC_GA_ID} />
-          <Plausible domain="pyraride.vercel.app" />
+          <Plausible domain="www.pyrarides.com" />
         </AuthProvider>
       </body>
     </html>

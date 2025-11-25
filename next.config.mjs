@@ -40,6 +40,24 @@ const nextConfig = {
   // Security Headers
   async headers() {
     return [
+      // Sitemap - NO CACHING
+      {
+        source: '/sitemap.xml',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
+        ],
+      },
       {
         source: '/:path*',
         headers: [
@@ -98,6 +116,23 @@ const nextConfig = {
   compress: true,
   // SWC minification (faster than Terser)
   swcMinify: true,
+  // SEO Redirects: Force www and HTTPS
+  async redirects() {
+    return [
+      // Redirect non-www to www (when accessed via pyrarides.com)
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'pyrarides.com',
+          },
+        ],
+        destination: 'https://www.pyrarides.com/:path*',
+        permanent: true, // 301 redirect for SEO
+      },
+    ];
+  },
 };
 
 export default nextConfig;

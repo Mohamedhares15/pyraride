@@ -4,10 +4,10 @@ export function LocalBusinessSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "@id": "https://pyraride.vercel.app/#organization",
+    "@id": "https://www.pyrarides.com/#organization",
     "name": "PyraRide",
     "description": "Trusted horse riding experiences at the Giza and Saqqara Pyramids",
-    "url": "https://pyraride.vercel.app",
+    "url": "https://www.pyrarides.com",
     "telephone": "+20-123-456-7890",
     "email": "support@pyraride.com",
     "address": {
@@ -110,7 +110,7 @@ export function ServiceSchema() {
     "provider": {
       "@type": "Organization",
       "name": "PyraRide",
-      "url": "https://pyraride.vercel.app"
+      "url": "https://www.pyrarides.com"
     },
     "areaServed": {
       "@type": "Place",

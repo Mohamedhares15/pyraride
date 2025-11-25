@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   },
   description: "Book your trusted, vetted ride at the Giza and Saqqara Pyramids",
   keywords: ["horse riding", "Giza", "Saqqara", "Egypt", "tourism", "pyramids"],
-  metadataBase: new URL("https://pyraride.vercel.app"),
+  metadataBase: new URL("https://www.pyrarides.com"),
   openGraph: {
     type: "website",
   },

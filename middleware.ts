@@ -4,6 +4,9 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
+  // Note: Domain redirects (non-www → www) are handled in next.config.mjs
+  // HTTPS is automatically enforced by Vercel
+  
   // Check if coming soon mode is enabled
   const isComingSoon = process.env.COMING_SOON === "true";
   
@@ -28,9 +31,9 @@ export function middleware(request: NextRequest) {
     
     // If no session token, redirect to home which will show sign in modal
     if (!sessionToken && pathname !== '/') {
-      const url = request.nextUrl.clone();
-      url.pathname = '/';
-      return NextResponse.redirect(url);
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = '/';
+      return NextResponse.redirect(redirectUrl);
     }
   }
   

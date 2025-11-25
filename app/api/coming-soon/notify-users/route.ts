@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
                   </ul>
                 </div>
                 <div style="text-align: center; margin: 40px 0;">
-                  <a href="${process.env.NEXTAUTH_URL || "https://pyraride.vercel.app"}" 
+                  <a href="${process.env.NEXTAUTH_URL || "https://www.pyrarides.com"}" 
                      style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                             color: white; 
                             padding: 15px 40px; 
@@ -100,7 +100,7 @@ What you can do now:
 - Read reviews from other riders
 - Manage your bookings easily
 
-Visit us at: ${process.env.NEXTAUTH_URL || "https://pyraride.vercel.app"}
+Visit us at: ${process.env.NEXTAUTH_URL || "https://www.pyrarides.com"}
 
 Thank you for your patience! We're excited to have you with us. 🐴
 
