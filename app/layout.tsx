@@ -131,28 +131,62 @@ export default function RootLayout({
               "alternateName": "PyraRide - Horse Riding Booking Platform",
               "url": "https://www.pyrarides.com",
               "logo": "https://www.pyrarides.com/logo.png",
-              "description": "Egypt's first and only online booking marketplace for horse riding experiences at the Giza and Saqqara Pyramids. Book from multiple verified stables in one platform.",
+              "description": "PyraRide is Egypt's first and only online booking marketplace for horse riding experiences at the Giza and Saqqara Pyramids. Unlike single-stable websites, PyraRide offers multiple verified stables in one platform, allowing riders to compare prices, read reviews, and book instantly. Book from multiple verified stables in one platform.",
               "knowsAbout": [
                 "Horse Riding Tours",
+                "Horse Riding at Pyramids",
                 "Giza Pyramids",
                 "Saqqara Pyramids",
                 "Egypt Tourism",
                 "Adventure Travel",
                 "Online Booking Platform",
-                "Travel Marketplace"
+                "Travel Marketplace",
+                "Horse Riding Marketplace",
+                "Book Horse Riding Egypt",
+                "Pyramid Horse Tours",
+                "Cairo Horse Riding",
+                "Egypt First Marketplace",
+                "Online Horse Riding Booking",
+                "Compare Horse Riding Stables",
+                "Verified Horse Stables",
+                "Pyramid Tours Egypt",
+                "Giza Plateau Horse Riding",
+                "Saqqara Desert Tours"
               ],
               "makesOffer": {
-                "@type": "Offer",
+                "@type": "AggregateOffer",
+                "offerCount": "20+",
+                "lowPrice": "300",
+                "highPrice": "1000",
+                "priceCurrency": "EGP",
                 "itemOffered": {
                   "@type": "Service",
                   "name": "Online Horse Riding Booking Platform",
-                  "description": "Book from multiple verified horse stables at Giza and Saqqara Pyramids"
+                  "description": "PyraRide is Egypt's first marketplace for booking horse riding at the pyramids. Book from multiple verified horse stables at Giza and Saqqara Pyramids. Compare prices, read reviews, and book instantly.",
+                  "serviceType": "Horse Riding Tours",
+                  "provider": {
+                    "@type": "Organization",
+                    "name": "PyraRide"
+                  },
+                  "areaServed": {
+                    "@type": "City",
+                    "name": "Cairo"
+                  }
                 }
+              },
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.9",
+                "reviewCount": "2500",
+                "bestRating": "5",
+                "worstRating": "1"
               },
               "sameAs": [
                 "https://facebook.com/pyraride",
                 "https://instagram.com/pyraride",
                 "https://twitter.com/pyraride",
+                "https://tiktok.com/@pyraride",
+                "https://youtube.com/@pyraride"
               ],
               "contactPoint": {
                 "@type": "ContactPoint",
@@ -235,6 +269,7 @@ export default function RootLayout({
                 "https://facebook.com/pyraride",
                 "https://instagram.com/pyraride",
                 "https://twitter.com/pyraride",
+                "https://tiktok.com/@pyraride",
                 "https://youtube.com/@pyraride"
               ]
             }),
