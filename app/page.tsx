@@ -40,12 +40,23 @@ export default function HomePage() {
     <ComingSoon>
       <Navbar />
       <Hero />
-      <section className="bg-background/90 py-12 md:py-16">
-        <div className="mx-auto max-w-5xl px-4">
-          <h2 className="mb-6 text-center font-display text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+      {/* FAQ Section - Matches dark hero theme */}
+      <section className="relative z-20 -mt-0 w-full overflow-hidden bg-gradient-to-b from-black/80 via-black/90 to-black/95 py-16 md:py-24">
+        {/* Subtle background pattern */}
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: "url(/hero-bg.webp)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }} />
+        <div className="absolute inset-0 bg-black/60" />
+        
+        {/* Content */}
+        <div className="relative z-10 mx-auto max-w-5xl px-4">
+          <h2 className="mb-4 text-center font-display text-2xl font-bold tracking-tight text-white drop-shadow-lg md:text-3xl">
             Frequently Asked Questions
           </h2>
-          <p className="mx-auto mb-10 max-w-3xl text-center text-sm text-muted-foreground md:text-base">
+          <p className="mx-auto mb-10 max-w-3xl text-center text-sm text-white/80 drop-shadow md:text-base">
             PyraRide is the first booking marketplace for horse riding at the pyramids. These quick answers help search engines and AI assistants
             understand exactly what we offer, and help riders book with confidence.
           </p>
@@ -53,10 +64,10 @@ export default function HomePage() {
             {homepageFaq.map((item) => (
               <div
                 key={item.question}
-                className="rounded-2xl border border-border/60 bg-card/60 p-5 shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
+                className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-white/20 hover:bg-white/10 hover:shadow-xl"
               >
-                <h3 className="mb-2 font-semibold text-foreground">{item.question}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{item.answer}</p>
+                <h3 className="mb-3 font-semibold text-white drop-shadow-md">{item.question}</h3>
+                <p className="text-sm leading-relaxed text-white/80 drop-shadow-sm">{item.answer}</p>
               </div>
             ))}
           </div>
