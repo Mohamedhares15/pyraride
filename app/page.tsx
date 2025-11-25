@@ -52,7 +52,7 @@ export default function HomePage() {
       <Navbar />
       <Hero />
       {/* FAQ Section - Matches dark hero theme */}
-      <section className="relative z-20 -mt-0 w-full overflow-hidden bg-gradient-to-b from-black/80 via-black/90 to-black/95 py-16 md:py-24">
+      <section className="relative z-20 -mt-0 w-full overflow-hidden bg-gradient-to-b from-black/80 via-black/90 to-black/95 py-16 md:py-24 pb-16 md:pb-24">
         {/* Subtle background pattern */}
         <div className="absolute inset-0 opacity-10" style={{
           backgroundImage: "url(/hero-bg.webp)",
@@ -83,7 +83,7 @@ export default function HomePage() {
           </div>
           
           {/* Social Icons - Desktop and Mobile (under FAQ items) */}
-          <div className="flex items-center justify-center gap-6 mt-8">
+          <div className="flex items-center justify-center gap-6 mt-8 mb-8 md:mb-0">
             <Link 
               href="https://instagram.com/pyrarides" 
               target="_blank"

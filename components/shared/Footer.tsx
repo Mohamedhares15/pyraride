@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Instagram, Facebook, Twitter } from "lucide-react";
+import { Instagram } from "lucide-react";
 import NewsletterSignup from "./NewsletterSignup";
 
 // TikTok Icon SVG Component
@@ -53,8 +53,6 @@ export default function Footer() {
               <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
               <Link href="/terms" className="hover:text-primary transition-colors">Terms & Conditions</Link>
               <Link href="/refund-policy" className="hover:text-primary transition-colors">Refund Policy</Link>
-              <a href="mailto:support@pyraride.com" className="hover:text-primary transition-colors">Customer Support</a>
-              <p className="text-xs pt-2">Response time: &lt;4 hours</p>
             </nav>
           </div>
 
@@ -64,12 +62,6 @@ export default function Footer() {
             <div className="space-y-3 mb-4">
               <p className="text-sm text-foreground/70">
                 📧 <a href="mailto:support@pyraride.com" className="hover:text-primary transition-colors">support@pyraride.com</a>
-              </p>
-              <p className="text-sm text-foreground/70">
-                📱 +20 123 456 7890
-              </p>
-              <p className="text-sm text-foreground/70">
-                ⏰ 9 AM - 6 PM EET
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -83,24 +75,6 @@ export default function Footer() {
                 <Instagram className="h-5 w-5" />
               </Link>
               <Link 
-                aria-label="Facebook" 
-                href="https://facebook.com/pyraride" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary transition-colors"
-              >
-                <Facebook className="h-5 w-5" />
-              </Link>
-              <Link 
-                aria-label="Twitter" 
-                href="https://twitter.com/pyraride" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary transition-colors"
-              >
-                <Twitter className="h-5 w-5" />
-              </Link>
-              <Link 
                 aria-label="TikTok" 
                 href="https://tiktok.com/@pyrarides" 
                 target="_blank"
@@ -108,17 +82,6 @@ export default function Footer() {
                 className="hover:text-primary transition-colors"
               >
                 <TikTokIcon className="h-5 w-5" />
-              </Link>
-              <Link 
-                aria-label="YouTube" 
-                href="https://youtube.com/@pyraride" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary transition-colors"
-              >
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                </svg>
               </Link>
             </div>
           </div>
