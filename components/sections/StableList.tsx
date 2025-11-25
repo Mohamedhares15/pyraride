@@ -80,7 +80,7 @@ export default function StableList({ results, mode, isLoading }: StableListProps
   if (mode === "horse") {
     return (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {results.map((item) => {
+        {results.map((item, index) => {
           if (item.type !== "horse") return null;
           
           // Use the same image selection logic as stable detail page
