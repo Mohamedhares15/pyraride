@@ -179,11 +179,19 @@ export default function AnalyticsPage() {
               </Button>
             </Link>
             {isAdmin && (
-              <Link href="/dashboard/admin/stables">
-                <Button variant="outline" size="sm" className="gap-2">
-                  Manage Stables
-                </Button>
-              </Link>
+              <>
+                <Link href="/dashboard/admin/stables">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    Manage Stables
+                  </Button>
+                </Link>
+                <Link href="/dashboard/admin/horse-changes">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <FileText className="h-4 w-4" />
+                    Horse Changes
+                  </Button>
+                </Link>
+              </>
             )}
           </div>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
