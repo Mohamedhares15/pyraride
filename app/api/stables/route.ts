@@ -413,7 +413,12 @@ export async function GET(req: NextRequest) {
     let sortedStables = [...filteredStables];
     switch (sort) {
       case "location":
-        sortedStables.sort((a, b) => a.location.localeCompare(b.location));
+        sortedStables.sort((a, b) => {
+          const locationCompare = a.location.localeCompare(b.location);
+          if (locationCompare !== 0) return locationCompare;
+          // If locations are the same, sort by name
+          return a.name.localeCompare(b.name);
+        });
         break;
       case "rating":
         sortedStables.sort((a, b) => b.rating - a.rating);
