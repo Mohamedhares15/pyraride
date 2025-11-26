@@ -28,7 +28,7 @@ interface Booking {
   endTime: string;
   totalPrice: number;
   commission: number;
-  status: "confirmed" | "completed" | "cancelled";
+  status: "pending" | "confirmed" | "completed" | "cancelled" | "rescheduled";
   horse: {
     name: string;
   };
