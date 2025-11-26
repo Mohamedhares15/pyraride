@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendBookingRescheduleEmail } from "@/lib/email";
 
 export async function POST(
   req: NextRequest,
@@ -156,6 +157,13 @@ export async function POST(
       : 0.15; // Default 15%
     const newCommission = newPrice * commissionRate;
 
+    // Determine who is rescheduling
+    const rescheduledBy = isAdmin
+      ? "admin"
+      : isOwner
+        ? "owner"
+        : "rider";
+
     // Update booking
     const updatedBooking = await prisma.booking.update({
       where: { id: params.id },
@@ -170,6 +178,29 @@ export async function POST(
         isRescheduled: true,
       },
     });
+
+    // Send email notification to rider if rescheduled by owner or admin
+    if ((rescheduledBy === "owner" || rescheduledBy === "admin") && booking.rider.email) {
+      try {
+        await sendBookingRescheduleEmail({
+          bookingId: booking.id,
+          riderName: booking.rider.fullName || "Valued Customer",
+          riderEmail: booking.rider.email,
+          stableName: booking.stable.name,
+          horseName: booking.horse.name,
+          oldDate: booking.startTime.toISOString(),
+          oldStartTime: new Date(booking.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+          oldEndTime: new Date(booking.endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+          newDate: newStart.toISOString(),
+          newStartTime: newStart.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+          newEndTime: newEnd.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+          rescheduledBy: rescheduledBy as "rider" | "owner" | "admin",
+        });
+      } catch (emailError) {
+        console.error("Failed to send reschedule email:", emailError);
+        // Don't fail the reschedule if email fails
+      }
+    }
 
     return NextResponse.json({
       message: "Booking rescheduled successfully",

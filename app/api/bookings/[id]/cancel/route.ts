@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendBookingCancellationEmail } from "@/lib/email";
 
 export async function POST(
   req: NextRequest,
@@ -23,8 +24,25 @@ export async function POST(
     const booking = await prisma.booking.findUnique({
       where: { id: params.id },
       include: {
-        rider: { select: { id: true } },
-        stable: { select: { ownerId: true } },
+        rider: { 
+          select: { 
+            id: true,
+            email: true,
+            fullName: true,
+          } 
+        },
+        stable: { 
+          select: { 
+            ownerId: true,
+            name: true,
+            address: true,
+          } 
+        },
+        horse: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
 
@@ -78,6 +96,27 @@ export async function POST(
         cancelledBy,
       },
     });
+
+    // Send email notification to rider if cancelled by owner or admin
+    if ((cancelledBy === "owner" || cancelledBy === "admin") && booking.rider.email) {
+      try {
+        await sendBookingCancellationEmail({
+          bookingId: booking.id,
+          riderName: booking.rider.fullName || "Valued Customer",
+          riderEmail: booking.rider.email,
+          stableName: booking.stable.name,
+          horseName: booking.horse.name,
+          date: booking.startTime.toISOString(),
+          startTime: new Date(booking.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+          endTime: new Date(booking.endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+          cancellationReason: reason || undefined,
+          cancelledBy: cancelledBy as "rider" | "owner" | "admin",
+        });
+      } catch (emailError) {
+        console.error("Failed to send cancellation email:", emailError);
+        // Don't fail the cancellation if email fails
+      }
+    }
 
     // If booking has a payment, option to process refund
     const shouldRefund = body.autoRefund && booking.stripePaymentId;
