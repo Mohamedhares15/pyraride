@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import PasswordInput from "@/components/shared/PasswordInput";
 
 function ResetPasswordInner() {
   const router = useRouter();
@@ -94,13 +95,11 @@ function ResetPasswordInner() {
       )}
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">New password</label>
-        <Input
-          type="password"
-          autoComplete="new-password"
+        <PasswordInput
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          required
           placeholder="Enter new password"
+          required
         />
         <p className="text-xs text-muted-foreground">
           At least 8 characters, including uppercase, lowercase, and a number.
@@ -108,13 +107,11 @@ function ResetPasswordInner() {
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">Confirm password</label>
-        <Input
-          type="password"
-          autoComplete="new-password"
+        <PasswordInput
           value={confirmPassword}
           onChange={(event) => setConfirmPassword(event.target.value)}
-          required
           placeholder="Re-enter new password"
+          required
         />
       </div>
       <Button type="submit" className="w-full" disabled={isSubmitting}>

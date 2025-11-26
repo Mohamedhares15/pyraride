@@ -20,6 +20,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import RiderReviewModal from "@/components/shared/RiderReviewModal";
+import CancelRescheduleModal from "@/components/shared/CancelRescheduleModal";
 
 interface Booking {
   id: string;
@@ -64,6 +65,8 @@ export default function StableOwnerDashboard() {
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [riderReviews, setRiderReviews] = useState<Set<string>>(new Set());
+  const [cancelRescheduleModalOpen, setCancelRescheduleModalOpen] = useState(false);
+  const [cancelRescheduleMode, setCancelRescheduleMode] = useState<"cancel" | "reschedule">("cancel");
 
   useEffect(() => {
     if (status === "loading") return;
@@ -210,23 +213,23 @@ export default function StableOwnerDashboard() {
               </Button>
             </Link>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="mb-2 font-display text-4xl font-bold tracking-tight">
+              <h1 className="mb-2 font-display text-3xl md:text-4xl font-bold tracking-tight">
                 Stable Dashboard
               </h1>
               <p className="text-muted-foreground">
                 Manage your stable and track bookings
               </p>
             </div>
-            <div className="flex gap-2">
-              <Button asChild variant="outline">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button asChild variant="outline" className="w-full sm:w-auto">
                 <Link href="/dashboard/stable/horses">
                   <Plus className="mr-2 h-4 w-4" />
                   Manage Horses
                 </Link>
               </Button>
-              <Button asChild>
+              <Button asChild className="w-full sm:w-auto">
                 <Link href="/dashboard/stable/manage">
                   <Settings className="mr-2 h-4 w-4" />
                   Manage Stable
@@ -376,6 +379,34 @@ export default function StableOwnerDashboard() {
                           ✅ Reviewed
                         </Badge>
                       )}
+                      {(booking.status === "confirmed" || booking.status === "rescheduled") && (
+                        <>
+                          <Button
+                            onClick={() => {
+                              setSelectedBooking(booking);
+                              setCancelRescheduleMode("cancel");
+                              setCancelRescheduleModalOpen(true);
+                            }}
+                            size="sm"
+                            variant="outline"
+                            className="whitespace-nowrap"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setSelectedBooking(booking);
+                              setCancelRescheduleMode("reschedule");
+                              setCancelRescheduleModalOpen(true);
+                            }}
+                            size="sm"
+                            variant="outline"
+                            className="whitespace-nowrap"
+                          >
+                            Reschedule
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </Card>
@@ -399,6 +430,24 @@ export default function StableOwnerDashboard() {
             // Refresh data to update the reviewed status
             fetchStableData();
           }}
+        />
+      )}
+
+      {/* Cancel/Reschedule Modal */}
+      {selectedBooking && (
+        <CancelRescheduleModal
+          open={cancelRescheduleModalOpen}
+          onOpenChange={setCancelRescheduleModalOpen}
+          booking={{
+            id: selectedBooking.id,
+            status: selectedBooking.status,
+            startTime: selectedBooking.startTime,
+            endTime: selectedBooking.endTime,
+            totalPrice: parseFloat(selectedBooking.totalPrice.toString()),
+            stable: { name: stable?.name || "" },
+            horse: { name: selectedBooking.horse.name },
+          }}
+          mode={cancelRescheduleMode}
         />
       )}
     </div>

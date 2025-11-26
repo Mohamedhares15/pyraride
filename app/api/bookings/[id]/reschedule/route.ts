@@ -48,10 +48,17 @@ export async function POST(
     const booking = await prisma.booking.findUnique({
       where: { id: params.id },
       include: {
-        rider: { select: { id: true } },
+        rider: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+          },
+        },
         horse: { 
           select: { 
-            id: true, 
+            id: true,
+            name: true,
             isActive: true,
             pricePerHour: true 
           } 
@@ -59,6 +66,9 @@ export async function POST(
         stable: {
           select: {
             id: true,
+            name: true,
+            address: true,
+            ownerId: true,
             commissionRate: true,
           },
         },
@@ -87,10 +97,14 @@ export async function POST(
       );
     }
 
-    // Check permissions - only rider can reschedule their own booking
-    if (booking.riderId !== session.user.id) {
+    // Check permissions - rider or stable owner can reschedule
+    const isRider = booking.riderId === session.user.id;
+    const isOwner = booking.stable.ownerId === session.user.id;
+    const isAdmin = session.user.role === "admin";
+    
+    if (!isRider && !isOwner && !isAdmin) {
       return NextResponse.json(
-        { error: "Only the booking owner can reschedule" },
+        { error: "Unauthorized to reschedule this booking" },
         { status: 403 }
       );
     }

@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import PasswordInput from "@/components/shared/PasswordInput";
 import { Loader2, Camera, HelpCircle, Shield, Mail } from "lucide-react";
 import NextImage from "next/image";
 
@@ -451,34 +452,31 @@ export default function ProfilePage() {
             <form className="space-y-3" onSubmit={handlePasswordSave}>
               <div className="space-y-2">
                 <Label htmlFor="currentPassword">Current password</Label>
-                <Input
+                <PasswordInput
                   id="currentPassword"
-                  type="password"
                   value={currentPassword}
                   onChange={(event) => setCurrentPassword(event.target.value)}
-                  autoComplete="current-password"
+                  placeholder="Enter current password"
                   required
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="newPassword">New password</Label>
-                <Input
+                <PasswordInput
                   id="newPassword"
-                  type="password"
                   value={newPassword}
                   onChange={(event) => setNewPassword(event.target.value)}
-                  autoComplete="new-password"
+                  placeholder="Enter new password"
                   required
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm new password</Label>
-                <Input
+                <PasswordInput
                   id="confirmPassword"
-                  type="password"
                   value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)}
-                  autoComplete="new-password"
+                  placeholder="Confirm new password"
                   required
                 />
               </div>

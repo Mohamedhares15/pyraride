@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import PasswordInput from "./PasswordInput";
 
 interface AuthModalProps {
   open: boolean;
@@ -175,14 +176,13 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium">Password</label>
-        <Input
-          type="password"
-          placeholder="••••••••"
+        <PasswordInput
           value={signInPassword}
           onChange={(e) => {
             setSignInPassword(e.target.value);
             resetFeedback();
           }}
+          placeholder="••••••••"
           required
         />
       </div>
@@ -252,14 +252,13 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium">Password</label>
-        <Input
-          type="password"
-          placeholder="••••••••"
+        <PasswordInput
           value={signUpForm.password}
           onChange={(e) => {
             setSignUpForm((prev) => ({ ...prev, password: e.target.value }));
             resetFeedback();
           }}
+          placeholder="••••••••"
           required
         />
         <p className="text-xs text-muted-foreground">
