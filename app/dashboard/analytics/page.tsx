@@ -16,6 +16,7 @@ import {
   Loader2,
   ArrowLeft,
   Home,
+  FileText,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

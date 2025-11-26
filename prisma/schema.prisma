@@ -50,20 +50,21 @@ model User {
   passwordResetTokens  PasswordResetToken[]
   riderReviewsGiven    RiderReview[]        @relation("StableOwnerReviews")
   riderReviewsReceived RiderReview[]        @relation("RiderReviews")
+  horseChangeReviews   HorseChangeRequest[] @relation("HorseChangeReviewer")
 }
 
 model Stable {
-  id            String       @id @default(uuid())
-  ownerId       String       @unique // Each stable has one owner
-  name          String
-  description   String       @db.Text
-  location      String // "Giza" or "Saqqara"
-  address       String
-  imageUrl      String? // Stable card image
-  status        StableStatus @default(pending_approval)
-  isHidden      Boolean      @default(false) // Admin can hide/show stables individually
+  id             String       @id @default(uuid())
+  ownerId        String       @unique // Each stable has one owner
+  name           String
+  description    String       @db.Text
+  location       String // "Giza" or "Saqqara"
+  address        String
+  imageUrl       String? // Stable card image
+  status         StableStatus @default(pending_approval)
+  isHidden       Boolean      @default(false) // Admin can hide/show stables individually
   commissionRate Decimal      @default(0.15) @db.Decimal(5, 4) // Commission rate (0.15 = 15%), can be customized per stable
-  createdAt     DateTime     @default(now())
+  createdAt      DateTime     @default(now())
 
   // Relations
   owner    User      @relation(fields: [ownerId], references: [id])
@@ -85,10 +86,39 @@ model Horse {
   availabilityStatus AvailabilityStatus? @default(available)
 
   // Relations
-  stable   Stable       @relation(fields: [stableId], references: [id], onDelete: Cascade)
-  bookings Booking[]
-  reviews  Review[]
-  media    HorseMedia[]
+  stable         Stable               @relation(fields: [stableId], references: [id], onDelete: Cascade)
+  bookings       Booking[]
+  reviews        Review[]
+  media          HorseMedia[]
+  changeRequests HorseChangeRequest[]
+}
+
+model HorseChangeRequest {
+  id      String                   @id @default(uuid())
+  horseId String
+  status  HorseChangeRequestStatus @default(pending)
+
+  // Proposed changes
+  proposedName         String?
+  proposedDescription  String?  @db.Text
+  proposedPricePerHour Decimal? @db.Decimal(10, 2)
+  proposedImageUrls    String[]
+
+  // Reviewer info
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  rejectionReason String?   @db.Text
+
+  // Timestamps
+  requestedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  horse    Horse @relation(fields: [horseId], references: [id], onDelete: Cascade)
+  reviewer User? @relation("HorseChangeReviewer", fields: [reviewedBy], references: [id])
+
+  @@index([status])
+  @@index([horseId])
 }
 
 model HorseMedia {
@@ -112,6 +142,12 @@ enum AvailabilityStatus {
   available
   injured
   unavailable
+}
+
+enum HorseChangeRequestStatus {
+  pending
+  approved
+  rejected
 }
 
 model Booking {

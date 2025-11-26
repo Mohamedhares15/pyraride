@@ -68,7 +68,81 @@ export async function PATCH(
       }
     }
 
-    // Update horse
+    // Check if price or description changed (these need admin approval)
+    const priceChanged = pricePerHour !== undefined && 
+      (horse.pricePerHour === null || 
+       Math.abs(Number(pricePerHour) - Number(horse.pricePerHour)) > 0.01);
+    const descriptionChanged = description && description.trim() !== horse.description.trim();
+
+    // If price or description changed, create a change request instead of direct update
+    if (priceChanged || descriptionChanged) {
+      // Close any existing pending change requests for this horse
+      await prisma.horseChangeRequest.updateMany({
+        where: {
+          horseId: params.id,
+          status: "pending",
+        },
+        data: {
+          status: "rejected",
+          rejectionReason: "Superseded by new change request",
+        },
+      });
+
+      // Create new change request
+      const changeRequest = await prisma.horseChangeRequest.create({
+        data: {
+          horseId: params.id,
+          proposedName: name.trim() !== horse.name ? name.trim() : null,
+          proposedDescription: descriptionChanged ? description.trim() : null,
+          proposedPricePerHour: priceChanged && pricePerHour ? parseFloat(pricePerHour.toString()) : null,
+          proposedImageUrls: imageUrls && imageUrls.length > 0 ? imageUrls : [],
+          status: "pending",
+        },
+      });
+
+      // Update non-restricted fields immediately (name, age, skills, availability, images)
+      const updatedHorse = await prisma.horse.update({
+        where: { id: params.id },
+        data: {
+          name: name.trim(),
+          age: age ? parseInt(age.toString()) : null,
+          skills: Array.isArray(skills) ? skills.map((s: string) => s.trim()).filter((s: string) => s.length > 0) : [],
+          availabilityStatus: availabilityStatus || horse.availabilityStatus || "available",
+          imageUrls: imageUrls || horse.imageUrls,
+        },
+      });
+
+      // Update HorseMedia entries if images changed
+      if (imageUrls && imageUrls.length > 0) {
+        // Delete old media entries
+        await prisma.horseMedia.deleteMany({
+          where: { horseId: params.id },
+        });
+
+        // Create new media entries
+        const mediaPromises = imageUrls.map((url: string, index: number) =>
+          prisma.horseMedia.create({
+            data: {
+              horseId: params.id,
+              type: "image",
+              url: url,
+              sortOrder: index + 1,
+            },
+          })
+        );
+
+        await Promise.all(mediaPromises);
+      }
+
+      return NextResponse.json({ 
+        horse: updatedHorse,
+        changeRequestCreated: true,
+        changeRequestId: changeRequest.id,
+        message: "Horse updated. Price/description changes are pending admin approval."
+      });
+    }
+
+    // No restricted fields changed - update directly
     const updatedHorse = await prisma.horse.update({
       where: { id: params.id },
       data: {
