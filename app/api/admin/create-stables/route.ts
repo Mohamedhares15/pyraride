@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     // Simple authentication check (you can enhance this)
     const authHeader = request.headers.get("authorization");
     const expectedToken = process.env.ADMIN_TOKEN || "PyraRide2024Secret";
-    
+
     if (authHeader !== `Bearer ${expectedToken}`) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
           });
 
           // Check if stable exists
-          const existingStable = await prisma.stable.findUnique({
+          const existingStable = await prisma.stable.findFirst({
             where: { ownerId: user.id },
           });
 
