@@ -75,10 +75,10 @@ async function main() {
 
   // Create stable
   const stable = await prisma.stable.upsert({
-    where: { ownerId: owner.id },
+    where: { id: "seed-stable-id" }, // Use a fixed ID for upsert
     update: {},
     create: {
-      ownerId: owner.id,
+      id: "seed-stable-id",
       name: "Pyramid View Stables",
       description:
         "Experience the ancient wonders of Giza on horseback. Our trusted horses have been serving tourists for over 20 years, offering safe and memorable rides around the pyramids. All our horses are well-trained and gentle, perfect for riders of all experience levels.",
@@ -88,6 +88,13 @@ async function main() {
     },
   });
   console.log("✅ Stable created:", stable.name);
+
+  // Link owner to stable
+  await prisma.user.update({
+    where: { id: owner.id },
+    data: { stableId: stable.id },
+  });
+  console.log("✅ Owner linked to stable");
 
   // Create horses
   const horse1 = await prisma.horse.create({
