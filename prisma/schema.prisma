@@ -84,7 +84,7 @@ model User {
   rankId             String?
   rank               RiderRank? @relation(fields: [rankId], references: [id])
   currentLeagueId    String?   // Current league the rider is in
-  currentLeague      League?   @relation("RiderLeague", fields: [currentLeagueId], references: [id])
+  currentLeague      League?   @relation("RiderLeague", fields: [currentLeagueId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   // Relations
   bookings             Booking[]
@@ -197,10 +197,10 @@ model RideResult {
   pointsChange Int      // Calculated points
   timestamp    DateTime @default(now())
 
-  booking Booking @relation(fields: [bookingId], references: [id])
-  rider   User    @relation(fields: [riderId], references: [id])
-  horse   Horse   @relation(fields: [horseId], references: [id])
-  stable  Stable  @relation(fields: [stableId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  rider   User    @relation(fields: [riderId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  horse   Horse   @relation(fields: [horseId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  stable  Stable  @relation(fields: [stableId], references: [id], onDelete: Restrict, onUpdate: Restrict)
 
   @@index([riderId])
   @@index([stableId])
@@ -228,7 +228,7 @@ model HorseChangeRequest {
 
   // Relations
   horse    Horse @relation(fields: [horseId], references: [id], onDelete: Cascade)
-  reviewer User? @relation("HorseChangeReviewer", fields: [reviewedBy], references: [id])
+  reviewer User? @relation("HorseChangeReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   @@index([status])
   @@index([horseId])
@@ -287,9 +287,9 @@ model Booking {
   updatedAt          DateTime      @updatedAt
 
   // Relations
-  rider       User         @relation(fields: [riderId], references: [id])
-  stable      Stable       @relation(fields: [stableId], references: [id])
-  horse       Horse        @relation(fields: [horseId], references: [id])
+  rider       User         @relation(fields: [riderId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  stable      Stable       @relation(fields: [stableId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  horse       Horse        @relation(fields: [horseId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   review      Review? // A booking can have one review
   riderReview RiderReview? // A booking can have one rider review from stable owner
   rideResult  RideResult?
@@ -307,10 +307,10 @@ model Review {
   createdAt    DateTime @default(now())
 
   // Relations
-  booking Booking @relation(fields: [bookingId], references: [id])
-  rider   User    @relation(fields: [riderId], references: [id])
-  stable  Stable  @relation(fields: [stableId], references: [id], onDelete: Restrict)
-  horse   Horse   @relation(fields: [horseId], references: [id], onDelete: Restrict)
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  rider   User    @relation(fields: [riderId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  stable  Stable  @relation(fields: [stableId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  horse   Horse   @relation(fields: [horseId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 }
 
 // Stable Owner reviews Riders
@@ -325,9 +325,9 @@ model RiderReview {
   createdAt        DateTime @default(now())
 
   // Relations
-  booking     Booking @relation(fields: [bookingId], references: [id])
-  rider       User    @relation("RiderReviews", fields: [riderId], references: [id])
-  stableOwner User    @relation("StableOwnerReviews", fields: [ownerId], references: [id])
+  booking     Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  rider       User    @relation("RiderReviews", fields: [riderId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  stableOwner User    @relation("StableOwnerReviews", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Restrict)
 }
 
 model NewsletterSubscriber {
@@ -370,7 +370,7 @@ model League {
   riders         User[]           @relation("RiderLeague")
   standings      LeagueStanding[]
   nextLeagueId   String?          // ID of the next league (for promotion)
-  nextLeague     League?          @relation("LeaguePromotion", fields: [nextLeagueId], references: [id])
+  nextLeague     League?          @relation("LeaguePromotion", fields: [nextLeagueId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   previousLeagues League[]         @relation("LeaguePromotion")
 
   @@index([status])
@@ -389,8 +389,8 @@ model LeagueStanding {
   updatedAt DateTime @updatedAt
 
   // Relations
-  league League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
-  rider  User   @relation(fields: [riderId], references: [id], onDelete: Cascade)
+  league League @relation(fields: [leagueId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  rider  User   @relation(fields: [riderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([leagueId, riderId])
   @@index([leagueId])
