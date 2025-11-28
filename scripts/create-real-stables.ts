@@ -82,10 +82,14 @@ async function main() {
           },
         });
 
-        // Update or create stable
-        const existingStable = await prisma.stable.findUnique({
-          where: { ownerId: user.id },
+        // Update or create stable - find by user's stableId
+        const userWithStable = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { stableId: true },
         });
+        const existingStable = userWithStable?.stableId ? await prisma.stable.findUnique({
+          where: { id: userWithStable.stableId },
+        }) : null;
 
         if (existingStable) {
           await prisma.stable.update({
@@ -100,7 +104,7 @@ async function main() {
           });
           console.log(`   ✅ Updated stable: ${ownerData.stable.name}`);
         } else {
-          await prisma.stable.create({
+          const newStable = await prisma.stable.create({
             data: {
               name: ownerData.stable.name,
               description: ownerData.stable.description,
@@ -109,6 +113,11 @@ async function main() {
               ownerId: user.id,
               status: "approved",
             },
+          });
+          // Link user to stable
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { stableId: newStable.id },
           });
           console.log(`   ✅ Created stable: ${ownerData.stable.name}`);
         }
@@ -136,6 +145,12 @@ async function main() {
             ownerId: user.id,
             status: "approved",
           },
+        });
+
+        // Link user to stable
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { stableId: stable.id },
         });
 
         console.log(`   ✅ Created stable: ${stable.name}`);

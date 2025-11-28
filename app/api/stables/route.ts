@@ -116,8 +116,15 @@ export async function GET(req: NextRequest) {
     }
 
     // If ownerOnly is true and user is logged in as stable owner, return only their stable
-    if (ownerOnly && session?.user?.role === "stable_owner" && session.user.stableId) {
-      where.id = session.user.stableId;
+    if (ownerOnly && session?.user?.role === "stable_owner") {
+      // Fetch user to get stableId
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { stableId: true },
+      });
+      if (user?.stableId) {
+        where.id = user.stableId;
+      }
     }
 
     // Filter by location
@@ -464,8 +471,13 @@ export async function POST(req: NextRequest) {
     const { name, description, location, address } = body;
 
     // Check if user already has a stable
-    const existingStable = session.user.stableId ? await prisma.stable.findUnique({
-      where: { id: session.user.stableId },
+    // Fetch user to get stableId
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { stableId: true },
+    });
+    const existingStable = user?.stableId ? await prisma.stable.findUnique({
+      where: { id: user.stableId },
     }) : null;
 
     if (existingStable) {

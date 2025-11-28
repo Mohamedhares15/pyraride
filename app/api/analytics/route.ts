@@ -441,9 +441,25 @@ export async function GET(req: NextRequest) {
       }
     } else if (role === "stable_owner") {
       try {
-        // Stable owner analytics
+        // Get user to access stableId
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { stableId: true },
+        });
+
+        if (!user || !user.stableId) {
+          return NextResponse.json(
+            { 
+              error: "Stable not found. Please create and get your stable approved first.",
+              analytics: null 
+            },
+            { status: 404 }
+          );
+        }
+
+        // Stable owner analytics - find stable by stableId
         const stable = await prisma.stable.findUnique({
-          where: { ownerId: userId },
+          where: { id: user.stableId },
         });
 
       if (!stable) {

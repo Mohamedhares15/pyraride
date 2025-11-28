@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
         const booking = await prisma.booking.findUnique({
             where: { id: bookingId },
             include: {
-                user: {
+                rider: {
                     select: {
                         id: true,
                         rankPoints: true,
@@ -197,13 +197,13 @@ export async function POST(req: NextRequest) {
 
         // Calculate new ratings
         const ratingUpdate = calculateRatings({
-            riderId: booking.user.id,
+            riderId: booking.rider.id,
             horseId: booking.horse.id,
             performance,
             difficulty,
-            riderRank: booking.user.rank?.name || "Beginner",
+            riderRank: booking.rider.rank?.name || "Beginner",
             horseTier: booking.horse.tier?.name || "Tier 1",
-            riderPoints: booking.user.rankPoints,
+            riderPoints: booking.rider.rankPoints,
             horsePoints: booking.horse.rankPoints,
         });
 
@@ -211,7 +211,7 @@ export async function POST(req: NextRequest) {
         const result = await prisma.$transaction([
             // Update rider points
             prisma.user.update({
-                where: { id: booking.user.id },
+                where: { id: booking.rider.id },
                 data: { rankPoints: ratingUpdate.newRiderPoints },
             }),
             // Update horse points
@@ -223,15 +223,11 @@ export async function POST(req: NextRequest) {
             prisma.rideResult.create({
                 data: {
                     bookingId,
-                    riderId: booking.user.id,
+                    riderId: booking.rider.id,
                     horseId: booking.horse.id,
                     stableId: booking.stableId,
-                    performanceScore: performance,
-                    difficultyLevel: difficulty,
-                    riderPointsBefore: booking.user.rankPoints,
-                    riderPointsAfter: ratingUpdate.newRiderPoints,
-                    horsePointsBefore: booking.horse.rankPoints,
-                    horsePointsAfter: ratingUpdate.newHorsePoints,
+                    rps: performance, // Rider Performance Score (1-10)
+                    pointsChange: ratingUpdate.riderPointsChange, // Calculated points change
                 },
             }),
         ]);

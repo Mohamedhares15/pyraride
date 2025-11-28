@@ -7,6 +7,7 @@ import { format, addDays, startOfToday } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Ban, Clock } from "lucide-react";
 import { toast } from "sonner";
@@ -19,6 +20,7 @@ export default function SchedulePage() {
     const [selectedHorse, setSelectedHorse] = useState<string>("all");
     const [slots, setSlots] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [stableId, setStableId] = useState<string | null>(null);
 
     useEffect(() => {
         if (status === "loading") return;
@@ -30,10 +32,10 @@ export default function SchedulePage() {
     }, [session, status, router]);
 
     useEffect(() => {
-        if (date && session?.user.stableId) {
+        if (date && stableId) {
             fetchSlots();
         }
-    }, [date, selectedHorse, session]);
+    }, [date, selectedHorse, stableId]);
 
     async function fetchHorses() {
         try {
@@ -42,6 +44,7 @@ export default function SchedulePage() {
             const stableRes = await fetch("/api/stables?ownerOnly=true");
             const data = await stableRes.json();
             if (data.stables && data.stables.length > 0) {
+                setStableId(data.stables[0].id);
                 setHorses(data.stables[0].horses || []);
             }
         } catch (err) {
@@ -50,12 +53,12 @@ export default function SchedulePage() {
     }
 
     async function fetchSlots() {
-        if (!session?.user.stableId || !date) return;
+        if (!stableId || !date) return;
         setIsLoading(true);
         try {
             const formattedDate = format(date, "yyyy-MM-dd");
             const horseQuery = selectedHorse !== "all" ? `&horseId=${selectedHorse}` : "";
-            const res = await fetch(`/api/stables/${session.user.stableId}/slots?date=${formattedDate}${horseQuery}`);
+            const res = await fetch(`/api/stables/${stableId}/slots?date=${formattedDate}${horseQuery}`);
             if (res.ok) {
                 setSlots(await res.json());
             }
@@ -67,14 +70,14 @@ export default function SchedulePage() {
     }
 
     async function handleBlockSlot(startTime: string) {
-        if (!session?.user.stableId) return;
+        if (!stableId) return;
 
         try {
             const res = await fetch("/api/stables/block-slot", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    stableId: session.user.stableId,
+                    stableId: stableId,
                     horseId: selectedHorse === "all" ? null : selectedHorse,
                     startTime,
                     endTime: new Date(new Date(startTime).getTime() + 60 * 60 * 1000).toISOString(), // 1 hour block

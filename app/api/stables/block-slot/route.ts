@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerSession } from "@/lib/auth";
 
 export async function POST(req: Request) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await getServerSession();
         if (!session || session.user.role !== "stable_owner") {
             return new NextResponse("Unauthorized", { status: 401 });
         }
@@ -16,8 +15,13 @@ export async function POST(req: Request) {
             return new NextResponse("Missing required fields", { status: 400 });
         }
 
-        // Verify ownership
-        if (session.user.stableId !== stableId) {
+        // Verify ownership - fetch user to get stableId
+        const user = await prisma.user.findUnique({
+            where: { id: session.user.id },
+            select: { stableId: true },
+        });
+
+        if (!user || user.stableId !== stableId) {
             return new NextResponse("Forbidden", { status: 403 });
         }
 
