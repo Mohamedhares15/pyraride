@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     // Get all stables (including hidden ones)
     const stables = await prisma.stable.findMany({
       include: {
-        owner: {
+        owners: {
           select: {
             id: true,
             fullName: true,
@@ -51,9 +51,9 @@ export async function GET(req: NextRequest) {
       const avgRating =
         stable.reviews.length > 0
           ? stable.reviews.reduce(
-              (sum, r) => sum + r.stableRating,
-              0
-            ) / stable.reviews.length
+            (sum, r) => sum + r.stableRating,
+            0
+          ) / stable.reviews.length
           : 0;
 
       return {
@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
         isHidden: stable.isHidden,
         commissionRate: stable.commissionRate ? Number(stable.commissionRate) : 0.15, // Default to 15% if not set
         createdAt: stable.createdAt.toISOString(),
-        owner: stable.owner,
+        owners: stable.owners,
         rating: Number(avgRating.toFixed(1)),
         _count: stable._count,
       };

@@ -38,6 +38,12 @@ interface BookingModalProps {
   stableName: string;
   horses: Horse[];
   pricePerHour?: number;
+  initialSelection?: {
+    horseId?: string;
+    date?: string;
+    startTime?: string;
+    endTime?: string;
+  };
 }
 
 export default function BookingModal({
@@ -47,29 +53,41 @@ export default function BookingModal({
   stableName,
   horses,
   pricePerHour = 50,
+  initialSelection,
 }: BookingModalProps) {
   const { data: session } = useSession();
-  const [selectedHorseId, setSelectedHorseId] = useState<string>("");
-  
-  // Get initial date from URL params or use today
+  const [selectedHorseId, setSelectedHorseId] = useState<string>(initialSelection?.horseId || "");
+
+  // Get initial date from URL params or props or use today
   const getInitialDate = () => {
+    if (initialSelection?.date) return initialSelection.date;
     if (typeof window === 'undefined') return "";
     const params = new URLSearchParams(window.location.search);
     return params.get('date') || new Date().toISOString().split("T")[0];
   };
-  
+
   const [selectedDate, setSelectedDate] = useState<string>(getInitialDate());
-  const [startTime, setStartTime] = useState<string>("09:00");
-  const [endTime, setEndTime] = useState<string>("10:00");
+  const [startTime, setStartTime] = useState<string>(initialSelection?.startTime || "09:00");
+  const [endTime, setEndTime] = useState<string>(initialSelection?.endTime || "10:00");
+
+  // Update state when initialSelection changes (e.g. when reopening modal with different slot)
+  useEffect(() => {
+    if (open && initialSelection) {
+      if (initialSelection.horseId) setSelectedHorseId(initialSelection.horseId);
+      if (initialSelection.date) setSelectedDate(initialSelection.date);
+      if (initialSelection.startTime) setStartTime(initialSelection.startTime);
+      if (initialSelection.endTime) setEndTime(initialSelection.endTime);
+    }
+  }, [open, initialSelection]);
   const [selectedRiders, setSelectedRiders] = useState<number>(1);
   const [pickupRequested, setPickupRequested] = useState<boolean>(false);
   const [addons, setAddons] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [bookingDetails, setBookingDetails] = useState<{horseName: string; date: string; time: string} | null>(null);
+  const [bookingDetails, setBookingDetails] = useState<{ horseName: string; date: string; time: string } | null>(null);
   const [stableCoordinates, setStableCoordinates] = useState<{ lat: number; lng: number; address?: string } | null>(null);
-  
+
   // Fetch stable coordinates on mount
   useEffect(() => {
     async function fetchStableCoords() {
@@ -205,7 +223,7 @@ export default function BookingModal({
       const data = await response.json();
 
       if (!response.ok) {
-        const errorMsg = data.details 
+        const errorMsg = data.details
           ? `${data.error}\n\n${data.details}`
           : data.error || "Failed to create checkout session";
         throw new Error(errorMsg);
@@ -213,8 +231,8 @@ export default function BookingModal({
 
       // Show success toast and close modal
       if (data.bookingId || data.success || data.booking) {
-        const bookingDate = new Date(selectedDate).toLocaleDateString('en-US', { 
-          month: 'short', 
+        const bookingDate = new Date(selectedDate).toLocaleDateString('en-US', {
+          month: 'short',
           day: 'numeric',
           year: 'numeric'
         });
@@ -224,7 +242,7 @@ export default function BookingModal({
           time: `${startTime} – ${endTime}`
         });
         setShowSuccessToast(true);
-        
+
         // Close modal after short delay
         setTimeout(() => {
           onOpenChange(false);
@@ -255,7 +273,7 @@ export default function BookingModal({
   const hours = calculateHours();
   const totalPrice = calculatePrice();
   const currentHorsePrice = getSelectedHorsePrice();
-  
+
   // Get selected horse name for success message
   const selectedHorse = horses.find(h => h.id === selectedHorseId);
 
@@ -284,11 +302,10 @@ export default function BookingModal({
               {horses.map((horse) => (
                 <Card
                   key={horse.id}
-                  className={`cursor-pointer transition-all ${
-                    selectedHorseId === horse.id
+                  className={`cursor-pointer transition-all ${selectedHorseId === horse.id
                       ? "border-primary bg-primary/5 ring-2 ring-primary"
                       : "hover:border-primary/50"
-                  }`}
+                    }`}
                   onClick={() => setSelectedHorseId(horse.id)}
                 >
                   <div className="p-4">
@@ -318,10 +335,10 @@ export default function BookingModal({
               Select Date *
               {selectedDate && (
                 <span className="ml-2 text-xs font-normal text-muted-foreground">
-                  ({new Date(selectedDate).toLocaleDateString('en-US', { 
-                    weekday: 'short', 
-                    month: 'short', 
-                    day: 'numeric' 
+                  ({new Date(selectedDate).toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
                   })})
                 </span>
               )}

@@ -104,6 +104,44 @@ export default function StableDetailPage() {
   const [takenSlots, setTakenSlots] = useState<Record<string, Record<string, any[]>>>({});
   const [portfolioViewer, setPortfolioViewer] = useState<PortfolioViewerState | null>(null);
   const { data: session } = useSession();
+  const [bookingSelection, setBookingSelection] = useState<{
+    horseId?: string;
+    date?: string;
+    startTime?: string;
+    endTime?: string;
+  } | undefined>(undefined);
+
+  const handleSlotClick = (horseId: string, timeStr: string) => {
+    // Convert "10:00 AM" to "10:00" (24h format if needed, but input type=time expects HH:mm)
+    // The Badge displays formatted time like "10:00 AM"
+    // We need to parse it back to HH:mm for the input
+    const date = new Date(); // Today
+    const timeParts = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    let hours = 0;
+    let minutes = 0;
+
+    if (timeParts) {
+      hours = parseInt(timeParts[1]);
+      minutes = parseInt(timeParts[2]);
+      const ampm = timeParts[3].toUpperCase();
+
+      if (ampm === "PM" && hours < 12) hours += 12;
+      if (ampm === "AM" && hours === 12) hours = 0;
+    }
+
+    const startTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    // Default 1 hour duration
+    const endHours = (hours + 1) % 24;
+    const endTime = `${endHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+    setBookingSelection({
+      horseId,
+      date: date.toISOString().split("T")[0],
+      startTime,
+      endTime,
+    });
+    setIsBookingModalOpen(true);
+  };
 
   useEffect(() => {
     async function fetchStable() {
@@ -112,7 +150,7 @@ export default function StableDetailPage() {
           fetch(`/api/stables/${id}`),
           fetch(`/api/stables/${id}/slots`),
         ]);
-        
+
         if (!stableRes.ok) {
           throw new Error("Stable not found");
         }
@@ -140,7 +178,7 @@ export default function StableDetailPage() {
   // Refresh slots every 15 seconds (more frequent updates)
   useEffect(() => {
     if (!id) return;
-    
+
     const interval = setInterval(async () => {
       try {
         const slotsRes = await fetch(`/api/stables/${id}/slots`);
@@ -178,12 +216,12 @@ export default function StableDetailPage() {
 
   const openPortfolio = (horseName: string, items: HorseMediaItem[], startIndex = 0) => {
     if (!items || items.length === 0) return;
-    
+
     // Lock scroll and save current position - Complete lock
     const scrollY = window.scrollY;
     const html = document.documentElement;
     const body = document.body;
-    
+
     body.style.overflow = 'hidden';
     body.style.position = 'fixed';
     body.style.top = `-${scrollY}px`;
@@ -191,15 +229,15 @@ export default function StableDetailPage() {
     body.style.left = '0';
     body.style.right = '0';
     body.style.touchAction = 'none';
-    
+
     html.style.overflow = 'hidden';
     html.style.position = 'fixed';
     html.style.width = '100%';
     html.style.height = '100%';
-    
+
     // Push history state so back button closes portfolio instead of navigating away
     window.history.pushState({ portfolioOpen: true }, '', window.location.href);
-    
+
     setPortfolioViewer({
       horseName,
       items,
@@ -212,7 +250,7 @@ export default function StableDetailPage() {
     const scrollY = document.body.style.top;
     const html = document.documentElement;
     const body = document.body;
-    
+
     body.style.overflow = '';
     body.style.position = '';
     body.style.top = '';
@@ -220,16 +258,16 @@ export default function StableDetailPage() {
     body.style.left = '';
     body.style.right = '';
     body.style.touchAction = '';
-    
+
     html.style.overflow = '';
     html.style.position = '';
     html.style.width = '';
     html.style.height = '';
-    
+
     window.scrollTo(0, parseInt(scrollY || '0') * -1);
-    
+
     setPortfolioViewer(null);
-    
+
     // Go back in history if portfolio was opened (to remove the pushed state)
     if (window.history.state?.portfolioOpen) {
       window.history.back();
@@ -260,7 +298,7 @@ export default function StableDetailPage() {
         const scrollY = document.body.style.top;
         const html = document.documentElement;
         const body = document.body;
-        
+
         body.style.overflow = '';
         body.style.position = '';
         body.style.top = '';
@@ -268,14 +306,14 @@ export default function StableDetailPage() {
         body.style.left = '';
         body.style.right = '';
         body.style.touchAction = '';
-        
+
         html.style.overflow = '';
         html.style.position = '';
         html.style.width = '';
         html.style.height = '';
-        
+
         window.scrollTo(0, parseInt(scrollY || '0') * -1);
-        
+
         setPortfolioViewer(null);
       }
     };
@@ -326,7 +364,7 @@ export default function StableDetailPage() {
 
       {/* Hero Image */}
       <div className="relative h-[400px] w-full overflow-hidden" role="img" aria-label={`${stable.name} - Horse riding stable in ${stable.location}, Egypt`}>
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: stable.imageUrl
@@ -355,11 +393,11 @@ export default function StableDetailPage() {
               {stable.location}
             </Badge>
           </div>
-          
+
           <h1 className="mb-4 font-display text-4xl font-bold tracking-tight md:text-5xl">
             {stable.name}
           </h1>
-          
+
           <p className="mb-6 text-lg text-muted-foreground">
             {stable.description}
           </p>
@@ -394,9 +432,9 @@ export default function StableDetailPage() {
                   <p className="mt-1 text-sm capitalize">{stable.location}</p>
                 </div>
               </div>
-              <StableLocationMap 
-                stableId={stable.id} 
-                stableName={stable.name} 
+              <StableLocationMap
+                stableId={stable.id}
+                stableName={stable.name}
                 stableLocation={stable.location}
                 stableAddress={stable.address}
               />
@@ -410,10 +448,10 @@ export default function StableDetailPage() {
                   {stable.description}
                 </p>
                 <p className="text-muted-foreground leading-relaxed mt-4">
-                  Located at <strong>{stable.location} Pyramids</strong>, {stable.name} offers authentic horse riding 
-                  experiences with stunning views of Egypt's most iconic landmarks. Book your adventure 
-                  through <strong>PyraRide.com</strong> - Egypt's trusted booking marketplace for horse riding experiences 
-                  at the pyramids. As part of PyraRide's verified stable network, {stable.name} has been thoroughly 
+                  Located at <strong>{stable.location} Pyramids</strong>, {stable.name} offers authentic horse riding
+                  experiences with stunning views of Egypt's most iconic landmarks. Book your adventure
+                  through <strong>PyraRide.com</strong> - Egypt's trusted booking marketplace for horse riding experiences
+                  at the pyramids. As part of PyraRide's verified stable network, {stable.name} has been thoroughly
                   inspected for safety, quality, and animal welfare standards.
                 </p>
               </div>
@@ -434,13 +472,13 @@ export default function StableDetailPage() {
               <div>
                 <h2 className="text-2xl font-bold mb-4">Location & Directions</h2>
                 <p className="text-muted-foreground mb-2">
-                  {stable.address ? `${stable.address}, ` : ''}<strong>{stable.location}</strong>, Egypt. 
-                  Easily accessible from Cairo city center, typically a 30-45 minute drive. 
+                  {stable.address ? `${stable.address}, ` : ''}<strong>{stable.location}</strong>, Egypt.
+                  Easily accessible from Cairo city center, typically a 30-45 minute drive.
                   Free parking is available at most stables.
                 </p>
                 <p className="text-muted-foreground">
-                  GPS coordinates and detailed Google Maps directions are provided in your booking confirmation email. 
-                  Most hotels in Cairo can arrange transportation, or you can use taxi/Uber services. Some stables 
+                  GPS coordinates and detailed Google Maps directions are provided in your booking confirmation email.
+                  Most hotels in Cairo can arrange transportation, or you can use taxi/Uber services. Some stables
                   offer hotel pickup services for an additional fee.
                 </p>
               </div>
@@ -484,9 +522,9 @@ export default function StableDetailPage() {
                       portfolioItems.length > 0
                         ? portfolioItems
                         : horse.imageUrls.slice(1).map((url) => ({
-                            type: "image" as const,
-                            url,
-                          }));
+                          type: "image" as const,
+                          url,
+                        }));
                     const heroImage =
                       portfolioItems.find((item) => item.type === "image")?.url ||
                       horse.imageUrls[0];
@@ -526,7 +564,7 @@ export default function StableDetailPage() {
                               View portfolio
                             </span>
                           </button>
-                          
+
                           {/* Horse Info */}
                           <div className="p-6">
                             <div className="mb-4">
@@ -562,9 +600,18 @@ export default function StableDetailPage() {
                               {availableTimes.length > 0 ? (
                                 <div className="flex flex-wrap gap-2 mb-3">
                                   {availableTimes.slice(0, 6).map((time: string) => (
-                                    <Badge key={time} className="bg-green-500/20 text-green-700 border-green-500/50">
+                                    <Button
+                                      key={time}
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-6 bg-green-500/10 text-green-700 border-green-500/30 hover:bg-green-500/20 hover:text-green-800 text-xs px-2"
+                                      onClick={(e) => {
+                                        e.stopPropagation(); // Prevent opening portfolio
+                                        handleSlotClick(horse.id, time);
+                                      }}
+                                    >
                                       {time}
-                                    </Badge>
+                                    </Button>
                                   ))}
                                   {availableTimes.length > 6 && (
                                     <Badge variant="outline">
@@ -575,7 +622,7 @@ export default function StableDetailPage() {
                               ) : (
                                 <p className="text-xs text-muted-foreground mb-3">No available slots today</p>
                               )}
-                              
+
                               {takenTimes.length > 0 && (
                                 <div className="mt-2">
                                   <p className="text-xs text-muted-foreground mb-2">Booked:</p>
@@ -615,13 +662,13 @@ export default function StableDetailPage() {
                 averageStableRating={
                   stable.reviews.length > 0
                     ? stable.reviews.reduce((sum, r) => sum + r.stableRating, 0) /
-                      stable.reviews.length
+                    stable.reviews.length
                     : 0
                 }
                 averageHorseRating={
                   stable.reviews.length > 0
                     ? stable.reviews.reduce((sum, r) => sum + r.horseRating, 0) /
-                      stable.reviews.length
+                    stable.reviews.length
                     : 0
                 }
                 totalReviews={stable.totalReviews}
@@ -707,10 +754,14 @@ export default function StableDetailPage() {
       {stable && (
         <BookingModal
           open={isBookingModalOpen}
-          onOpenChange={setIsBookingModalOpen}
+          onOpenChange={(open) => {
+            setIsBookingModalOpen(open);
+            if (!open) setBookingSelection(undefined);
+          }}
           stableId={stable.id}
           stableName={stable.name}
           horses={stable.horses}
+          initialSelection={bookingSelection}
         />
       )}
 
@@ -718,7 +769,7 @@ export default function StableDetailPage() {
       {portfolioViewer && (
         <>
           {/* Layer 1: Base Blur - Creates the frosted glass foundation */}
-          <div 
+          <div
             style={{
               position: 'fixed',
               top: 0,
@@ -734,9 +785,9 @@ export default function StableDetailPage() {
               WebkitTransform: 'translateZ(0)',
             }}
           />
-          
+
           {/* Layer 2: Color Tint - Warm golden overlay for desert/pyramid soul */}
-          <div 
+          <div
             style={{
               position: 'fixed',
               top: 0,
@@ -751,9 +802,9 @@ export default function StableDetailPage() {
               WebkitTransform: 'translateZ(0)',
             }}
           />
-          
+
           {/* Layer 3: Vibrancy & Luminosity - Apple's signature glow */}
-          <div 
+          <div
             style={{
               position: 'fixed',
               top: 0,
@@ -771,9 +822,9 @@ export default function StableDetailPage() {
               WebkitTransform: 'translateZ(0)',
             }}
           />
-          
+
           {/* Content Layer - Mobile viewport fix */}
-          <div 
+          <div
             style={{
               position: 'fixed',
               top: 0,
@@ -788,7 +839,7 @@ export default function StableDetailPage() {
             }}
           >
             {/* Header with Liquid Glass Effect - Clean Design */}
-            <div 
+            <div
               style={{
                 position: 'absolute',
                 top: 0,
@@ -834,7 +885,7 @@ export default function StableDetailPage() {
               >
                 <ArrowLeft className="h-7 w-7 stroke-[2.5]" style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3))' }} />
               </button>
-              <div 
+              <div
                 style={{
                   color: 'white',
                   fontSize: '15px',
@@ -857,7 +908,7 @@ export default function StableDetailPage() {
             </div>
 
             {/* Main Image - Crystal Clear & Centered */}
-            <div 
+            <div
               style={{
                 position: 'absolute',
                 top: 0,
@@ -873,35 +924,35 @@ export default function StableDetailPage() {
                 paddingRight: '16px',
               }}
             >
-            {portfolioViewer.items[portfolioViewer.index]?.type === "video" ? (
-              <video
-                key={portfolioViewer.items[portfolioViewer.index]?.url}
-                controls
-                className="max-h-full max-w-full object-contain rounded-2xl shadow-2xl"
-                style={{
-                  filter: 'contrast(1.05) brightness(1.02)',
-                }}
-              >
-                <source src={portfolioViewer.items[portfolioViewer.index]?.url} />
-                Your browser does not support the video tag.
-              </video>
-            ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={portfolioViewer.items[portfolioViewer.index]?.url}
-                src={portfolioViewer.items[portfolioViewer.index]?.url || "/hero-bg.webp"}
-                alt={`${portfolioViewer.horseName} - Photo ${portfolioViewer.index + 1} of ${portfolioViewer.items.length} from ${stable.name} horse riding stable in ${stable.location}, Egypt`}
-                className="max-h-full max-w-full object-contain"
-                style={{
-                  filter: 'contrast(1.08) brightness(1.03) saturate(1.1)',
-                  borderRadius: '20px',
-                  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(255, 255, 255, 0.1)',
-                  transform: 'translateZ(0)',
-                  WebkitTransform: 'translateZ(0)',
-                }}
-                draggable={false}
-              />
-            )}
+              {portfolioViewer.items[portfolioViewer.index]?.type === "video" ? (
+                <video
+                  key={portfolioViewer.items[portfolioViewer.index]?.url}
+                  controls
+                  className="max-h-full max-w-full object-contain rounded-2xl shadow-2xl"
+                  style={{
+                    filter: 'contrast(1.05) brightness(1.02)',
+                  }}
+                >
+                  <source src={portfolioViewer.items[portfolioViewer.index]?.url} />
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={portfolioViewer.items[portfolioViewer.index]?.url}
+                  src={portfolioViewer.items[portfolioViewer.index]?.url || "/hero-bg.webp"}
+                  alt={`${portfolioViewer.horseName} - Photo ${portfolioViewer.index + 1} of ${portfolioViewer.items.length} from ${stable.name} horse riding stable in ${stable.location}, Egypt`}
+                  className="max-h-full max-w-full object-contain"
+                  style={{
+                    filter: 'contrast(1.08) brightness(1.03) saturate(1.1)',
+                    borderRadius: '20px',
+                    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(255, 255, 255, 0.1)',
+                    transform: 'translateZ(0)',
+                    WebkitTransform: 'translateZ(0)',
+                  }}
+                  draggable={false}
+                />
+              )}
             </div>
 
             {/* Navigation Arrows - Apple Liquid Glass with Desert Warmth */}
@@ -986,7 +1037,7 @@ export default function StableDetailPage() {
 
             {/* Thumbnail Strip - Apple Liquid Glass with Golden Warmth */}
             {portfolioViewer.items.length > 1 && (
-              <div 
+              <div
                 style={{
                   position: 'absolute',
                   bottom: 0,
@@ -1004,34 +1055,33 @@ export default function StableDetailPage() {
                   WebkitTransform: 'translateZ(0)',
                 }}
               >
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-center">
-                {portfolioViewer.items.map((item, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setPortfolioViewer(prev => prev ? { ...prev, index: idx } : null)}
-                    className={`flex-shrink-0 h-16 w-16 rounded-xl overflow-hidden border-2 transition-all ${
-                      idx === portfolioViewer.index
+                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-center">
+                  {portfolioViewer.items.map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setPortfolioViewer(prev => prev ? { ...prev, index: idx } : null)}
+                      className={`flex-shrink-0 h-16 w-16 rounded-xl overflow-hidden border-2 transition-all ${idx === portfolioViewer.index
                         ? "border-white scale-110 shadow-lg shadow-white/25"
                         : "border-white/40 opacity-70 hover:opacity-100 hover:scale-105"
-                    }`}
-                  >
-                    {item.type === "video" ? (
-                      <div className="h-full w-full bg-gray-800/50 backdrop-blur-sm flex items-center justify-center">
-                        <span className="text-white text-sm">▶</span>
-                      </div>
-                    ) : (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={item.url}
-                        alt={`${portfolioViewer.horseName} - Thumbnail ${idx + 1} of ${portfolioViewer.items.length} from ${stable.name} portfolio`}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                    )}
-                  </button>
-                ))}
+                        }`}
+                    >
+                      {item.type === "video" ? (
+                        <div className="h-full w-full bg-gray-800/50 backdrop-blur-sm flex items-center justify-center">
+                          <span className="text-white text-sm">▶</span>
+                        </div>
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.url}
+                          alt={`${portfolioViewer.horseName} - Thumbnail ${idx + 1} of ${portfolioViewer.items.length} from ${stable.name} portfolio`}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
             )}
           </div>
         </>

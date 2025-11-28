@@ -31,6 +31,16 @@ enum StableStatus {
   rejected
 }
 
+
+
+model Location {
+  id        String   @id @default(uuid())
+  name      String   @unique // "Giza", "Saqqara"
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model User {
   id                 String    @id @default(uuid())
   email              String    @unique
@@ -43,34 +53,68 @@ model User {
   premiumAIExpiresAt DateTime? // Subscription expiration date
   createdAt          DateTime  @default(now())
 
+  //Multi-Owner Support: A user belongs to a stable
+  stableId           String?
+  stable             Stable?   @relation("StableOwners", fields: [stableId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  ownedStables       Stable[]  @relation("StableOwner")
+
+  //Leaderboard & Ranking
+  rankPoints         Int       @default(1400)
+  rankId             String?
+  rank               RiderRank? @relation(fields: [rankId], references: [id])
+
   // Relations
   bookings             Booking[]
   reviews              Review[]
-  stable               Stable? // A user can own one stable
   passwordResetTokens  PasswordResetToken[]
   riderReviewsGiven    RiderReview[]        @relation("StableOwnerReviews")
   riderReviewsReceived RiderReview[]        @relation("RiderReviews")
   horseChangeReviews   HorseChangeRequest[] @relation("HorseChangeReviewer")
+  rideResults          RideResult[]
+}
+
+model RiderRank {
+  id        String @id @default(uuid())
+  name      String @unique // Beginner, Intermediate, Advanced, Elite
+  minPoints Int
+  maxPoints Int
+  icon      String?
+  users     User[]
+}
+
+model HorseTier {
+  id        String @id @default(uuid())
+  name      String @unique // Tier 1, Tier 2, etc.
+  minPoints Int
+  maxPoints Int
+  icon      String?
+  horses    Horse[]
 }
 
 model Stable {
-  id             String       @id @default(uuid())
-  ownerId        String       @unique // Each stable has one owner
-  name           String
-  description    String       @db.Text
-  location       String // "Giza" or "Saqqara"
-  address        String
-  imageUrl       String? // Stable card image
-  status         StableStatus @default(pending_approval)
-  isHidden       Boolean      @default(false) // Admin can hide/show stables individually
-  commissionRate Decimal      @default(0.15) @db.Decimal(5, 4) // Commission rate (0.15 = 15%), can be customized per stable
-  createdAt      DateTime     @default(now())
-
+  id               String       @id @default(uuid())
+  // ownerId removed in favor of User.stableId for multi-owner support
+  // But we keep a primary contact or just rely on users with this stableId
+  name             String
+  description      String       @db.Text
+  location         String // "Giza" or "Saqqara" - validated against Location model in app logic
+  address          String
+  imageUrl         String? // Stable card image
+  status           StableStatus @default(pending_approval)
+  isHidden         Boolean      @default(false) // Admin can hide/show stables individually
+  commissionRate   Decimal      @default(0.15) @db.Decimal(5, 4) // Commission rate (0.15 = 15%), can be customized per stable
+  minLeadTimeHours Int          @default(8) //Minimum hours before booking (Feature 5)
+  createdAt        DateTime     @default(now())
+  ownerId          String       // Primary owner
+ 
   // Relations
-  owner    User      @relation(fields: [ownerId], references: [id])
-  horses   Horse[]
-  bookings Booking[]
-  reviews  Review[]
+  owner        User          @relation("StableOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  owners       User[]        @relation("StableOwners")
+  horses       Horse[]
+  bookings     Booking[]
+  reviews      Review[]
+  blockedSlots BlockedSlot[]
+  rideResults  RideResult[]
 }
 
 model Horse {
@@ -84,6 +128,13 @@ model Horse {
   skills             String[]            @default([])
   isActive           Boolean             @default(true)
   availabilityStatus AvailabilityStatus? @default(available)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime?           @updatedAt
+  
+  // Leaderboard (Feature 7)
+  rankPoints         Int                 @default(1400)
+  tierId             String?
+  tier               HorseTier?          @relation(fields: [tierId], references: [id])
 
   // Relations
   stable         Stable               @relation(fields: [stableId], references: [id], onDelete: Cascade)
@@ -91,6 +142,43 @@ model Horse {
   reviews        Review[]
   media          HorseMedia[]
   changeRequests HorseChangeRequest[]
+  rideResults    RideResult[]
+  blockedSlots   BlockedSlot[]
+}
+
+model BlockedSlot {
+  id        String   @id @default(uuid())
+  stableId  String
+  horseId   String?  // Optional: if null, blocks entire stable
+  startTime DateTime
+  endTime   DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+
+  stable Stable @relation(fields: [stableId], references: [id], onDelete: Cascade)
+  horse  Horse? @relation(fields: [horseId], references: [id], onDelete: Cascade)
+
+  @@index([stableId])
+  @@index([horseId])
+}
+
+model RideResult {
+  id           String   @id @default(uuid())
+  bookingId    String   @unique
+  riderId      String
+  horseId      String
+  stableId     String
+  rps          Int      // Rider Performance Score (1-10)
+  pointsChange Int      // Calculated points
+  timestamp    DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+  rider   User    @relation(fields: [riderId], references: [id])
+  horse   Horse   @relation(fields: [horseId], references: [id])
+  stable  Stable  @relation(fields: [stableId], references: [id])
+
+  @@index([riderId])
+  @@index([stableId])
 }
 
 model HorseChangeRequest {
@@ -179,6 +267,7 @@ model Booking {
   horse       Horse        @relation(fields: [horseId], references: [id])
   review      Review? // A booking can have one review
   riderReview RiderReview? // A booking can have one rider review from stable owner
+  rideResult  RideResult?
 }
 
 model Review {

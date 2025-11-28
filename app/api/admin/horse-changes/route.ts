@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
               select: {
                 id: true,
                 name: true,
-                owner: {
+                owners: {
                   select: {
                     id: true,
                     email: true,

@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowLeft, Upload, X, Loader2, Check, Home } from "lucide-react";
 import { convertGoogleDriveUrl } from "@/lib/google-drive-utils";
 import { Button } from "@/components/ui/button";
@@ -33,7 +32,12 @@ export default function ManageStablePage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [googleDriveUrl, setGoogleDriveUrl] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
-  
+
+  // Multi-owner & Dynamic Locations
+  const [owners, setOwners] = useState<{ id: string; email: string; fullName: string | null }[]>([]);
+  const [newOwnerEmail, setNewOwnerEmail] = useState("");
+  const [locations, setLocations] = useState<{ id: string; name: string }[]>([]);
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -48,13 +52,25 @@ export default function ManageStablePage() {
       return;
     }
     fetchStable();
+    fetchLocations();
   }, [session, status, router]);
+
+  async function fetchLocations() {
+    try {
+      const res = await fetch("/api/locations");
+      if (res.ok) {
+        setLocations(await res.json());
+      }
+    } catch (err) {
+      console.error("Error fetching locations:", err);
+    }
+  }
 
   async function fetchStable() {
     try {
       const res = await fetch("/api/stables?ownerOnly=true");
       const data = await res.json();
-      
+
       if (data.stables && data.stables.length > 0) {
         const stableData = data.stables[0];
         setStable(stableData);
@@ -67,11 +83,67 @@ export default function ManageStablePage() {
         if (stableData.imageUrl) {
           setImagePreview(stableData.imageUrl);
         }
+        fetchOwners(stableData.id);
       }
     } catch (err) {
       console.error("Error fetching stable:", err);
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function fetchOwners(stableId: string) {
+    try {
+      const res = await fetch(`/api/stables/${stableId}/owners`);
+      if (res.ok) {
+        setOwners(await res.json());
+      }
+    } catch (err) {
+      console.error("Error fetching owners:", err);
+    }
+  }
+
+  async function handleAddOwner() {
+    if (!stable || !newOwnerEmail.trim()) return;
+
+    try {
+      const res = await fetch(`/api/stables/${stable.id}/owners`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newOwnerEmail }),
+      });
+
+      if (!res.ok) {
+        const error = await res.text();
+        alert(error);
+        return;
+      }
+
+      setNewOwnerEmail("");
+      fetchOwners(stable.id);
+      alert("Owner added successfully!");
+    } catch (err) {
+      console.error("Error adding owner:", err);
+      alert("Failed to add owner");
+    }
+  }
+
+  async function handleRemoveOwner(ownerId: string) {
+    if (!stable || !confirm("Are you sure you want to remove this owner?")) return;
+
+    try {
+      const res = await fetch(`/api/stables/${stable.id}/owners?ownerId=${ownerId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        alert("Failed to remove owner");
+        return;
+      }
+
+      fetchOwners(stable.id);
+    } catch (err) {
+      console.error("Error removing owner:", err);
     }
   }
 
@@ -106,9 +178,7 @@ export default function ManageStablePage() {
 
     // Convert Google Drive share link to direct URL
     const directUrl = convertGoogleDriveUrl(googleDriveUrl);
-    console.log("Google Drive URL:", googleDriveUrl);
-    console.log("Converted URL:", directUrl);
-    
+
     if (directUrl) {
       setImagePreview(directUrl);
       setImageFile(null);
@@ -134,7 +204,7 @@ export default function ManageStablePage() {
 
       // Prepare image URL
       let imageUrl = stable.imageUrl;
-      
+
       if (googleDriveUrl.trim()) {
         const converted = convertGoogleDriveUrl(googleDriveUrl);
         if (converted) {
@@ -257,7 +327,7 @@ export default function ManageStablePage() {
       )}
 
       {/* Form */}
-      <div className="mx-auto max-w-4xl px-4 py-8 md:px-8">
+      <div className="mx-auto max-w-4xl px-4 py-8 md:px-8 space-y-8">
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Stable Card Image */}
           <Card className="p-6">
@@ -308,12 +378,12 @@ export default function ManageStablePage() {
                   placeholder="https://drive.google.com/file/d/FILE_ID/view"
                   className="font-mono text-sm"
                 />
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   onClick={(e) => {
                     e.preventDefault();
                     handleGoogleDriveUrl();
-                  }} 
+                  }}
                   variant="outline"
                   disabled={!googleDriveUrl.trim()}
                 >
@@ -363,7 +433,7 @@ export default function ManageStablePage() {
           {/* Basic Information */}
           <Card className="p-6">
             <h2 className="mb-4 text-xl font-semibold">Basic Information</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <Label htmlFor="name">Stable Name *</Label>
@@ -388,13 +458,20 @@ export default function ManageStablePage() {
 
               <div>
                 <Label htmlFor="location">Location *</Label>
-                <Input
+                <select
                   id="location"
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   required
-                  placeholder="e.g., Giza, Saqqara"
-                />
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="">Select a location</option>
+                  {locations.map((loc) => (
+                    <option key={loc.id} value={loc.name}>
+                      {loc.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
@@ -432,6 +509,48 @@ export default function ManageStablePage() {
             </Button>
           </div>
         </form>
+
+        {/* Owners Management */}
+        <Card className="p-6">
+          <h2 className="mb-4 text-xl font-semibold">Manage Owners</h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            Add other users as owners of this stable. They must have an existing account.
+          </p>
+
+          <div className="mb-6 flex gap-4">
+            <Input
+              placeholder="Enter email address"
+              value={newOwnerEmail}
+              onChange={(e) => setNewOwnerEmail(e.target.value)}
+            />
+            <Button onClick={handleAddOwner} disabled={!newOwnerEmail.trim()}>
+              Add Owner
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            {owners.map((owner) => (
+              <div key={owner.id} className="flex items-center justify-between rounded-lg border p-4">
+                <div>
+                  <p className="font-medium">{owner.fullName || "Unnamed User"}</p>
+                  <p className="text-sm text-muted-foreground">{owner.email}</p>
+                </div>
+                {owner.id !== session?.user.id && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleRemoveOwner(owner.id)}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+            ))}
+            {owners.length === 0 && (
+              <p className="text-center text-muted-foreground">No owners found.</p>
+            )}
+          </div>
+        </Card>
       </div>
     </div>
   );

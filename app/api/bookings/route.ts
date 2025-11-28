@@ -87,8 +87,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Get commission rate from stable (default to 0.15 if not set)
-    const commissionRate = stable.commissionRate 
-      ? Number(stable.commissionRate) 
+    const commissionRate = stable.commissionRate
+      ? Number(stable.commissionRate)
       : 0.15; // Default 15%
 
     // Check if horse exists and is active
@@ -141,7 +141,7 @@ export async function POST(req: NextRequest) {
       const conflictStart = new Date(overlappingBookings.startTime).toLocaleString();
       const conflictEnd = new Date(overlappingBookings.endTime).toLocaleString();
       return NextResponse.json(
-        { 
+        {
           error: "This horse is already booked for the selected time",
           details: `Conflicting booking: ${conflictStart} - ${conflictEnd}. Please choose a different time.`
         },
@@ -178,8 +178,47 @@ export async function POST(req: NextRequest) {
             name: true,
           },
         },
+        rider: {
+          select: {
+            fullName: true,
+            email: true,
+            phoneNumber: true,
+          }
+        }
       },
     });
+
+    // Send email notification to stable owner(s)
+    // Feature 2 & 3: Support multiple owners
+    const owners = await prisma.user.findMany({
+      where: {
+        stableId: stableId,
+        role: "stable_owner",
+      },
+      select: {
+        email: true,
+      }
+    });
+
+    if (owners.length > 0) {
+      const { sendOwnerBookingNotification } = await import("@/lib/email");
+
+      // Send email to all owners
+      await Promise.all(owners.map(owner =>
+        sendOwnerBookingNotification({
+          ownerEmail: owner.email,
+          riderName: booking.rider.fullName || "Guest Rider",
+          riderEmail: booking.rider.email,
+          riderPhone: booking.rider.phoneNumber || undefined,
+          horseName: booking.horse.name,
+          date: booking.startTime.toISOString(),
+          startTime: new Date(booking.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+          endTime: new Date(booking.endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+          totalPrice: Number(booking.totalPrice),
+          bookingId: booking.id,
+        })
+      ));
+    }
 
     return NextResponse.json({ booking }, { status: 201 });
   } catch (error) {

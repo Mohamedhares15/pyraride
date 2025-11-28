@@ -19,7 +19,7 @@ function createTransporter() {
   // Use environment variables for email configuration
   // For Gmail, you'll need an app password
   // For other services, adjust accordingly
-  
+
   if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
     console.warn("Email configuration not set. Emails will not be sent.");
     return null;
@@ -42,7 +42,7 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
   const directionsLink = data.stableAddress
     ? `https://maps.google.com/?daddr=${encodeURIComponent(data.stableAddress)}`
     : "";
-  
+
   // Get day of month for calendar icon
   const bookingDate = new Date(data.date);
   const dayOfMonth = bookingDate.getDate();
@@ -99,7 +99,7 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
                     </td>
                     <td style="vertical-align:top;">
                       <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#6B7280;line-height:1.2;margin-bottom:6px;">DATE & TIME</div>
-                      <div style="font-size:16px;font-weight:600;color:#FFFFFF;line-height:1.3;margin-bottom:4px;">${new Date(data.date).toLocaleDateString("en-US", {weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+                      <div style="font-size:16px;font-weight:600;color:#FFFFFF;line-height:1.3;margin-bottom:4px;">${new Date(data.date).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
                       <div style="font-size:14px;font-weight:400;color:#D1D5DB;line-height:1.3;">${data.startTime} – ${data.endTime}</div>
                     </td>
                   </tr>
@@ -134,7 +134,7 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
                       <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#6B7280;line-height:1.2;margin-bottom:6px;">LOCATION</div>
                       <div style="font-size:16px;font-weight:600;color:#FFFFFF;line-height:1.3;margin-bottom:16px;">${data.stableName}, ${data.stableAddress}</div>
                       ${directionsLink
-                        ? `<a href="${directionsLink}" target="_blank" style="display:block;padding:16px 24px;margin-top:12px;background:linear-gradient(90deg,#0d9488,#2563eb);color:#FFFFFF;font-size:15px;font-weight:600;border-radius:16px;text-decoration:none;text-align:center;">
+      ? `<a href="${directionsLink}" target="_blank" style="display:block;padding:16px 24px;margin-top:12px;background:linear-gradient(90deg,#0d9488,#2563eb);color:#FFFFFF;font-size:15px;font-weight:600;border-radius:16px;text-decoration:none;text-align:center;">
                             Get Directions
                           </a>` : ``}
                     </td>
@@ -192,7 +192,7 @@ function generateBookingConfirmationEmail(data: BookingEmailData): string {
 export async function sendBookingConfirmationEmail(data: BookingEmailData): Promise<boolean> {
   try {
     const transporter = createTransporter();
-    
+
     if (!transporter) {
       console.warn("Email transporter not configured. Skipping email send.");
       return false;
@@ -399,7 +399,7 @@ function generateBookingCancellationEmail(data: BookingCancellationEmailData): s
                     </td>
                     <td style="vertical-align:top;">
                       <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#6B7280;margin-bottom:6px;">CANCELLED BOOKING</div>
-                      <div style="font-size:16px;font-weight:600;color:#FFFFFF;margin-bottom:4px;">${new Date(data.date).toLocaleDateString("en-US", {weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+                      <div style="font-size:16px;font-weight:600;color:#FFFFFF;margin-bottom:4px;">${new Date(data.date).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
                       <div style="font-size:14px;font-weight:400;color:#D1D5DB;">${data.startTime} – ${data.endTime}</div>
                     </td>
                   </tr>
@@ -529,12 +529,12 @@ function generateBookingRescheduleEmail(data: BookingRescheduleEmailData): strin
               <div style="padding:24px;">
                 <div style="margin-bottom:24px;padding:16px;background:rgba(239,68,68,0.1);border-left:3px solid #ef4444;border-radius:8px;">
                   <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#ef4444;margin-bottom:6px;">OLD TIME</div>
-                  <div style="font-size:14px;color:#F9FAFB;">${new Date(data.oldDate).toLocaleDateString("en-US", {weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+                  <div style="font-size:14px;color:#F9FAFB;">${new Date(data.oldDate).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
                   <div style="font-size:14px;color:#D1D5DB;">${data.oldStartTime} – ${data.oldEndTime}</div>
                 </div>
                 <div style="margin-bottom:24px;padding:16px;background:rgba(16,185,129,0.1);border-left:3px solid #10b981;border-radius:8px;">
                   <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#10b981;margin-bottom:6px;">NEW TIME</div>
-                  <div style="font-size:16px;font-weight:600;color:#FFFFFF;margin-bottom:4px;">${new Date(data.newDate).toLocaleDateString("en-US", {weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+                  <div style="font-size:16px;font-weight:600;color:#FFFFFF;margin-bottom:4px;">${new Date(data.newDate).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
                   <div style="font-size:14px;color:#D1D5DB;">${data.newStartTime} – ${data.newEndTime}</div>
                 </div>
                 <table width="100%" cellpadding="0" cellspacing="0">
@@ -596,4 +596,134 @@ export async function sendBookingRescheduleEmail(data: BookingRescheduleEmailDat
     return false;
   }
 }
+
+// Email data for owner notification
+interface OwnerBookingNotificationData {
+  ownerEmail: string;
+  riderName: string;
+  riderEmail: string;
+  riderPhone?: string;
+  horseName: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  totalPrice: number;
+  bookingId: string;
+}
+
+function generateOwnerBookingNotificationEmail(data: OwnerBookingNotificationData): string {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Booking Received - PyraRide</title>
+</head>
+<body style="margin:0; padding:0; background:#f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <table role="presentation" style="width:100%; border-spacing:0; background-color:#f3f4f6;">
+    <tr>
+      <td align="center" style="padding:40px 20px;">
+        <table role="presentation" style="width:600px; max-width:100%; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="padding:32px; text-align:center; background:#111827;">
+              <h1 style="margin:0; font-size:24px; font-weight:bold; color:#ffffff;">New Booking Received! 🎉</h1>
+              <p style="margin:8px 0 0; color:#9ca3af;">You have a new ride scheduled.</p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding:32px;">
+              <div style="margin-bottom:24px;">
+                <h2 style="margin:0 0 16px; font-size:18px; color:#111827;">Booking Details</h2>
+                <table width="100%" style="border-collapse:collapse;">
+                  <tr>
+                    <td style="padding:8px 0; color:#6b7280; width:120px;">Horse:</td>
+                    <td style="padding:8px 0; color:#111827; font-weight:600;">${data.horseName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0; color:#6b7280;">Date:</td>
+                    <td style="padding:8px 0; color:#111827; font-weight:600;">${new Date(data.date).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0; color:#6b7280;">Time:</td>
+                    <td style="padding:8px 0; color:#111827; font-weight:600;">${data.startTime} - ${data.endTime}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0; color:#6b7280;">Total Value:</td>
+                    <td style="padding:8px 0; color:#10b981; font-weight:bold;">EGP ${data.totalPrice}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div style="margin-bottom:24px; padding-top:24px; border-top:1px solid #e5e7eb;">
+                <h2 style="margin:0 0 16px; font-size:18px; color:#111827;">Rider Information</h2>
+                <table width="100%" style="border-collapse:collapse;">
+                  <tr>
+                    <td style="padding:8px 0; color:#6b7280; width:120px;">Name:</td>
+                    <td style="padding:8px 0; color:#111827; font-weight:600;">${data.riderName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0; color:#6b7280;">Email:</td>
+                    <td style="padding:8px 0; color:#111827;">${data.riderEmail}</td>
+                  </tr>
+                  ${data.riderPhone ? `
+                  <tr>
+                    <td style="padding:8px 0; color:#6b7280;">Phone:</td>
+                    <td style="padding:8px 0; color:#111827;">${data.riderPhone}</td>
+                  </tr>
+                  ` : ''}
+                </table>
+              </div>
+
+              <div style="text-align:center; padding-top:24px;">
+                <a href="${process.env.NEXTAUTH_URL}/dashboard/stable" style="display:inline-block; padding:12px 24px; background:#2563eb; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:600;">View in Dashboard</a>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="padding:24px; text-align:center; background:#f9fafb; border-top:1px solid #e5e7eb;">
+              <p style="margin:0; font-size:12px; color:#6b7280;">
+                © ${new Date().getFullYear()} PyraRide. All rights reserved.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+}
+
+export async function sendOwnerBookingNotification(data: OwnerBookingNotificationData): Promise<boolean> {
+  try {
+    const transporter = createTransporter();
+    if (!transporter) {
+      console.warn("Email transporter not configured. Skipping email send.");
+      return false;
+    }
+
+    const mailOptions = {
+      from: `"PyraRide System" <${process.env.EMAIL_USER}>`,
+      to: data.ownerEmail,
+      subject: `🐴 New Booking: ${data.horseName} - ${new Date(data.date).toLocaleDateString()}`,
+      html: generateOwnerBookingNotificationEmail(data),
+      text: `New Booking Received!\n\nHorse: ${data.horseName}\nDate: ${data.date}\nTime: ${data.startTime} - ${data.endTime}\nRider: ${data.riderName}\n\nLog in to your dashboard to view details.`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Owner notification email sent:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending owner notification:", error);
+    return false;
+  }
+}
+
 

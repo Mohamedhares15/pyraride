@@ -87,7 +87,7 @@ export default function StableOwnerDashboard() {
         throw new Error("Failed to fetch stable data");
       }
       const stablesData = await stablesRes.json();
-      
+
       const ownerStable = stablesData.stables?.[0]; // Should be only one
 
       if (!ownerStable) {
@@ -113,7 +113,7 @@ export default function StableOwnerDashboard() {
         const bookingsData = await bookingsRes.json();
         const fetchedBookings = bookingsData.bookings || [];
         setBookings(fetchedBookings);
-        
+
         // Recalculate stats after fetching bookings
         const totalBookings = fetchedBookings.length;
         const totalEarnings = fetchedBookings
@@ -229,6 +229,12 @@ export default function StableOwnerDashboard() {
                   Manage Horses
                 </Link>
               </Button>
+              <Button asChild variant="outline" className="w-full sm:w-auto">
+                <Link href="/dashboard/stable/schedule">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Manage Schedule
+                </Link>
+              </Button>
               <Button asChild className="w-full sm:w-auto">
                 <Link href="/dashboard/stable/manage">
                   <Settings className="mr-2 h-4 w-4" />
@@ -248,209 +254,213 @@ export default function StableOwnerDashboard() {
             <Button onClick={fetchStableData}>Try Again</Button>
           </Card>
         ) : (
-        <>
-        {/* Stats Grid */}
-        <div className="mb-8 grid gap-6 md:grid-cols-3">
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Bookings</p>
-                <p className="text-3xl font-bold">{stats.totalBookings}</p>
-              </div>
-              <Calendar className="h-12 w-12 text-primary" />
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Earnings</p>
-                <p className="text-3xl font-bold">
-                  ${stats.totalEarnings.toFixed(2)}
-                </p>
-              </div>
-              <TrendingUp className="h-12 w-12 text-secondary" />
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Upcoming</p>
-                <p className="text-3xl font-bold">{stats.upcomingBookings}</p>
-              </div>
-              <Clock className="h-12 w-12 text-muted-foreground" />
-            </div>
-          </Card>
-        </div>
-
-        {/* Bookings */}
-        {bookings.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center rounded-lg border border-border bg-card p-12 text-center"
-          >
-            <div className="mb-4 text-6xl">📅</div>
-            <h2 className="mb-2 font-display text-2xl font-bold">
-              No Bookings Yet
-            </h2>
-            <p className="mb-6 max-w-md text-muted-foreground">
-              Your bookings will appear here once riders start booking your horses!
-            </p>
-            <div className="flex gap-3">
-              <Button asChild variant="outline">
-                <Link href="/dashboard/stable/manage">
-                  <Settings className="mr-2 h-4 w-4" />
-                  Manage Stable
-                </Link>
-              </Button>
-              <Button asChild>
-                <Link href="/dashboard/stable/horses">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Horses
-                </Link>
-              </Button>
-            </div>
-          </motion.div>
-        ) : (
-          <div className="space-y-4">
-            <h2 className="font-display text-2xl font-bold">Recent Bookings</h2>
-            {bookings.map((booking, index) => (
-              <motion.div
-                key={booking.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <Card className="p-6">
-                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-3">
-                        <h3 className="font-semibold">{booking.horse.name}</h3>
-                        {getStatusBadge(booking.status)}
-                      </div>
-                      <div className="flex flex-wrap gap-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span>{formatDate(booking.startTime)}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span>
-                            {formatTime(booking.startTime)} -{" "}
-                            {formatTime(booking.endTime)}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Users className="h-4 w-4 text-muted-foreground" />
-                          <span>
-                            {booking.rider.fullName || booking.rider.email}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="h-5 w-5 text-primary" />
-                          <span className="text-xl font-bold">
-                            ${(parseFloat(booking.totalPrice.toString()) - parseFloat(booking.commission.toString())).toFixed(2)}
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Your Earnings
-                        </p>
-                      </div>
-                      {booking.status === "completed" && !riderReviews.has(booking.id) && (
-                        <Button
-                          onClick={() => {
-                            setSelectedBooking(booking);
-                            setReviewModalOpen(true);
-                          }}
-                          size="sm"
-                          variant="outline"
-                          className="whitespace-nowrap"
-                        >
-                          <Users className="mr-2 h-4 w-4" />
-                          Review Rider
-                        </Button>
-                      )}
-                      {booking.status === "completed" && riderReviews.has(booking.id) && (
-                        <Badge variant="secondary" className="whitespace-nowrap">
-                          ✅ Reviewed
-                        </Badge>
-                      )}
-                      {(booking.status === "confirmed" || booking.status === "rescheduled") && (
-                        <>
-                          <Button
-                            onClick={() => {
-                              setSelectedBooking(booking);
-                              setCancelRescheduleMode("cancel");
-                              setCancelRescheduleModalOpen(true);
-                            }}
-                            size="sm"
-                            variant="outline"
-                            className="whitespace-nowrap"
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            onClick={() => {
-                              setSelectedBooking(booking);
-                              setCancelRescheduleMode("reschedule");
-                              setCancelRescheduleModalOpen(true);
-                            }}
-                            size="sm"
-                            variant="outline"
-                            className="whitespace-nowrap"
-                          >
-                            Reschedule
-                          </Button>
-                        </>
-                      )}
-                    </div>
+          <>
+            {/* Stats Grid */}
+            <div className="mb-8 grid gap-6 md:grid-cols-3">
+              <Card className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Bookings</p>
+                    <p className="text-3xl font-bold">{stats.totalBookings}</p>
                   </div>
-                </Card>
+                  <Calendar className="h-12 w-12 text-primary" />
+                </div>
+              </Card>
+              <Card className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Earnings</p>
+                    <p className="text-3xl font-bold">
+                      ${stats.totalEarnings.toFixed(2)}
+                    </p>
+                  </div>
+                  <TrendingUp className="h-12 w-12 text-secondary" />
+                </div>
+              </Card>
+              <Card className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Upcoming</p>
+                    <p className="text-3xl font-bold">{stats.upcomingBookings}</p>
+                  </div>
+                  <Clock className="h-12 w-12 text-muted-foreground" />
+                </div>
+              </Card>
+            </div>
+
+            {/* Bookings */}
+            {bookings.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex flex-col items-center justify-center rounded-lg border border-border bg-card p-12 text-center"
+              >
+                <div className="mb-4 text-6xl">📅</div>
+                <h2 className="mb-2 font-display text-2xl font-bold">
+                  No Bookings Yet
+                </h2>
+                <p className="mb-6 max-w-md text-muted-foreground">
+                  Your bookings will appear here once riders start booking your horses!
+                </p>
+                <div className="flex gap-3">
+                  <Button asChild variant="outline">
+                    <Link href="/dashboard/stable/manage">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Manage Stable
+                    </Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href="/dashboard/stable/horses">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Horses
+                    </Link>
+                  </Button>
+                </div>
               </motion.div>
-            ))}
-          </div>
-        )}
-        </>
+            ) : (
+              <div className="space-y-4">
+                <h2 className="font-display text-2xl font-bold">Recent Bookings</h2>
+                {bookings.map((booking, index) => (
+                  <motion.div
+                    key={booking.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Card className="p-6">
+                      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center gap-3">
+                            <h3 className="font-semibold">{booking.horse.name}</h3>
+                            {getStatusBadge(booking.status)}
+                          </div>
+                          <div className="flex flex-wrap gap-4 text-sm">
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4 text-muted-foreground" />
+                              <span>{formatDate(booking.startTime)}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4 text-muted-foreground" />
+                              <span>
+                                {formatTime(booking.startTime)} -{" "}
+                                {formatTime(booking.endTime)}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Users className="h-4 w-4 text-muted-foreground" />
+                              <span>
+                                {booking.rider.fullName || booking.rider.email}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <div className="flex items-center gap-2">
+                              <DollarSign className="h-5 w-5 text-primary" />
+                              <span className="text-xl font-bold">
+                                ${(parseFloat(booking.totalPrice.toString()) - parseFloat(booking.commission.toString())).toFixed(2)}
+                              </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Your Earnings
+                            </p>
+                          </div>
+                          {booking.status === "completed" && !riderReviews.has(booking.id) && (
+                            <Button
+                              onClick={() => {
+                                setSelectedBooking(booking);
+                                setReviewModalOpen(true);
+                              }}
+                              size="sm"
+                              variant="outline"
+                              className="whitespace-nowrap"
+                            >
+                              <Users className="mr-2 h-4 w-4" />
+                              Review Rider
+                            </Button>
+                          )}
+                          {booking.status === "completed" && riderReviews.has(booking.id) && (
+                            <Badge variant="secondary" className="whitespace-nowrap">
+                              ✅ Reviewed
+                            </Badge>
+                          )}
+                          {(booking.status === "confirmed" || booking.status === "rescheduled") && (
+                            <>
+                              <Button
+                                onClick={() => {
+                                  setSelectedBooking(booking);
+                                  setCancelRescheduleMode("cancel");
+                                  setCancelRescheduleModalOpen(true);
+                                }}
+                                size="sm"
+                                variant="outline"
+                                className="whitespace-nowrap"
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                onClick={() => {
+                                  setSelectedBooking(booking);
+                                  setCancelRescheduleMode("reschedule");
+                                  setCancelRescheduleModalOpen(true);
+                                }}
+                                size="sm"
+                                variant="outline"
+                                className="whitespace-nowrap"
+                              >
+                                Reschedule
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 
       {/* Rider Review Modal */}
-      {selectedBooking && (
-        <RiderReviewModal
-          open={reviewModalOpen}
-          onOpenChange={setReviewModalOpen}
-          bookingId={selectedBooking.id}
-          riderId={selectedBooking.rider.id}
-          riderName={selectedBooking.rider.fullName || selectedBooking.rider.email}
-          onReviewSubmitted={() => {
-            // Refresh data to update the reviewed status
-            fetchStableData();
-          }}
-        />
-      )}
+      {
+        selectedBooking && (
+          <RiderReviewModal
+            open={reviewModalOpen}
+            onOpenChange={setReviewModalOpen}
+            bookingId={selectedBooking.id}
+            riderId={selectedBooking.rider.id}
+            riderName={selectedBooking.rider.fullName || selectedBooking.rider.email}
+            onReviewSubmitted={() => {
+              // Refresh data to update the reviewed status
+              fetchStableData();
+            }}
+          />
+        )
+      }
 
       {/* Cancel/Reschedule Modal */}
-      {selectedBooking && (
-        <CancelRescheduleModal
-          open={cancelRescheduleModalOpen}
-          onOpenChange={setCancelRescheduleModalOpen}
-          booking={{
-            id: selectedBooking.id,
-            status: selectedBooking.status,
-            startTime: selectedBooking.startTime,
-            endTime: selectedBooking.endTime,
-            totalPrice: parseFloat(selectedBooking.totalPrice.toString()),
-            stable: { name: stable?.name || "" },
-            horse: { name: selectedBooking.horse.name },
-          }}
-          mode={cancelRescheduleMode}
-        />
-      )}
-    </div>
+      {
+        selectedBooking && (
+          <CancelRescheduleModal
+            open={cancelRescheduleModalOpen}
+            onOpenChange={setCancelRescheduleModalOpen}
+            booking={{
+              id: selectedBooking.id,
+              status: selectedBooking.status,
+              startTime: selectedBooking.startTime,
+              endTime: selectedBooking.endTime,
+              totalPrice: parseFloat(selectedBooking.totalPrice.toString()),
+              stable: { name: stable?.name || "" },
+              horse: { name: selectedBooking.horse.name },
+            }}
+            mode={cancelRescheduleMode}
+          />
+        )
+      }
+    </div >
   );
 }
 

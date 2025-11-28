@@ -37,7 +37,7 @@ export async function PATCH(
       where: { id: params.id },
       data: { isHidden },
       include: {
-        owner: {
+        owners: {
           select: {
             id: true,
             fullName: true,
@@ -54,7 +54,7 @@ export async function PATCH(
         name: stable.name,
         isHidden: stable.isHidden,
         status: stable.status,
-        owner: stable.owner,
+        owners: stable.owners,
       },
       message: stable.isHidden
         ? "Stable is now hidden from public view"
@@ -62,7 +62,7 @@ export async function PATCH(
     });
   } catch (error: any) {
     console.error("Error updating stable visibility:", error);
-    
+
     if (error.code === "P2025") {
       return NextResponse.json(
         { error: "Stable not found" },

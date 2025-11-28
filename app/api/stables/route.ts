@@ -116,8 +116,8 @@ export async function GET(req: NextRequest) {
     }
 
     // If ownerOnly is true and user is logged in as stable owner, return only their stable
-    if (ownerOnly && session?.user?.role === "stable_owner") {
-      where.ownerId = session.user.id;
+    if (ownerOnly && session?.user?.role === "stable_owner" && session.user.stableId) {
+      where.id = session.user.stableId;
     }
 
     // Filter by location
@@ -140,7 +140,7 @@ export async function GET(req: NextRequest) {
     const stables = await prisma.stable.findMany({
       where,
       include: {
-        owner: {
+        owners: {
           select: {
             id: true,
             fullName: true,
@@ -264,7 +264,7 @@ export async function GET(req: NextRequest) {
 
       // Use stable's own image first, then fallback to first horse if available
       let imageUrl = stable.imageUrl || null;
-      
+
       // If no stable image, get image from first horse
       if (!imageUrl) {
         const firstHorseMedia =
@@ -338,7 +338,7 @@ export async function GET(req: NextRequest) {
         description: stable.description,
         location: stable.location,
         address: stable.address,
-        owner: stable.owner,
+        owners: stable.owners,
         rating: stableRating,
         totalBookings: stable._count.bookings,
         totalReviews: stableReviewCount,
@@ -452,7 +452,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession();
-    
+
     if (!session || session.user.role !== "stable_owner") {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -464,9 +464,9 @@ export async function POST(req: NextRequest) {
     const { name, description, location, address } = body;
 
     // Check if user already has a stable
-    const existingStable = await prisma.stable.findUnique({
-      where: { ownerId: session.user.id },
-    });
+    const existingStable = session.user.stableId ? await prisma.stable.findUnique({
+      where: { id: session.user.stableId },
+    }) : null;
 
     if (existingStable) {
       return NextResponse.json(
@@ -494,7 +494,7 @@ export async function POST(req: NextRequest) {
         status: "pending_approval",
       },
       include: {
-        owner: {
+        owners: {
           select: {
             id: true,
             fullName: true,
