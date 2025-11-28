@@ -88,7 +88,7 @@ export const metadata: Metadata = {
     title: "PyraRide - Book Your Trusted Giza Horse Riding Experience",
     description: "The Pyramids, Unforgettable. The Ride, Uncomplicated.",
     creator: "@PyraRide",
-        images: ["https://www.pyrarides.com/og-image.jpg"],
+    images: ["https://www.pyrarides.com/og-image.jpg"],
   },
   robots: {
     index: true,
@@ -120,10 +120,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
-        
+
         {/* Preload critical resources */}
         <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" />
-        
+
         {/* Structured Data - Organization */}
         <script
           type="application/ld+json"
@@ -202,7 +202,7 @@ export default function RootLayout({
             }),
           }}
         />
-        
+
         {/* Structured Data - WebSite */}
         <script
           type="application/ld+json"
@@ -220,7 +220,7 @@ export default function RootLayout({
             }),
           }}
         />
-        
+
         {/* Structured Data - Local Business */}
         <script
           type="application/ld+json"
@@ -279,7 +279,7 @@ export default function RootLayout({
             }),
           }}
         />
-        
+
         {/* Structured Data - LocalBusiness */}
         <script
           type="application/ld+json"
@@ -312,6 +312,67 @@ export default function RootLayout({
             }),
           }}
         />
+
+        {/* Structured Data - FAQPage */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": [
+                {
+                  "@type": "Question",
+                  "name": "What is PyraRide?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "PyraRide is Egypt's first online marketplace for booking horse riding at the Giza and Saqqara Pyramids. Compare multiple verified stables, read reviews, and book instantly at www.pyrarides.com."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "How do I book a ride?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Browse stables, choose your preferred horse, select date and time, add any extras, and confirm. You receive an instant email with meeting instructions and Google Maps directions."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Where can I ride?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "You can ride inside the Giza Plateau (Great Pyramids, Sphinx) or Saqqara Desert (Step Pyramid). Use the location filter to explore both experiences."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "How much does it cost?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Standard 1-hour rides start around EGP 300-500 ($30-50 USD). Premium Arabian horses or private tours range from EGP 600-1,000. Pricing is shown for every stable."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Is horse riding safe for beginners?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. Every PyraRide partner provides beginner-friendly horses, helmets, professional guides, and safety briefings. Most riders on PyraRide are first-timers."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Why use PyraRide instead of booking directly?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "PyraRide lets you compare multiple stables, see verified reviews, pay securely, and get 24/7 support. All partners are pre-vetted for safety, horse welfare, and quality."
+                  }
+                }
+              ]
+            }),
+          }}
+        />
       </head>
       <body className={`${poppins.variable} font-sans antialiased`}>
         {/* Skip to main content link for accessibility */}
@@ -321,7 +382,7 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        
+
         <AuthProvider>
           <ImageProtectionProvider />
           <OrientationLock />
