@@ -1,126 +1,112 @@
 /**
- * Leaderboard Scoring System
- * Implements Elo-style rating adjustments based on ride performance
+ * Leaderboard Scoring System - Payoff Matrix Implementation
+ * Implements fair, cheat-proof leaderboard based on admin-locked horse tiers
+ * 
+ * Tiers:
+ * - Beginner: 0-1300 points
+ * - Intermediate: 1301-1700 points
+ * - Advanced: 1701+ points
  */
 
-// Payoff matrix multipliers based on rider rank vs horse tier
-export const PAYOFF_MATRIX = {
-    // Format: [riderRank][horseTier] = multiplier
-    beginner: {
-        tier1: 1.5,  // Beginner on easy horse - good practice
-        tier2: 0.8,  // Beginner on difficult horse - risky
-    },
-    intermediate: {
-        tier1: 1.2,  // Intermediate on easy horse - moderate reward
-        tier2: 1.3,  // Intermediate on difficult horse - good challenge
-    },
-    advanced: {
-        tier1: 0.9,  // Advanced on easy horse - low reward
-        tier2: 1.4,  // Advanced on difficult horse - optimal pairing
-    },
-    elite: {
-        tier1: 0.7,  // Elite on easy horse - minimal reward
-        tier2: 1.5,  // Elite on difficult horse - maximum challenge
-    },
-};
-
-// K-factor determines how much ratings change per ride
-const K_FACTOR = 32;
+export type RiderTier = "Beginner" | "Intermediate" | "Advanced";
+export type HorseAdminTier = "Beginner" | "Intermediate" | "Advanced";
 
 export interface RideScore {
     riderId: string;
     horseId: string;
-    performance: number; // 0-10 scale
-    difficulty: number; // 0-10 scale
-    riderRank: string;
-    horseTier: string;
-    riderPoints: number;
-    horsePoints: number;
+    rps: number; // Rider Performance Score (1-10) from stable owner
+    riderRankPoints: number; // Current rider's rank points
+    horseAdminTier: HorseAdminTier; // Admin-locked horse tier
 }
 
 export interface ScoreResult {
-    newRiderPoints: number;
-    newHorsePoints: number;
     riderPointsChange: number;
-    horsePointsChange: number;
+    newRiderPoints: number;
+    riderTier: RiderTier;
 }
 
 /**
- * Calculate expected score based on rating difference
- * Uses standard Elo formula
+ * Calculate rider tier from rank points
  */
-function expectedScore(ratingA: number, ratingB: number): number {
-    return 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
-}
-
-/**
- * Normalize performance to 0-1 scale
- */
-function normalizePerformance(performance: number, difficulty: number): number {
-    // Adjust performance based on difficulty
-    const adjustedPerformance = (performance * difficulty) / 10;
-    return Math.max(0, Math.min(1, adjustedPerformance / 10));
-}
-
-/**
- * Get payoff multiplier from matrix
- */
-function getPayoffMultiplier(riderRank: string, horseTier: string): number {
-    const normalizedRank = riderRank.toLowerCase();
-    const normalizedTier = horseTier.toLowerCase().replace(/\s+/g, '');
-
-    const matrix = PAYOFF_MATRIX as any;
-    return matrix[normalizedRank]?.[normalizedTier] || 1.0;
-}
-
-/**
- * Calculate new ratings after a ride
- * @param score - Ride performance data
- * @returns New ratings for both rider and horse
- */
-export function calculateRatings(score: RideScore): ScoreResult {
-    const { riderPoints, horsePoints, performance, difficulty, riderRank, horseTier } = score;
-
-    // Calculate expected scores
-    const expectedRider = expectedScore(riderPoints, horsePoints);
-    const expectedHorse = expectedScore(horsePoints, riderPoints);
-
-    // Normalize actual performance (0-1 scale)
-    const actualScore = normalizePerformance(performance, difficulty);
-
-    // Get payoff multiplier
-    const multiplier = getPayoffMultiplier(riderRank, horseTier);
-
-    // Calculate rating changes based on Elo formula with payoff adjustment
-    const riderChange = K_FACTOR * multiplier * (actualScore - expectedRider);
-    const horseChange = K_FACTOR * multiplier * ((1 - actualScore) - expectedHorse);
-
-    // Calculate new ratings (ensure they don't go below 0)
-    const newRiderPoints = Math.max(0, Math.round(riderPoints + riderChange));
-    const newHorsePoints = Math.max(0, Math.round(horsePoints + horseChange));
-
-    return {
-        newRiderPoints,
-        newHorsePoints,
-        riderPointsChange: newRiderPoints - riderPoints,
-        horsePointsChange: newHorsePoints - horsePoints,
-    };
-}
-
-/**
- * Determine rider rank based on points
- */
-export function getRiderRank(points: number): string {
-    if (points >= 1800) return "Elite";
-    if (points >= 1600) return "Advanced";
-    if (points >= 1400) return "Intermediate";
+export function getRiderTier(rankPoints: number): RiderTier {
+    if (rankPoints >= 1701) return "Advanced";
+    if (rankPoints >= 1301) return "Intermediate";
     return "Beginner";
 }
 
 /**
- * Determine horse tier based on points
+ * Calculate points change using Payoff Matrix
+ * Based on rider tier, horse admin tier, and RPS (Pass/Fail)
  */
-export function getHorseTier(points: number): string {
-    if (points >= 1600) return "Tier 2";
-    return "Tier 1";
+export function calculatePointsChange(
+    riderTier: RiderTier,
+    horseAdminTier: HorseAdminTier,
+    rps: number
+): number {
+    // Determine Pass (rps >= 7) or Fail (rps <= 6)
+    const isPass = rps >= 7;
+
+    let pointsChange = 0;
+
+    // --- Rider is BEGINNER (0-1300) ---
+    if (riderTier === "Beginner") {
+        if (horseAdminTier === "Beginner") {
+            pointsChange = isPass ? +15 : -10; // Pass/Fail
+        } else if (horseAdminTier === "Intermediate") {
+            pointsChange = isPass ? +30 : -5;
+        } else if (horseAdminTier === "Advanced") {
+            pointsChange = isPass ? +70 : 0; // No penalty for failing advanced horse
+        }
+    }
+    // --- Rider is INTERMEDIATE (1301-1700) ---
+    else if (riderTier === "Intermediate") {
+        if (horseAdminTier === "Beginner") {
+            // Penalty for riding down
+            pointsChange = isPass ? -20 : -40; // Lose points even on a "Pass"
+        } else if (horseAdminTier === "Intermediate") {
+            pointsChange = isPass ? +20 : -15; // Pass/Fail
+        } else if (horseAdminTier === "Advanced") {
+            pointsChange = isPass ? +50 : -10; // Upset
+        }
+    }
+    // --- Rider is ADVANCED (1701+) ---
+    else if (riderTier === "Advanced") {
+        if (horseAdminTier === "Beginner") {
+            // Huge penalty for riding down
+            pointsChange = isPass ? -50 : -80;
+        } else if (horseAdminTier === "Intermediate") {
+            // Penalty for riding down
+            pointsChange = isPass ? -10 : -30;
+        } else if (horseAdminTier === "Advanced") {
+            pointsChange = isPass ? +25 : -20; // Pass/Fail
+        }
+    }
+
+    return pointsChange;
+}
+
+/**
+ * Calculate new ratings after a ride
+ * This is the main function that implements the Payoff Matrix
+ */
+export function calculateRatings(score: RideScore): ScoreResult {
+    const { riderRankPoints, horseAdminTier, rps } = score;
+
+    // Determine rider's current tier
+    const riderTier = getRiderTier(riderRankPoints);
+
+    // Calculate points change using payoff matrix
+    const pointsChange = calculatePointsChange(riderTier, horseAdminTier, rps);
+
+    // Calculate new rider points (ensure it doesn't go below 0)
+    const newRiderPoints = Math.max(0, riderRankPoints + pointsChange);
+
+    // Determine new tier (in case it changed)
+    const newRiderTier = getRiderTier(newRiderPoints);
+
+    return {
+        riderPointsChange: pointsChange,
+        newRiderPoints,
+        riderTier: newRiderTier,
+    };
 }

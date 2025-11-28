@@ -239,11 +239,38 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ bookings: [] }, { status: 200 });
     }
 
-    // Get bookings for the current user
+    const { searchParams } = new URL(req.url);
+    const ownerOnly = searchParams.get("ownerOnly") === "true";
+    const statusFilter = searchParams.get("status"); // e.g., "completed"
+
+    let where: any = {};
+
+    // If ownerOnly is true, get bookings for stable owner's stable
+    if (ownerOnly && session.user.role === "stable_owner") {
+      // Get user's stableId
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { stableId: true },
+      });
+
+      if (user?.stableId) {
+        where.stableId = user.stableId;
+      } else {
+        return NextResponse.json({ bookings: [] }, { status: 200 });
+      }
+    } else {
+      // Default: Get bookings for the current rider
+      where.riderId = session.user.id;
+    }
+
+    // Filter by status if provided
+    if (statusFilter) {
+      where.status = statusFilter;
+    }
+
+    // Get bookings
     const bookings = await prisma.booking.findMany({
-      where: {
-        riderId: session.user.id,
-      },
+      where,
       include: {
         stable: {
           select: {
@@ -254,11 +281,24 @@ export async function GET(req: NextRequest) {
         horse: {
           select: {
             name: true,
+            adminTier: true, // Include adminTier for scoring
           },
         },
+        rider: ownerOnly ? {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        } : undefined,
         review: {
           select: {
             id: true,
+          },
+        },
+        rideResult: {
+          select: {
+            id: true, // Check if already scored
           },
         },
       },
@@ -267,10 +307,17 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    // Filter out already scored bookings if ownerOnly
+    let filteredBookings = bookings;
+    if (ownerOnly) {
+      filteredBookings = bookings.filter((booking: any) => !booking.rideResult);
+    }
+
     // Add hasReview flag to each booking
-    const bookingsWithReviewStatus = bookings.map((booking: any) => ({
+    const bookingsWithReviewStatus = filteredBookings.map((booking: any) => ({
       ...booking,
       hasReview: !!booking.review,
+      alreadyScored: !!booking.rideResult,
     }));
 
     return NextResponse.json({ bookings: bookingsWithReviewStatus });
@@ -282,3 +329,4 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+

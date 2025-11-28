@@ -232,122 +232,174 @@ Stable owners can block specific time slots to prevent bookings. Can block entir
 ## **Feature 6: Leaderboard/Scoring System** 🏆
 
 ### **What It Does:**
-Stable owners can score completed rides (performance 0-10, difficulty 0-10), which updates rider and horse rankings using an Elo-style system.
+Cheat-proof leaderboard system using a Payoff Matrix. Stable owners rate rider performance (1-10 RPS), and points are calculated based on:
+- Rider's current tier (Beginner/Intermediate/Advanced - calculated from points)
+- Horse's admin-assigned tier (set by administrators only)
+- Performance score: Pass (7+) or Fail (≤6)
+
+### **Prerequisites:**
+- **Admin must set horse adminTier first** (Feature 6.1 below)
+- Horses must have adminTier set before they can be scored
 
 ### **How to Test:**
 
-#### **6.1 Access Scoring Page**
+#### **6.1 Set Horse Admin Tier (Admin Only)**
+1. Sign in as **Admin** user:
+   - Email: `admin@pyraride.com`
+   - Password: `Admin123`
+2. Navigate to `/dashboard/admin/horses`
+   - Or click "Manage Horse Admin Tiers" from analytics page
+3. Search for a horse by name or stable name
+4. Select an admin tier for the horse:
+   - **Beginner:** Easy horses for new riders
+   - **Intermediate:** Moderate difficulty horses
+   - **Advanced:** Challenging horses for experts
+5. Click "Save Tier" button
+6. ✅ **Expected Result:**
+   - Success toast appears
+   - Horse's adminTier is saved
+   - Only admins can change this (stable owners cannot)
+
+#### **6.2 Access Scoring Page (Stable Owner)**
 1. Sign in as **Stable Owner**
 2. Navigate to `/dashboard/stable/score`
    - Or find "Score Rides" link in navigation
+3. ✅ **Expected Result:** Page loads showing scoring interface
 
-#### **6.2 View Completed Bookings**
+#### **6.3 View Completed Bookings**
 1. Page should load with a list of completed bookings that haven't been scored yet
 2. ✅ **Expected Result:** 
    - See list of completed rides
    - Each shows: rider name, horse name, date, time
+   - Only bookings for horses WITH adminTier set are shown (if filtering is implemented)
 
-#### **6.3 Select a Booking to Score**
+#### **6.4 Select a Booking to Score**
 1. Click on a booking card to select it
 2. ✅ **Expected Result:**
    - Booking is highlighted/selected
-   - Scoring sliders appear below
+   - Single scoring slider appears below (RPS only)
 
-#### **6.4 Score Performance**
-1. Use the "Performance Score" slider (0-10)
-   - 0 = Poor, 10 = Excellent
+#### **6.5 Score Rider Performance (RPS 1-10)**
+1. Use the "Rider Performance Score" slider (1-10)
+   - 1-6 = Fail (points penalty)
+   - 7-10 = Pass (points gain)
 2. Adjust the slider
 3. ✅ **Expected Result:**
    - Score updates in real-time
-   - Label shows current score (e.g., "Score: 7/10")
-   - Descriptive text updates (e.g., "Very Good")
-
-#### **6.5 Score Difficulty**
-1. Use the "Difficulty Level" slider (0-10)
-   - 0 = Very Easy, 10 = Very Difficult
-2. Adjust the slider
-3. ✅ **Expected Result:**
-   - Difficulty updates in real-time
-   - Label shows current difficulty
+   - Label shows current score (e.g., "Score: 8/10")
+   - Descriptive text shows Pass/Fail status
+   - Info box explains that horse tier is set by admins
 
 #### **6.6 Submit Score**
-1. With both sliders adjusted, click "Submit Score" button
+1. With slider adjusted, click "Submit Score" button
 2. ✅ **Expected Result:**
    - Success toast appears showing:
-     - Rider points change (e.g., "+25 pts" or "-10 pts")
-     - Horse points change
+     - Rider points change (e.g., "+15 pts" or "-10 pts")
+     - New total points
+     - New tier (if changed)
    - Booking disappears from unscored list
-   - Rider's rank points are updated in database
-   - Horse's rank points are updated
-   - `RideResult` record is created
+   - Rider's rankPoints updated in database
+   - Rider's tier updated if points crossed threshold
+   - `RideResult` record created with rps and pointsChange
 
-#### **6.7 Verify Points Updated**
-1. Check rider's profile or database:
+#### **6.7 Verify Payoff Matrix Calculation**
+Test different scenarios:
+
+**Scenario A: Beginner Rider (0-1300 pts) + Beginner Horse + Pass (7+)**
+- ✅ **Expected Result:** +15 points
+
+**Scenario B: Beginner Rider + Advanced Horse + Pass (7+)**
+- ✅ **Expected Result:** +70 points (big bonus!)
+
+**Scenario C: Intermediate Rider (1301-1700 pts) + Beginner Horse + Pass (7+)**
+- ✅ **Expected Result:** -20 points (penalty for riding down)
+
+**Scenario D: Advanced Rider (1701+ pts) + Beginner Horse + Pass (7+)**
+- ✅ **Expected Result:** -50 points (huge penalty for riding down)
+
+**Scenario E: Advanced Rider + Advanced Horse + Pass (7+)**
+- ✅ **Expected Result:** +25 points
+
+**Scenario F: Any Rider + Any Horse + Fail (≤6)**
+- ✅ **Expected Result:** Negative or zero points based on matrix
+
+#### **6.8 Verify Points and Tier Updated**
+1. Check rider's database record:
    ```sql
-   SELECT id, email, "rankPoints" FROM "User" WHERE email = '[rider-email]';
+   SELECT id, email, "rankPoints", "rankId" FROM "User" WHERE email = '[rider-email]';
    ```
-2. ✅ **Expected Result:** `rankPoints` value has changed
+2. Check if tier changed:
+   ```sql
+   SELECT r.name FROM "RiderRank" r 
+   JOIN "User" u ON u."rankId" = r.id 
+   WHERE u.email = '[rider-email]';
+   ```
+3. ✅ **Expected Result:**
+   - `rankPoints` value has changed correctly
+   - `rankId` points to correct tier (Beginner/Intermediate/Advanced)
+   - Tier name matches point range
 
-#### **6.8 Test Already Scored Booking**
+#### **6.9 Test Already Scored Booking**
 1. Try to score the same booking again
 2. ✅ **Expected Result:** 
    - Booking doesn't appear in the list (already scored)
    - Each ride can only be scored once
 
+#### **6.10 Test Horse Without AdminTier**
+1. Try to score a booking for a horse that doesn't have adminTier set
+2. ✅ **Expected Result:**
+   - Error message: "Horse admin tier must be set by an administrator before scoring"
+   - Scoring is blocked until admin sets the tier
+
 ---
 
-## **Feature 7: Stable Owner Reviews for Riders** ⭐
+## **Feature 7: Admin Horse Tier Management** 🎯
 
 ### **What It Does:**
-After a ride is completed, stable owners can review riders (rating their riding skill level 1-10 and behavior 1-5 stars). This helps build rider reputation and helps other stables understand rider capabilities.
+Admins can set and manage the difficulty tier (Beginner/Intermediate/Advanced) for each horse. This tier is locked and cannot be changed by stable owners, ensuring fair leaderboard calculations.
 
 ### **How to Test:**
 
-#### **7.1 View Completed Bookings (As Stable Owner)**
+#### **7.1 Access Admin Horses Page**
+1. Sign in as **Admin**
+2. Navigate to `/dashboard/admin/horses`
+   - Or click "Manage Horse Admin Tiers" from analytics dashboard
+
+#### **7.2 Search for Horses**
+1. Use the search bar to find horses by name or stable name
+2. ✅ **Expected Result:** Horses list filters in real-time
+
+#### **7.3 Set Admin Tier for Horse**
+1. Find a horse in the list
+2. Select an admin tier from dropdown:
+   - **Beginner** - Easy horses suitable for new riders
+   - **Intermediate** - Moderate difficulty horses
+   - **Advanced** - Challenging horses for expert riders
+   - **Not Set** - Remove tier assignment
+3. Click "Save Tier" button
+4. ✅ **Expected Result:**
+   - Success toast appears
+   - Horse's adminTier is saved in database
+   - "Current: [Tier Name]" updates below button
+
+#### **7.4 Verify Tier is Locked from Stable Owners**
 1. Sign in as **Stable Owner**
-2. Navigate to `/dashboard/stable`
-3. Look at the bookings list
-4. ✅ **Expected Result:** See completed bookings with "Review Rider" button
+2. Try to edit a horse (go to `/dashboard/stable/horses`)
+3. Try to change the adminTier (if it appears in form)
+4. ✅ **Expected Result:**
+   - adminTier field is read-only or hidden
+   - Stable owner cannot modify adminTier
+   - Only admins can change it
 
-#### **7.2 Open Review Modal**
-1. Click "Review Rider" button on a completed booking
-2. ✅ **Expected Result:**
-   - Review modal opens
-   - Shows rider information
-   - Shows booking details
+#### **7.5 Bulk Tier Assignment**
+1. As admin, set tiers for multiple horses
+2. ✅ **Expected Result:** All changes save correctly and persist
 
-#### **7.3 Submit Rider Review**
-1. Fill in the review form:
-   - **Riding Skill Level:** Select 1-10 (slider or dropdown)
-   - **Behavior Rating:** Select 1-5 stars
-   - **Comment:** Optional text comment
-2. Click "Submit Review"
-3. ✅ **Expected Result:**
-   - Success message appears
-   - Review is saved to database
-   - Rider's behavior and skill ratings are recorded
-   - Modal closes
-
-#### **7.4 Verify Review Stored**
-1. Check database:
-   ```sql
-   SELECT * FROM "RiderReview" WHERE "bookingId" = '[booking-id]';
-   ```
-2. ✅ **Expected Result:**
-   - Review record exists
-   - Contains `ridingSkillLevel`, `behaviorRating`, `comment`
-   - Linked to booking, rider, and stable owner
-
-#### **7.5 Test Review Appears for Rider**
-1. Sign in as the reviewed rider
-2. Navigate to profile or dashboard
-3. ✅ **Expected Result:** Can see their reviews/ratings from stable owners
-
-#### **7.6 Test One Review Per Booking**
-1. Try to review the same rider for the same booking again
-2. ✅ **Expected Result:**
-   - "Review Rider" button should be disabled or show "Already Reviewed"
-   - Only one review per booking is allowed
+#### **7.6 Verify Tier Used in Scoring**
+1. Set a horse's tier to "Advanced"
+2. Have a Beginner rider ride that horse
+3. Score the ride with Pass (7+)
+4. ✅ **Expected Result:** Rider gets +70 points (Beginner + Advanced + Pass)
 
 ---
 
@@ -368,8 +420,14 @@ After a ride is completed, stable owners can review riders (rating their riding 
 - [ ] Block a specific time slot
 - [ ] Block entire stable for a time
 - [ ] Adjust minimum lead time
-- [ ] Score a completed ride
-- [ ] Review a rider after completed booking
+- [ ] Score a completed ride (RPS 1-10 only)
+- [ ] Verify points calculated correctly based on horse adminTier
+- [ ] Cannot change horse adminTier (admin-only)
+
+### **As Admin:**
+- [ ] Set admin tier for horses (Beginner/Intermediate/Advanced)
+- [ ] Search and filter horses
+- [ ] Verify stable owners cannot change adminTier
 
 ### **As Rider:**
 - [ ] See only available time slots (respects lead time)
@@ -404,5 +462,29 @@ After a ride is completed, stable owners can review riders (rating their riding 
 
 Once all features are tested and working, Phase 2 is **100% complete**!
 
-🎉 **Congratulations!** All 7 features are now implemented and ready for production.
+🎉 **Congratulations!** All 7 features are now implemented with the new cheat-proof leaderboard system!
+
+---
+
+## **📊 Payoff Matrix Reference**
+
+Use this table to verify point calculations:
+
+| Rider Tier | Horse Tier | RPS 7+ (Pass) | RPS ≤6 (Fail) |
+|------------|-----------|---------------|---------------|
+| **Beginner** | Beginner | +15 | -10 |
+| **Beginner** | Intermediate | +30 | -5 |
+| **Beginner** | Advanced | +70 | 0 |
+| **Intermediate** | Beginner | -20 | -40 |
+| **Intermediate** | Intermediate | +20 | -15 |
+| **Intermediate** | Advanced | +50 | -10 |
+| **Advanced** | Beginner | -50 | -80 |
+| **Advanced** | Intermediate | -10 | -30 |
+| **Advanced** | Advanced | +25 | -20 |
+
+**Key Rules:**
+- Beginner riders get bonus for passing advanced horses (+70!)
+- Advanced riders lose points for riding beginner horses (penalty)
+- Failing on advanced horses as beginner = no penalty (0 points)
+- Riding down (advanced rider on beginner horse) = always negative points
 

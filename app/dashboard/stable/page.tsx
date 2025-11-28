@@ -19,7 +19,6 @@ import {
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import RiderReviewModal from "@/components/shared/RiderReviewModal";
 import CancelRescheduleModal from "@/components/shared/CancelRescheduleModal";
 
 interface Booking {
@@ -62,9 +61,7 @@ export default function StableOwnerDashboard() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const [riderReviews, setRiderReviews] = useState<Set<string>>(new Set());
   const [cancelRescheduleModalOpen, setCancelRescheduleModalOpen] = useState(false);
   const [cancelRescheduleMode, setCancelRescheduleMode] = useState<"cancel" | "reschedule">("cancel");
 
@@ -132,15 +129,6 @@ export default function StableOwnerDashboard() {
         });
       }
 
-      // Fetch rider reviews to check which bookings have been reviewed
-      const reviewsRes = await fetch("/api/rider-reviews");
-      if (reviewsRes.ok) {
-        const reviewsData = await reviewsRes.json();
-        const reviewedBookingIds = new Set<string>(
-          reviewsData.reviews?.map((r: any) => r.bookingId as string) || []
-        );
-        setRiderReviews(reviewedBookingIds);
-      }
     } catch (err) {
       console.error("Error fetching stable data:", err);
       setError(err instanceof Error ? err.message : "Failed to load stable data");
@@ -366,25 +354,6 @@ export default function StableOwnerDashboard() {
                               Your Earnings
                             </p>
                           </div>
-                          {booking.status === "completed" && !riderReviews.has(booking.id) && (
-                            <Button
-                              onClick={() => {
-                                setSelectedBooking(booking);
-                                setReviewModalOpen(true);
-                              }}
-                              size="sm"
-                              variant="outline"
-                              className="whitespace-nowrap"
-                            >
-                              <Users className="mr-2 h-4 w-4" />
-                              Review Rider
-                            </Button>
-                          )}
-                          {booking.status === "completed" && riderReviews.has(booking.id) && (
-                            <Badge variant="secondary" className="whitespace-nowrap">
-                              ✅ Reviewed
-                            </Badge>
-                          )}
                           {(booking.status === "confirmed" || booking.status === "rescheduled") && (
                             <>
                               <Button
@@ -424,22 +393,6 @@ export default function StableOwnerDashboard() {
         )}
       </div>
 
-      {/* Rider Review Modal */}
-      {
-        selectedBooking && (
-          <RiderReviewModal
-            open={reviewModalOpen}
-            onOpenChange={setReviewModalOpen}
-            bookingId={selectedBooking.id}
-            riderId={selectedBooking.rider.id}
-            riderName={selectedBooking.rider.fullName || selectedBooking.rider.email}
-            onReviewSubmitted={() => {
-              // Refresh data to update the reviewed status
-              fetchStableData();
-            }}
-          />
-        )
-      }
 
       {/* Cancel/Reschedule Modal */}
       {

@@ -75,7 +75,7 @@ model User {
 
 model RiderRank {
   id        String @id @default(uuid())
-  name      String @unique // Beginner, Intermediate, Advanced, Elite
+  name      String @unique // Beginner (0-1300), Intermediate (1301-1700), Advanced (1701+)
   minPoints Int
   maxPoints Int
   icon      String?
@@ -131,7 +131,8 @@ model Horse {
   createdAt          DateTime            @default(now())
   updatedAt          DateTime?           @updatedAt
   
-  // Leaderboard (Feature 7)
+  // Leaderboard - Admin-locked tier (cannot be changed by stable owners)
+  adminTier          String?             // "Beginner", "Intermediate", "Advanced" - Only editable by admins
   rankPoints         Int                 @default(1400)
   tierId             String?
   tier               HorseTier?          @relation(fields: [tierId], references: [id])

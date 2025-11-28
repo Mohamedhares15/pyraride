@@ -100,6 +100,9 @@ export async function PATCH(
         },
       });
 
+      // adminTier is admin-only - stable owners cannot change it
+      // Only admins can update adminTier through /api/admin/horses/[id]/admin-tier
+      
       // Update non-restricted fields immediately (name, age, skills, availability, images)
       const updatedHorse = await prisma.horse.update({
         where: { id: params.id },

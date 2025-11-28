@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { calculateRatings } from "@/lib/leaderboard";
+import { calculateRatings, getRiderTier } from "@/lib/leaderboard";
 
 // GET - Fetch leaderboard data
 export async function GET(req: NextRequest) {
@@ -117,19 +117,19 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
-        const { bookingId, performance, difficulty } = body;
+        const { bookingId, rps } = body; // rps = Rider Performance Score (1-10)
 
         // Validate inputs
-        if (!bookingId || performance === undefined || difficulty === undefined) {
+        if (!bookingId || rps === undefined) {
             return NextResponse.json(
-                { error: "Missing required fields: bookingId, performance, difficulty" },
+                { error: "Missing required fields: bookingId, rps" },
                 { status: 400 }
             );
         }
 
-        if (performance < 0 || performance > 10 || difficulty < 0 || difficulty > 10) {
+        if (rps < 1 || rps > 10) {
             return NextResponse.json(
-                { error: "Performance and difficulty must be between 0 and 10" },
+                { error: "Rider Performance Score (rps) must be between 1 and 10" },
                 { status: 400 }
             );
         }
@@ -152,12 +152,7 @@ export async function POST(req: NextRequest) {
                 horse: {
                     select: {
                         id: true,
-                        rankPoints: true,
-                        tier: {
-                            select: {
-                                name: true,
-                            },
-                        },
+                        adminTier: true, // Admin-locked tier
                     },
                 },
                 stable: {
@@ -175,11 +170,24 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Verify ownership
-        if (booking.stable.ownerId !== session.user.id) {
+        // Verify ownership - check if user is owner of this stable
+        const user = await prisma.user.findUnique({
+            where: { id: session.user.id },
+            select: { stableId: true, role: true },
+        });
+
+        if (!user || user.role !== "stable_owner" || user.stableId !== booking.stableId) {
             return NextResponse.json(
                 { error: "You can only score rides from your own stable" },
                 { status: 403 }
+            );
+        }
+
+        // Verify horse has adminTier set
+        if (!booking.horse.adminTier) {
+            return NextResponse.json(
+                { error: "Horse admin tier must be set by an administrator before scoring" },
+                { status: 400 }
             );
         }
 
@@ -195,29 +203,48 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Calculate new ratings
+        // Calculate new ratings using Payoff Matrix
         const ratingUpdate = calculateRatings({
             riderId: booking.rider.id,
             horseId: booking.horse.id,
-            performance,
-            difficulty,
-            riderRank: booking.rider.rank?.name || "Beginner",
-            horseTier: booking.horse.tier?.name || "Tier 1",
-            riderPoints: booking.rider.rankPoints,
-            horsePoints: booking.horse.rankPoints,
+            rps, // Rider Performance Score (1-10)
+            riderRankPoints: booking.rider.rankPoints,
+            horseAdminTier: booking.horse.adminTier as "Beginner" | "Intermediate" | "Advanced",
         });
+
+        // Determine rider's new tier based on updated points
+        const newRiderTier = ratingUpdate.riderTier;
+        
+        // Get or create rider rank record
+        let riderRank = await prisma.riderRank.findFirst({
+            where: { name: newRiderTier },
+        });
+
+        if (!riderRank) {
+            // Create rank if it doesn't exist (should exist from seed)
+            const tierLimits: Record<string, { min: number; max: number }> = {
+                Beginner: { min: 0, max: 1300 },
+                Intermediate: { min: 1301, max: 1700 },
+                Advanced: { min: 1701, max: 9999 },
+            };
+            riderRank = await prisma.riderRank.create({
+                data: {
+                    name: newRiderTier,
+                    minPoints: tierLimits[newRiderTier].min,
+                    maxPoints: tierLimits[newRiderTier].max,
+                },
+            });
+        }
 
         // Update ratings and create ride result in a transaction
         const result = await prisma.$transaction([
-            // Update rider points
+            // Update rider points and tier
             prisma.user.update({
                 where: { id: booking.rider.id },
-                data: { rankPoints: ratingUpdate.newRiderPoints },
-            }),
-            // Update horse points
-            prisma.horse.update({
-                where: { id: booking.horse.id },
-                data: { rankPoints: ratingUpdate.newHorsePoints },
+                data: {
+                    rankPoints: ratingUpdate.newRiderPoints,
+                    rankId: riderRank.id, // Update tier
+                },
             }),
             // Create ride result
             prisma.rideResult.create({
@@ -226,7 +253,7 @@ export async function POST(req: NextRequest) {
                     riderId: booking.rider.id,
                     horseId: booking.horse.id,
                     stableId: booking.stableId,
-                    rps: performance, // Rider Performance Score (1-10)
+                    rps, // Rider Performance Score (1-10)
                     pointsChange: ratingUpdate.riderPointsChange, // Calculated points change
                 },
             }),
@@ -236,8 +263,9 @@ export async function POST(req: NextRequest) {
             success: true,
             message: "Ride scored successfully",
             riderPointsChange: ratingUpdate.riderPointsChange,
-            horsePointsChange: ratingUpdate.horsePointsChange,
-            result: result[2], // The created RideResult
+            newRiderPoints: ratingUpdate.newRiderPoints,
+            riderTier: newRiderTier,
+            result: result[1], // The created RideResult
         });
     } catch (error) {
         console.error("Error submitting ride score:", error);

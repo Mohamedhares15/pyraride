@@ -185,6 +185,12 @@ export default function AnalyticsPage() {
                     Manage Stables
                   </Button>
                 </Link>
+                <Link href="/dashboard/admin/horses">
+                  <Button variant="outline">
+                    <FileText className="mr-2 h-4 w-4" />
+                    Manage Horse Admin Tiers
+                  </Button>
+                </Link>
                 <Link href="/dashboard/admin/horse-changes">
                   <Button variant="outline" size="sm" className="gap-2">
                     <FileText className="h-4 w-4" />

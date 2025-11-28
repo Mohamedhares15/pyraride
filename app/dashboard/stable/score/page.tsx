@@ -16,7 +16,12 @@ interface Booking {
     date: string;
     timeSlot: string;
     status: string;
-    user: {
+    rider?: {
+        id: string;
+        fullName: string | null;
+        email: string;
+    };
+    user?: {
         id: string;
         fullName: string | null;
         email: string;
@@ -24,11 +29,13 @@ interface Booking {
     horse: {
         id: string;
         name: string;
+        adminTier?: string | null;
     };
     stable: {
         id: string;
         name: string;
     };
+    alreadyScored?: boolean;
 }
 
 export default function ScoreRidePage() {
@@ -36,8 +43,7 @@ export default function ScoreRidePage() {
     const router = useRouter();
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [selectedBooking, setSelectedBooking] = useState<string>("");
-    const [performance, setPerformance] = useState([5]);
-    const [difficulty, setDifficulty] = useState([5]);
+    const [rps, setRps] = useState([5]); // Rider Performance Score (1-10)
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
 
@@ -57,8 +63,19 @@ export default function ScoreRidePage() {
             const response = await fetch("/api/bookings?ownerOnly=true&status=completed");
             if (response.ok) {
                 const data = await response.json();
-                // Filter out already scored bookings
-                const unscoredBookings = data.bookings || [];
+                const allBookings = data.bookings || [];
+                
+                // Filter out already scored bookings and bookings with horses that don't have adminTier
+                const unscoredBookings = allBookings.filter((booking: Booking) => {
+                    // Must not be already scored
+                    if (booking.alreadyScored) return false;
+                    
+                    // Horse must have adminTier set
+                    if (!booking.horse?.adminTier) return false;
+                    
+                    return true;
+                });
+                
                 setBookings(unscoredBookings);
             }
         } catch (error) {
@@ -87,21 +104,20 @@ export default function ScoreRidePage() {
                 },
                 body: JSON.stringify({
                     bookingId: selectedBooking,
-                    performance: performance[0],
-                    difficulty: difficulty[0],
+                    rps: rps[0], // Rider Performance Score (1-10)
                 }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
+                const pointsChange = data.riderPointsChange || 0;
                 toast.success(
-                    `Ride scored! Rider: ${data.riderPointsChange > 0 ? "+" : ""}${data.riderPointsChange} pts, Horse: ${data.horsePointsChange > 0 ? "+" : ""}${data.horsePointsChange} pts`
+                    `Ride scored! Rider ${pointsChange > 0 ? "+" : ""}${pointsChange} points (New total: ${data.newRiderPoints || 0} pts, Tier: ${data.riderTier || "N/A"})`
                 );
                 // Reset form
                 setSelectedBooking("");
-                setPerformance([5]);
-                setDifficulty([5]);
+                setRps([5]);
                 // Refresh bookings list
                 fetchCompletedBookings();
             } else {
@@ -173,7 +189,7 @@ export default function ScoreRidePage() {
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <p className="font-medium">
-                                                        {booking.user.fullName || booking.user.email}
+                                                        {(booking.rider || booking.user)?.fullName || (booking.rider || booking.user)?.email}
                                                     </p>
                                                     <p className="text-sm text-muted-foreground">
                                                         Horse: {booking.horse.name} • {new Date(booking.date).toLocaleDateString()} • {booking.timeSlot}
@@ -192,64 +208,40 @@ export default function ScoreRidePage() {
 
                     {selectedBookingData && (
                         <>
-                            {/* Performance Score */}
+                            {/* Rider Performance Score */}
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <TrendingUp className="h-5 w-5" />
-                                        Performance Score
+                                        Rider Performance Score
                                     </CardTitle>
                                     <CardDescription>
-                                        How well did the rider perform? (0 = Poor, 10 = Excellent)
+                                        Rate the rider's performance from 1-10. Scores 7+ count as "Pass", 6 or below count as "Fail". Points are calculated based on the horse's admin-assigned tier.
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <Label>Score: {performance[0]}/10</Label>
+                                        <Label>Score: {rps[0]}/10</Label>
                                         <span className="text-sm text-muted-foreground">
-                                            {performance[0] <= 3 && "Needs Improvement"}
-                                            {performance[0] > 3 && performance[0] <= 6 && "Good"}
-                                            {performance[0] > 6 && performance[0] <= 8 && "Very Good"}
-                                            {performance[0] > 8 && "Excellent"}
+                                            {rps[0] <= 3 && "Poor (Fail)"}
+                                            {rps[0] > 3 && rps[0] <= 6 && "Fair (Fail)"}
+                                            {rps[0] === 7 && "Good (Pass)"}
+                                            {rps[0] > 7 && rps[0] <= 8 && "Very Good (Pass)"}
+                                            {rps[0] > 8 && rps[0] <= 9 && "Excellent (Pass)"}
+                                            {rps[0] === 10 && "Perfect (Pass)"}
                                         </span>
                                     </div>
                                     <Slider
-                                        value={performance}
-                                        onValueChange={setPerformance}
-                                        min={0}
+                                        value={rps}
+                                        onValueChange={setRps}
+                                        min={1}
                                         max={10}
                                         step={1}
                                         className="w-full"
                                     />
-                                </CardContent>
-                            </Card>
-
-                            {/* Difficulty Level */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Difficulty Level</CardTitle>
-                                    <CardDescription>
-                                        How difficult was the ride? (0 = Very Easy, 10 = Very Difficult)
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <Label>Difficulty: {difficulty[0]}/10</Label>
-                                        <span className="text-sm text-muted-foreground">
-                                            {difficulty[0] <= 3 && "Easy"}
-                                            {difficulty[0] > 3 && difficulty[0] <= 6 && "Moderate"}
-                                            {difficulty[0] > 6 && difficulty[0] <= 8 && "Challenging"}
-                                            {difficulty[0] > 8 && "Very Difficult"}
-                                        </span>
+                                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
+                                        <strong>Note:</strong> The horse's difficulty tier is set by administrators. Your score (1-10) determines Pass (7+) or Fail (≤6), which affects point changes based on the rider's current tier and the horse's tier.
                                     </div>
-                                    <Slider
-                                        value={difficulty}
-                                        onValueChange={setDifficulty}
-                                        min={0}
-                                        max={10}
-                                        step={1}
-                                        className="w-full"
-                                    />
                                 </CardContent>
                             </Card>
 
@@ -263,10 +255,17 @@ export default function ScoreRidePage() {
                 <div className="mt-8 rounded-lg border border-border bg-card p-6">
                     <h3 className="mb-3 font-semibold">How Scoring Works</h3>
                     <ul className="space-y-2 text-sm text-muted-foreground">
-                        <li>• Ratings are calculated using an Elo-style system</li>
-                        <li>• Performance and difficulty affect point changes</li>
-                        <li>• Rider rank and horse tier influence the payoff multiplier</li>
-                        <li>• Both rider and horse ratings are updated based on the score</li>
+                        <li>• You rate the rider's performance from 1-10</li>
+                        <li>• Scores 7+ = "Pass", scores 6 or below = "Fail"</li>
+                        <li>• Points are calculated using a Payoff Matrix based on:
+                            <ul className="mt-1 ml-4 list-disc space-y-1">
+                                <li>Rider's current tier (Beginner/Intermediate/Advanced)</li>
+                                <li>Horse's admin-assigned tier (set by administrators)</li>
+                                <li>Your performance score (Pass/Fail)</li>
+                            </ul>
+                        </li>
+                        <li>• Beginner riders get bonus points for passing advanced horses</li>
+                        <li>• Advanced riders lose points for riding beginner horses</li>
                         <li>• Each ride can only be scored once</li>
                     </ul>
                 </div>
