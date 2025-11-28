@@ -10,7 +10,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState, useEffect } from "react";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Trophy } from "lucide-react";
+import Link from "next/link";
 
 export default function Hero() {
   const getToday = () => {
@@ -69,7 +70,16 @@ export default function Hero() {
         <div className="flex h-full w-full flex-col items-center justify-between text-center pt-24 pb-[calc(env(safe-area-inset-bottom)+16px)] md:justify-center md:pt-0 md:pb-0">
           <div className="flex w-full flex-1 flex-col items-center justify-center">
             {/* Desktop headline */}
-            <div className="hidden flex-col items-center justify-center text-center md:flex">
+            <div className="relative hidden flex-col items-center justify-center text-center md:flex">
+              {/* Leaderboard Button - Circular with black border, positioned above the text */}
+              <Link
+                href="/leaderboard"
+                className="group absolute -top-20 z-50 flex h-20 w-20 items-center justify-center rounded-full border-4 border-black bg-white/10 backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-white/20 hover:shadow-2xl"
+                aria-label="View Leaderboard"
+              >
+                <Trophy className="h-10 w-10 text-white drop-shadow-lg" />
+              </Link>
+              
               <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-2xl md:text-5xl lg:text-7xl">
                 THE PYRAMIDS, UNFORGETTABLE.
               </h1>
@@ -82,7 +92,16 @@ export default function Hero() {
             </div>
 
             {/* Mobile hero aesthetic */}
-            <div className="flex w-full flex-col items-center gap-6 text-white md:hidden">
+            <div className="relative flex w-full flex-col items-center gap-6 text-white md:hidden">
+              {/* Leaderboard Button - Circular with black border, positioned above the text */}
+              <Link
+                href="/leaderboard"
+                className="group absolute -top-16 z-50 flex h-16 w-16 items-center justify-center rounded-full border-4 border-black bg-white/10 backdrop-blur-md transition-all duration-300 hover:scale-110 hover:bg-white/20 hover:shadow-2xl"
+                aria-label="View Leaderboard"
+              >
+                <Trophy className="h-7 w-7 text-white drop-shadow-lg" />
+              </Link>
+              
               <div className="flex w-full items-center justify-center gap-4 text-[11px] font-semibold uppercase tracking-[0.6em] text-white/70">
                 <span className="hero-dash-line flex-1 max-w-[72px]" />
                 <span>PYRARIDE</span>

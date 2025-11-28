@@ -34,16 +34,16 @@ export default function DashboardPage() {
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-black/80 via-black/90 to-black/95">
+        <Loader2 className="h-12 w-12 animate-spin text-white" />
         <span className="sr-only">Loading dashboard...</span>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <Loader2 className="h-12 w-12 animate-spin text-primary" />
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-black/80 via-black/90 to-black/95">
+      <Loader2 className="h-12 w-12 animate-spin text-white" />
       <span className="sr-only">Redirecting to dashboard...</span>
     </div>
   );

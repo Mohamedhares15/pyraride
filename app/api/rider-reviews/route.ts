@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { calculateRatings } from "@/lib/leaderboard";
 
 export const dynamic = "force-dynamic";
 
@@ -49,8 +50,24 @@ export async function POST(req: NextRequest) {
         stable: {
           select: {
             ownerId: true,
+            id: true,
           },
         },
+        rider: {
+          select: {
+            id: true,
+            rankPoints: true,
+            rank: { select: { name: true } },
+          },
+        },
+        horse: {
+          select: {
+            id: true,
+            adminTier: true,
+            rankPoints: true,
+          },
+        },
+        rideResult: true, // Check if already scored
       },
     });
 
@@ -87,19 +104,77 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create rider review
-    const riderReview = await prisma.riderReview.create({
-      data: {
-        bookingId,
-        riderId,
-        ownerId: session.user.id,
-        ridingSkillLevel,
-        behaviorRating,
-        comment: comment || null,
-      },
+    // Check if ride has already been scored (leaderboard calculation)
+    if (booking.rideResult) {
+      return NextResponse.json(
+        { error: "This ride has already been scored for the leaderboard" },
+        { status: 400 }
+      );
+    }
+
+    // Check if horse has adminTier set (required for leaderboard)
+    if (!booking.horse.adminTier) {
+      return NextResponse.json(
+        { error: "Cannot score this ride: Horse difficulty tier not set by admin" },
+        { status: 400 }
+      );
+    }
+
+    // Create rider review and calculate leaderboard points in a transaction
+    const result = await prisma.$transaction(async (tx) => {
+      // Create rider review
+      const riderReview = await tx.riderReview.create({
+        data: {
+          bookingId,
+          riderId,
+          ownerId: session.user.id,
+          ridingSkillLevel,
+          behaviorRating,
+          comment: comment || null,
+        },
+      });
+
+      // Calculate leaderboard points using ridingSkillLevel as RPS (Rider Performance Score)
+      const ratingUpdate = calculateRatings({
+        riderId: booking.rider.id,
+        horseId: booking.horse.id,
+        rps: ridingSkillLevel, // Use ridingSkillLevel (1-10) as RPS
+        riderRankPoints: booking.rider.rankPoints,
+        horseAdminTier: booking.horse.adminTier as "Beginner" | "Intermediate" | "Advanced",
+      });
+
+      // Update rider's rank points
+      await tx.user.update({
+        where: { id: booking.rider.id },
+        data: { rankPoints: ratingUpdate.newRiderPoints },
+      });
+
+      // Create ride result for leaderboard tracking
+      await tx.rideResult.create({
+        data: {
+          bookingId,
+          riderId: booking.rider.id,
+          horseId: booking.horse.id,
+          stableId: booking.stable.id,
+          rps: ridingSkillLevel,
+          pointsChange: ratingUpdate.riderPointsChange,
+        },
+      });
+
+      return { riderReview, ratingUpdate };
     });
 
-    return NextResponse.json({ riderReview }, { status: 201 });
+    return NextResponse.json(
+      {
+        riderReview: result.riderReview,
+        leaderboard: {
+          pointsChange: result.ratingUpdate.riderPointsChange,
+          newRiderPoints: result.ratingUpdate.newRiderPoints,
+          riderTier: result.ratingUpdate.riderTier,
+        },
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error creating rider review:", error);
     return NextResponse.json(

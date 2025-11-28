@@ -189,13 +189,13 @@ export default function StableOwnerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95">
       {/* Header */}
-      <div className="border-b border-border bg-card/50 py-12 backdrop-blur-lg">
+      <div className="border-b border-white/10 bg-black/60 py-12 backdrop-blur-lg">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <div className="mb-4 flex items-center gap-4">
             <Link href="/">
-              <Button variant="ghost" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                 <ArrowLeft className="h-4 w-4" />
                 Home
               </Button>
@@ -203,27 +203,27 @@ export default function StableOwnerDashboard() {
           </div>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="mb-2 font-display text-3xl md:text-4xl font-bold tracking-tight">
+              <h1 className="mb-2 font-display text-3xl md:text-4xl font-bold tracking-tight text-white">
                 Stable Dashboard
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-white/70">
                 Manage your stable and track bookings
               </p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
-              <Button asChild variant="outline" className="w-full sm:w-auto">
+              <Button asChild variant="outline" className="w-full sm:w-auto border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                 <Link href="/dashboard/stable/horses">
                   <Plus className="mr-2 h-4 w-4" />
                   Manage Horses
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="w-full sm:w-auto">
+              <Button asChild variant="outline" className="w-full sm:w-auto border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                 <Link href="/dashboard/stable/schedule">
                   <Calendar className="mr-2 h-4 w-4" />
                   Manage Schedule
                 </Link>
               </Button>
-              <Button asChild className="w-full sm:w-auto">
+              <Button asChild className="w-full sm:w-auto border-white/20 bg-white/10 text-white hover:bg-white/20">
                 <Link href="/dashboard/stable/manage">
                   <Settings className="mr-2 h-4 w-4" />
                   Manage Stable
@@ -236,6 +236,13 @@ export default function StableOwnerDashboard() {
 
       {/* Content */}
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
+        <style jsx global>{`
+          .dashboard-card {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+          }
+        `}</style>
         {error ? (
           <Card className="p-6 text-center">
             <p className="text-destructive mb-4">{error}</p>

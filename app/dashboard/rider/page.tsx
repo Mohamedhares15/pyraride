@@ -159,34 +159,27 @@ export default function RiderDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95">
       {/* Header */}
-      <div className="border-b border-border bg-card/50 py-12 backdrop-blur-lg">
+      <div className="border-b border-white/10 bg-black/60 py-12 backdrop-blur-lg">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <div className="mb-4 flex items-center gap-4">
             <Link href="/">
-              <Button variant="ghost" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                 <ArrowLeft className="h-4 w-4" />
                 Home
               </Button>
             </Link>
             <Link href="/stables">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <ArrowLeft className="h-4 w-4" />
+              <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                 Browse Stables
               </Button>
             </Link>
-            <div className="flex-1" /> {/* Spacer */}
-            <Link href="/dashboard">
-              <Button variant="outline" size="sm">
-                Dashboard
-              </Button>
-            </Link>
           </div>
-          <h1 className="mb-2 font-display text-4xl font-bold tracking-tight">
+          <h1 className="mb-2 font-display text-4xl font-bold tracking-tight text-white">
             My Bookings
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-white/70">
             View and manage your upcoming horse riding adventures
           </p>
         </div>

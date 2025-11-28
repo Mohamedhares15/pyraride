@@ -24,6 +24,8 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
     email: "",
     phoneNumber: "",
     password: "",
+    gender: "",
+    initialTier: "",
   });
   const [forgotIdentifier, setForgotIdentifier] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -92,6 +94,8 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
           password: signUpForm.password,
           fullName: signUpForm.fullName,
           phoneNumber: signUpForm.phoneNumber,
+          gender: signUpForm.gender,
+          initialTier: signUpForm.initialTier,
         }),
       });
 
@@ -110,7 +114,7 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
       });
 
       onOpenChange(false);
-      setSignUpForm({ fullName: "", email: "", phoneNumber: "", password: "" });
+      setSignUpForm({ fullName: "", email: "", phoneNumber: "", password: "", gender: "", initialTier: "" });
       router.refresh();
     } catch (error) {
       setError("An error occurred. Please try again.");
@@ -248,6 +252,42 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
         />
         <p className="text-xs text-muted-foreground">
           Use an international format (e.g. +20 123 456 7890).
+        </p>
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Gender *</label>
+        <select
+          value={signUpForm.gender}
+          onChange={(e) => {
+            setSignUpForm((prev) => ({ ...prev, gender: e.target.value }));
+            resetFeedback();
+          }}
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          required
+        >
+          <option value="">Select gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Riding Experience Level *</label>
+        <select
+          value={signUpForm.initialTier}
+          onChange={(e) => {
+            setSignUpForm((prev) => ({ ...prev, initialTier: e.target.value }));
+            resetFeedback();
+          }}
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          required
+        >
+          <option value="">Select your level</option>
+          <option value="beginner">Beginner (0-1300 points)</option>
+          <option value="intermediate">Intermediate (1301-1700 points)</option>
+          <option value="advanced">Advanced (1701+ points)</option>
+        </select>
+        <p className="text-xs text-muted-foreground">
+          This determines your starting rank points. You can improve through rides!
         </p>
       </div>
       <div className="space-y-2">

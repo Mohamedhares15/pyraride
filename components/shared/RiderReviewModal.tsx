@@ -71,7 +71,16 @@ export default function RiderReviewModal({
         throw new Error(data.error || "Failed to submit review");
       }
 
-      // Success! Show toast and auto-close
+      // Success! Show toast with leaderboard info if available
+      if (data.leaderboard) {
+        const { pointsChange, newRiderPoints, riderTier } = data.leaderboard;
+        // Store leaderboard info for display
+        (window as any).lastLeaderboardUpdate = {
+          pointsChange,
+          newRiderPoints,
+          riderTier,
+        };
+      }
       setShowSuccessToast(true);
       
       setTimeout(() => {
@@ -221,6 +230,13 @@ export default function RiderReviewModal({
               </h4>
               <p className="text-sm text-muted-foreground">
                 Thank you for helping us maintain quality!
+                {(window as any).lastLeaderboardUpdate && (
+                  <span className="block mt-1 font-medium text-green-700 dark:text-green-300">
+                    Leaderboard: {(window as any).lastLeaderboardUpdate.pointsChange > 0 ? "+" : ""}
+                    {(window as any).lastLeaderboardUpdate.pointsChange} points
+                    (Total: {(window as any).lastLeaderboardUpdate.newRiderPoints} - {(window as any).lastLeaderboardUpdate.riderTier})
+                  </span>
+                )}
               </p>
             </div>
             <button

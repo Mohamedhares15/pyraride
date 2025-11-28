@@ -116,18 +116,26 @@ export default function AnalyticsPage() {
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-black/80 via-black/90 to-black/95">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-white border-t-transparent" />
       </div>
     );
   }
 
   if (!analytics && !isLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="border-b border-border bg-card/50 py-12 backdrop-blur-lg">
+      <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95">
+        <div className="border-b border-white/10 bg-black/60 py-12 backdrop-blur-lg">
           <div className="mx-auto max-w-7xl px-4 md:px-8">
-            <h1 className="mb-2 font-display text-4xl font-bold tracking-tight">
+            <div className="mb-4">
+              <Link href="/">
+                <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                  <Home className="h-4 w-4" />
+                  Home
+                </Button>
+              </Link>
+            </div>
+            <h1 className="mb-2 font-display text-4xl font-bold tracking-tight text-white">
               Analytics
             </h1>
           </div>
@@ -167,13 +175,13 @@ export default function AnalyticsPage() {
   const isAdmin = session?.user.role === "admin";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95">
       {/* Header */}
-      <div className="border-b border-border bg-card/50 py-12 backdrop-blur-lg">
+      <div className="border-b border-white/10 bg-black/60 py-12 backdrop-blur-lg">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <div className="mb-4 flex items-center gap-4">
             <Link href="/">
-              <Button variant="ghost" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                 <Home className="h-4 w-4" />
                 Home
               </Button>
@@ -181,18 +189,18 @@ export default function AnalyticsPage() {
             {isAdmin && (
               <>
                 <Link href="/dashboard/admin/stables">
-                  <Button variant="outline" size="sm" className="gap-2">
+                  <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                     Manage Stables
                   </Button>
                 </Link>
                 <Link href="/dashboard/admin/horses">
-                  <Button variant="outline">
+                  <Button variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                     <FileText className="mr-2 h-4 w-4" />
                     Manage Horse Admin Tiers
                   </Button>
                 </Link>
                 <Link href="/dashboard/admin/horse-changes">
-                  <Button variant="outline" size="sm" className="gap-2">
+                  <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                     <FileText className="h-4 w-4" />
                     Horse Changes
                   </Button>
@@ -202,10 +210,10 @@ export default function AnalyticsPage() {
           </div>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="mb-2 font-display text-4xl font-bold tracking-tight">
+              <h1 className="mb-2 font-display text-4xl font-bold tracking-tight text-white">
                 {isAdmin ? "Platform Analytics" : "Stable Analytics"}
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-white/70">
                 {isAdmin
                   ? "Platform-wide statistics and insights"
                   : `Performance metrics for ${analytics.stable?.name}`}
