@@ -140,25 +140,19 @@ export default function Navbar() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              setAuthModalInitialTab("signin");
-              setIsAuthModalOpen(true);
-            }}
+            asChild
             className="border-white/30 bg-white/10 text-white hover:bg-white/20"
           >
-            Sign In
+            <Link href="/signin">Sign In</Link>
           </Button>
         </li>
         <li>
           <Button
             size="sm"
-            onClick={() => {
-              setAuthModalInitialTab("signup");
-              setIsAuthModalOpen(true);
-            }}
+            asChild
             className="bg-nile-blue text-white hover:bg-nile-blue/90"
           >
-            Get Started
+            <Link href="/signup">Get Started</Link>
           </Button>
         </li>
       </>
@@ -214,28 +208,14 @@ export default function Navbar() {
       ) : (
         <>
           <li>
-            <button
-              type="button"
-              onClick={() => {
-                setAuthModalInitialTab("signin");
-                setIsAuthModalOpen(true);
-                closeMenu();
-              }}
-            >
+            <Link href="/signin" onClick={closeMenu}>
               Sign In
-            </button>
+            </Link>
           </li>
           <li>
-            <button
-              type="button"
-              onClick={() => {
-                setAuthModalInitialTab("signup");
-                setIsAuthModalOpen(true);
-                closeMenu();
-              }}
-            >
+            <Link href="/signup" onClick={closeMenu}>
               Get Started
-            </button>
+            </Link>
           </li>
         </>
       )}
@@ -285,8 +265,6 @@ export default function Navbar() {
       >
         <ul>{mobileMenuLinks}</ul>
       </nav>
-
-      <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} initialTab={authModalInitialTab} />
     </>
   );
 }
