@@ -2,16 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-
-// Dynamically import AuthModal to avoid SSR issues
-const AuthModal = dynamic(() => import("./AuthModal"), { ssr: false });
 
 export default function ComingSoon({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [isComingSoon, setIsComingSoon] = useState<boolean | null>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     // Check if coming soon mode is enabled
@@ -22,17 +20,6 @@ export default function ComingSoon({ children }: { children: React.ReactNode }) 
       })
       .catch(() => setIsComingSoon(false));
   }, []);
-
-  // Auto-open sign-in modal for unauthenticated users in coming soon mode
-  useEffect(() => {
-    if (isComingSoon && status === "unauthenticated") {
-      // Small delay to ensure modal component is loaded
-      const timer = setTimeout(() => {
-        setShowAuthModal(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isComingSoon, status]);
 
   // Don't show overlay for admins or if coming soon is disabled
   if (status === "loading" || isComingSoon === null) {
@@ -89,11 +76,11 @@ export default function ComingSoon({ children }: { children: React.ReactNode }) 
               {status === "unauthenticated" && (
                 <div className="pt-4">
                   <Button
-                    onClick={() => setShowAuthModal(true)}
+                    asChild
                     className="rounded-full px-8 py-6 text-lg font-semibold bg-nile-blue hover:bg-nile-blue/90 text-white shadow-lg hover:shadow-xl transition-all"
                     size="lg"
                   >
-                    Get Started Free
+                    <Link href="/signup">Get Started Free</Link>
                   </Button>
                 </div>
               )}
@@ -123,10 +110,6 @@ export default function ComingSoon({ children }: { children: React.ReactNode }) 
         </div>
       </div>
       
-      {/* Auth Modal for unauthenticated users */}
-      {status === "unauthenticated" && (
-        <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
-      )}
     </>
   );
 }
