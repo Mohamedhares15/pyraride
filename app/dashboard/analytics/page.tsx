@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   Home,
   FileText,
+  MapPin,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -90,7 +91,7 @@ export default function AnalyticsPage() {
     try {
       setIsLoading(true);
       const response = await fetch(`/api/analytics?days=${days}`);
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error("Analytics API error:", errorData);
@@ -102,7 +103,7 @@ export default function AnalyticsPage() {
         console.error("Invalid analytics data:", data);
         throw new Error("Invalid analytics data received");
       }
-      
+
       setAnalytics(data.analytics);
     } catch (err: any) {
       console.error("Error fetching analytics:", err);
@@ -147,7 +148,7 @@ export default function AnalyticsPage() {
             </div>
             <h2 className="mb-2 font-display text-xl font-bold">Failed to Load Analytics</h2>
             <p className="mb-6 text-sm text-muted-foreground">
-              {session?.user.role === "stable_owner" 
+              {session?.user.role === "stable_owner"
                 ? "Unable to load your stable analytics. Please ensure you have an approved stable."
                 : "Unable to load analytics data. Please try again."}
             </p>
@@ -179,7 +180,7 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="border-b border-white/10 bg-black/60 py-12 backdrop-blur-lg">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <div className="mb-4 flex items-center gap-4">
+          <div className="mb-4 flex flex-wrap items-center gap-4">
             <Link href="/">
               <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                 <Home className="h-4 w-4" />
@@ -203,6 +204,12 @@ export default function AnalyticsPage() {
                   <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                     <FileText className="h-4 w-4" />
                     Horse Changes
+                  </Button>
+                </Link>
+                <Link href="/dashboard/admin/locations">
+                  <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                    <MapPin className="h-4 w-4" />
+                    Manage Locations
                   </Button>
                 </Link>
               </>
@@ -498,11 +505,10 @@ export default function AnalyticsPage() {
                             <td className="py-3 text-muted-foreground">{horse.stable_name}</td>
                             <td className="py-3 text-right font-semibold">{horse.bookings}</td>
                             <td className="py-3 text-right">
-                              <span className={`font-bold ${
-                                parseFloat(utilizationRate) > 70 ? "text-green-600" : 
-                                parseFloat(utilizationRate) > 40 ? "text-yellow-600" : 
-                                "text-red-600"
-                              }`}>
+                              <span className={`font-bold ${parseFloat(utilizationRate) > 70 ? "text-green-600" :
+                                parseFloat(utilizationRate) > 40 ? "text-yellow-600" :
+                                  "text-red-600"
+                                }`}>
                                 {utilizationRate}%
                               </span>
                             </td>
@@ -525,7 +531,7 @@ export default function AnalyticsPage() {
                     const dayName = daysOfWeek[parseInt(time.day_of_week)];
                     const hour = parseInt(time.hour);
                     const timeStr = hour === 0 ? "12 AM" : hour < 12 ? `${hour} AM` : hour === 12 ? "12 PM" : `${hour - 12} PM`;
-                    
+
                     return (
                       <div key={idx} className="flex items-center justify-between p-4 bg-primary/5 rounded-lg">
                         <div>

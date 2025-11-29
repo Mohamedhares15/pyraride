@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, MapPin, Plus, Trash2, Save } from "lucide-react";
+import { Loader2, MapPin, Plus, Trash2, Save, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import Link from "next/link";
 
 interface Location {
     id: string;
@@ -119,23 +120,36 @@ export default function AdminLocationsPage() {
 
     if (status === "loading" || isLoading) {
         return (
-            <div className="flex min-h-screen items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-black/80 via-black/90 to-black/95">
+                <Loader2 className="h-8 w-8 animate-spin text-white" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-background p-8">
-            <div className="mx-auto max-w-4xl space-y-8">
-                <div>
-                    <h1 className="font-display text-3xl font-bold">Location Management</h1>
-                    <p className="text-muted-foreground">
+        <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95">
+            {/* Header */}
+            <div className="border-b border-white/10 bg-black/60 py-12 backdrop-blur-lg">
+                <div className="mx-auto max-w-4xl px-4 md:px-8">
+                    <div className="mb-4">
+                        <Link href="/dashboard/analytics">
+                            <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                                <ArrowLeft className="h-4 w-4" />
+                                Back to Analytics
+                            </Button>
+                        </Link>
+                    </div>
+                    <h1 className="mb-2 font-display text-4xl font-bold tracking-tight text-white">
+                        Location Management
+                    </h1>
+                    <p className="text-white/70">
                         Manage available locations for stables. Adding a location here makes it available for new stables.
                     </p>
                 </div>
+            </div>
 
-                <Card className="p-6">
+            <div className="mx-auto max-w-4xl px-4 py-8 md:px-8 space-y-8">
+                <Card className="p-6 border-white/10 bg-black/40 text-white backdrop-blur-sm">
                     <h2 className="mb-4 text-xl font-semibold">Add New Location</h2>
                     <div className="flex gap-4">
                         <div className="flex-1">
@@ -145,9 +159,14 @@ export default function AdminLocationsPage() {
                                 placeholder="e.g., Luxor, Aswan"
                                 value={newLocationName}
                                 onChange={(e) => setNewLocationName(e.target.value)}
+                                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
                             />
                         </div>
-                        <Button onClick={handleAddLocation} disabled={isSaving || !newLocationName.trim()}>
+                        <Button
+                            onClick={handleAddLocation}
+                            disabled={isSaving || !newLocationName.trim()}
+                            className="bg-primary hover:bg-primary/90 text-white"
+                        >
                             {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
                             Add Location
                         </Button>
@@ -156,14 +175,14 @@ export default function AdminLocationsPage() {
 
                 <div className="grid gap-4">
                     {locations.map((location) => (
-                        <Card key={location.id} className="flex items-center justify-between p-4">
+                        <Card key={location.id} className="flex items-center justify-between p-4 border-white/10 bg-black/40 text-white backdrop-blur-sm">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20">
                                     <MapPin className="h-5 w-5 text-primary" />
                                 </div>
                                 <div>
                                     <h3 className="font-semibold">{location.name}</h3>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm text-white/60">
                                         {location.isActive ? "Active" : "Inactive"}
                                     </p>
                                 </div>
@@ -171,13 +190,14 @@ export default function AdminLocationsPage() {
 
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center gap-2">
-                                    <Label htmlFor={`active-${location.id}`} className="text-sm text-muted-foreground">
+                                    <Label htmlFor={`active-${location.id}`} className="text-sm text-white/60">
                                         Active
                                     </Label>
                                     <Switch
                                         id={`active-${location.id}`}
                                         checked={location.isActive}
                                         onCheckedChange={() => handleToggleActive(location.id, location.isActive)}
+                                        className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-white/20"
                                     />
                                 </div>
 
@@ -194,7 +214,7 @@ export default function AdminLocationsPage() {
                     ))}
 
                     {locations.length === 0 && (
-                        <div className="text-center text-muted-foreground py-8">
+                        <div className="text-center text-white/50 py-8">
                             No locations found. Add one above.
                         </div>
                     )}

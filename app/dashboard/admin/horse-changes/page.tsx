@@ -23,7 +23,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Check, X, AlertCircle, DollarSign, FileText, Images } from "lucide-react";
+import { Loader2, Check, X, AlertCircle, DollarSign, FileText, Images, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 interface ChangeRequest {
   id: string;
@@ -161,26 +162,37 @@ export default function HorseChangesPage() {
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-black/80 via-black/90 to-black/95">
+        <Loader2 className="h-12 w-12 animate-spin text-white" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
-        <div className="mb-8">
-          <h1 className="mb-2 font-display text-4xl font-bold tracking-tight">
+    <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95">
+      {/* Header */}
+      <div className="border-b border-white/10 bg-black/60 py-12 backdrop-blur-lg">
+        <div className="mx-auto max-w-7xl px-4 md:px-8">
+          <div className="mb-4">
+            <Link href="/dashboard/analytics">
+              <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Analytics
+              </Button>
+            </Link>
+          </div>
+          <h1 className="mb-2 font-display text-4xl font-bold tracking-tight text-white">
             Horse Change Requests
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-white/70">
             Review and approve or reject changes to horse prices and descriptions
           </p>
         </div>
+      </div>
 
+      <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         {error && (
-          <Card className="mb-6 border-destructive">
+          <Card className="mb-6 border-destructive bg-destructive/10">
             <CardContent className="pt-6">
               <div className="flex items-center gap-2 text-destructive">
                 <AlertCircle className="h-5 w-5" />
@@ -191,11 +203,11 @@ export default function HorseChangesPage() {
         )}
 
         {changeRequests.length === 0 ? (
-          <Card>
+          <Card className="border-white/10 bg-black/40 text-white backdrop-blur-sm">
             <CardContent className="py-12 text-center">
-              <Check className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+              <Check className="mx-auto mb-4 h-12 w-12 text-white/50" />
               <h3 className="mb-2 text-lg font-semibold">No Pending Requests</h3>
-              <p className="text-muted-foreground">
+              <p className="text-white/70">
                 All horse change requests have been reviewed.
               </p>
             </CardContent>
@@ -209,21 +221,21 @@ export default function HorseChangesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card>
+                <Card className="border-white/10 bg-black/40 text-white backdrop-blur-sm">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div>
-                        <CardTitle className="mb-2">
+                        <CardTitle className="mb-2 text-xl">
                           {request.horse.name} - {request.horse.stable.name}
                         </CardTitle>
-                        <CardDescription>
-                          Requested by {request.horse.stable.owner.fullName || request.horse.stable.owner.email}
+                        <CardDescription className="text-white/60">
+                          Requested by {request.horse.stable.owner?.fullName || request.horse.stable.owner?.email || "Unknown"}
                         </CardDescription>
-                        <CardDescription>
+                        <CardDescription className="text-white/60">
                           Requested on {formatDate(request.requestedAt)}
                         </CardDescription>
                       </div>
-                      <Badge variant="outline" className="ml-4">
+                      <Badge variant="outline" className="ml-4 border-yellow-500/50 text-yellow-500">
                         Pending Approval
                       </Badge>
                     </div>
@@ -232,26 +244,26 @@ export default function HorseChangesPage() {
                     {/* Current vs Proposed Changes */}
                     <div className="grid gap-6 md:grid-cols-2">
                       {/* Current Values */}
-                      <div className="space-y-4">
-                        <h3 className="font-semibold text-muted-foreground">Current Values</h3>
+                      <div className="space-y-4 rounded-lg border border-white/5 bg-white/5 p-4">
+                        <h3 className="font-semibold text-white/80">Current Values</h3>
                         <div className="space-y-3">
                           <div>
-                            <Label className="text-xs">Price per Hour</Label>
+                            <Label className="text-xs text-white/50">Price per Hour</Label>
                             <p className="flex items-center gap-2 text-sm">
-                              <DollarSign className="h-4 w-4" />
+                              <DollarSign className="h-4 w-4 text-white/70" />
                               {request.horse.pricePerHour ? `$${Number(request.horse.pricePerHour).toFixed(2)}` : "Not set"}
                             </p>
                           </div>
                           <div>
-                            <Label className="text-xs">Description</Label>
-                            <p className="text-sm text-muted-foreground line-clamp-3">
+                            <Label className="text-xs text-white/50">Description</Label>
+                            <p className="text-sm text-white/70 line-clamp-3">
                               {request.horse.description}
                             </p>
                           </div>
                           {request.horse.imageUrls.length > 0 && (
                             <div>
-                              <Label className="text-xs">Current Images</Label>
-                              <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Label className="text-xs text-white/50">Current Images</Label>
+                              <p className="flex items-center gap-2 text-sm text-white/70">
                                 <Images className="h-4 w-4" />
                                 {request.horse.imageUrls.length} image(s)
                               </p>
@@ -261,31 +273,31 @@ export default function HorseChangesPage() {
                       </div>
 
                       {/* Proposed Changes */}
-                      <div className="space-y-4">
+                      <div className="space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
                         <h3 className="font-semibold text-primary">Proposed Changes</h3>
                         <div className="space-y-3">
                           {request.proposedPricePerHour !== null && (
                             <div>
-                              <Label className="text-xs">New Price per Hour</Label>
-                              <p className="flex items-center gap-2 text-sm font-medium">
-                                <DollarSign className="h-4 w-4" />
+                              <Label className="text-xs text-primary/70">New Price per Hour</Label>
+                              <p className="flex items-center gap-2 text-sm font-medium text-white">
+                                <DollarSign className="h-4 w-4 text-primary" />
                                 ${Number(request.proposedPricePerHour).toFixed(2)}
                               </p>
                             </div>
                           )}
                           {request.proposedDescription && (
                             <div>
-                              <Label className="text-xs">New Description</Label>
-                              <p className="text-sm text-muted-foreground line-clamp-3">
+                              <Label className="text-xs text-primary/70">New Description</Label>
+                              <p className="text-sm text-white/90 line-clamp-3">
                                 {request.proposedDescription}
                               </p>
                             </div>
                           )}
                           {request.proposedImageUrls.length > 0 && (
                             <div>
-                              <Label className="text-xs">New Images</Label>
-                              <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Images className="h-4 w-4" />
+                              <Label className="text-xs text-primary/70">New Images</Label>
+                              <p className="flex items-center gap-2 text-sm text-white/90">
+                                <Images className="h-4 w-4 text-primary" />
                                 {request.proposedImageUrls.length} image(s)
                               </p>
                             </div>
@@ -295,11 +307,11 @@ export default function HorseChangesPage() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3 border-t pt-4">
+                    <div className="flex gap-3 border-t border-white/10 pt-4">
                       <Button
                         onClick={() => handleApprove(request.id)}
                         disabled={isProcessing}
-                        className="flex-1"
+                        className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                       >
                         {isProcessing ? (
                           <>
@@ -336,22 +348,23 @@ export default function HorseChangesPage() {
 
       {/* Reject Dialog */}
       <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
-        <DialogContent>
+        <DialogContent className="border-white/10 bg-zinc-900 text-white">
           <DialogHeader>
             <DialogTitle>Reject Change Request</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-white/60">
               Provide a reason for rejecting this change request. This will be visible to the stable owner.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="rejectionReason">Rejection Reason</Label>
+              <Label htmlFor="rejectionReason" className="text-white">Rejection Reason</Label>
               <Textarea
                 id="rejectionReason"
                 placeholder="Enter reason for rejection..."
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
                 rows={4}
+                className="bg-black/40 border-white/10 text-white placeholder:text-white/30"
               />
             </div>
           </div>
@@ -363,6 +376,7 @@ export default function HorseChangesPage() {
                 setRejectionReason("");
                 setSelectedRequest(null);
               }}
+              className="border-white/20 bg-transparent text-white hover:bg-white/10"
             >
               Cancel
             </Button>
