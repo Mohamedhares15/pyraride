@@ -22,25 +22,30 @@ export async function GET(req: NextRequest) {
           startDate: { lte: now },
           endDate: { gte: now },
         },
-        include: {
-          riders: {
-            select: {
-              id: true,
-              fullName: true,
-              email: true,
-              rankPoints: true,
-              rank: {
-                select: {
-                  name: true,
-                },
+      include: {
+        riders: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            rankPoints: true,
+            rank: {
+              select: {
+                name: true,
               },
             },
-            orderBy: {
-              rankPoints: "desc",
+            rideResults: {
+              select: {
+                pointsChange: true,
+              },
             },
-            take: 100, // Top 100 riders per league
           },
+          orderBy: {
+            rankPoints: "desc",
+          },
+          take: 100, // Top 100 riders per league
         },
+      },
       });
 
       // Sort leagues by hierarchy
@@ -71,6 +76,11 @@ export async function GET(req: NextRequest) {
             rank: {
               select: {
                 name: true,
+              },
+            },
+            rideResults: {
+              select: {
+                pointsChange: true,
               },
             },
           },
@@ -105,6 +115,11 @@ export async function GET(req: NextRequest) {
                 rank: {
                   select: {
                     name: true,
+                  },
+                },
+                rideResults: {
+                  select: {
+                    pointsChange: true,
                   },
                 },
               },

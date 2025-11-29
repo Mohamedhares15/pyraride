@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Trophy, Search, TrendingUp, Award, Crown, ArrowLeft, Home } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from "next/link";
@@ -17,6 +16,9 @@ interface Rider {
   rank: {
     name: string;
   } | null;
+  rideResults: {
+    pointsChange: number;
+  }[];
 }
 
 interface League {
@@ -107,25 +109,18 @@ export default function LeaderboardPage() {
     );
   };
 
-  const getTierBadge = (tier: string | null) => {
-    if (!tier) return null;
-    const tierColors: Record<string, string> = {
-      Beginner: "bg-green-500/20 text-green-500 border-green-500",
-      Intermediate: "bg-blue-500/20 text-blue-500 border-blue-500",
-      Advanced: "bg-purple-500/20 text-purple-500 border-purple-500",
-    };
-    return (
-      <Badge variant="outline" className={tierColors[tier] || ""}>
-        {tier}
-      </Badge>
-    );
-  };
-
   const leagueInfo = leagueColors[selectedLeague.toLowerCase()] || leagueColors.wood;
   const leagueIcon = leagueIcons[selectedLeague.toLowerCase()] || "🪵";
 
   return (
-    <div className="bg-gradient-to-b from-black/80 via-black/90 to-black/95 min-h-screen">
+    <>
+      {/* Hide global footer on leaderboard to keep page focused */}
+      <style jsx global>{`
+        footer {
+          display: none !important;
+        }
+      `}</style>
+      <div className="bg-gradient-to-b from-black/80 via-black/90 to-black/95 min-h-screen">
       {/* Header */}
       <div className="border-b border-white/10 bg-black/60 py-8 md:py-12 backdrop-blur-lg">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
@@ -261,12 +256,10 @@ export default function LeaderboardPage() {
               </div>
             ) : (
               <div className="space-y-2">
-                <div className="grid grid-cols-12 gap-4 border-b border-white/10 pb-2 text-sm font-semibold text-white/70">
-                  <div className="col-span-1">Rank</div>
-                  <div className="col-span-4">Player</div>
-                  <div className="col-span-2">Tier</div>
-                  <div className="col-span-3">Rank Points</div>
-                  <div className="col-span-2">Last Change</div>
+                <div className="grid grid-cols-12 gap-4 border-b border-white/10 pb-2 text-xs md:text-sm font-semibold text-white/70">
+                  <div className="col-span-2">Rank</div>
+                  <div className="col-span-7">Player</div>
+                  <div className="col-span-3 text-right">Trophies</div>
                 </div>
                 {filteredRiders.map((rider, index) => {
                   const rank = index + 1;
@@ -276,8 +269,8 @@ export default function LeaderboardPage() {
                       key={rider.id}
                       className="grid grid-cols-12 items-center gap-4 rounded-lg border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10 backdrop-blur-sm"
                     >
-                      <div className="col-span-1">{getRankBadge(rank)}</div>
-                      <div className="col-span-4 flex items-center gap-3">
+                      <div className="col-span-2">{getRankBadge(rank)}</div>
+                      <div className="col-span-7 flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 border border-white/20">
                           <span className="text-sm font-semibold text-white">
                             {riderName.charAt(0).toUpperCase()}
@@ -288,13 +281,9 @@ export default function LeaderboardPage() {
                           <p className="text-xs text-white/60">{rider.email}</p>
                         </div>
                       </div>
-                      <div className="col-span-2">{getTierBadge(rider.rank?.name || null)}</div>
-                      <div className="col-span-3">
+                      <div className="col-span-3 text-right">
                         <span className="font-semibold text-white">{rider.rankPoints}</span>
-                        <span className="text-sm text-white/60"> pts</span>
-                      </div>
-                      <div className="col-span-2">
-                        <span className="text-sm text-white/60">—</span>
+                        <span className="ml-1 text-sm text-white/60">pts</span>
                       </div>
                     </div>
                   );
@@ -304,7 +293,7 @@ export default function LeaderboardPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </>
   );
 }
 
