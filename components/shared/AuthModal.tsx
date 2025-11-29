@@ -214,14 +214,14 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
   );
 
   const renderSignUpForm = () => (
-    <form onSubmit={handleSignUp} className="space-y-2.5 sm:space-y-3">
+    <form onSubmit={handleSignUp} className="space-y-2 sm:space-y-3">
       {error && (
-        <div className="rounded-md bg-destructive/10 p-2.5 text-xs sm:text-sm text-destructive">
+        <div className="rounded-md bg-destructive/10 p-2 text-[10px] sm:text-xs text-destructive leading-tight">
           {error}
         </div>
       )}
-      <div className="space-y-1">
-        <label className="text-xs sm:text-sm font-medium">Full name</label>
+      <div className="space-y-0.5">
+        <label className="text-[11px] sm:text-xs font-medium">Full name</label>
         <Input
           type="text"
           placeholder="John Doe"
@@ -230,12 +230,12 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
             setSignUpForm((prev) => ({ ...prev, fullName: e.target.value }));
             resetFeedback();
           }}
-          className="h-9 sm:h-10 text-sm"
+          className="h-8 sm:h-10 text-xs sm:text-sm"
           required
         />
       </div>
-      <div className="space-y-1">
-        <label className="text-xs sm:text-sm font-medium">Email</label>
+      <div className="space-y-0.5">
+        <label className="text-[11px] sm:text-xs font-medium">Email</label>
         <Input
           type="email"
           placeholder="you@example.com"
@@ -244,12 +244,12 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
             setSignUpForm((prev) => ({ ...prev, email: e.target.value }));
             resetFeedback();
           }}
-          className="h-9 sm:h-10 text-sm"
+          className="h-8 sm:h-10 text-xs sm:text-sm"
           required
         />
       </div>
-      <div className="space-y-1">
-        <label className="text-xs sm:text-sm font-medium">Phone number</label>
+      <div className="space-y-0.5">
+        <label className="text-[11px] sm:text-xs font-medium">Phone number</label>
         <Input
           type="tel"
           placeholder="+201234567890"
@@ -258,22 +258,22 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
             setSignUpForm((prev) => ({ ...prev, phoneNumber: e.target.value }));
             resetFeedback();
           }}
-          className="h-9 sm:h-10 text-sm"
+          className="h-8 sm:h-10 text-xs sm:text-sm"
           required
         />
-        <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">
+        <p className="text-[9px] sm:text-[10px] text-muted-foreground leading-tight mt-0.5">
           Use an international format (e.g. +20 123 456 7890).
         </p>
       </div>
-      <div className="space-y-1">
-        <label className="text-xs sm:text-sm font-medium">Gender *</label>
+      <div className="space-y-0.5">
+        <label className="text-[11px] sm:text-xs font-medium">Gender *</label>
         <select
           value={signUpForm.gender}
           onChange={(e) => {
             setSignUpForm((prev) => ({ ...prev, gender: e.target.value }));
             resetFeedback();
           }}
-          className="flex h-9 sm:h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-8 sm:h-10 w-full rounded-md border border-input bg-background px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           required
         >
           <option value="">Select gender</option>
@@ -281,15 +281,15 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
           <option value="female">Female</option>
         </select>
       </div>
-      <div className="space-y-1">
-        <label className="text-xs sm:text-sm font-medium">Riding Experience Level *</label>
+      <div className="space-y-0.5">
+        <label className="text-[11px] sm:text-xs font-medium">Riding Experience Level *</label>
         <select
           value={signUpForm.initialTier}
           onChange={(e) => {
             setSignUpForm((prev) => ({ ...prev, initialTier: e.target.value }));
             resetFeedback();
           }}
-          className="flex h-9 sm:h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-8 sm:h-10 w-full rounded-md border border-input bg-background px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           required
         >
           <option value="">Select your level</option>
@@ -297,12 +297,12 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
           <option value="intermediate">Intermediate (1301-1700 points)</option>
           <option value="advanced">Advanced (1701+ points)</option>
         </select>
-        <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">
+        <p className="text-[9px] sm:text-[10px] text-muted-foreground leading-tight mt-0.5">
           This determines your starting rank points. You can improve through rides!
         </p>
       </div>
-      <div className="space-y-1">
-        <label className="text-xs sm:text-sm font-medium">Password</label>
+      <div className="space-y-0.5">
+        <label className="text-[11px] sm:text-xs font-medium">Password</label>
         <PasswordInput
           value={signUpForm.password}
           onChange={(e) => {
@@ -310,15 +310,15 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
             resetFeedback();
           }}
           placeholder="••••••••"
-          className="h-9 sm:h-10 text-sm"
+          className="h-8 sm:h-10 text-xs sm:text-sm"
           required
         />
-        <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">
+        <p className="text-[9px] sm:text-[10px] text-muted-foreground leading-tight mt-0.5">
           At least 8 characters, including uppercase, lowercase, and number.
         </p>
       </div>
-      <Button type="submit" className="w-full mt-3 h-9 sm:h-10 text-xs sm:text-sm" disabled={isLoading}>
-        {isLoading ? "Creating account..." : "Sign Up"}
+      <Button type="submit" className="w-full mt-2 h-8 sm:h-10 text-xs sm:text-sm font-medium" disabled={isLoading}>
+        {isLoading ? "Creating..." : "Sign Up"}
       </Button>
     </form>
   );
@@ -364,25 +364,25 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[95vh] w-[95vw] max-w-md flex-col overflow-hidden p-0 sm:max-w-md">
-        <DialogHeader className="flex-shrink-0 px-4 pt-4 pb-2 sm:px-6 sm:pt-6">
-          <DialogTitle className="text-base sm:text-lg">
+      <DialogContent className="flex max-h-[98vh] w-[98vw] max-w-md flex-col overflow-hidden p-0 sm:max-w-md">
+        <DialogHeader className="flex-shrink-0 px-3 pt-3 pb-1.5 sm:px-6 sm:pt-4 sm:pb-2">
+          <DialogTitle className="text-sm sm:text-lg leading-tight">
             {activeTab === "forgot" ? "Reset your password" : "Welcome to PyraRide"}
           </DialogTitle>
         </DialogHeader>
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 pb-4 sm:px-6 sm:pb-6">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-3 sm:px-6 sm:pb-6 min-h-0">
           {activeTab === "forgot" ? (
             renderForgotForm()
           ) : (
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-3 h-9 sm:h-10">
-                <TabsTrigger value="signin" className="text-xs sm:text-sm">Sign In</TabsTrigger>
-                <TabsTrigger value="signup" className="text-xs sm:text-sm">Sign Up</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 mb-2 h-8 sm:h-10 sm:mb-3">
+                <TabsTrigger value="signin" className="text-[11px] sm:text-sm">Sign In</TabsTrigger>
+                <TabsTrigger value="signup" className="text-[11px] sm:text-sm">Sign Up</TabsTrigger>
               </TabsList>
-              <TabsContent value="signin" className="space-y-3 mt-3 sm:space-y-4 sm:mt-4">
+              <TabsContent value="signin" className="space-y-2.5 mt-2.5 sm:space-y-4 sm:mt-4">
                 {renderSignInForm()}
               </TabsContent>
-              <TabsContent value="signup" className="space-y-2.5 mt-3 sm:space-y-3 sm:mt-4">
+              <TabsContent value="signup" className="space-y-2 mt-2.5 sm:space-y-3 sm:mt-4">
                 {renderSignUpForm()}
               </TabsContent>
             </Tabs>

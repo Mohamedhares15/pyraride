@@ -125,7 +125,7 @@ export default function LeaderboardPage() {
   const leagueIcon = leagueIcons[selectedLeague.toLowerCase()] || "🪵";
 
   return (
-    <div className="bg-gradient-to-b from-black/80 via-black/90 to-black/95">
+    <div className="bg-gradient-to-b from-black/80 via-black/90 to-black/95 min-h-screen">
       {/* Header */}
       <div className="border-b border-white/10 bg-black/60 py-8 md:py-12 backdrop-blur-lg">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
@@ -164,7 +164,7 @@ export default function LeaderboardPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 pt-8 pb-4 md:px-8 md:pb-8">
+      <div className="mx-auto max-w-7xl px-4 pt-8 pb-0 md:px-8">
         {/* League Selection & Search */}
         <Card className="mb-6 border-white/10 bg-white/5 backdrop-blur-md">
           <CardHeader>
@@ -243,7 +243,7 @@ export default function LeaderboardPage() {
         )}
 
         {/* Leaderboard Table */}
-        <Card className="border-white/10 bg-white/5 backdrop-blur-md">
+        <Card className="border-white/10 bg-white/5 backdrop-blur-md mb-0">
           <CardHeader>
             <CardTitle className="text-white">Rankings</CardTitle>
             <CardDescription className="text-white/70">
