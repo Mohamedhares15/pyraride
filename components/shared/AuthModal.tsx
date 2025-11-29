@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -12,11 +12,12 @@ import PasswordInput from "./PasswordInput";
 interface AuthModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialTab?: "signin" | "signup";
 }
 
-export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
+export default function AuthModal({ open, onOpenChange, initialTab = "signin" }: AuthModalProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"signin" | "signup" | "forgot">("signin");
+  const [activeTab, setActiveTab] = useState<"signin" | "signup" | "forgot">(initialTab);
   const [signInIdentifier, setSignInIdentifier] = useState("");
   const [signInPassword, setSignInPassword] = useState("");
   const [signUpForm, setSignUpForm] = useState({
@@ -43,6 +44,13 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
     setSignInPassword("");
     resetFeedback();
   };
+
+  // Update activeTab when modal opens with a new initialTab
+  useEffect(() => {
+    if (open && initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [open, initialTab]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -352,28 +360,30 @@ export default function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-h-[90vh] w-[95vw] max-w-md overflow-y-auto sm:w-full">
         <DialogHeader>
           <DialogTitle>
             {activeTab === "forgot" ? "Reset your password" : "Welcome to PyraRide"}
           </DialogTitle>
         </DialogHeader>
-        {activeTab === "forgot" ? (
-          renderForgotForm()
-        ) : (
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-            <TabsContent value="signin" className="space-y-4">
-              {renderSignInForm()}
-            </TabsContent>
-            <TabsContent value="signup" className="space-y-4">
-              {renderSignUpForm()}
-            </TabsContent>
-          </Tabs>
-        )}
+        <div className="max-h-[calc(90vh-120px)] overflow-y-auto">
+          {activeTab === "forgot" ? (
+            renderForgotForm()
+          ) : (
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
+              <TabsContent value="signin" className="space-y-4">
+                {renderSignInForm()}
+              </TabsContent>
+              <TabsContent value="signup" className="space-y-4">
+                {renderSignUpForm()}
+              </TabsContent>
+            </Tabs>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

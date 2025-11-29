@@ -11,6 +11,7 @@ import Image from "next/image";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalInitialTab, setAuthModalInitialTab] = useState<"signin" | "signup">("signin");
   const { data: session, status } = useSession();
 
   const [userImage, setUserImage] = useState<string | null>(null);
@@ -139,7 +140,10 @@ export default function Navbar() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setIsAuthModalOpen(true)}
+            onClick={() => {
+              setAuthModalInitialTab("signin");
+              setIsAuthModalOpen(true);
+            }}
             className="border-white/30 bg-white/10 text-white hover:bg-white/20"
           >
             Sign In
@@ -148,7 +152,10 @@ export default function Navbar() {
         <li>
           <Button
             size="sm"
-            onClick={() => setIsAuthModalOpen(true)}
+            onClick={() => {
+              setAuthModalInitialTab("signup");
+              setIsAuthModalOpen(true);
+            }}
             className="bg-nile-blue text-white hover:bg-nile-blue/90"
           >
             Get Started
@@ -210,6 +217,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => {
+                setAuthModalInitialTab("signin");
                 setIsAuthModalOpen(true);
                 closeMenu();
               }}
@@ -221,6 +229,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => {
+                setAuthModalInitialTab("signup");
                 setIsAuthModalOpen(true);
                 closeMenu();
               }}
@@ -277,7 +286,7 @@ export default function Navbar() {
         <ul>{mobileMenuLinks}</ul>
       </nav>
 
-      <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
+      <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} initialTab={authModalInitialTab} />
     </>
   );
 }
