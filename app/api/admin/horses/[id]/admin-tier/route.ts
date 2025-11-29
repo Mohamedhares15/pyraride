@@ -18,7 +18,7 @@ export async function PATCH(
         }
 
         const body = await req.json();
-        const { adminTier } = body;
+        const { adminTier, firstTimeFriendly } = body;
 
         // Validate adminTier value
         if (adminTier !== null && adminTier !== undefined && adminTier !== "") {
@@ -31,16 +31,30 @@ export async function PATCH(
             }
         }
 
+        // If adminTier is not "Beginner", reset firstTimeFriendly to null
+        const updateData: { adminTier: string | null; firstTimeFriendly?: boolean | null } = {
+            adminTier: adminTier || null,
+        };
+
+        if (adminTier === "Beginner") {
+            // Only allow firstTimeFriendly when tier is Beginner
+            if (firstTimeFriendly !== undefined) {
+                updateData.firstTimeFriendly = firstTimeFriendly === true ? true : firstTimeFriendly === false ? false : null;
+            }
+        } else {
+            // Reset to null if not Beginner
+            updateData.firstTimeFriendly = null;
+        }
+
         // Update horse admin tier
         const updatedHorse = await prisma.horse.update({
             where: { id: params.id },
-            data: {
-                adminTier: adminTier || null,
-            },
+            data: updateData,
             select: {
                 id: true,
                 name: true,
                 adminTier: true,
+                firstTimeFriendly: true,
             },
         });
 

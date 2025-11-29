@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider     = "postgresql"
-  url          = env("DATABASE_URL") // Connects to Neon
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Connects to Neon
 }
 
 enum Role {
@@ -50,8 +50,6 @@ enum StableStatus {
   rejected
 }
 
-
-
 model Location {
   id        String   @id @default(uuid())
   name      String   @unique // "Giza", "Saqqara"
@@ -68,22 +66,22 @@ model User {
   profileImageUrl    String?
   fullName           String?
   role               Role      @default(rider)
-  gender             Gender?   // Male or Female
+  gender             Gender? // Male or Female
   hasPremiumAI       Boolean   @default(false) // Premium AI subscription (admins can grant to stable owners)
   premiumAIExpiresAt DateTime? // Subscription expiration date
   createdAt          DateTime  @default(now())
 
   //Multi-Owner Support: A user belongs to a stable
-  stableId           String?
-  stable             Stable?   @relation("StableOwners", fields: [stableId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  ownedStables       Stable[]  @relation("StableOwner")
+  stableId     String?
+  stable       Stable?  @relation("StableOwners", fields: [stableId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  ownedStables Stable[] @relation("StableOwner")
 
   //Leaderboard & Ranking
-  rankPoints         Int       @default(1400) // Will be set based on initial tier selection
-  rankId             String?
-  rank               RiderRank? @relation(fields: [rankId], references: [id])
-  currentLeagueId    String?   // Current league the rider is in
-  currentLeague      League?   @relation("RiderLeague", fields: [currentLeagueId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rankPoints      Int        @default(1400) // Will be set based on initial tier selection
+  rankId          String?
+  rank            RiderRank? @relation(fields: [rankId], references: [id])
+  currentLeagueId String? // Current league the rider is in
+  currentLeague   League?    @relation("RiderLeague", fields: [currentLeagueId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   // Relations
   bookings             Booking[]
@@ -97,8 +95,8 @@ model User {
 }
 
 model RiderRank {
-  id        String @id @default(uuid())
-  name      String @unique // Beginner (0-1300), Intermediate (1301-1700), Advanced (1701+)
+  id        String  @id @default(uuid())
+  name      String  @unique // Beginner (0-1300), Intermediate (1301-1700), Advanced (1701+)
   minPoints Int
   maxPoints Int
   icon      String?
@@ -106,8 +104,8 @@ model RiderRank {
 }
 
 model HorseTier {
-  id        String @id @default(uuid())
-  name      String @unique // Tier 1, Tier 2, etc.
+  id        String  @id @default(uuid())
+  name      String  @unique // Tier 1, Tier 2, etc.
   minPoints Int
   maxPoints Int
   icon      String?
@@ -128,8 +126,8 @@ model Stable {
   commissionRate   Decimal      @default(0.15) @db.Decimal(5, 4) // Commission rate (0.15 = 15%), can be customized per stable
   minLeadTimeHours Int          @default(8) //Minimum hours before booking (Feature 5)
   createdAt        DateTime     @default(now())
-  ownerId          String       // Primary owner
- 
+  ownerId          String // Primary owner
+
   // Relations
   owner        User          @relation("StableOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   owners       User[]        @relation("StableOwners")
@@ -153,12 +151,13 @@ model Horse {
   availabilityStatus AvailabilityStatus? @default(available)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime?           @updatedAt
-  
+
   // Leaderboard - Admin-locked tier (cannot be changed by stable owners)
-  adminTier          String?             // "Beginner", "Intermediate", "Advanced" - Only editable by admins
-  rankPoints         Int                 @default(1400)
-  tierId             String?
-  tier               HorseTier?          @relation(fields: [tierId], references: [id])
+  adminTier         String? // "Beginner", "Intermediate", "Advanced" - Only editable by admins
+  firstTimeFriendly Boolean? // true = First Time Friendly, false = Not First Time Friendly, null = not set (only applicable when adminTier = "Beginner")
+  rankPoints        Int        @default(1400)
+  tierId            String?
+  tier              HorseTier? @relation(fields: [tierId], references: [id])
 
   // Relations
   stable         Stable               @relation(fields: [stableId], references: [id], onDelete: Cascade)
@@ -173,7 +172,7 @@ model Horse {
 model BlockedSlot {
   id        String   @id @default(uuid())
   stableId  String
-  horseId   String?  // Optional: if null, blocks entire stable
+  horseId   String? // Optional: if null, blocks entire stable
   startTime DateTime
   endTime   DateTime
   reason    String?
@@ -192,8 +191,8 @@ model RideResult {
   riderId      String
   horseId      String
   stableId     String
-  rps          Int      // Rider Performance Score (1-10)
-  pointsChange Int      // Calculated points
+  rps          Int // Rider Performance Score (1-10)
+  pointsChange Int // Calculated points
   timestamp    DateTime @default(now())
 
   booking Booking @relation(fields: [bookingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -358,18 +357,18 @@ model PasswordResetToken {
 // League System - Chess.com style leagues
 model League {
   id        String       @id @default(uuid())
-  name      LeagueName   // Wood, Bronze, Silver, Gold, Platinum, Elite, Champion
+  name      LeagueName // Wood, Bronze, Silver, Gold, Platinum, Elite, Champion
   startDate DateTime
-  endDate   DateTime     // 2 weeks after startDate
+  endDate   DateTime // 2 weeks after startDate
   status    LeagueStatus @default(active)
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 
   // Relations
-  riders         User[]           @relation("RiderLeague")
-  standings      LeagueStanding[]
-  nextLeagueId   String?          // ID of the next league (for promotion)
-  nextLeague     League?          @relation("LeaguePromotion", fields: [nextLeagueId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  riders          User[]           @relation("RiderLeague")
+  standings       LeagueStanding[]
+  nextLeagueId    String? // ID of the next league (for promotion)
+  nextLeague      League?          @relation("LeaguePromotion", fields: [nextLeagueId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   previousLeagues League[]         @relation("LeaguePromotion")
 
   @@index([status])
@@ -378,14 +377,14 @@ model League {
 }
 
 model LeagueStanding {
-  id        String   @id @default(uuid())
-  leagueId  String
-  riderId   String
-  rankPoints Int      // Rider's rank points at the end of this league period
-  finalRank Int?      // Final rank in this league (1, 2, 3, etc.)
-  promoted  Boolean  @default(false) // Whether rider was promoted to next league
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  leagueId   String
+  riderId    String
+  rankPoints Int // Rider's rank points at the end of this league period
+  finalRank  Int? // Final rank in this league (1, 2, 3, etc.)
+  promoted   Boolean  @default(false) // Whether rider was promoted to next league
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   // Relations
   league League @relation(fields: [leagueId], references: [id], onDelete: NoAction, onUpdate: NoAction)

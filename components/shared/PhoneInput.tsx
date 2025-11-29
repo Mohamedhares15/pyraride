@@ -83,23 +83,25 @@ export default function PhoneInput({ value, onChange, className = "", required =
     const country = countries.find((c) => c.code === countryCode);
     if (country) {
       setSelectedCountry(country);
-      // Extract current number without country code
-      const currentNumber = value.replace(/^\+?\d+/, "").trim();
+      // Extract current number without any country code
+      const currentNumber = value.replace(/^\+?\d+\s*/, "").trim();
       onChange(`${country.dialCode} ${currentNumber}`.trim());
     }
   };
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    // Remove any existing country code
-    const numberOnly = inputValue.replace(/^\+?\d+\s*/, "");
+    // Only keep digits and spaces, no country code in the input
+    const numberOnly = inputValue.replace(/[^\d\s]/g, "");
     // Combine country code with number
     const fullNumber = `${selectedCountry.dialCode} ${numberOnly}`.trim();
     onChange(fullNumber);
   };
 
   // Extract number without country code for display
-  const displayNumber = value.replace(selectedCountry.dialCode, "").trim();
+  const displayNumber = value.startsWith(selectedCountry.dialCode) 
+    ? value.replace(selectedCountry.dialCode, "").trim()
+    : value.replace(/^\+?\d+\s*/, "").trim();
 
   return (
     <div className="flex gap-2">

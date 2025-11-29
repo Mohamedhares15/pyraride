@@ -15,6 +15,7 @@ interface Horse {
     id: string;
     name: string;
     adminTier: string | null;
+    firstTimeFriendly: boolean | null;
     stable: {
         id: string;
         name: string;
@@ -30,6 +31,7 @@ export default function AdminHorsesPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedTiers, setSelectedTiers] = useState<Record<string, string>>({});
+    const [selectedFirstTimeFriendly, setSelectedFirstTimeFriendly] = useState<Record<string, boolean | null>>({});
 
     useEffect(() => {
         if (status === "loading") return;
@@ -65,12 +67,15 @@ export default function AdminHorsesPage() {
                 const data = await res.json();
                 setHorses(data.horses || []);
                 setFilteredHorses(data.horses || []);
-                // Initialize selected tiers
+                // Initialize selected tiers and firstTimeFriendly
                 const tiers: Record<string, string> = {};
+                const firstTime: Record<string, boolean | null> = {};
                 (data.horses || []).forEach((horse: Horse) => {
                     tiers[horse.id] = horse.adminTier || "";
+                    firstTime[horse.id] = horse.firstTimeFriendly;
                 });
                 setSelectedTiers(tiers);
+                setSelectedFirstTimeFriendly(firstTime);
             } else {
                 toast.error("Failed to load horses");
             }
@@ -85,19 +90,30 @@ export default function AdminHorsesPage() {
     async function saveAdminTier(horseId: string, tier: string) {
         try {
             setIsSaving(true);
+            const firstTimeFriendly = selectedFirstTimeFriendly[horseId];
             const res = await fetch(`/api/admin/horses/${horseId}/admin-tier`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ adminTier: tier || null }),
+                body: JSON.stringify({ 
+                    adminTier: tier || null,
+                    firstTimeFriendly: tier === "Beginner" ? firstTimeFriendly : null
+                }),
             });
 
             if (res.ok) {
                 toast.success(`Admin tier updated for horse`);
                 // Update local state
                 setHorses((prev) =>
-                    prev.map((h) => (h.id === horseId ? { ...h, adminTier: tier || null } : h))
+                    prev.map((h) => (h.id === horseId ? { 
+                        ...h, 
+                        adminTier: tier || null,
+                        firstTimeFriendly: tier === "Beginner" ? firstTimeFriendly : null
+                    } : h))
                 );
                 setSelectedTiers((prev) => ({ ...prev, [horseId]: tier || "" }));
+                if (tier !== "Beginner") {
+                    setSelectedFirstTimeFriendly((prev) => ({ ...prev, [horseId]: null }));
+                }
             } else {
                 const data = await res.json();
                 toast.error(data.error || "Failed to update admin tier");
@@ -192,6 +208,13 @@ export default function AdminHorsesPage() {
                                                     ...prev,
                                                     [horse.id]: value,
                                                 }));
+                                                // Reset firstTimeFriendly if not Beginner
+                                                if (value !== "Beginner") {
+                                                    setSelectedFirstTimeFriendly((prev) => ({
+                                                        ...prev,
+                                                        [horse.id]: null,
+                                                    }));
+                                                }
                                             }}
                                         >
                                             <SelectTrigger id={`tier-${horse.id}`}>
@@ -205,9 +228,43 @@ export default function AdminHorsesPage() {
                                             </SelectContent>
                                         </Select>
                                     </div>
+                                    {selectedTiers[horse.id] === "Beginner" && (
+                                        <div>
+                                            <Label htmlFor={`firstTime-${horse.id}`}>First Time Friendly</Label>
+                                            <Select
+                                                value={
+                                                    selectedFirstTimeFriendly[horse.id] === true
+                                                        ? "true"
+                                                        : selectedFirstTimeFriendly[horse.id] === false
+                                                        ? "false"
+                                                        : ""
+                                                }
+                                                onValueChange={(value) => {
+                                                    setSelectedFirstTimeFriendly((prev) => ({
+                                                        ...prev,
+                                                        [horse.id]: value === "true" ? true : value === "false" ? false : null,
+                                                    }));
+                                                }}
+                                            >
+                                                <SelectTrigger id={`firstTime-${horse.id}`}>
+                                                    <SelectValue placeholder="Select option" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="">Not Set</SelectItem>
+                                                    <SelectItem value="true">First Time Friendly</SelectItem>
+                                                    <SelectItem value="false">Not First Time Friendly</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    )}
                                     <Button
                                         onClick={() => saveAdminTier(horse.id, selectedTiers[horse.id] || "")}
-                                        disabled={isSaving || (selectedTiers[horse.id] || "") === (horse.adminTier || "")}
+                                        disabled={
+                                            isSaving ||
+                                            ((selectedTiers[horse.id] || "") === (horse.adminTier || "") &&
+                                             (selectedTiers[horse.id] !== "Beginner" ||
+                                              selectedFirstTimeFriendly[horse.id] === horse.firstTimeFriendly))
+                                        }
                                         className="w-full"
                                         size="sm"
                                     >
@@ -226,6 +283,11 @@ export default function AdminHorsesPage() {
                                     {horse.adminTier && (
                                         <p className="text-xs text-muted-foreground">
                                             Current: <strong>{horse.adminTier}</strong>
+                                            {horse.adminTier === "Beginner" && horse.firstTimeFriendly !== null && (
+                                                <span className="ml-2">
+                                                    ({horse.firstTimeFriendly ? "First Time Friendly" : "Not First Time Friendly"})
+                                                </span>
+                                            )}
                                         </p>
                                     )}
                                 </CardContent>
