@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -139,6 +140,14 @@ export default function AdminHorsesPage() {
             {/* Header */}
             <div className="border-b border-border bg-card/50 py-12 backdrop-blur-lg">
                 <div className="mx-auto max-w-7xl px-4 md:px-8">
+                    <Link href="/dashboard/analytics">
+                        <Button variant="ghost" size="sm" className="mb-4 gap-2">
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            Back to Analytics
+                        </Button>
+                    </Link>
                     <div className="flex items-center gap-3">
                         <Award className="h-8 w-8 text-primary" />
                         <div>

@@ -113,39 +113,48 @@ export default function GalleryPage() {
         </section>
 
         {/* Gallery Grid */}
-        <section className="mx-auto max-w-[1920px] px-4 py-12 md:px-8">
+        <section className="mx-auto max-w-[1920px] px-4 py-16 md:px-8 md:py-24">
           {isLoading ? (
-            <div className="flex h-64 items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-white/20" />
+            <div className="flex h-96 items-center justify-center">
+              <Loader2 className="h-12 w-12 animate-spin text-white/20" />
             </div>
           ) : items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <Camera className="mb-4 h-12 w-12 text-white/20" />
-              <h3 className="text-xl font-medium text-white">No photos yet</h3>
-              <p className="text-white/40">Be the first to contribute to our collection.</p>
-            </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center py-32 text-center"
+            >
+              <Camera className="mb-6 h-16 w-16 text-white/10" />
+              <h3 className="mb-2 text-2xl font-medium text-white">No photos yet</h3>
+              <p className="text-lg text-white/40">Be the first to contribute to our collection.</p>
+            </motion.div>
           ) : (
-            <div className="columns-1 gap-4 space-y-4 sm:columns-2 md:columns-3 lg:columns-4 xl:gap-8 xl:space-y-8">
+            <div className="columns-1 gap-6 space-y-6 sm:columns-2 md:columns-3 lg:columns-4 2xl:columns-5">
               {items.map((item, index) => (
                 <motion.div
                   key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="group relative break-inside-avoid overflow-hidden rounded-xl bg-white/5"
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.6, delay: Math.min(index * 0.05, 0.3) }}
+                  className="group relative break-inside-avoid overflow-hidden rounded-2xl bg-white/[0.02] shadow-2xl shadow-black/50 transition-all duration-500 hover:bg-white/[0.04] hover:shadow-white/10"
                 >
-                  <div className="relative aspect-[3/4] w-full overflow-hidden">
+                  <div className="relative aspect-[4/5] w-full overflow-hidden">
                     <Image
                       src={item.url}
                       alt={item.caption || "Gallery photo"}
                       fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition-all duration-700 group-hover:scale-105"
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1536px) 25vw, 20vw"
+                      priority={index < 6}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    <div className="absolute bottom-0 left-0 right-0 p-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      <p className="text-sm font-medium text-white">{item.caption || "PyraRide Experience"}</p>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                    <div className="absolute inset-0 flex items-end p-6 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                      <div className="w-full transform translate-y-4 transition-transform duration-500 group-hover:translate-y-0">
+                        <p className="text-base font-medium text-white drop-shadow-lg">
+                          {item.caption || "PyraRide Experience"}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -155,44 +164,46 @@ export default function GalleryPage() {
         </section>
 
         {/* Upload Section */}
-        <section className="relative border-t border-white/10 bg-white/5 py-24 backdrop-blur-lg">
+        <section className="relative border-t border-white/10 bg-gradient-to-b from-white/5 to-black py-32 backdrop-blur-lg">
           <div className="mx-auto max-w-4xl px-4 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl">Contribute to the Legacy</h2>
-            <p className="mb-8 text-white/60">
-              Share your own perspective. Upload your photos for a chance to be featured in our curated gallery.
-            </p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <h2 className="mb-4 text-3xl font-bold text-white md:text-5xl">Contribute to the Legacy</h2>
+              <p className="mb-12 text-lg text-white/60 md:text-xl">
+                Share your own perspective. Upload your photos for a chance to be featured in our curated gallery.
+              </p>
 
-            <div className="flex justify-center">
-              <input
-                type="file"
-                id="gallery-upload"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileUpload}
-                disabled={isUploading}
-              />
-              <label
-                htmlFor="gallery-upload"
-                className={`group relative flex cursor-pointer items-center gap-3 overflow-hidden rounded-full bg-white px-8 py-4 text-black transition-transform hover:scale-105 ${isUploading ? "cursor-not-allowed opacity-50" : ""}`}
-              >
-                {isUploading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <Upload className="h-5 w-5" />
-                )}
-                <span className="font-bold">{isUploading ? "Uploading..." : "Upload Photo"}</span>
-              </label>
-            </div>
-            <p className="mt-4 text-xs text-white/40">
-              Max 5MB. Photos are reviewed before publication.
-            </p>
+              <div className="flex justify-center">
+                <input
+                  type="file"
+                  id="gallery-upload"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                  disabled={isUploading}
+                />
+                <label
+                  htmlFor="gallery-upload"
+                  className={`group relative flex cursor-pointer items-center gap-3 overflow-hidden rounded-full bg-white px-10 py-5 text-lg text-black font-semibold transition-all hover:scale-105 hover:shadow-2xl hover:shadow-white/20 ${isUploading ? "cursor-not-allowed opacity-50" : ""}`}
+                >
+                  {isUploading ? (
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  ) : (
+                    <Upload className="h-6 w-6" />
+                  )}
+                  <span>{isUploading ? "Uploading..." : "Upload Photo"}</span>
+                </label>
+              </div>
+              <p className="mt-6 text-sm text-white/40">
+                Max 5MB. Photos are reviewed before publication.
+              </p>
+            </motion.div>
           </div>
         </section>
-
-        {/* Footer */}
-        <footer className="border-t border-white/10 bg-black py-8 text-center text-sm text-white/40">
-          <p>© {new Date().getFullYear()} PyraRide. All rights reserved.</p>
-        </footer>
       </div>
     </div>
   );
