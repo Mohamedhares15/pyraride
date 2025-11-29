@@ -214,13 +214,13 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
   );
 
   const renderSignUpForm = () => (
-    <form onSubmit={handleSignUp} className="space-y-4">
+    <form onSubmit={handleSignUp} className="space-y-3">
       {error && (
         <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
           {error}
         </div>
       )}
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <label className="text-sm font-medium">Full name</label>
         <Input
           type="text"
@@ -233,7 +233,7 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
           required
         />
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <label className="text-sm font-medium">Email</label>
         <Input
           type="email"
@@ -246,7 +246,7 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
           required
         />
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <label className="text-sm font-medium">Phone number</label>
         <Input
           type="tel"
@@ -262,7 +262,7 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
           Use an international format (e.g. +20 123 456 7890).
         </p>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <label className="text-sm font-medium">Gender *</label>
         <select
           value={signUpForm.gender}
@@ -278,7 +278,7 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
           <option value="female">Female</option>
         </select>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <label className="text-sm font-medium">Riding Experience Level *</label>
         <select
           value={signUpForm.initialTier}
@@ -298,7 +298,7 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
           This determines your starting rank points. You can improve through rides!
         </p>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <label className="text-sm font-medium">Password</label>
         <PasswordInput
           value={signUpForm.password}
@@ -313,7 +313,7 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
           At least 8 characters, including uppercase, lowercase, and number.
         </p>
       </div>
-      <Button type="submit" className="w-full" disabled={isLoading}>
+      <Button type="submit" className="w-full mt-4" disabled={isLoading}>
         {isLoading ? "Creating account..." : "Sign Up"}
       </Button>
     </form>
@@ -360,25 +360,25 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] w-[95vw] max-w-md overflow-y-auto sm:w-full">
-        <DialogHeader>
+      <DialogContent className="max-h-[95vh] w-[95vw] max-w-lg overflow-hidden sm:w-full sm:max-w-lg">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>
             {activeTab === "forgot" ? "Reset your password" : "Welcome to PyraRide"}
           </DialogTitle>
         </DialogHeader>
-        <div className="max-h-[calc(90vh-120px)] overflow-y-auto">
+        <div className="overflow-y-auto overflow-x-hidden pr-2 -mr-2 max-h-[calc(95vh-100px)]">
           {activeTab === "forgot" ? (
             renderForgotForm()
           ) : (
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
-              <TabsContent value="signin" className="space-y-4">
+              <TabsContent value="signin" className="space-y-4 mt-4">
                 {renderSignInForm()}
               </TabsContent>
-              <TabsContent value="signup" className="space-y-4">
+              <TabsContent value="signup" className="space-y-4 mt-4 pb-4">
                 {renderSignUpForm()}
               </TabsContent>
             </Tabs>
