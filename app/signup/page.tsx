@@ -8,6 +8,7 @@ import { ArrowLeft, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PasswordInput from "@/components/shared/PasswordInput";
+import PhoneInput from "@/components/shared/PhoneInput";
 import {
   Select,
   SelectContent,
@@ -150,17 +151,12 @@ export default function SignUpPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-white">Phone number</label>
-                <Input
-                  type="tel"
-                  placeholder="+201234567890"
+                <PhoneInput
                   value={formData.phoneNumber}
-                  onChange={(e) => updateField("phoneNumber", e.target.value)}
+                  onChange={(value) => updateField("phoneNumber", value)}
                   className="h-11 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
                   required
                 />
-                <p className="text-xs text-white/60">
-                  Use an international format (e.g. +20 123 456 7890).
-                </p>
               </div>
 
               <div className="space-y-2">
@@ -191,7 +187,8 @@ export default function SignUpPage() {
                     <SelectValue placeholder="Select your level" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="beginner">Beginner (0-1300 points)</SelectItem>
+                    <SelectItem value="first_time">First Time (300-650 points)</SelectItem>
+                    <SelectItem value="beginner">Beginner (651-1300 points)</SelectItem>
                     <SelectItem value="intermediate">Intermediate (1301-1700 points)</SelectItem>
                     <SelectItem value="advanced">Advanced (1701+ points)</SelectItem>
                   </SelectContent>

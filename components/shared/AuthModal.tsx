@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PasswordInput from "./PasswordInput";
+import PhoneInput from "./PhoneInput";
 
 interface AuthModalProps {
   open: boolean;
@@ -250,20 +251,15 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
       </div>
       <div className="space-y-0.5">
         <label className="text-[11px] sm:text-xs font-medium">Phone number</label>
-        <Input
-          type="tel"
-          placeholder="+201234567890"
+        <PhoneInput
           value={signUpForm.phoneNumber}
-          onChange={(e) => {
-            setSignUpForm((prev) => ({ ...prev, phoneNumber: e.target.value }));
+          onChange={(value) => {
+            setSignUpForm((prev) => ({ ...prev, phoneNumber: value }));
             resetFeedback();
           }}
           className="h-8 sm:h-10 text-xs sm:text-sm"
           required
         />
-        <p className="text-[9px] sm:text-[10px] text-muted-foreground leading-tight mt-0.5">
-          Use an international format (e.g. +20 123 456 7890).
-        </p>
       </div>
       <div className="space-y-0.5">
         <label className="text-[11px] sm:text-xs font-medium">Gender *</label>
@@ -293,7 +289,8 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
           required
         >
           <option value="">Select your level</option>
-          <option value="beginner">Beginner (0-1300 points)</option>
+          <option value="first_time">First Time (300-650 points)</option>
+          <option value="beginner">Beginner (651-1300 points)</option>
           <option value="intermediate">Intermediate (1301-1700 points)</option>
           <option value="advanced">Advanced (1701+ points)</option>
         </select>

@@ -73,8 +73,12 @@ export async function POST(req: NextRequest) {
     let initialRankPoints = 1400;
     if ((role || "rider") === "rider" && initialTier) {
       switch (initialTier.toLowerCase()) {
+        case "first_time":
+        case "firsttime":
+          initialRankPoints = 475; // Middle of 300-650 range
+          break;
         case "beginner":
-          initialRankPoints = 650; // Middle of 0-1300 range
+          initialRankPoints = 975; // Middle of 651-1300 range
           break;
         case "intermediate":
           initialRankPoints = 1500; // Middle of 1301-1700 range
