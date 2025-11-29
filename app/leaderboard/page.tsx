@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Trophy, Calendar, Search, TrendingUp, Award, Crown, ArrowLeft, Home } from "lucide-react";
+import { Trophy, Search, TrendingUp, Award, Crown, ArrowLeft, Home } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -174,16 +174,6 @@ export default function LeaderboardPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col gap-4 md:flex-row">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">2025</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  Week {Math.floor((new Date().getTime() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))}
-                </span>
-              </div>
               <div className="flex-1">
                 <Select value={selectedLeague} onValueChange={setSelectedLeague}>
                   <SelectTrigger>

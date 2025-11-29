@@ -74,7 +74,7 @@ export default function Hero() {
               {/* Leaderboard Button - Text button, positioned above the text */}
               <Link
                 href="/leaderboard"
-                className="group absolute -top-32 z-50 rounded-full border-4 border-black bg-white/10 px-8 py-3 backdrop-blur-md text-white font-semibold text-lg transition-all duration-300 hover:scale-110 hover:bg-white/20 hover:shadow-2xl"
+                className="group absolute -top-32 z-50 rounded-full bg-gradient-to-b from-white/30 to-white/10 px-8 py-3 backdrop-blur-md text-white font-bold text-lg shadow-[0_4px_14px_0_rgba(255,255,255,0.25),inset_0_1px_0_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:scale-110 hover:from-white/40 hover:to-white/20 hover:shadow-[0_6px_20px_0_rgba(255,255,255,0.35),inset_0_1px_0_0_rgba(255,255,255,0.4)]"
                 aria-label="View Leaderboard"
               >
                 Leaderboard
@@ -96,7 +96,7 @@ export default function Hero() {
               {/* Leaderboard Button - Text button, positioned above the text */}
               <Link
                 href="/leaderboard"
-                className="group absolute -top-24 z-50 rounded-full border-4 border-black bg-white/10 px-6 py-2.5 backdrop-blur-md text-white font-semibold text-base transition-all duration-300 hover:scale-110 hover:bg-white/20 hover:shadow-2xl"
+                className="group absolute -top-24 z-50 rounded-full bg-gradient-to-b from-white/30 to-white/10 px-6 py-2.5 backdrop-blur-md text-white font-bold text-base shadow-[0_4px_14px_0_rgba(255,255,255,0.25),inset_0_1px_0_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:scale-110 hover:from-white/40 hover:to-white/20 hover:shadow-[0_6px_20px_0_rgba(255,255,255,0.35),inset_0_1px_0_0_rgba(255,255,255,0.4)]"
                 aria-label="View Leaderboard"
               >
                 Leaderboard

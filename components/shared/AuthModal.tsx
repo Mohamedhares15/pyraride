@@ -360,13 +360,13 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[95vh] w-[95vw] max-w-lg overflow-hidden sm:w-full sm:max-w-lg">
-        <DialogHeader className="flex-shrink-0">
+      <DialogContent className="flex max-h-[90vh] w-[90vw] max-w-lg flex-col overflow-hidden p-0 sm:w-full sm:max-w-lg">
+        <DialogHeader className="flex-shrink-0 px-6 pt-6">
           <DialogTitle>
             {activeTab === "forgot" ? "Reset your password" : "Welcome to PyraRide"}
           </DialogTitle>
         </DialogHeader>
-        <div className="overflow-y-auto overflow-x-hidden pr-2 -mr-2 max-h-[calc(95vh-100px)]">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 pb-6">
           {activeTab === "forgot" ? (
             renderForgotForm()
           ) : (
@@ -375,10 +375,10 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
-              <TabsContent value="signin" className="space-y-4 mt-4">
+              <TabsContent value="signin" className="space-y-4 mt-0">
                 {renderSignInForm()}
               </TabsContent>
-              <TabsContent value="signup" className="space-y-4 mt-4 pb-4">
+              <TabsContent value="signup" className="space-y-3 mt-0 pb-2">
                 {renderSignUpForm()}
               </TabsContent>
             </Tabs>
