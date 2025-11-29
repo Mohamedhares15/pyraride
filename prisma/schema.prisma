@@ -24,16 +24,16 @@ enum GalleryItemStatus {
 }
 
 model GalleryItem {
-  id          String            @id @default(uuid())
-  url         String
-  caption     String?
-  status      GalleryItemStatus @default(pending)
-  uploadedBy  String?           // Optional: if we want to track who uploaded it (could be public/anonymous initially)
-  reviewedBy  String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id         String            @id @default(uuid())
+  url        String
+  caption    String?
+  status     GalleryItemStatus @default(pending)
+  uploadedBy String? // Optional: if we want to track who uploaded it (could be public/anonymous initially)
+  reviewedBy String?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
 
-  reviewer    User?             @relation("GalleryReviewer", fields: [reviewedBy], references: [id])
+  reviewer User? @relation("GalleryReviewer", fields: [reviewedBy], references: [id])
 
   @@index([status])
 }
@@ -114,7 +114,7 @@ model User {
   horseChangeReviews   HorseChangeRequest[] @relation("HorseChangeReviewer")
   rideResults          RideResult[]
   leagueStandings      LeagueStanding[]
-  reviewedGalleryItems GalleryItem[]    @relation("GalleryReviewer")
+  reviewedGalleryItems GalleryItem[]        @relation("GalleryReviewer")
 }
 
 model RiderRank {
@@ -152,13 +152,14 @@ model Stable {
   ownerId          String // Primary owner
 
   // Relations
-  owner        User          @relation("StableOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  owners       User[]        @relation("StableOwners")
-  horses       Horse[]
-  bookings     Booking[]
-  reviews      Review[]
-  blockedSlots BlockedSlot[]
-  rideResults  RideResult[]
+  owner             User               @relation("StableOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  owners            User[]             @relation("StableOwners")
+  horses            Horse[]
+  bookings          Booking[]
+  reviews           Review[]
+  blockedSlots      BlockedSlot[]
+  availabilitySlots AvailabilitySlot[]
+  rideResults       RideResult[]
 }
 
 model Horse {
@@ -183,13 +184,14 @@ model Horse {
   tier              HorseTier? @relation(fields: [tierId], references: [id])
 
   // Relations
-  stable         Stable               @relation(fields: [stableId], references: [id], onDelete: Cascade)
-  bookings       Booking[]
-  reviews        Review[]
-  media          HorseMedia[]
-  changeRequests HorseChangeRequest[]
-  rideResults    RideResult[]
-  blockedSlots   BlockedSlot[]
+  stable            Stable               @relation(fields: [stableId], references: [id], onDelete: Cascade)
+  bookings          Booking[]
+  reviews           Review[]
+  media             HorseMedia[]
+  changeRequests    HorseChangeRequest[]
+  rideResults       RideResult[]
+  blockedSlots      BlockedSlot[]
+  availabilitySlots AvailabilitySlot[]
 }
 
 model BlockedSlot {
@@ -206,6 +208,26 @@ model BlockedSlot {
 
   @@index([stableId])
   @@index([horseId])
+}
+
+model AvailabilitySlot {
+  id        String   @id @default(uuid())
+  stableId  String
+  horseId   String? // Optional: if null, applies to entire stable
+  date      DateTime @db.Date
+  startTime DateTime
+  endTime   DateTime
+  isBooked  Boolean  @default(false)
+  bookingId String?  @unique
+  createdAt DateTime @default(now())
+
+  stable  Stable   @relation(fields: [stableId], references: [id], onDelete: Cascade)
+  horse   Horse?   @relation(fields: [horseId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@index([stableId])
+  @@index([horseId])
+  @@index([date])
 }
 
 model RideResult {
@@ -308,12 +330,13 @@ model Booking {
   updatedAt          DateTime      @updatedAt
 
   // Relations
-  rider       User         @relation(fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  stable      Stable       @relation(fields: [stableId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  horse       Horse        @relation(fields: [horseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  review      Review? // A booking can have one review
-  riderReview RiderReview? // A booking can have one rider review from stable owner
-  rideResult  RideResult?
+  rider            User              @relation(fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  stable           Stable            @relation(fields: [stableId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  horse            Horse             @relation(fields: [horseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  review           Review? // A booking can have one review
+  riderReview      RiderReview? // A booking can have one rider review from stable owner
+  rideResult       RideResult?
+  availabilitySlot AvailabilitySlot? // The availability slot consumed by this booking
 }
 
 model Review {

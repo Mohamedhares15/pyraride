@@ -9,8 +9,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Ban, Clock } from "lucide-react";
+import { Loader2, Ban, Clock, ArrowLeft, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { CreateSlotsDialog } from "@/components/schedule/CreateSlotsDialog";
 
 export default function SchedulePage() {
     const { data: session, status } = useSession();
@@ -21,6 +22,7 @@ export default function SchedulePage() {
     const [slots, setSlots] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [stableId, setStableId] = useState<string | null>(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     useEffect(() => {
         if (status === "loading") return;
@@ -99,23 +101,32 @@ export default function SchedulePage() {
     if (status === "loading") return <Loader2 className="h-8 w-8 animate-spin" />;
 
     return (
-        <div className="min-h-screen bg-background p-8">
-            <div className="mx-auto max-w-6xl space-y-8">
+        <div className="min-h-screen bg-background p-4 md:p-8">
+            <div className="mx-auto max-w-6xl space-y-6">
                 <div>
-                    <h1 className="font-display text-3xl font-bold">Schedule Management</h1>
-                    <p className="text-muted-foreground">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="mb-4 gap-2"
+                        onClick={() => router.push("/dashboard")}
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to Dashboard
+                    </Button>
+                    <h1 className="font-display text-2xl md:text-3xl font-bold">Schedule Management</h1>
+                    <p className="text-sm md:text-base text-muted-foreground">
                         Manage availability and block slots for your stable or specific horses.
                     </p>
                 </div>
 
-                <div className="grid gap-8 md:grid-cols-[300px_1fr]">
+                <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
                     <div className="space-y-4">
-                        <Card className="p-4">
+                        <Card className="p-3">
                             <Calendar
                                 mode="single"
                                 selected={date}
                                 onSelect={setDate}
-                                className="rounded-md border"
+                                className="rounded-md"
                                 disabled={(date) => date < startOfToday()}
                             />
                         </Card>
@@ -139,9 +150,15 @@ export default function SchedulePage() {
                     </div>
 
                     <Card className="p-6">
-                        <h2 className="mb-4 text-xl font-semibold">
-                            Availability for {date ? format(date, "MMMM d, yyyy") : "Selected Date"}
-                        </h2>
+                        <div className="mb-4 flex items-center justify-between">
+                            <h2 className="text-xl font-semibold">
+                                Availability for {date ? format(date, "MMMM d, yyyy") : "Selected Date"}
+                            </h2>
+                            <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
+                                <Plus className="h-4 w-4" />
+                                Create Slots
+                            </Button>
+                        </div>
 
                         {isLoading ? (
                             <div className="flex justify-center p-8">
@@ -171,6 +188,15 @@ export default function SchedulePage() {
                         )}
                     </Card>
                 </div>
+
+                <CreateSlotsDialog
+                    open={isDialogOpen}
+                    onOpenChange={setIsDialogOpen}
+                    stableId={stableId || ""}
+                    selectedDate={date || new Date()}
+                    horses={horses}
+                    onSlotsCreated={fetchSlots}
+                />
             </div>
         </div>
     );

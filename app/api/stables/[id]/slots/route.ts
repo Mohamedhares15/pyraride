@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-export const dynamic = "force-dynamic";
-
+// GET: Fetch availability slots for a stable
 export async function GET(
   req: Request,
   { params }: { params: { id: string } }
@@ -16,105 +17,108 @@ export async function GET(
       return new NextResponse("Date is required", { status: 400 });
     }
 
-    const stableId = params.id;
-    const selectedDate = new Date(date);
-    const startOfDay = new Date(selectedDate.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(selectedDate.setHours(23, 59, 59, 999));
-    const now = new Date();
-
-    // Fetch stable settings (lead time)
-    const stable = await prisma.stable.findUnique({
-      where: { id: stableId },
-      select: { minLeadTimeHours: true },
-    });
-
-    const minLeadTimeHours = stable?.minLeadTimeHours || 8; // Default 8 hours
-    const minBookingTime = new Date(now.getTime() + minLeadTimeHours * 60 * 60 * 1000);
-
-    // Fetch confirmed bookings for this stable on this date
-    const bookings = await prisma.booking.findMany({
+    const slots = await prisma.availabilitySlot.findMany({
       where: {
-        stableId,
-        status: "confirmed",
-        startTime: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
-        ...(horseId ? { horseId } : {}), // Filter by horse if provided
+        stableId: params.id,
+        date: new Date(date),
+        ...(horseId && horseId !== "all" ? { horseId } : {}),
+        isBooked: false,
       },
-      select: {
-        startTime: true,
-        endTime: true,
-        horseId: true,
+      orderBy: {
+        startTime: "asc",
       },
     });
-
-    // Fetch blocked slots
-    const blockedSlots = await prisma.blockedSlot.findMany({
-      where: {
-        stableId,
-        startTime: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
-        OR: [
-          { horseId: null }, // Blocks entire stable
-          ...(horseId ? [{ horseId }] : []), // Blocks specific horse
-        ],
-      },
-      select: {
-        startTime: true,
-        endTime: true,
-        horseId: true,
-      },
-    });
-
-    // Define operating hours (e.g., 8 AM to 6 PM) - This could be dynamic later
-    const operatingHours = { start: 8, end: 18 };
-    const slots = [];
-
-    for (let hour = operatingHours.start; hour < operatingHours.end; hour++) {
-      const slotStart = new Date(startOfDay);
-      slotStart.setHours(hour, 0, 0, 0);
-      const slotEnd = new Date(startOfDay);
-      slotEnd.setHours(hour + 1, 0, 0, 0);
-
-      // Check lead time
-      if (slotStart < minBookingTime) {
-        continue; // Skip if within lead time
-      }
-
-      // Check if slot is taken by a booking
-      const isBooked = bookings.some((booking) => {
-        const bookingStart = new Date(booking.startTime);
-        const bookingEnd = new Date(booking.endTime);
-        // Check overlap
-        return (
-          (horseId ? booking.horseId === horseId : true) && // If checking specific horse, match ID
-          bookingStart < slotEnd &&
-          bookingEnd > slotStart
-        );
-      });
-
-      // Check if slot is blocked by owner
-      const isBlocked = blockedSlots.some((block) => {
-        const blockStart = new Date(block.startTime);
-        const blockEnd = new Date(block.endTime);
-        return blockStart < slotEnd && blockEnd > slotStart;
-      });
-
-      if (!isBooked && !isBlocked) {
-        slots.push({
-          startTime: slotStart.toISOString(),
-          endTime: slotEnd.toISOString(),
-          available: true,
-        });
-      }
-    }
 
     return NextResponse.json(slots);
   } catch (error) {
-    console.error("Error fetching slots:", error);
+    console.error("Error fetching availability slots:", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
+
+// POST: Create availability slots
+export async function POST(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "stable_owner") {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    const {
+      date,
+      startTime,
+      endTime,
+      horseId,
+      duration = 60, // Default 1 hour slots
+    } = await req.json();
+
+    if (!date || !startTime || !endTime) {
+      return new NextResponse("Missing required fields", { status: 400 });
+    }
+
+    // Generate slots based on duration
+    const slots = [];
+    const start = new Date(`${date}T${startTime}`);
+    const end = new Date(`${date}T${endTime}`);
+
+    let current = new Date(start);
+    while (current < end) {
+      const slotEnd = new Date(current.getTime() + duration * 60000);
+      if (slotEnd <= end) {
+        slots.push({
+          stableId: params.id,
+          horseId: horseId || null,
+          date: new Date(date),
+          startTime: new Date(current),
+          endTime: new Date(slotEnd),
+        });
+      }
+      current = slotEnd;
+    }
+
+    // Create all slots
+    const created = await prisma.availabilitySlot.createMany({
+      data: slots,
+    });
+
+    return NextResponse.json({
+      message: `Created ${created.count} availability slots`,
+      count: created.count,
+    });
+  } catch (error) {
+    console.error("Error creating availability slots:", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
+
+// DELETE: Remove availability slots
+export async function DELETE(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "stable_owner") {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const slotId = searchParams.get("slotId");
+
+    if (!slotId) {
+      return new NextResponse("Slot ID required", { status: 400 });
+    }
+
+    await prisma.availabilitySlot.delete({
+      where: { id: slotId, stableId: params.id },
+    });
+
+    return NextResponse.json({ message: "Slot deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting availability slot:", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
