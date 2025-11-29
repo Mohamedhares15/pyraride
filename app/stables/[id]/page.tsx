@@ -100,7 +100,7 @@ export default function StableDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [availableSlots, setAvailableSlots] = useState<Record<string, string[]>>({});
+  const [availableSlots, setAvailableSlots] = useState<Record<string, Record<string, string[]>>>({});
   const [takenSlots, setTakenSlots] = useState<Record<string, Record<string, any[]>>>({});
   const [portfolioViewer, setPortfolioViewer] = useState<PortfolioViewerState | null>(null);
   const { data: session } = useSession();
@@ -146,9 +146,10 @@ export default function StableDetailPage() {
   useEffect(() => {
     async function fetchStable() {
       try {
+        const today = new Date().toISOString().split("T")[0];
         const [stableRes, slotsRes] = await Promise.all([
           fetch(`/api/stables/${id}`),
-          fetch(`/api/stables/${id}/slots`),
+          fetch(`/api/stables/${id}/slots?date=${today}`),
         ]);
 
         if (!stableRes.ok) {
@@ -160,8 +161,42 @@ export default function StableDetailPage() {
 
         if (slotsRes.ok) {
           const slotsData = await slotsRes.json();
-          setAvailableSlots(slotsData.availableSlots || {});
-          setTakenSlots(slotsData.takenSlots || {});
+          // Process slots into available/taken maps
+          const newAvailable: Record<string, Record<string, string[]>> = { [today]: {} };
+          const newTaken: Record<string, Record<string, any[]>> = { [today]: {} };
+
+          // Initialize for all horses
+          stableData.horses.forEach((horse: any) => {
+            newAvailable[today][horse.id] = [];
+            newTaken[today][horse.id] = [];
+          });
+
+          slotsData.forEach((slot: any) => {
+            const time = new Date(slot.startTime).toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+            });
+
+            // If horseId is null, it applies to ALL horses
+            const targetHorses = slot.horseId
+              ? [stableData.horses.find((h: any) => h.id === slot.horseId)].filter(Boolean)
+              : stableData.horses || [];
+
+            targetHorses.forEach((horse: any) => {
+              if (!horse) return;
+
+              if (slot.isBooked) {
+                if (!newTaken[today][horse.id]) newTaken[today][horse.id] = [];
+                newTaken[today][horse.id].push({ ...slot, startTime: slot.startTime });
+              } else {
+                if (!newAvailable[today][horse.id]) newAvailable[today][horse.id] = [];
+                newAvailable[today][horse.id].push(time);
+              }
+            });
+          });
+
+          setAvailableSlots(newAvailable);
+          setTakenSlots(newTaken);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load stable");
@@ -176,24 +211,64 @@ export default function StableDetailPage() {
   }, [id]);
 
   // Refresh slots every 15 seconds (more frequent updates)
+  // Refresh slots every 15 seconds (more frequent updates)
   useEffect(() => {
     if (!id) return;
 
-    const interval = setInterval(async () => {
+    const fetchSlots = async () => {
       try {
-        const slotsRes = await fetch(`/api/stables/${id}/slots`);
+        const today = new Date().toISOString().split("T")[0];
+        const slotsRes = await fetch(`/api/stables/${id}/slots?date=${today}`);
+
         if (slotsRes.ok) {
           const slotsData = await slotsRes.json();
-          setAvailableSlots(slotsData.availableSlots || {});
-          setTakenSlots(slotsData.takenSlots || {});
+          // Process slots into available/taken maps
+          const newAvailable: Record<string, Record<string, string[]>> = { [today]: {} };
+          const newTaken: Record<string, Record<string, any[]>> = { [today]: {} };
+
+          // Initialize for all horses
+          stable?.horses.forEach(horse => {
+            newAvailable[today][horse.id] = [];
+            newTaken[today][horse.id] = [];
+          });
+
+          slotsData.forEach((slot: any) => {
+            const time = new Date(slot.startTime).toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+            });
+
+            // If horseId is null, it applies to ALL horses
+            const targetHorses = slot.horseId
+              ? [stable?.horses.find(h => h.id === slot.horseId)].filter(Boolean)
+              : stable?.horses || [];
+
+            targetHorses.forEach(horse => {
+              if (!horse) return;
+
+              if (slot.isBooked) {
+                if (!newTaken[today][horse.id]) newTaken[today][horse.id] = [];
+                newTaken[today][horse.id].push({ ...slot, startTime: slot.startTime });
+              } else {
+                if (!newAvailable[today][horse.id]) newAvailable[today][horse.id] = [];
+                newAvailable[today][horse.id].push(time);
+              }
+            });
+          });
+
+          setAvailableSlots(newAvailable);
+          setTakenSlots(newTaken);
         }
       } catch (err) {
         console.error("Error refreshing slots:", err);
       }
-    }, 15000); // Refresh every 15 seconds
+    };
+
+    fetchSlots(); // Fetch immediately
+    const interval = setInterval(fetchSlots, 15000); // Refresh every 15 seconds
 
     return () => clearInterval(interval);
-  }, [id]);
+  }, [id, stable]);
 
   useEffect(() => {
     if (isLoading || !stable) return;
@@ -492,15 +567,13 @@ export default function StableDetailPage() {
                   {stable.horses.map((horse) => {
                     const today = new Date().toISOString().split("T")[0];
                     const horseSlots = takenSlots[today]?.[horse.id] || [];
-                    const availableSlotsToday = availableSlots[today] || [];
+                    const availableTimes = availableSlots[today]?.[horse.id] || [];
+
                     const takenTimes = horseSlots.map((slot: any) =>
                       new Date(slot.startTime).toLocaleTimeString("en-US", {
                         hour: "numeric",
                         minute: "2-digit",
                       })
-                    );
-                    const availableTimes = availableSlotsToday.filter(
-                      (time: string) => !takenTimes.includes(time)
                     );
 
                     const horsePriceLabel =
