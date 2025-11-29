@@ -24,6 +24,15 @@ export default function Hero() {
   const [location, setLocation] = useState("all");
   const [date, setDate] = useState(getToday);
 
+  const [locations, setLocations] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/locations")
+      .then((res) => res.json())
+      .then((data) => setLocations(data))
+      .catch((err) => console.error("Failed to fetch locations:", err));
+  }, []);
+
   const displayDate = (value: string) => {
     if (!value) return "Select date";
     const formatter = new Intl.DateTimeFormat("en-US", {
@@ -79,7 +88,7 @@ export default function Hero() {
               >
                 Leaderboard
               </Link>
-              
+
               <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-2xl md:text-5xl lg:text-7xl">
                 THE PYRAMIDS, UNFORGETTABLE.
               </h1>
@@ -101,7 +110,7 @@ export default function Hero() {
               >
                 Leaderboard
               </Link>
-              
+
               <div className="flex w-full items-center justify-center gap-4 text-[11px] font-semibold uppercase tracking-[0.6em] text-white/70">
                 <span className="hero-dash-line flex-1 max-w-[72px]" />
                 <span>PYRARIDE</span>
@@ -177,8 +186,11 @@ export default function Hero() {
                   </SelectTrigger>
                   <SelectContent className="z-[120] border-white/15 bg-black/90 text-white md:border-border md:bg-card md:text-foreground">
                     <SelectItem value="all">All Locations</SelectItem>
-                    <SelectItem value="giza">Giza Plateau</SelectItem>
-                    <SelectItem value="saqqara">Saqqara Desert</SelectItem>
+                    {locations.map((loc) => (
+                      <SelectItem key={loc.id} value={loc.name}>
+                        {loc.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
 

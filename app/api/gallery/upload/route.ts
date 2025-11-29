@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile } from "fs/promises";
 import { join } from "path";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -8,7 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File;
-    
+
     if (!file) {
       return NextResponse.json(
         { error: "No file provided" },
@@ -41,30 +42,40 @@ export async function POST(req: NextRequest) {
     const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
     const filename = `${timestamp}-${sanitizedName}`;
     const uploadDir = join(process.cwd(), "public", "uploads", "gallery");
-    
+
     try {
       // Ensure directory exists (will be created by mkdir in production)
       const fs = await import("fs/promises");
       await fs.mkdir(uploadDir, { recursive: true });
-      
+
       // Save file
       const filepath = join(uploadDir, filename);
       await fs.writeFile(filepath, buffer);
-      
+
       // Return success with relative URL
       const fileUrl = `/uploads/gallery/${filename}`;
-      
+
+      // Save to database
+      const galleryItem = await prisma.galleryItem.create({
+        data: {
+          url: fileUrl,
+          status: "pending",
+          uploadedBy: "public", // Or session user if available
+        },
+      });
+
       return NextResponse.json({
         success: true,
         message: "Image uploaded successfully and is pending review",
         filename: filename,
         url: fileUrl,
+        item: galleryItem,
       });
     } catch (dirError) {
       // If directory creation fails (e.g., in Vercel), just return success
       // In production with cloud storage, you'd upload to S3/Cloudinary here
       console.warn("Could not save file locally (expected in production):", dirError);
-      
+
       return NextResponse.json({
         success: true,
         message: "Image received and is pending review. In production, this will be saved to cloud storage.",

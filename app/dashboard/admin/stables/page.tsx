@@ -147,7 +147,7 @@ export default function AdminStablesPage() {
     try {
       setUpdatingCommission(stableId);
       const rate = commissionRate[stableId];
-      
+
       if (rate === undefined || rate < 0 || rate > 1) {
         alert("Commission rate must be between 0 and 1 (e.g., 0.15 for 15%)");
         return;
@@ -324,7 +324,7 @@ export default function AdminStablesPage() {
                       <Building2 className="h-4 w-4 text-muted-foreground" />
                       <span className="text-muted-foreground">Owner:</span>
                       <span className="font-medium">
-                        {stable.owner.fullName || stable.owner.email}
+                        {stable.owner?.fullName || stable.owner?.email}
                       </span>
                     </div>
                     {stable._count && (
@@ -350,13 +350,12 @@ export default function AdminStablesPage() {
                     <div>
                       <span className="text-muted-foreground">Status: </span>
                       <span
-                        className={`font-medium ${
-                          stable.status === "approved"
+                        className={`font-medium ${stable.status === "approved"
                             ? "text-green-600"
                             : stable.status === "pending_approval"
-                            ? "text-yellow-600"
-                            : "text-red-600"
-                        }`}
+                              ? "text-yellow-600"
+                              : "text-red-600"
+                          }`}
                       >
                         {stable.status.replace("_", " ").toUpperCase()}
                       </span>

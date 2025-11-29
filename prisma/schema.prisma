@@ -14,6 +14,28 @@ enum Role {
   rider
   stable_owner
   admin
+  cx_media
+}
+
+enum GalleryItemStatus {
+  pending
+  approved
+  rejected
+}
+
+model GalleryItem {
+  id          String            @id @default(uuid())
+  url         String
+  caption     String?
+  status      GalleryItemStatus @default(pending)
+  uploadedBy  String?           // Optional: if we want to track who uploaded it (could be public/anonymous initially)
+  reviewedBy  String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  reviewer    User?             @relation("GalleryReviewer", fields: [reviewedBy], references: [id])
+
+  @@index([status])
 }
 
 enum Gender {
@@ -92,6 +114,7 @@ model User {
   horseChangeReviews   HorseChangeRequest[] @relation("HorseChangeReviewer")
   rideResults          RideResult[]
   leagueStandings      LeagueStanding[]
+  reviewedGalleryItems GalleryItem[]    @relation("GalleryReviewer")
 }
 
 model RiderRank {

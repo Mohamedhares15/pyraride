@@ -94,7 +94,7 @@ export default function AdminHorsesPage() {
             const res = await fetch(`/api/admin/horses/${horseId}/admin-tier`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     adminTier: tier || null,
                     firstTimeFriendly: tier === "Beginner" ? firstTimeFriendly : null
                 }),
@@ -104,8 +104,8 @@ export default function AdminHorsesPage() {
                 toast.success(`Admin tier updated for horse`);
                 // Update local state
                 setHorses((prev) =>
-                    prev.map((h) => (h.id === horseId ? { 
-                        ...h, 
+                    prev.map((h) => (h.id === horseId ? {
+                        ...h,
                         adminTier: tier || null,
                         firstTimeFriendly: tier === "Beginner" ? firstTimeFriendly : null
                     } : h))
@@ -202,14 +202,15 @@ export default function AdminHorsesPage() {
                                     <div>
                                         <Label htmlFor={`tier-${horse.id}`}>Admin Tier</Label>
                                         <Select
-                                            value={selectedTiers[horse.id] || ""}
+                                            value={selectedTiers[horse.id] || "unassigned"}
                                             onValueChange={(value) => {
+                                                const newValue = value === "unassigned" ? "" : value;
                                                 setSelectedTiers((prev) => ({
                                                     ...prev,
-                                                    [horse.id]: value,
+                                                    [horse.id]: newValue,
                                                 }));
                                                 // Reset firstTimeFriendly if not Beginner
-                                                if (value !== "Beginner") {
+                                                if (newValue !== "Beginner") {
                                                     setSelectedFirstTimeFriendly((prev) => ({
                                                         ...prev,
                                                         [horse.id]: null,
@@ -221,7 +222,7 @@ export default function AdminHorsesPage() {
                                                 <SelectValue placeholder="Select tier" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="">Not Set</SelectItem>
+                                                <SelectItem value="unassigned">Not Set</SelectItem>
                                                 <SelectItem value="Beginner">Beginner</SelectItem>
                                                 <SelectItem value="Intermediate">Intermediate</SelectItem>
                                                 <SelectItem value="Advanced">Advanced</SelectItem>
@@ -236,8 +237,8 @@ export default function AdminHorsesPage() {
                                                     selectedFirstTimeFriendly[horse.id] === true
                                                         ? "true"
                                                         : selectedFirstTimeFriendly[horse.id] === false
-                                                        ? "false"
-                                                        : ""
+                                                            ? "false"
+                                                            : "unassigned"
                                                 }
                                                 onValueChange={(value) => {
                                                     setSelectedFirstTimeFriendly((prev) => ({
@@ -250,7 +251,7 @@ export default function AdminHorsesPage() {
                                                     <SelectValue placeholder="Select option" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="">Not Set</SelectItem>
+                                                    <SelectItem value="unassigned">Not Set</SelectItem>
                                                     <SelectItem value="true">First Time Friendly</SelectItem>
                                                     <SelectItem value="false">Not First Time Friendly</SelectItem>
                                                 </SelectContent>
@@ -262,8 +263,8 @@ export default function AdminHorsesPage() {
                                         disabled={
                                             isSaving ||
                                             ((selectedTiers[horse.id] || "") === (horse.adminTier || "") &&
-                                             (selectedTiers[horse.id] !== "Beginner" ||
-                                              selectedFirstTimeFriendly[horse.id] === horse.firstTimeFriendly))
+                                                (selectedTiers[horse.id] !== "Beginner" ||
+                                                    selectedFirstTimeFriendly[horse.id] === horse.firstTimeFriendly))
                                         }
                                         className="w-full"
                                         size="sm"
