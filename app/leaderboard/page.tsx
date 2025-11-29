@@ -125,34 +125,36 @@ export default function LeaderboardPage() {
   const leagueIcon = leagueIcons[selectedLeague.toLowerCase()] || "🪵";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95">
+    <div className="bg-gradient-to-b from-black/80 via-black/90 to-black/95 pb-8">
       {/* Header */}
-      <div className="border-b border-white/10 bg-black/60 py-12 backdrop-blur-lg">
+      <div className="border-b border-white/10 bg-black/60 py-8 md:py-12 backdrop-blur-lg">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
               <Trophy className="h-8 w-8 text-white" />
               <div>
-                <h1 className="text-3xl font-bold text-white">Leaderboard</h1>
-                <p className="text-white/70">
+                <h1 className="text-2xl md:text-3xl font-bold text-white">Leaderboard</h1>
+                <p className="text-sm md:text-base text-white/70">
                   Compete and climb the ranks to become a champion rider
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Link href="/">
                 <Button
                   variant="outline"
-                  className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                  size="sm"
+                  className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white text-xs md:text-sm"
                 >
-                  <Home className="mr-2 h-4 w-4" />
+                  <Home className="mr-2 h-3 w-3 md:h-4 md:w-4" />
                   Home
                 </Button>
               </Link>
               <Link href="/stables">
                 <Button
                   variant="outline"
-                  className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                  size="sm"
+                  className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white text-xs md:text-sm"
                 >
                   Browse Stables
                 </Button>
