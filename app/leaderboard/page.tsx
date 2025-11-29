@@ -264,26 +264,34 @@ export default function LeaderboardPage() {
                 {filteredRiders.map((rider, index) => {
                   const rank = index + 1;
                   const riderName = rider.fullName || rider.email;
+                  // Calculate total points earned from rides (only positive points)
+                  const totalTrophies = rider.rideResults
+                    ? rider.rideResults
+                        .filter((result) => result.pointsChange > 0)
+                        .reduce((sum, result) => sum + result.pointsChange, 0)
+                    : 0;
                   return (
                     <div
                       key={rider.id}
-                      className="grid grid-cols-12 items-center gap-4 rounded-lg border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10 backdrop-blur-sm"
+                      className="grid grid-cols-12 items-center gap-2 md:gap-4 rounded-lg border border-white/10 bg-white/5 p-3 md:p-4 transition-colors hover:bg-white/10 backdrop-blur-sm"
                     >
-                      <div className="col-span-2">{getRankBadge(rank)}</div>
-                      <div className="col-span-7 flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 border border-white/20">
-                          <span className="text-sm font-semibold text-white">
+                      <div className="col-span-2 flex justify-center md:justify-start">{getRankBadge(rank)}</div>
+                      <div className="col-span-7 flex items-center gap-2 md:gap-3 min-w-0">
+                        <div className="flex h-8 w-8 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-full bg-white/10 border border-white/20">
+                          <span className="text-xs md:text-sm font-semibold text-white">
                             {riderName.charAt(0).toUpperCase()}
                           </span>
                         </div>
-                        <div>
-                          <p className="font-medium text-white">{riderName}</p>
-                          <p className="text-xs text-white/60">{rider.email}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-white text-sm md:text-base truncate">{riderName}</p>
+                          <p className="text-xs text-white/60 truncate hidden md:block">{rider.email}</p>
                         </div>
                       </div>
                       <div className="col-span-3 text-right">
-                        <span className="font-semibold text-white">{rider.rankPoints}</span>
-                        <span className="ml-1 text-sm text-white/60">pts</span>
+                        <div className="flex items-center justify-end gap-1 md:gap-2">
+                          <Trophy className="h-4 w-4 md:h-5 md:w-5 text-yellow-500" />
+                          <span className="font-semibold text-white text-sm md:text-base">{totalTrophies}</span>
+                        </div>
                       </div>
                     </div>
                   );
