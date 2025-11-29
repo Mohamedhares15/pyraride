@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,15 @@ export default function SearchFilters({
   onSortChange,
   onClear,
 }: SearchFiltersProps) {
+  const [locations, setLocations] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/locations")
+      .then((res) => res.json())
+      .then((data) => setLocations(data))
+      .catch((err) => console.error("Failed to fetch locations:", err));
+  }, []);
+
   const hasActiveFilters =
     search || location !== "all" || minRating !== "0";
 
@@ -84,8 +93,11 @@ export default function SearchFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Locations</SelectItem>
-              <SelectItem value="Giza">Giza</SelectItem>
-              <SelectItem value="Saqqara">Saqqara</SelectItem>
+              {locations.map((loc) => (
+                <SelectItem key={loc.id} value={loc.name}>
+                  {loc.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

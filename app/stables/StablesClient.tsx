@@ -57,10 +57,7 @@ export default function StablesClient() {
 
   const normalizeLocationParam = (value: string | null) => {
     if (!value) return "all";
-    const lower = value.toLowerCase();
-    if (lower === "giza") return "Giza";
-    if (lower === "saqqara") return "Saqqara";
-    return "all";
+    return value;
   };
 
   const [search, setSearch] = useState(searchParams.get("search") || "");
@@ -80,7 +77,7 @@ export default function StablesClient() {
       if (sort && sort !== "recommended") params.append("sort", sort);
 
       const response = await fetch(`/api/stables?${params.toString()}`);
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch stables");
       }
@@ -91,35 +88,35 @@ export default function StablesClient() {
         (data.stables || []).map((item: any) =>
           sort === "price-asc" || sort === "price-desc"
             ? ({
-                type: "horse",
-                id: item.id,
-                name: item.name,
-                imageUrl: item.imageUrl || "/hero-bg.webp",
-                imageUrls: item.imageUrls || [],
-                media: item.media || [],
-                rating: item.rating,
-                reviewCount: item.reviewCount ?? 0,
-                totalBookings: item.totalBookings,
-                pricePerHour: Number(item.pricePerHour ?? 0),
-                stableId: item.stableId,
-                stableName: item.stableName,
-                stableLocation: item.stableLocation,
-                distanceKm: item.distanceKm,
-              } as HorseResult)
+              type: "horse",
+              id: item.id,
+              name: item.name,
+              imageUrl: item.imageUrl || "/hero-bg.webp",
+              imageUrls: item.imageUrls || [],
+              media: item.media || [],
+              rating: item.rating,
+              reviewCount: item.reviewCount ?? 0,
+              totalBookings: item.totalBookings,
+              pricePerHour: Number(item.pricePerHour ?? 0),
+              stableId: item.stableId,
+              stableName: item.stableName,
+              stableLocation: item.stableLocation,
+              distanceKm: item.distanceKm,
+            } as HorseResult)
             : ({
-                type: "stable",
-                id: item.id,
-                name: item.name,
-                location: item.location,
-                address: item.address,
-                description: item.description,
-                rating: item.rating,
-                totalBookings: item.totalBookings,
-                totalReviews: item.totalReviews ?? 0,
-                imageUrl: item.imageUrl,
-                createdAt: item.createdAt,
-                distanceKm: item.distanceKm,
-              } as StableResult)
+              type: "stable",
+              id: item.id,
+              name: item.name,
+              location: item.location,
+              address: item.address,
+              description: item.description,
+              rating: item.rating,
+              totalBookings: item.totalBookings,
+              totalReviews: item.totalReviews ?? 0,
+              imageUrl: item.imageUrl,
+              createdAt: item.createdAt,
+              distanceKm: item.distanceKm,
+            } as StableResult)
         )
       );
     } catch (err) {
@@ -145,11 +142,10 @@ export default function StablesClient() {
   };
 
   const handleLocationChange = (value: string) => {
-    const normalized = value === "all" ? "all" : normalizeLocationParam(value);
-    setLocation(normalized);
+    setLocation(value);
     const params = new URLSearchParams(searchParams);
-    if (normalized !== "all") {
-      params.set("location", normalized);
+    if (value !== "all") {
+      params.set("location", value);
     } else {
       params.delete("location");
     }
@@ -207,13 +203,13 @@ export default function StablesClient() {
               Book Horse Riding at Giza & Saqqara Pyramids
             </h1>
             <p className="text-sm md:text-lg text-muted-foreground mb-4">
-              <strong>PyraRide is Egypt's first online marketplace</strong> for booking horse riding experiences 
-              at the pyramids. Compare multiple verified stables, read authentic reviews, and book instantly 
+              <strong>PyraRide is Egypt's first online marketplace</strong> for booking horse riding experiences
+              at the pyramids. Compare multiple verified stables, read authentic reviews, and book instantly
               with guaranteed best prices.
             </p>
             <p className="text-sm md:text-base text-muted-foreground">
-              <strong>Why choose PyraRide?</strong> Unlike single-stable websites, we offer multiple stables 
-              in one platform, making it easy to compare prices, locations, and reviews. All stables are 
+              <strong>Why choose PyraRide?</strong> Unlike single-stable websites, we offer multiple stables
+              in one platform, making it easy to compare prices, locations, and reviews. All stables are
               verified for safety and quality. Instant booking, secure payments, 24/7 support.
             </p>
           </div>
@@ -224,7 +220,7 @@ export default function StablesClient() {
         <div className="space-y-6 md:space-y-8">
           {/* Weather Widget */}
           <div className="mb-4 md:mb-0">
-          <WeatherWidget location={location} />
+            <WeatherWidget location={location} />
           </div>
 
           <SearchFilters
