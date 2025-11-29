@@ -60,6 +60,16 @@ export default function LeaderboardPage() {
     fetchLeague();
   }, [selectedLeague]);
 
+  // Hide footer on leaderboard page
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.textContent = "footer { display: none !important; }";
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   const fetchLeague = async () => {
     try {
       setLoading(true);
@@ -113,14 +123,7 @@ export default function LeaderboardPage() {
   const leagueIcon = leagueIcons[selectedLeague.toLowerCase()] || "🪵";
 
   return (
-    <>
-      {/* Hide global footer on leaderboard to keep page focused */}
-      <style jsx global>{`
-        footer {
-          display: none !important;
-        }
-      `}</style>
-      <div className="bg-gradient-to-b from-black/80 via-black/90 to-black/95 min-h-screen">
+    <div className="bg-gradient-to-b from-black/80 via-black/90 to-black/95 min-h-screen">
       {/* Header */}
       <div className="border-b border-white/10 bg-black/60 py-8 md:py-12 backdrop-blur-lg">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
@@ -301,7 +304,7 @@ export default function LeaderboardPage() {
           </CardContent>
         </Card>
       </div>
-    </>
+    </div>
   );
 }
 
