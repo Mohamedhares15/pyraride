@@ -68,12 +68,12 @@ export function CreateSlotsDialog({
                 setHorseId("all");
             } else {
                 const errorText = await response.text();
-                console.error("Failed to create slots:", errorText);
+                console.error(`Failed to create slots (Status: ${response.status}):`, errorText);
                 try {
                     const errorJson = JSON.parse(errorText);
-                    toast.error(errorJson.error || "Failed to create slots");
+                    toast.error(errorJson.error || `Failed to create slots: ${response.statusText}`);
                 } catch {
-                    toast.error(errorText || "Failed to create slots");
+                    toast.error(`Error ${response.status}: ${errorText.slice(0, 50)}` || "Failed to create slots");
                 }
             }
         } catch (error) {
