@@ -42,36 +42,49 @@ export async function POST() {
                     userLeagues[rider.id] = [];
                 }
                 userLeagues[rider.id].push(league.name);
-                const leaguesToRemove = leagueNames.filter(l => l !== highestLeague);
-
-                // Remove user from lower leagues
-                for (const leagueName of leaguesToRemove) {
-                    const league = leagues.find(l => l.name === leagueName);
-                    if (league) {
-                        await prisma.league.update({
-                            where: { id: league.id },
-                            data: {
-                                riders: {
-                                    disconnect: { id: userId },
-                                },
-                            },
-                        });
-                    }
-                }
-
-                fixedUsers++;
-                console.log(`[FixLeaderboard] Removed user ${userId} from leagues: ${leaguesToRemove.join(", ")}, kept in: ${highestLeague}`);
             }
         }
-    }
+
+        let fixedUsers = 0;
+
+        // For each user in multiple leagues, keep them only in their highest league
+        for (const [userId, leagueNames] of Object.entries(userLeagues)) {
+            if (leagueNames.length > 1) {
+                // Find the highest league this user is in
+                const highestLeague = leagueOrder.find(l => leagueNames.includes(l));
+
+                if (highestLeague) {
+                    // Get all leagues except the highest
+                    const leaguesToRemove = leagueNames.filter(l => l !== highestLeague);
+
+                    // Remove user from lower leagues
+                    for (const leagueName of leaguesToRemove) {
+                        const league = leagues.find(l => l.name === leagueName);
+                        if (league) {
+                            await prisma.league.update({
+                                where: { id: league.id },
+                                data: {
+                                    riders: {
+                                        disconnect: { id: userId },
+                                    },
+                                },
+                            });
+                        }
+                    }
+
+                    fixedUsers++;
+                    console.log(`[FixLeaderboard] Removed user ${userId} from leagues: ${leaguesToRemove.join(", ")}, kept in: ${highestLeague}`);
+                }
+            }
+        }
 
         return NextResponse.json({
-        success: true,
-        message: `Fixed ${fixedUsers} users`,
-        fixedUsers,
-    });
-} catch (error) {
-    console.error("[FixLeaderboard] Error:", error);
-    return new NextResponse("Internal Error", { status: 500 });
-}
+            success: true,
+            message: `Fixed ${fixedUsers} users`,
+            fixedUsers,
+        });
+    } catch (error) {
+        console.error("[FixLeaderboard] Error:", error);
+        return new NextResponse("Internal Error", { status: 500 });
+    }
 }
