@@ -36,13 +36,24 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
         setIsLoading(true);
         try {
             const formattedDate = format(date, "yyyy-MM-dd");
+            console.log(`[ScheduleGrid] Fetching slots for date: ${formattedDate}, stableId: ${stableId}`);
+
             const res = await fetch(`/api/stables/${stableId}/slots?date=${formattedDate}`);
+
+            console.log(`[ScheduleGrid] Fetch response status: ${res.status}`);
+
             if (res.ok) {
-                setSlots(await res.json());
+                const data = await res.json();
+                console.log(`[ScheduleGrid] Fetched ${data.length} slots:`, data);
+                setSlots(data);
+            } else {
+                const errorText = await res.text();
+                console.error(`[ScheduleGrid] Failed to fetch slots (${res.status}):`, errorText);
+                toast.error(`Failed to load schedule: ${res.status} - ${errorText.slice(0, 50)}`);
             }
         } catch (error) {
-            console.error("Error fetching slots:", error);
-            toast.error("Failed to load schedule");
+            console.error("[ScheduleGrid] Error fetching slots:", error);
+            toast.error(`Failed to load schedule: ${error}`);
         } finally {
             setIsLoading(false);
         }
@@ -80,6 +91,8 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
 
         // 2. If available (exists but not booked), delete it (make unavailable)
         if (slot) {
+            console.log(`[ScheduleGrid] Attempting to delete slot:`, slot);
+
             // Optimistic update
             const previousSlots = [...slots];
             setSlots(slots.filter(s => s.id !== slot.id));
@@ -89,17 +102,28 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
                     method: "DELETE",
                 });
 
-                if (!res.ok) throw new Error();
+                console.log(`[ScheduleGrid] Delete response status: ${res.status}`);
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    console.error(`[ScheduleGrid] Delete failed (${res.status}):`, errorText);
+                    throw new Error(`Delete failed: ${res.status} - ${errorText.slice(0, 50)}`);
+                }
+
+                console.log("[ScheduleGrid] Slot deleted successfully");
                 toast.success("Slot removed");
-            } catch {
+            } catch (error) {
+                console.error("[ScheduleGrid] Delete error:", error);
                 setSlots(previousSlots); // Revert
-                toast.error("Failed to remove slot");
+                toast.error(`Failed to remove slot: ${error}`);
             }
             return;
         }
 
         // 3. If unavailable (doesn't exist), create it (make available)
         const [hours, minutes] = timeStr.split(":").map(Number);
+
+        console.log(`[ScheduleGrid] Creating slot for horse ${horseId} at ${timeStr}`);
 
         // Optimistic update (create a temp slot)
         const tempId = Math.random().toString();
@@ -117,28 +141,39 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
 
         setSlots([...slots, newSlot]);
 
+        const payload = {
+            date: format(date, "yyyy-MM-dd"),
+            startTime: timeStr,
+            endTime: `${hours + 1}:${minutes === 0 ? "00" : minutes}`,
+            horseId,
+            duration: 60,
+        };
+
+        console.log(`[ScheduleGrid] POST payload:`, payload);
+
         try {
             const res = await fetch(`/api/stables/${stableId}/slots`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    date: format(date, "yyyy-MM-dd"),
-                    startTime: timeStr,
-                    endTime: `${hours + 1}:${minutes === 0 ? "00" : minutes}`,
-                    horseId,
-                    duration: 60,
-                }),
+                body: JSON.stringify(payload),
             });
 
+            console.log(`[ScheduleGrid] Create response status: ${res.status}`);
+
             if (res.ok) {
+                const responseData = await res.json();
+                console.log("[ScheduleGrid] Slot created successfully:", responseData);
                 toast.success("Slot created");
                 fetchSlots(); // Refresh to get real ID
             } else {
-                throw new Error();
+                const errorText = await res.text();
+                console.error(`[ScheduleGrid] Create failed (${res.status}):`, errorText);
+                throw new Error(`Create failed: ${res.status} - ${errorText.slice(0, 100)}`);
             }
-        } catch {
+        } catch (error) {
+            console.error("[ScheduleGrid] Create error:", error);
             setSlots(slots); // Revert
-            toast.error("Failed to create slot");
+            toast.error(`Failed to create slot: ${error}`);
         }
     }
 
