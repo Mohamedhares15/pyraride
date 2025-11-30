@@ -22,30 +22,30 @@ export async function GET(req: NextRequest) {
           startDate: { lte: now },
           endDate: { gte: now },
         },
-      include: {
-        riders: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            rankPoints: true,
-            rank: {
-              select: {
-                name: true,
+        include: {
+          riders: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              rankPoints: true,
+              rank: {
+                select: {
+                  name: true,
+                },
+              },
+              rideResults: {
+                select: {
+                  pointsChange: true,
+                },
               },
             },
-            rideResults: {
-              select: {
-                pointsChange: true,
-              },
+            orderBy: {
+              rankPoints: "desc",
             },
+            take: 100, // Top 100 riders per league
           },
-          orderBy: {
-            rankPoints: "desc",
-          },
-          take: 100, // Top 100 riders per league
         },
-      },
       });
 
       // Sort leagues by hierarchy
@@ -96,7 +96,8 @@ export async function GET(req: NextRequest) {
       if (leagueName === "wood") {
         const startDate = new Date();
         const endDate = new Date(startDate);
-        endDate.setDate(endDate.getDate() + 14); // 2 weeks
+        // TEMPORARY: Extend Wood to 3 weeks (until Dec 21, 2025) instead of standard 2 weeks
+        endDate.setDate(endDate.getDate() + 21); // 3 weeks
 
         const newLeague = await prisma.league.create({
           data: {

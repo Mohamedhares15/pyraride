@@ -86,6 +86,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Feature 5: Check lead time (minimum hours before booking)
+    const minLeadTimeHours = stable.minLeadTimeHours || 8; // Default 8 hours
+    const leadTimeMs = minLeadTimeHours * 60 * 60 * 1000; // Convert to milliseconds
+    const earliestAllowedStart = new Date(now.getTime() + leadTimeMs);
+
+    if (start < earliestAllowedStart) {
+      return NextResponse.json(
+        {
+          error: `Bookings must be made at least ${minLeadTimeHours} hours in advance`,
+          details: `Earliest available booking time: ${earliestAllowedStart.toLocaleString()}`
+        },
+        { status: 400 }
+      );
+    }
+
     // Get commission rate from stable (default to 0.15 if not set)
     const commissionRate = stable.commissionRate
       ? Number(stable.commissionRate)

@@ -228,6 +228,7 @@ model AvailabilitySlot {
   @@index([stableId])
   @@index([horseId])
   @@index([date])
+  @@map("availability_slots") // Force table creation
 }
 
 model RideResult {
