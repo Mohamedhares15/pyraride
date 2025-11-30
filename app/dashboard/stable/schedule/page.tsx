@@ -42,8 +42,8 @@ export default function SchedulePage() {
     if (status === "loading") return <Loader2 className="h-8 w-8 animate-spin" />;
 
     return (
-        <div className="min-h-screen bg-background p-4 md:p-8">
-            <div className="mx-auto max-w-6xl space-y-6">
+        <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95 p-4 md:p-8">
+            <div className="mx-auto max-w-7xl space-y-6">
                 <div>
                     <Button
                         variant="ghost"

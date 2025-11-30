@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { User, Calendar, Clock, DollarSign, Mail, Phone, Star } from "lucide-react";
+import { User, Calendar, DollarSign, Phone, Star } from "lucide-react";
 
 interface BookingDetailsDialogProps {
     open: boolean;
@@ -21,59 +21,58 @@ export function BookingDetailsDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px] bg-zinc-950 border-zinc-800 text-zinc-100">
+            <DialogContent className="sm:max-w-[550px] bg-gradient-to-b from-black/95 to-black border-white/10 text-white">
                 <DialogHeader>
-                    <DialogTitle className="text-zinc-100">Booking Details</DialogTitle>
-                    <DialogDescription className="text-zinc-400">
-                        View details for this booking.
+                    <DialogTitle className="text-2xl font-display text-white">Booking Details</DialogTitle>
+                    <DialogDescription className="text-white/60">
+                        View complete information for this booking.
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-6">
+                <div className="space-y-4">
                     {/* Status Badge */}
                     <div className="flex justify-center">
                         <Badge
                             variant={booking.status === "confirmed" ? "default" : "secondary"}
-                            className="px-4 py-1 text-base capitalize bg-zinc-800 text-zinc-100 hover:bg-zinc-700"
+                            className="px-6 py-2 text-base capitalize bg-gradient-to-r from-[rgba(218,165,32,0.3)] to-[rgba(184,134,11,0.2)] border-[rgba(218,165,32,0.5)] text-[rgb(218,165,32)] shadow-[0_0_15px_rgba(218,165,32,0.2)]"
                         >
                             {booking.status}
                         </Badge>
                     </div>
 
                     {/* Rider Info */}
-                    <div className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
-                        <h3 className="font-semibold flex items-center gap-2 text-zinc-100">
-                            <User className="h-4 w-4 text-zinc-400" /> Rider Information
+                    <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-5 shadow-lg">
+                        <h3 className="font-semibold flex items-center gap-2 text-white text-lg">
+                            <User className="h-5 w-5 text-[rgb(218,165,32)]" /> Rider Information
                         </h3>
                         <div className="grid gap-3 text-sm">
                             <div className="flex justify-between items-center">
-                                <span className="text-zinc-400">Name:</span>
-                                <span className="font-medium text-zinc-200">{booking.rider?.fullName || "Guest User"}</span>
+                                <span className="text-white/60">Name:</span>
+                                <span className="font-semibold text-white">{booking.rider?.fullName || "Guest User"}</span>
                             </div>
 
-                            {/* Rider Level - Assuming it's on the rider object, otherwise fallback */}
+                            {/* Rider Level */}
                             <div className="flex justify-between items-center">
-                                <span className="text-zinc-400">Riding Level:</span>
-                                <Badge variant="outline" className="border-zinc-700 text-zinc-300 gap-1">
-                                    <Star className="h-3 w-3 fill-yellow-500/20 text-yellow-500" />
+                                <span className="text-white/60">Riding Level:</span>
+                                <Badge variant="outline" className="border-[rgba(218,165,32,0.3)] bg-[rgba(218,165,32,0.1)] text-[rgb(218,165,32)] gap-1.5 px-3 py-1">
+                                    <Star className="h-3.5 w-3.5 fill-[rgb(218,165,32)]" />
                                     {booking.rider?.riderRank?.level || "Beginner"}
                                 </Badge>
                             </div>
 
                             <div className="flex justify-between items-center">
-                                <span className="text-zinc-400">Email:</span>
-                                <span className="font-medium text-zinc-200">{booking.rider?.email}</span>
+                                <span className="text-white/60">Email:</span>
+                                <span className="font-medium text-white/90">{booking.rider?.email}</span>
                             </div>
 
                             {booking.rider?.phoneNumber && (
-                                <div className="flex justify-between items-center pt-2 border-t border-zinc-800 mt-1">
-                                    <span className="text-zinc-400">Phone:</span>
+                                <div className="flex justify-between items-center pt-2 border-t border-white/10 mt-1">
+                                    <span className="text-white/60">Phone:</span>
                                     <div className="flex items-center gap-3">
-                                        <span className="font-medium text-zinc-200">{booking.rider.phoneNumber}</span>
+                                        <span className="font-medium text-white/90">{booking.rider.phoneNumber}</span>
                                         <Button
                                             size="icon"
-                                            variant="secondary"
-                                            className="h-8 w-8 rounded-full bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 hover:text-emerald-400 border border-emerald-500/20"
+                                            className="h-9 w-9 rounded-full bg-gradient-to-br from-[rgba(218,165,32,0.3)] to-[rgba(184,134,11,0.2)] hover:from-[rgba(218,165,32,0.4)] hover:to-[rgba(184,134,11,0.3)] border border-[rgba(218,165,32,0.4)] text-[rgb(218,165,32)] shadow-[0_0_15px_rgba(218,165,32,0.2)] hover:shadow-[0_0_25px_rgba(218,165,32,0.3)] transition-all"
                                             asChild
                                         >
                                             <a href={`tel:${booking.rider.phoneNumber}`}>
@@ -87,41 +86,41 @@ export function BookingDetailsDialog({
                     </div>
 
                     {/* Booking Info */}
-                    <div className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
-                        <h3 className="font-semibold flex items-center gap-2 text-zinc-100">
-                            <Calendar className="h-4 w-4 text-zinc-400" /> Session Details
+                    <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-5 shadow-lg">
+                        <h3 className="font-semibold flex items-center gap-2 text-white text-lg">
+                            <Calendar className="h-5 w-5 text-[rgb(218,165,32)]" /> Session Details
                         </h3>
-                        <div className="grid gap-2 text-sm">
+                        <div className="grid gap-2.5 text-sm">
                             <div className="flex justify-between">
-                                <span className="text-zinc-400">Date:</span>
-                                <span className="font-medium text-zinc-200">{format(new Date(booking.startTime), "MMMM d, yyyy")}</span>
+                                <span className="text-white/60">Date:</span>
+                                <span className="font-semibold text-white">{format(new Date(booking.startTime), "MMMM d, yyyy")}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-zinc-400">Time:</span>
-                                <span className="font-medium text-zinc-200">
+                                <span className="text-white/60">Time:</span>
+                                <span className="font-semibold text-white">
                                     {format(new Date(booking.startTime), "h:mm a")} - {format(new Date(booking.endTime), "h:mm a")}
                                 </span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-zinc-400">Horse:</span>
-                                <span className="font-medium text-zinc-200">{booking.horse?.name || "Unknown Horse"}</span>
+                                <span className="text-white/60">Horse:</span>
+                                <span className="font-semibold text-white">{booking.horse?.name || "Unknown Horse"}</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Payment Info */}
-                    <div className="space-y-3 rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
-                        <h3 className="font-semibold flex items-center gap-2 text-zinc-100">
-                            <DollarSign className="h-4 w-4 text-zinc-400" /> Payment
+                    <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-5 shadow-lg">
+                        <h3 className="font-semibold flex items-center gap-2 text-white text-lg">
+                            <DollarSign className="h-5 w-5 text-[rgb(218,165,32)]" /> Payment
                         </h3>
-                        <div className="grid gap-2 text-sm">
+                        <div className="grid gap-2.5 text-sm">
                             <div className="flex justify-between">
-                                <span className="text-zinc-400">Total Price:</span>
-                                <span className="font-bold text-emerald-400">EGP {Number(booking.totalPrice).toFixed(2)}</span>
+                                <span className="text-white/60">Total Price:</span>
+                                <span className="font-bold text-[rgb(218,165,32)] text-lg">EGP {Number(booking.totalPrice).toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-zinc-400">Commission:</span>
-                                <span className="text-zinc-200">EGP {Number(booking.commission).toFixed(2)}</span>
+                                <span className="text-white/60">Commission:</span>
+                                <span className="text-white/80 font-medium">EGP {Number(booking.commission).toFixed(2)}</span>
                             </div>
                         </div>
                     </div>
@@ -129,9 +128,8 @@ export function BookingDetailsDialog({
 
                 <DialogFooter>
                     <Button
-                        variant="outline"
                         onClick={() => onOpenChange(false)}
-                        className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"
+                        className="bg-white/10 hover:bg-white/20 border border-white/20 text-white"
                     >
                         Close
                     </Button>
