@@ -146,7 +146,13 @@ export default function StableDetailPage() {
   useEffect(() => {
     async function fetchStable() {
       try {
-        const today = new Date().toISOString().split("T")[0];
+        // Use local date string to avoid UTC shifts
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const today = `${year}-${month}-${day}`;
+
         const [stableRes, slotsRes] = await Promise.all([
           fetch(`/api/stables/${id}`),
           fetch(`/api/stables/${id}/slots?date=${today}`),

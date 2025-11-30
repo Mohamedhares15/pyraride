@@ -10,17 +10,22 @@ export async function GET(
 ) {
   try {
     const { searchParams } = new URL(req.url);
-    const date = searchParams.get("date");
+    const dateStr = searchParams.get("date"); // Expect YYYY-MM-DD
     const horseId = searchParams.get("horseId");
 
-    if (!date) {
+    if (!dateStr) {
       return new NextResponse("Date is required", { status: 400 });
     }
+
+    // Create a date object that represents the start of that day in UTC (since Prisma stores @db.Date as UTC midnight)
+    // or simply pass the string if Prisma handles it. 
+    // Best practice for @db.Date: Pass a Date object set to that date.
+    const targetDate = new Date(dateStr);
 
     const slots = await prisma.availabilitySlot.findMany({
       where: {
         stableId: params.id,
-        date: new Date(date),
+        date: targetDate, // Match the exact date stored
         ...(horseId && horseId !== "all" ? { horseId } : {}),
         isBooked: false,
       },

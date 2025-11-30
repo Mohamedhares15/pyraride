@@ -38,11 +38,17 @@ export function CreateSlotsDialog({
         setIsLoading(true);
 
         try {
+            // Format date as YYYY-MM-DD using local time to avoid UTC shifts
+            const year = selectedDate.getFullYear();
+            const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+            const day = String(selectedDate.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+
             const response = await fetch(`/api/stables/${stableId}/slots`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    date: format(selectedDate, "yyyy-MM-dd"),
+                    date: formattedDate,
                     startTime,
                     endTime,
                     horseId: horseId === "all" ? null : horseId,

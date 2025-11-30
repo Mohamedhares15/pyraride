@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { format, addDays, startOfToday, set } from "date-fns";
-import { Card } from "@/components/ui/card";
+import { format, addDays, startOfToday } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Phone, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { BookingDetailsDialog } from "./BookingDetailsDialog";
@@ -70,14 +69,12 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
 
         // 1. If booked, show details
         if (slot?.isBooked) {
-            // Fetch full booking details if needed, or use what's in the slot if we included it
-            // For now, we'll assume the slot object has the booking info nested or we fetch it
-            // The current API might need to include booking details in the slot response
-            // Let's assume the API returns booking info if isBooked is true
             if (slot.booking) {
                 setSelectedBooking(slot.booking);
                 setIsBookingDialogOpen(true);
             } else {
+                // If booking details aren't nested, we might need to fetch them or show a placeholder
+                // For now, let's assume the API returns them or we show a basic message
                 toast.error("Booking details not available");
             }
             return;
@@ -148,55 +145,57 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
 
     return (
         <div className="space-y-6">
-            {/* Date Header */}
-            <div className="flex items-center justify-between">
+            {/* Date Header - Dark/Glass Style */}
+            <div className="flex items-center justify-between bg-black/40 backdrop-blur-md p-4 rounded-xl border border-white/10 text-white">
                 <div className="flex items-center gap-4">
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         size="icon"
                         onClick={() => setDate(addDays(date, -1))}
+                        className="text-white hover:bg-white/10 hover:text-white"
                     >
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft className="h-5 w-5" />
                     </Button>
-                    <h2 className="text-xl font-semibold min-w-[200px] text-center">
+                    <h2 className="text-xl font-bold min-w-[200px] text-center font-display">
                         {format(date, "EEEE, MMMM d")}
                     </h2>
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         size="icon"
                         onClick={() => setDate(addDays(date, 1))}
+                        className="text-white hover:bg-white/10 hover:text-white"
                     >
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-5 w-5" />
                     </Button>
                 </div>
 
-                <div className="flex items-center gap-4 text-sm">
+                <div className="hidden md:flex items-center gap-6 text-sm font-medium">
                     <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-sm bg-muted/30 border border-border" />
-                        <span className="text-muted-foreground">Unavailable</span>
+                        <div className="h-3 w-3 rounded-full bg-white/10 border border-white/20" />
+                        <span className="text-white/60">Unavailable</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-sm bg-primary/20 border border-primary/50" />
-                        <span className="text-muted-foreground">Available</span>
+                        <div className="h-3 w-3 rounded-full bg-emerald-500/20 border border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.2)]" />
+                        <span className="text-emerald-400">Available</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-sm bg-red-500/20 border border-red-500/50" />
-                        <span className="text-muted-foreground">Booked</span>
+                        <div className="h-3 w-3 rounded-full bg-rose-500/20 border border-rose-500/50 shadow-[0_0_10px_rgba(244,63,94,0.2)]" />
+                        <span className="text-rose-400">Booked</span>
                     </div>
                 </div>
             </div>
 
-            {/* Grid */}
-            <div className="rounded-lg border bg-card overflow-hidden">
-                <div className="overflow-x-auto">
+            {/* Grid - Dark/Glass Style */}
+            <div className="rounded-xl border border-white/10 bg-black/40 backdrop-blur-md overflow-hidden shadow-2xl">
+                <div className="overflow-x-auto custom-scrollbar">
                     <div className="min-w-[800px]">
                         {/* Header Row */}
-                        <div className="grid border-b bg-muted/40" style={{ gridTemplateColumns: `80px repeat(${horses.length}, 1fr)` }}>
-                            <div className="p-4 font-medium text-muted-foreground text-sm border-r sticky left-0 bg-muted/40 z-10">
+                        <div className="grid border-b border-white/10 bg-white/5" style={{ gridTemplateColumns: `80px repeat(${horses.length}, 1fr)` }}>
+                            <div className="p-4 font-semibold text-white/70 text-sm border-r border-white/10 sticky left-0 bg-black/60 backdrop-blur-md z-20">
                                 Time
                             </div>
                             {horses.map(horse => (
-                                <div key={horse.id} className="p-4 font-medium text-center border-r last:border-r-0 truncate px-2">
+                                <div key={horse.id} className="p-4 font-semibold text-center text-white border-r border-white/10 last:border-r-0 truncate px-2">
                                     {horse.name}
                                 </div>
                             ))}
@@ -204,28 +203,28 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
 
                         {/* Time Rows */}
                         {isLoading ? (
-                            <div className="p-12 flex justify-center">
-                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                            <div className="p-20 flex justify-center">
+                                <Loader2 className="h-10 w-10 animate-spin text-white/50" />
                             </div>
                         ) : (
-                            <div className="divide-y">
+                            <div className="divide-y divide-white/5">
                                 {timeSlots.map(time => (
-                                    <div key={time} className="grid hover:bg-muted/5 transition-colors" style={{ gridTemplateColumns: `80px repeat(${horses.length}, 1fr)` }}>
-                                        <div className="p-3 text-xs text-muted-foreground border-r flex items-center justify-center sticky left-0 bg-card z-10 font-medium">
+                                    <div key={time} className="grid hover:bg-white/[0.02] transition-colors group" style={{ gridTemplateColumns: `80px repeat(${horses.length}, 1fr)` }}>
+                                        <div className="p-3 text-xs text-white/50 border-r border-white/10 flex items-center justify-center sticky left-0 bg-black/40 backdrop-blur-md z-10 font-medium group-hover:bg-black/50 transition-colors">
                                             {time}
                                         </div>
                                         {horses.map(horse => {
                                             const slot = getSlot(horse.id, time);
                                             return (
-                                                <div key={`${horse.id}-${time}`} className="p-1 border-r last:border-r-0">
+                                                <div key={`${horse.id}-${time}`} className="p-1 border-r border-white/5 last:border-r-0">
                                                     <button
                                                         onClick={() => handleSlotClick(horse.id, time)}
                                                         className={cn(
-                                                            "w-full h-full min-h-[40px] rounded-md transition-all duration-200 border",
+                                                            "w-full h-full min-h-[44px] rounded-lg transition-all duration-300 border backdrop-blur-sm",
                                                             // State Styles
-                                                            !slot && "bg-muted/10 border-transparent hover:bg-muted/20 hover:border-border/50", // Unavailable
-                                                            slot && !slot.isBooked && "bg-primary/10 border-primary/30 hover:bg-primary/20 hover:border-primary/50 text-primary text-xs font-medium", // Available
-                                                            slot?.isBooked && "bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50 text-red-600 text-xs font-medium" // Booked
+                                                            !slot && "bg-white/[0.02] border-transparent hover:bg-white/[0.08] hover:border-white/20", // Unavailable
+                                                            slot && !slot.isBooked && "bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20 hover:border-emerald-500/50 text-emerald-400 text-xs font-medium shadow-[0_0_15px_rgba(16,185,129,0.05)]", // Available
+                                                            slot?.isBooked && "bg-rose-500/10 border-rose-500/30 hover:bg-rose-500/20 hover:border-rose-500/50 text-rose-400 text-xs font-medium shadow-[0_0_15px_rgba(244,63,94,0.05)]" // Booked
                                                         )}
                                                     >
                                                         {slot?.isBooked ? "Booked" : slot ? "Available" : ""}
