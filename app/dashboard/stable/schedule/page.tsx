@@ -3,24 +3,17 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { format, addDays, startOfToday } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
-import { Card } from "@/components/ui/card";
+import { format, startOfToday } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Ban, Clock, ArrowLeft, Plus } from "lucide-react";
-import { toast } from "sonner";
+import { Loader2, ArrowLeft, Plus } from "lucide-react";
 import { CreateSlotsDialog } from "@/components/schedule/CreateSlotsDialog";
+import { ScheduleGrid } from "@/components/schedule/ScheduleGrid";
 
 export default function SchedulePage() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const [date, setDate] = useState<Date | undefined>(startOfToday());
     const [horses, setHorses] = useState<{ id: string; name: string }[]>([]);
-    const [selectedHorse, setSelectedHorse] = useState<string>("all");
-    const [slots, setSlots] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
     const [stableId, setStableId] = useState<string | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -33,16 +26,8 @@ export default function SchedulePage() {
         fetchHorses();
     }, [session, status, router]);
 
-    useEffect(() => {
-        if (date && stableId) {
-            fetchSlots();
-        }
-    }, [date, selectedHorse, stableId]);
-
     async function fetchHorses() {
         try {
-            const res = await fetch("/api/stables/horses"); // Need to ensure this endpoint exists or use similar
-            // Actually, we can fetch stable details which includes horses
             const stableRes = await fetch("/api/stables?ownerOnly=true");
             const data = await stableRes.json();
             if (data.stables && data.stables.length > 0) {
@@ -51,50 +36,6 @@ export default function SchedulePage() {
             }
         } catch (err) {
             console.error("Error fetching horses:", err);
-        }
-    }
-
-    async function fetchSlots() {
-        if (!stableId || !date) return;
-        setIsLoading(true);
-        try {
-            const formattedDate = format(date, "yyyy-MM-dd");
-            const horseQuery = selectedHorse !== "all" ? `&horseId=${selectedHorse}` : "";
-            const res = await fetch(`/api/stables/${stableId}/slots?date=${formattedDate}${horseQuery}`);
-            if (res.ok) {
-                setSlots(await res.json());
-            }
-        } catch (err) {
-            console.error("Error fetching slots:", err);
-        } finally {
-            setIsLoading(false);
-        }
-    }
-
-    async function handleBlockSlot(startTime: string) {
-        if (!stableId) return;
-
-        try {
-            const res = await fetch("/api/stables/block-slot", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    stableId: stableId,
-                    horseId: selectedHorse === "all" ? null : selectedHorse,
-                    startTime,
-                    endTime: new Date(new Date(startTime).getTime() + 60 * 60 * 1000).toISOString(), // 1 hour block
-                }),
-            });
-
-            if (res.ok) {
-                toast.success("Slot blocked successfully");
-                fetchSlots();
-            } else {
-                toast.error("Failed to block slot");
-            }
-        } catch (err) {
-            console.error("Error blocking slot:", err);
-            toast.error("Error blocking slot");
         }
     }
 
@@ -119,74 +60,19 @@ export default function SchedulePage() {
                     </p>
                 </div>
 
-                <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-                    <div className="space-y-4">
-                        <Card className="p-3">
-                            <Calendar
-                                mode="single"
-                                selected={date}
-                                onSelect={setDate}
-                                className="rounded-md"
-                                disabled={(date) => date < startOfToday()}
-                            />
-                        </Card>
-
-                        <Card className="p-4">
-                            <Label className="mb-2 block">Filter by Horse</Label>
-                            <Select value={selectedHorse} onValueChange={setSelectedHorse}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="All Horses" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Horses (Entire Stable)</SelectItem>
-                                    {horses.map((horse) => (
-                                        <SelectItem key={horse.id} value={horse.id}>
-                                            {horse.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </Card>
+                {/* Main Content */}
+                <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                        <p className="text-muted-foreground">
+                            Click on a slot to toggle availability. Green slots are available for booking.
+                        </p>
+                        <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
+                            <Plus className="h-4 w-4" />
+                            Bulk Create
+                        </Button>
                     </div>
 
-                    <Card className="p-6">
-                        <div className="mb-4 flex items-center justify-between">
-                            <h2 className="text-xl font-semibold">
-                                Availability for {date ? format(date, "MMMM d, yyyy") : "Selected Date"}
-                            </h2>
-                            <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
-                                <Plus className="h-4 w-4" />
-                                Create Slots
-                            </Button>
-                        </div>
-
-                        {isLoading ? (
-                            <div className="flex justify-center p-8">
-                                <Loader2 className="h-8 w-8 animate-spin" />
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                                {slots.length > 0 ? (
-                                    slots.map((slot, index) => (
-                                        <Button
-                                            key={index}
-                                            variant="outline"
-                                            className="h-auto flex-col gap-1 p-4"
-                                            onClick={() => handleBlockSlot(slot.startTime)}
-                                        >
-                                            <Clock className="h-4 w-4" />
-                                            <span>{format(new Date(slot.startTime), "h:mm a")}</span>
-                                            <span className="text-xs text-green-600">Available</span>
-                                        </Button>
-                                    ))
-                                ) : (
-                                    <div className="col-span-full text-center text-muted-foreground">
-                                        No available slots found for this date.
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </Card>
+                    <ScheduleGrid stableId={stableId || ""} horses={horses} />
                 </div>
 
                 <CreateSlotsDialog
@@ -195,7 +81,12 @@ export default function SchedulePage() {
                     stableId={stableId || ""}
                     selectedDate={date || new Date()}
                     horses={horses}
-                    onSlotsCreated={fetchSlots}
+                    onSlotsCreated={() => {
+                        // The grid will need to refresh, but for now we can rely on its own internal fetch
+                        // Ideally we'd pass a refresh trigger, but the grid fetches on mount/date change
+                        // We can force a refresh by toggling a key or context, but let's keep it simple first
+                        window.location.reload(); // Simple brute force for now to ensure grid updates after bulk create
+                    }}
                 />
             </div>
         </div>
