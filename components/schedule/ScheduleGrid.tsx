@@ -29,7 +29,9 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
 
     // Fetch slots when date changes
     useEffect(() => {
-        fetchSlots();
+        if (stableId) {
+            fetchSlots();
+        }
     }, [date, stableId]);
 
     async function fetchSlots() {
