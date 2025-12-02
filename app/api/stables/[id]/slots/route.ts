@@ -19,23 +19,14 @@ export async function GET(
       return new NextResponse("Date is required", { status: 400 });
     }
 
-    // Normalize to UTC midnight for consistent date comparison
-    const targetDate = new Date(dateStr);
-    targetDate.setUTCHours(0, 0, 0, 0);
+    console.log(`[GET /api/stables/${params.id}/slots] Fetching slots for date: ${dateStr}`);
 
-    // Create end of day for range query
-    const nextDay = new Date(targetDate);
-    nextDay.setUTCDate(nextDay.getUTCDate() + 1);
-
-    console.log(`[GET /api/stables/${params.id}/slots] Fetching slots for date: ${dateStr}, normalized: ${targetDate.toISOString()}`);
-
+    // For @db.Date fields, we need to query using the date string directly
+    // Prisma will handle the conversion properly
     const slots = await prisma.availabilitySlot.findMany({
       where: {
         stableId: params.id,
-        date: {
-          gte: targetDate,
-          lt: nextDay,
-        },
+        date: new Date(dateStr + "T00:00:00.000Z"), // Force UTC midnight
         ...(horseId && horseId !== "all" ? { horseId } : {}),
       },
       include: {
@@ -96,11 +87,10 @@ export async function POST(
     const start = new Date(`${date}T${startTime}`);
     const end = new Date(`${date}T${endTime}`);
 
-    // Normalize the date to UTC midnight for consistent storage
-    const normalizedDate = new Date(date);
-    normalizedDate.setUTCHours(0, 0, 0, 0);
+    // Use the same date format as GET endpoint for consistency
+    const slotDate = new Date(date + "T00:00:00.000Z");
 
-    console.log(`[POST /api/stables/${params.id}/slots] Creating slots for date: ${date}, normalized: ${normalizedDate.toISOString()}`);
+    console.log(`[POST /api/stables/${params.id}/slots] Creating slots for date: ${date}, slotDate: ${slotDate.toISOString()}`);
 
     let current = new Date(start);
     while (current < end) {
@@ -109,7 +99,7 @@ export async function POST(
         slots.push({
           stableId: params.id,
           horseId: horseId || null,
-          date: normalizedDate,
+          date: slotDate,
           startTime: new Date(current),
           endTime: new Date(slotEnd),
         });
