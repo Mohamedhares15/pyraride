@@ -19,23 +19,48 @@ export async function GET(
       return new NextResponse("Date is required", { status: 400 });
     }
 
-    // Create a date object that represents the start of that day in UTC (since Prisma stores @db.Date as UTC midnight)
-    // or simply pass the string if Prisma handles it. 
-    // Best practice for @db.Date: Pass a Date object set to that date.
+    // Normalize to UTC midnight for consistent date comparison
     const targetDate = new Date(dateStr);
+    targetDate.setUTCHours(0, 0, 0, 0);
+
+    // Create end of day for range query
+    const nextDay = new Date(targetDate);
+    nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+
+    console.log(`[GET /api/stables/${params.id}/slots] Fetching slots for date: ${dateStr}, normalized: ${targetDate.toISOString()}`);
 
     const slots = await prisma.availabilitySlot.findMany({
       where: {
         stableId: params.id,
-        date: targetDate, // Match the exact date stored
+        date: {
+          gte: targetDate,
+          lt: nextDay,
+        },
         ...(horseId && horseId !== "all" ? { horseId } : {}),
-        isBooked: false,
+      },
+      include: {
+        booking: {
+          select: {
+            id: true,
+            riderId: true,
+            startTime: true,
+            endTime: true,
+            status: true,
+            rider: {
+              select: {
+                fullName: true,
+                email: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
         startTime: "asc",
       },
     });
 
+    console.log(`[GET /api/stables/${params.id}/slots] Found ${slots.length} slots`);
     return NextResponse.json(slots);
   } catch (error) {
     console.error("Error fetching availability slots:", error);
@@ -71,6 +96,12 @@ export async function POST(
     const start = new Date(`${date}T${startTime}`);
     const end = new Date(`${date}T${endTime}`);
 
+    // Normalize the date to UTC midnight for consistent storage
+    const normalizedDate = new Date(date);
+    normalizedDate.setUTCHours(0, 0, 0, 0);
+
+    console.log(`[POST /api/stables/${params.id}/slots] Creating slots for date: ${date}, normalized: ${normalizedDate.toISOString()}`);
+
     let current = new Date(start);
     while (current < end) {
       const slotEnd = new Date(current.getTime() + duration * 60000);
@@ -78,7 +109,7 @@ export async function POST(
         slots.push({
           stableId: params.id,
           horseId: horseId || null,
-          date: new Date(date),
+          date: normalizedDate,
           startTime: new Date(current),
           endTime: new Date(slotEnd),
         });
