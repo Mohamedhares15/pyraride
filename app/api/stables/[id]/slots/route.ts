@@ -19,14 +19,20 @@ export async function GET(
       return new NextResponse("Date is required", { status: 400 });
     }
 
-    console.log(`[GET /api/stables/${params.id}/slots] Fetching slots for date: ${dateStr}`);
+    // Parse the date string (YYYY-MM-DD) and create a Date object
+    // For @db.Date fields in Prisma, we need to ensure we're matching the DATE part only
+    // Extract year, month, day from the string
+    const [year, month, day] = dateStr.split('-').map(Number);
 
-    // For @db.Date fields, we need to query using the date string directly
-    // Prisma will handle the conversion properly
+    // Create a date object at local midnight
+    const queryDate = new Date(year, month - 1, day);
+
+    console.log(`[GET /api/stables/${params.id}/slots] Query date string: ${dateStr}, Created Date object: ${queryDate.toISOString()}`);
+
     const slots = await prisma.availabilitySlot.findMany({
       where: {
         stableId: params.id,
-        date: new Date(dateStr + "T00:00:00.000Z"), // Force UTC midnight
+        date: queryDate,
         ...(horseId && horseId !== "all" ? { horseId } : {}),
       },
       include: {
@@ -87,10 +93,11 @@ export async function POST(
     const start = new Date(`${date}T${startTime}`);
     const end = new Date(`${date}T${endTime}`);
 
-    // Use the same date format as GET endpoint for consistency
-    const slotDate = new Date(date + "T00:00:00.000Z");
+    // Parse date string same way as GET endpoint
+    const [year, month, day] = date.split('-').map(Number);
+    const slotDate = new Date(year, month - 1, day);
 
-    console.log(`[POST /api/stables/${params.id}/slots] Creating slots for date: ${date}, slotDate: ${slotDate.toISOString()}`);
+    console.log(`[POST /api/stables/${params.id}/slots] Date string: ${date}, Created Date object: ${slotDate.toISOString()}`);
 
     let current = new Date(start);
     while (current < end) {
