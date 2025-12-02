@@ -88,20 +88,74 @@ export async function POST(
       return new NextResponse("Missing required fields", { status: 400 });
     }
 
+    // Validate date format (YYYY-MM-DD)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(date)) {
+      return NextResponse.json(
+        { error: "Invalid date format. Expected YYYY-MM-DD" },
+        { status: 400 }
+      );
+    }
+
+    // Parse date string same way as GET endpoint - use local time to match GET query
+    const [year, month, day] = date.split('-').map(Number);
+    
+    // Validate parsed date
+    if (isNaN(year) || isNaN(month) || isNaN(day) || month < 1 || month > 12 || day < 1 || day > 31) {
+      return NextResponse.json(
+        { error: "Invalid date values" },
+        { status: 400 }
+      );
+    }
+
+    // Create date at local midnight - same as GET endpoint
+    const slotDate = new Date(year, month - 1, day);
+    slotDate.setHours(0, 0, 0, 0); // Ensure it's at midnight
+    
+    console.log(`[POST /api/stables/${params.id}/slots] Date string: ${date}, Parsed date: ${slotDate.toISOString()}`);
+
+    // Parse times - validate format HH:MM
+    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(startTime) || !timeRegex.test(endTime)) {
+      return NextResponse.json(
+        { error: "Invalid time format. Expected HH:MM in 24-hour format" },
+        { status: 400 }
+      );
+    }
+
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+
+    // Validate time values
+    if (isNaN(startHour) || isNaN(startMinute) || isNaN(endHour) || isNaN(endMinute)) {
+      return NextResponse.json(
+        { error: "Invalid time values" },
+        { status: 400 }
+      );
+    }
+
+    // Create start and end datetimes using local time but normalize to UTC for consistency
+    const start = new Date(year, month - 1, day, startHour, startMinute, 0, 0);
+    const end = new Date(year, month - 1, day, endHour, endMinute, 0, 0);
+
+    // Validate that start is before end
+    if (start >= end) {
+      return NextResponse.json(
+        { error: "Start time must be before end time" },
+        { status: 400 }
+      );
+    }
+
+    console.log(`[POST /api/stables/${params.id}/slots] Start: ${start.toISOString()}, End: ${end.toISOString()}, Duration: ${duration} minutes`);
+
     // Generate slots based on duration
     const slots = [];
-    const start = new Date(`${date}T${startTime}`);
-    const end = new Date(`${date}T${endTime}`);
-
-    // Parse date string same way as GET endpoint
-    const [year, month, day] = date.split('-').map(Number);
-    const slotDate = new Date(year, month - 1, day);
-
-    console.log(`[POST /api/stables/${params.id}/slots] Date string: ${date}, Created Date object: ${slotDate.toISOString()}`);
-
     let current = new Date(start);
+
     while (current < end) {
       const slotEnd = new Date(current.getTime() + duration * 60000);
+      
+      // Only create slot if it fits within the end time
       if (slotEnd <= end) {
         slots.push({
           stableId: params.id,
@@ -114,18 +168,108 @@ export async function POST(
       current = slotEnd;
     }
 
-    // Create all slots
-    const created = await prisma.availabilitySlot.createMany({
-      data: slots,
+    console.log(`[POST /api/stables/${params.id}/slots] Generated ${slots.length} slots to create`);
+
+    if (slots.length === 0) {
+      return NextResponse.json(
+        {
+          message: "No slots created. Check that startTime is before endTime and duration fits within the time range.",
+          count: 0,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check for existing slots first to avoid duplicates
+    // Query all slots for this date/horse combination
+    const existingSlots = await prisma.availabilitySlot.findMany({
+      where: {
+        stableId: params.id,
+        date: slotDate,
+        horseId: horseId || null,
+      },
+      select: {
+        startTime: true,
+        endTime: true,
+      },
     });
 
-    return NextResponse.json({
-      message: `Created ${created.count} availability slots`,
-      count: created.count,
+    // Create a set of existing slot start times for quick lookup
+    // Use timestamp comparison (milliseconds since epoch) for accuracy
+    const existingStartTimes = new Set(
+      existingSlots.map(slot => {
+        const start = new Date(slot.startTime);
+        // Round to nearest minute to handle any millisecond differences
+        return Math.floor(start.getTime() / 60000) * 60000;
+      })
+    );
+
+    // Filter out slots that already exist
+    const slotsToCreate = slots.filter(slot => {
+      const slotStartTime = Math.floor(slot.startTime.getTime() / 60000) * 60000;
+      return !existingStartTimes.has(slotStartTime);
     });
-  } catch (error) {
+
+    console.log(`[POST /api/stables/${params.id}/slots] ${slotsToCreate.length} new slots to create (${slots.length - slotsToCreate.length} already exist)`);
+
+    if (slotsToCreate.length === 0) {
+      return NextResponse.json(
+        {
+          message: `All ${slots.length} slots already exist`,
+          count: 0,
+          skipped: slots.length,
+        },
+        { status: 200 }
+      );
+    }
+
+    // Create new slots using createMany for better performance
+    let created;
+    try {
+      created = await prisma.availabilitySlot.createMany({
+        data: slotsToCreate,
+        skipDuplicates: true, // Extra safety in case of race conditions
+      });
+    } catch (error: any) {
+      console.error(`[POST /api/stables/${params.id}/slots] Error in createMany:`, error);
+      // Fallback to individual creates if createMany fails
+      let createdCount = 0;
+      for (const slotData of slotsToCreate) {
+        try {
+          await prisma.availabilitySlot.create({ data: slotData });
+          createdCount++;
+        } catch (err: any) {
+          console.error(`[POST /api/stables/${params.id}/slots] Error creating individual slot:`, err?.message);
+        }
+      }
+      created = { count: createdCount };
+    }
+
+    const createdCount = created.count;
+    const skippedCount = slots.length - slotsToCreate.length;
+
+    console.log(`[POST /api/stables/${params.id}/slots] Created ${createdCount} slots, skipped ${skippedCount} duplicates out of ${slots.length} attempted`);
+
+    return NextResponse.json({
+      message: `Created ${createdCount} availability slot${createdCount !== 1 ? 's' : ''}${skippedCount > 0 ? ` (${skippedCount} already existed)` : ''}`,
+      count: createdCount,
+      skipped: skippedCount,
+    });
+  } catch (error: any) {
     console.error("Error creating availability slots:", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.error("Error details:", {
+      message: error?.message,
+      code: error?.code,
+      meta: error?.meta,
+    });
+    return NextResponse.json(
+      {
+        error: "Failed to create slots",
+        message: error?.message || "Internal server error",
+        details: error?.meta,
+      },
+      { status: 500 }
+    );
   }
 }
 
