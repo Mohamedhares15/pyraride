@@ -203,6 +203,26 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Update corresponding availability slots
+    // We need to find slots that overlap with this booking for this horse
+    await prisma.availabilitySlot.updateMany({
+      where: {
+        stableId,
+        horseId,
+        startTime: {
+          gte: new Date(startTime),
+        },
+        endTime: {
+          lte: new Date(endTime),
+        },
+        isBooked: false,
+      },
+      data: {
+        isBooked: true,
+        bookingId: booking.id,
+      },
+    });
+
     // Send email notification to stable owner(s)
     // Feature 2 & 3: Support multiple owners
     const owners = await prisma.user.findMany({

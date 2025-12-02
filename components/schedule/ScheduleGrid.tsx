@@ -166,7 +166,8 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
                 const responseData = await res.json();
                 console.log("[ScheduleGrid] Slot created successfully:", responseData);
                 toast.success("Slot created");
-                fetchSlots(); // Refresh to get real ID
+                // Force a small delay to ensure DB write is propagated before fetch
+                setTimeout(() => fetchSlots(), 500);
             } else {
                 const errorText = await res.text();
                 console.error(`[ScheduleGrid] Create failed (${res.status}):`, errorText);
@@ -174,7 +175,7 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
             }
         } catch (error) {
             console.error("[ScheduleGrid] Create error:", error);
-            setSlots(slots); // Revert
+            setSlots(slots); // Revert to original state (before optimistic update)
             toast.error(`Failed to create slot: ${error}`);
         }
     }

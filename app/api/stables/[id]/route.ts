@@ -103,7 +103,7 @@ export async function GET(
     const avgStableRating =
       stable.reviews.length > 0
         ? stable.reviews.reduce((sum: number, r: any) => sum + r.stableRating, 0) /
-          stable.reviews.length
+        stable.reviews.length
         : 0;
 
     const horses = stable.horses.map((horse: any) => ({
@@ -168,6 +168,7 @@ export async function PATCH(
         ...(address !== undefined && { address }),
         ...(location !== undefined && { location }),
         ...(imageUrl !== undefined && { imageUrl }),
+        ...(body.minLeadTimeHours !== undefined && { minLeadTimeHours: Number(body.minLeadTimeHours) }),
       },
     });
 

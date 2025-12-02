@@ -43,6 +43,7 @@ export default function ManageStablePage() {
     description: "",
     location: "",
     address: "",
+    minLeadTimeHours: 8,
   });
 
   useEffect(() => {
@@ -79,6 +80,7 @@ export default function ManageStablePage() {
           description: stableData.description,
           location: stableData.location,
           address: stableData.address,
+          minLeadTimeHours: stableData.minLeadTimeHours || 8,
         });
         if (stableData.imageUrl) {
           setImagePreview(stableData.imageUrl);
@@ -483,6 +485,22 @@ export default function ManageStablePage() {
                   required
                   placeholder="Full address or Google Maps link"
                 />
+              </div>
+
+              <div>
+                <Label htmlFor="minLeadTimeHours">Minimum Lead Time (Hours) *</Label>
+                <Input
+                  id="minLeadTimeHours"
+                  type="number"
+                  min="0"
+                  value={formData.minLeadTimeHours}
+                  onChange={(e) => setFormData({ ...formData, minLeadTimeHours: parseInt(e.target.value) || 0 })}
+                  required
+                  placeholder="e.g. 8"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Bookings must be made at least this many hours in advance.
+                </p>
               </div>
             </div>
           </Card>
