@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { format, addDays, startOfToday } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
@@ -19,13 +19,33 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedBooking, setSelectedBooking] = useState<any>(null);
     const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
+    const [timeView, setTimeView] = useState<"sunrise" | "sunset" | "all">("sunrise");
 
-    // Generate time slots (8 AM to 10 PM in 30 min increments)
-    const timeSlots = [];
-    for (let i = 8; i < 22; i++) {
-        timeSlots.push(`${i}:00`);
-        timeSlots.push(`${i}:30`);
-    }
+    // Generate time slots based on selected view
+    const timeSlots = useMemo(() => {
+        const slots: string[] = [];
+
+        const addRange = (startHour: number, endHour: number) => {
+            for (let h = startHour; h < endHour; h++) {
+                slots.push(`${h}:00`);
+                slots.push(`${h}:30`);
+            }
+        };
+
+        if (timeView === "sunrise" || timeView === "all") {
+            // Sunrise window: 3:00 AM – 9:00 AM
+            // Include 3:00 to 9:00 (since slots are 1 hour, last slot starts at 8:00 and ends at 9:00)
+            addRange(3, 9); // 3:00, 3:30, ... 8:00, 8:30
+        }
+
+        if (timeView === "sunset" || timeView === "all") {
+            // Sunset window: 1:00 PM (13:00) – 7:00 PM (19:00)
+            // Include 13:00 to 19:00 (since slots are 1 hour, last slot starts at 18:00 and ends at 19:00)
+            addRange(13, 19); // 13:00, 13:30, ... 18:00, 18:30
+        }
+
+        return slots;
+    }, [timeView]);
 
     // Fetch slots when date changes
     useEffect(() => {
@@ -64,17 +84,30 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
     // Helper to find slot for a specific horse and time
     const getSlot = (horseId: string, timeStr: string) => {
         const [hours, minutes] = timeStr.split(":").map(Number);
+        const currentDateStr = format(date, "yyyy-MM-dd");
 
-        return slots.find(slot => {
+        // Find the most relevant slot (prioritize real slots over temp ones)
+        const matchingSlots = slots.filter(slot => {
             const slotDate = new Date(slot.startTime);
+            const slotDateStr = format(slotDate, "yyyy-MM-dd");
             const slotHours = slotDate.getHours();
             const slotMinutes = slotDate.getMinutes();
 
             // Check if this slot belongs to this horse (or is stable-wide)
             const isForHorse = slot.horseId === horseId || slot.horseId === null;
 
-            return isForHorse && slotHours === hours && slotMinutes === minutes;
+            // Match date, time, and horse
+            return (
+                slotDateStr === currentDateStr &&
+                isForHorse &&
+                slotHours === hours &&
+                slotMinutes === minutes
+            );
         });
+
+        // Prioritize real slots (those with UUID-like IDs, not temp random IDs)
+        const realSlot = matchingSlots.find(slot => slot.id && slot.id.length > 20);
+        return realSlot || matchingSlots[0];
     };
 
     async function handleSlotClick(horseId: string, timeStr: string) {
@@ -114,10 +147,14 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
 
                 console.log("[ScheduleGrid] Slot deleted successfully");
                 toast.success("Slot removed");
+                // Refresh to ensure UI is in sync
+                setTimeout(() => fetchSlots(), 300);
             } catch (error) {
                 console.error("[ScheduleGrid] Delete error:", error);
                 setSlots(previousSlots); // Revert
                 toast.error(`Failed to remove slot: ${error}`);
+                // Refresh to ensure we have correct state
+                setTimeout(() => fetchSlots(), 300);
             }
             return;
         }
@@ -164,10 +201,21 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
 
             if (res.ok) {
                 const responseData = await res.json();
-                console.log("[ScheduleGrid] Slot created successfully:", responseData);
-                toast.success("Slot created");
-                // Force a small delay to ensure DB write is propagated before fetch
-                setTimeout(() => fetchSlots(), 500);
+                console.log("[ScheduleGrid] Create response:", responseData);
+                
+                // Remove optimistic update immediately
+                setSlots(prevSlots => prevSlots.filter(s => s.id !== tempId));
+                
+                if (responseData.count > 0) {
+                    toast.success(`Slot created successfully`);
+                } else if (responseData.skipped > 0) {
+                    toast.info(`Slot already exists`);
+                } else {
+                    toast.warning(`No slots were created`);
+                }
+                
+                // Fetch real slots from database to ensure UI is in sync
+                setTimeout(() => fetchSlots(), 300);
             } else {
                 const errorText = await res.text();
                 console.error(`[ScheduleGrid] Create failed (${res.status}):`, errorText);
@@ -175,8 +223,11 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
             }
         } catch (error) {
             console.error("[ScheduleGrid] Create error:", error);
-            setSlots(slots); // Revert to original state (before optimistic update)
+            // Remove optimistic update on error
+            setSlots(prevSlots => prevSlots.filter(s => s.id !== tempId));
             toast.error(`Failed to create slot: ${error}`);
+            // Fetch to ensure we have correct state
+            setTimeout(() => fetchSlots(), 300);
         }
     }
 
@@ -206,18 +257,64 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
                     </Button>
                 </div>
 
-                <div className="flex items-center gap-6 text-sm font-medium">
-                    <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 rounded-md bg-white/5 border border-white/20" />
-                        <span className="text-white/60">Unavailable</span>
+                <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-sm font-medium">
+                    {/* Legend */}
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <div className="h-4 w-4 rounded-md bg-white/5 border border-white/20" />
+                            <span className="text-white/60">Unavailable</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="h-4 w-4 rounded-md bg-gradient-to-br from-[rgba(218,165,32,0.3)] to-[rgba(184,134,11,0.2)] border border-[rgba(218,165,32,0.5)] shadow-[0_0_10px_rgba(218,165,32,0.2)]" />
+                            <span className="text-[rgb(218,165,32)]">Available</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="h-4 w-4 rounded-md bg-rose-500/20 border border-rose-500/50 shadow-[0_0_10px_rgba(244,63,94,0.2)]" />
+                            <span className="text-rose-400">Booked</span>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 rounded-md bg-gradient-to-br from-[rgba(218,165,32,0.3)] to-[rgba(184,134,11,0.2)] border border-[rgba(218,165,32,0.5)] shadow-[0_0_10px_rgba(218,165,32,0.2)]" />
-                        <span className="text-[rgb(218,165,32)]">Available</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 rounded-md bg-rose-500/20 border border-rose-500/50 shadow-[0_0_10px_rgba(244,63,94,0.2)]" />
-                        <span className="text-rose-400">Booked</span>
+
+                    {/* Time view toggle: Sunrise / Sunset / All */}
+                    <div className="flex items-center gap-2 bg-black/30 rounded-full px-2 py-1 border border-white/10">
+                        <span className="text-xs text-white/50 hidden md:inline-block pr-1">
+                            View:
+                        </span>
+                        <button
+                            type="button"
+                            onClick={() => setTimeView("sunrise")}
+                            className={cn(
+                                "px-3 py-1 rounded-full text-xs font-medium transition-all",
+                                timeView === "sunrise"
+                                    ? "bg-[rgb(218,165,32)] text-black shadow-[0_0_15px_rgba(218,165,32,0.6)]"
+                                    : "bg-transparent text-white/60 hover:text-white hover:bg-white/10"
+                            )}
+                        >
+                            Sunrise (3–9 AM)
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setTimeView("sunset")}
+                            className={cn(
+                                "px-3 py-1 rounded-full text-xs font-medium transition-all",
+                                timeView === "sunset"
+                                    ? "bg-[rgb(218,165,32)] text-black shadow-[0_0_15px_rgba(218,165,32,0.6)]"
+                                    : "bg-transparent text-white/60 hover:text-white hover:bg-white/10"
+                            )}
+                        >
+                            Sunset (1–7 PM)
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setTimeView("all")}
+                            className={cn(
+                                "px-3 py-1 rounded-full text-xs font-medium transition-all",
+                                timeView === "all"
+                                    ? "bg-[rgb(218,165,32)] text-black shadow-[0_0_15px_rgba(218,165,32,0.6)]"
+                                    : "bg-transparent text-white/60 hover:text-white hover:bg-white/10"
+                            )}
+                        >
+                            All
+                        </button>
                     </div>
                 </div>
             </div>
