@@ -212,6 +212,15 @@ function BookingContent() {
     );
   }
 
+  // Don't render until date/time values are populated to prevent calculation errors
+  if (!selectedDate || !selectedStartTime || !selectedEndTime) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-black/90 via-black/95 to-black flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-black/90 via-black/95 to-black">
       {/* Background Image with Overlay */}
