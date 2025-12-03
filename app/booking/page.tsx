@@ -121,6 +121,13 @@ function BookingContent() {
     return isNaN(hours) || !isFinite(hours) ? 0 : hours;
   };
 
+  // Helper to safely format numbers
+  const safeToFixed = (value: any, decimals: number = 0) => {
+    const num = Number(value);
+    if (isNaN(num) || !isFinite(num)) return (0).toFixed(decimals);
+    return num.toFixed(decimals);
+  };
+
   const handlePromoCode = async () => {
     if (!promoCode.trim()) {
       toast.error("Please enter a promo code");
@@ -285,7 +292,7 @@ function BookingContent() {
                   <div className="flex items-center justify-between border-t border-white/10 pt-3">
                     <span className="text-white/70">Price per hour:</span>
                     <span className="font-semibold text-white">
-                      EGP {horse.pricePerHour?.toFixed(0) || "0"}
+                      EGP {safeToFixed(horse.pricePerHour, 0)}
                     </span>
                   </div>
                 </div>
@@ -395,7 +402,7 @@ function BookingContent() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-white/70">Duration:</span>
-                      <span className="text-white">{calculateHours().toFixed(1)} hours</span>
+                      <span className="text-white">{safeToFixed(calculateHours(), 1)} hours</span>
                     </div>
                   </div>
 
@@ -472,18 +479,18 @@ function BookingContent() {
                   <div className="space-y-2 border-t border-white/10 pt-4">
                     <div className="flex justify-between text-sm">
                       <span className="text-white/70">Subtotal:</span>
-                      <span className="text-white">EGP {(((horse?.pricePerHour || 0) * calculateHours()) || 0).toFixed(0)}</span>
+                      <span className="text-white">EGP {safeToFixed((horse?.pricePerHour || 0) * calculateHours(), 0)}</span>
                     </div>
                     {promoDiscount > 0 && (
                       <div className="flex justify-between text-sm text-green-400">
                         <span>Promo Discount:</span>
-                        <span>-EGP {(promoDiscount || 0).toFixed(0)}</span>
+                        <span>-EGP {safeToFixed(promoDiscount, 0)}</span>
                       </div>
                     )}
                     <div className="flex justify-between border-t border-white/10 pt-2">
                       <span className="font-semibold text-white">Total:</span>
                       <span className="text-xl font-bold text-[rgb(218,165,32)]">
-                        EGP {(calculatePrice() || 0).toFixed(0)}
+                        EGP {safeToFixed(calculatePrice(), 0)}
                       </span>
                     </div>
                   </div>
