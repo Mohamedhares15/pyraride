@@ -8,6 +8,13 @@ import { ArrowLeft, Home, Calendar, Clock, CreditCard, Tag, CheckCircle2 } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import Image from "next/image";
 import { toast } from "sonner";
 
@@ -266,6 +273,7 @@ function BookingContent() {
             {/* On mobile: h-auto (scrolls with page). On desktop: overflow-y-auto (independent scroll) */}
             <div className="md:col-span-7 lg:col-span-8 flex flex-col gap-6 md:overflow-y-auto md:pr-2 md:custom-scrollbar pb-8 md:pb-0">
 
+
               {/* Horse Details */}
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4 md:p-6 backdrop-blur-md shadow-xl">
                 <h2 className="mb-4 text-lg md:text-xl font-bold text-white">Horse Selection</h2>
@@ -297,13 +305,48 @@ function BookingContent() {
                       </span>
                     </div>
 
-                    <Button
-                      variant="outline"
-                      className="w-full border-white/20 bg-white/5 text-white hover:bg-white/10"
-                      onClick={() => toast.info("Portfolio viewer coming soon")}
-                    >
-                      View Portfolio
-                    </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full border-white/20 bg-white/5 text-white hover:bg-white/10"
+                        >
+                          View Portfolio
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl bg-black/90 border-white/10 text-white">
+                        <DialogHeader>
+                          <DialogTitle>{horse.name}'s Portfolio</DialogTitle>
+                        </DialogHeader>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                          {horse.media?.filter(m => m.type === 'image').map((media, index) => (
+                            <div key={index} className="relative aspect-video rounded-lg overflow-hidden bg-white/5">
+                              <Image
+                                src={media.url}
+                                alt={`${horse.name} ${index + 1}`}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          ))}
+                          {(!horse.media || horse.media.length === 0) && horse.imageUrls?.map((url, index) => (
+                            <div key={index} className="relative aspect-video rounded-lg overflow-hidden bg-white/5">
+                              <Image
+                                src={url}
+                                alt={`${horse.name} ${index + 1}`}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          ))}
+                          {(!horse.media?.length && !horse.imageUrls?.length) && (
+                            <div className="col-span-full text-center py-8 text-white/50">
+                              No additional images available.
+                            </div>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
               </div>
@@ -313,24 +356,24 @@ function BookingContent() {
                 <h2 className="mb-4 text-lg md:text-xl font-bold text-white">Date & Time</h2>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2 w-full">
+                  <div className="space-y-2 w-full min-w-0">
                     <Label className="text-white">Date</Label>
                     <div className="relative w-full">
-                      <Calendar className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/50" />
+                      <Calendar className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/50 pointer-events-none" />
                       <Input
                         type="date"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                         min={new Date().toISOString().split("T")[0]}
-                        className="h-12 bg-white/10 border-white/20 pl-10 pr-2 text-white placeholder:text-white/50 focus:border-white/40 w-full max-w-full box-border"
+                        className="h-12 bg-white/10 border-white/20 pl-10 pr-2 text-white placeholder:text-white/50 focus:border-white/40 w-full min-w-0"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2 w-full">
+                  <div className="space-y-2 w-full min-w-0">
                     <Label className="text-white">Start Time</Label>
                     <div className="relative w-full">
-                      <Clock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/50" />
+                      <Clock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/50 pointer-events-none" />
                       <Input
                         type="time"
                         value={selectedStartTime}
@@ -346,7 +389,7 @@ function BookingContent() {
                             setSelectedEndTime(`${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`);
                           }
                         }}
-                        className="h-12 bg-white/10 border-white/20 pl-10 pr-2 text-white placeholder:text-white/50 focus:border-white/40 w-full max-w-full box-border"
+                        className="h-12 bg-white/10 border-white/20 pl-10 pr-2 text-white placeholder:text-white/50 focus:border-white/40 w-full min-w-0"
                       />
                     </div>
                   </div>
