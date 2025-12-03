@@ -196,11 +196,11 @@ function BookingContent() {
     }
   };
 
-  const horseImage = horse?.media?.find(m => m.type === "image")?.url || horse?.imageUrls?.[0];
+  const horseImage = horse?.media?.find(m => m.type === "image")?.url || horse?.imageUrls?.[0] || "/placeholder-horse.jpg";
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black/90 via-black/95 to-black flex items-center justify-center">
+      <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
         <div className="text-white">Loading...</div>
       </div>
     );
@@ -208,7 +208,7 @@ function BookingContent() {
 
   if (error || !stable || !horse) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black/90 via-black/95 to-black flex items-center justify-center px-4">
+      <div className="fixed inset-0 z-50 bg-black flex items-center justify-center px-4">
         <div className="text-center text-white">
           <p className="mb-4">{error || "Failed to load booking details"}</p>
           <Link href="/stables">
@@ -222,16 +222,16 @@ function BookingContent() {
   // Don't render until date/time values are populated to prevent calculation errors
   if (!selectedDate || !selectedStartTime || !selectedEndTime) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black/90 via-black/95 to-black flex items-center justify-center">
+      <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
         <div className="text-white">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black/90 via-black/95 to-black">
+    <div className="fixed inset-0 z-50 bg-black overflow-y-auto md:overflow-hidden">
       {/* Background Image with Overlay */}
-      <div className="fixed inset-0 z-0">
+      <div className="fixed inset-0 z-0 pointer-events-none">
         <div
           className="absolute inset-0 h-full w-full opacity-30"
           style={{
@@ -245,76 +245,79 @@ function BookingContent() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 min-h-screen px-4 py-8 md:py-12">
-        <div className="mx-auto max-w-4xl">
+      <div className="relative z-10 h-full w-full">
+        <div className="mx-auto max-w-7xl h-full flex flex-col px-4 py-4 md:py-8">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-4 md:mb-8 flex-shrink-0">
             <Link
               href={`/stables/${stableId}`}
-              className="mb-6 inline-flex items-center gap-2 text-white/70 transition-colors hover:text-white"
+              className="mb-4 inline-flex items-center gap-2 text-white/70 transition-colors hover:text-white"
             >
               <ArrowLeft className="h-4 w-4" />
               <span className="text-sm">Back to Stable</span>
             </Link>
-            <h1 className="mb-2 font-display text-3xl font-bold tracking-tight text-white drop-shadow-lg md:text-4xl">
+            <h1 className="font-display text-2xl font-bold tracking-tight text-white drop-shadow-lg md:text-3xl">
               Complete Your Booking
             </h1>
-            <p className="text-white/70">
-              Review your booking details and proceed to checkout
-            </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {/* Booking Details Card */}
-            <div className="md:col-span-2 space-y-6">
+          <div className="flex-1 min-h-0 grid gap-6 md:grid-cols-12 md:gap-8">
+            {/* Left Column: Horse & Date (Scrollable on desktop if needed, or fit) */}
+            <div className="md:col-span-7 lg:col-span-8 flex flex-col gap-6 overflow-y-auto pr-2 custom-scrollbar">
+
               {/* Horse Details */}
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl">
-                <h2 className="mb-4 text-xl font-bold text-white">Horse Selection</h2>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 md:p-6 backdrop-blur-md shadow-xl">
+                <h2 className="mb-4 text-lg md:text-xl font-bold text-white">Horse Selection</h2>
 
-                {horseImage && (
-                  <div className="mb-4 aspect-video w-full overflow-hidden rounded-xl">
-                    <Image
-                      src={horseImage}
-                      alt={horse.name}
-                      width={800}
-                      height={450}
-                      className="h-full w-full object-cover"
-                    />
+                <div className="flex flex-col md:flex-row gap-6">
+                  <div className="w-full md:w-1/2 aspect-video relative overflow-hidden rounded-xl bg-white/5">
+                    {horseImage ? (
+                      <Image
+                        src={horseImage}
+                        alt={horse.name}
+                        fill
+                        className="object-cover"
+                        onError={(e) => {
+                          // Fallback logic if needed, though Next.js Image handles this poorly client-side without state
+                          // We'll rely on the default placeholder if src is empty
+                        }}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-white/30">
+                        No Image
+                      </div>
+                    )}
                   </div>
-                )}
 
-                <div className="space-y-3">
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">{horse.name}</h3>
-                    <p className="text-sm text-white/70">{horse.description}</p>
-                  </div>
+                  <div className="flex-1 space-y-3">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">{horse.name}</h3>
+                      <p className="text-sm text-white/70 line-clamp-3">{horse.description}</p>
+                    </div>
 
-                  <div className="flex items-center justify-between border-t border-white/10 pt-3">
-                    <span className="text-white/70">Price per hour:</span>
-                    <span className="font-semibold text-white">
-                      EGP {safeToFixed(horse.pricePerHour, 0)}
-                    </span>
+                    <div className="flex items-center justify-between border-t border-white/10 pt-3">
+                      <span className="text-white/70">Price per hour:</span>
+                      <span className="font-semibold text-white">
+                        EGP {safeToFixed(horse.pricePerHour, 0)}
+                      </span>
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      className="w-full border-white/20 bg-white/5 text-white hover:bg-white/10"
+                      onClick={() => toast.info("Portfolio viewer coming soon")}
+                    >
+                      View Portfolio
+                    </Button>
                   </div>
                 </div>
-
-                {/* View Portfolio Button */}
-                <Button
-                  variant="outline"
-                  className="mt-4 w-full border-white/20 bg-white/5 text-white hover:bg-white/10"
-                  onClick={() => {
-                    // TODO: Open portfolio viewer
-                    toast.info("Portfolio viewer coming soon");
-                  }}
-                >
-                  View Portfolio
-                </Button>
               </div>
 
               {/* Date & Time Selection */}
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl">
-                <h2 className="mb-4 text-xl font-bold text-white">Date & Time</h2>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 md:p-6 backdrop-blur-md shadow-xl">
+                <h2 className="mb-4 text-lg md:text-xl font-bold text-white">Date & Time</h2>
 
-                <div className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label className="text-white">Date</Label>
                     <div className="relative">
@@ -324,7 +327,7 @@ function BookingContent() {
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                         min={new Date().toISOString().split("T")[0]}
-                        className="h-12 bg-white/10 border-white/20 pl-10 text-white placeholder:text-white/50 focus:border-white/40"
+                        className="h-12 bg-white/10 border-white/20 pl-10 text-white placeholder:text-white/50 focus:border-white/40 w-full"
                       />
                     </div>
                   </div>
@@ -339,8 +342,6 @@ function BookingContent() {
                         onChange={(e) => {
                           const newStartTime = e.target.value;
                           setSelectedStartTime(newStartTime);
-
-                          // Automatically set end time to 1 hour after start time
                           if (newStartTime) {
                             const [hours, minutes] = newStartTime.split(':').map(Number);
                             const endDate = new Date();
@@ -350,33 +351,33 @@ function BookingContent() {
                             setSelectedEndTime(`${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`);
                           }
                         }}
-                        className="h-12 bg-white/10 border-white/20 pl-10 text-white placeholder:text-white/50 focus:border-white/40"
+                        className="h-12 bg-white/10 border-white/20 pl-10 text-white placeholder:text-white/50 focus:border-white/40 w-full"
                       />
                     </div>
                   </div>
+                </div>
 
-                  <div className="rounded-lg bg-white/5 border border-white/10 p-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-white/70">Duration</p>
-                        <p className="font-semibold text-white">1 hour (fixed)</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-white/70">End Time</p>
-                        <p className="font-semibold text-white">{selectedEndTime}</p>
-                      </div>
+                <div className="mt-4 rounded-lg bg-white/5 border border-white/10 p-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-white/70">Duration</p>
+                      <p className="font-semibold text-white">1 hour (fixed)</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-white/70">End Time</p>
+                      <p className="font-semibold text-white">{selectedEndTime}</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Checkout Summary */}
-            <div className="md:col-span-1">
-              <div className="sticky top-6 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl">
-                <h2 className="mb-4 text-xl font-bold text-white">Booking Summary</h2>
+            {/* Right Column: Summary (Sticky/Fixed on desktop) */}
+            <div className="md:col-span-5 lg:col-span-4 flex flex-col h-full">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 md:p-6 backdrop-blur-md shadow-xl flex flex-col h-full">
+                <h2 className="mb-4 text-lg md:text-xl font-bold text-white">Booking Summary</h2>
 
-                <div className="space-y-4">
+                <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar pr-2">
                   {/* Stable Info */}
                   <div>
                     <p className="text-sm text-white/70">Stable</p>
@@ -384,13 +385,7 @@ function BookingContent() {
                     <p className="text-xs text-white/60">{stable.location}</p>
                   </div>
 
-                  {/* Horse Info */}
-                  <div>
-                    <p className="text-sm text-white/70">Horse</p>
-                    <p className="font-semibold text-white">{horse.name}</p>
-                  </div>
-
-                  {/* Date & Time */}
+                  {/* Date & Time Summary */}
                   <div className="space-y-2 border-t border-white/10 pt-4">
                     <div className="flex justify-between text-sm">
                       <span className="text-white/70">Date:</span>
@@ -399,10 +394,6 @@ function BookingContent() {
                     <div className="flex justify-between text-sm">
                       <span className="text-white/70">Time:</span>
                       <span className="text-white">{selectedStartTime && selectedEndTime ? `${selectedStartTime} - ${selectedEndTime}` : '-'}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-white/70">Duration:</span>
-                      <span className="text-white">{safeToFixed(calculateHours(), 1)} hours</span>
                     </div>
                   </div>
 
@@ -451,58 +442,51 @@ function BookingContent() {
                             <CheckCircle2 className="h-5 w-5 text-[rgb(218,165,32)]" />
                           )}
                         </div>
-                        <p className="mt-1 text-xs text-white/60">Pay on arrival</p>
                       </button>
 
                       <button
                         type="button"
-                        onClick={() => {
-                          toast.info("Card payment coming soon");
-                        }}
-                        className="w-full rounded-lg border border-white/20 bg-white/5 p-3 text-left opacity-50"
                         disabled
+                        className="w-full rounded-lg border border-white/20 bg-white/5 p-3 text-left opacity-50"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <div className="rounded-full bg-white/10 p-2">
                               <CreditCard className="h-4 w-4 text-white" />
                             </div>
-                            <span className="text-white">Card (Visa/Mastercard)</span>
+                            <span className="text-white">Card</span>
                           </div>
                         </div>
-                        <p className="mt-1 text-xs text-white/60">Coming soon</p>
                       </button>
                     </div>
                   </div>
+                </div>
 
-                  {/* Price Summary */}
-                  <div className="space-y-2 border-t border-white/10 pt-4">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-white/70">Subtotal:</span>
-                      <span className="text-white">EGP {safeToFixed((horse?.pricePerHour || 0) * calculateHours(), 0)}</span>
+                {/* Footer Section of Card */}
+                <div className="mt-4 space-y-4 border-t border-white/10 pt-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-white/70">Subtotal:</span>
+                    <span className="text-white">EGP {safeToFixed((horse?.pricePerHour || 0) * calculateHours(), 0)}</span>
+                  </div>
+                  {promoDiscount > 0 && (
+                    <div className="flex justify-between text-sm text-green-400">
+                      <span>Promo Discount:</span>
+                      <span>-EGP {safeToFixed(promoDiscount, 0)}</span>
                     </div>
-                    {promoDiscount > 0 && (
-                      <div className="flex justify-between text-sm text-green-400">
-                        <span>Promo Discount:</span>
-                        <span>-EGP {safeToFixed(promoDiscount, 0)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between border-t border-white/10 pt-2">
-                      <span className="font-semibold text-white">Total:</span>
-                      <span className="text-xl font-bold text-[rgb(218,165,32)]">
-                        EGP {safeToFixed(calculatePrice(), 0)}
-                      </span>
-                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="font-semibold text-white">Total:</span>
+                    <span className="text-xl font-bold text-[rgb(218,165,32)]">
+                      EGP {safeToFixed(calculatePrice(), 0)}
+                    </span>
                   </div>
 
-                  {/* Error Message */}
                   {error && (
                     <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
                       {error}
                     </div>
                   )}
 
-                  {/* Checkout Button */}
                   <Button
                     onClick={handleCheckout}
                     disabled={isSubmitting || !selectedDate || !selectedStartTime || !selectedEndTime}
@@ -513,19 +497,6 @@ function BookingContent() {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Home Button */}
-          <div className="mt-8 text-center">
-            <Link href="/">
-              <Button
-                variant="outline"
-                className="border-white/20 bg-white/5 text-white hover:bg-white/10"
-              >
-                <Home className="mr-2 h-4 w-4" />
-                Return to Home
-              </Button>
-            </Link>
           </div>
         </div>
       </div>
