@@ -116,7 +116,9 @@ function BookingContent() {
     if (!selectedDate || !selectedStartTime || !selectedEndTime) return 0;
     const start = new Date(`${selectedDate}T${selectedStartTime}`);
     const end = new Date(`${selectedDate}T${selectedEndTime}`);
-    return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+    const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+    // Ensure we return a valid number
+    return isNaN(hours) || !isFinite(hours) ? 0 : hours;
   };
 
   const handlePromoCode = async () => {
@@ -376,11 +378,11 @@ function BookingContent() {
                   <div className="space-y-2 border-t border-white/10 pt-4">
                     <div className="flex justify-between text-sm">
                       <span className="text-white/70">Date:</span>
-                      <span className="text-white">{new Date(selectedDate).toLocaleDateString()}</span>
+                      <span className="text-white">{selectedDate ? new Date(selectedDate).toLocaleDateString() : '-'}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-white/70">Time:</span>
-                      <span className="text-white">{selectedStartTime} - {selectedEndTime}</span>
+                      <span className="text-white">{selectedStartTime && selectedEndTime ? `${selectedStartTime} - ${selectedEndTime}` : '-'}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-white/70">Duration:</span>
@@ -461,18 +463,18 @@ function BookingContent() {
                   <div className="space-y-2 border-t border-white/10 pt-4">
                     <div className="flex justify-between text-sm">
                       <span className="text-white/70">Subtotal:</span>
-                      <span className="text-white">EGP {((horse.pricePerHour || 0) * calculateHours()).toFixed(0)}</span>
+                      <span className="text-white">EGP {(((horse?.pricePerHour || 0) * calculateHours()) || 0).toFixed(0)}</span>
                     </div>
                     {promoDiscount > 0 && (
                       <div className="flex justify-between text-sm text-green-400">
                         <span>Promo Discount:</span>
-                        <span>-EGP {promoDiscount.toFixed(0)}</span>
+                        <span>-EGP {(promoDiscount || 0).toFixed(0)}</span>
                       </div>
                     )}
                     <div className="flex justify-between border-t border-white/10 pt-2">
                       <span className="font-semibold text-white">Total:</span>
                       <span className="text-xl font-bold text-[rgb(218,165,32)]">
-                        EGP {calculatePrice().toFixed(0)}
+                        EGP {(calculatePrice() || 0).toFixed(0)}
                       </span>
                     </div>
                   </div>
