@@ -12,42 +12,47 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Temporary: Use hardcoded promo codes for testing until database connection is fixed
-        const testPromoCodes = [
-            {
-                code: "WELCOME10",
-                discountPercent: 10,
-                isActive: true,
-                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-                currentUsageCount: 0,
-                maxUsageCount: 100,
-            },
-            {
-                code: "SUMMER20",
-                discountPercent: 20,
-                isActive: true,
-                expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days from now
-                currentUsageCount: 0,
-                maxUsageCount: 50,
-            },
-            {
-                code: "EXPIRED",
-                discountPercent: 15,
-                isActive: true,
-                expiresAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // Yesterday
-                currentUsageCount: 0,
-                maxUsageCount: null,
-            },
-        ];
+        let promoCode;
 
-        const promoCode = testPromoCodes.find(
-            (p) => p.code === code.toUpperCase()
-        );
+        try {
+            // Try to fetch from database first
+            promoCode = await prisma.promoCode.findUnique({
+                where: { code: code.toUpperCase() },
+            });
+        } catch (dbError) {
+            // If table doesn't exist yet, fall back to hardcoded test codes
+            console.warn("PromoCode table not found, using hardcoded test codes");
+            const testPromoCodes = [
+                {
+                    code: "WELCOME10",
+                    discountPercent: 10,
+                    isActive: true,
+                    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                    currentUsageCount: 0,
+                    maxUsageCount: 100,
+                },
+                {
+                    code: "SUMMER20",
+                    discountPercent: 20,
+                    isActive: true,
+                    expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+                    currentUsageCount: 0,
+                    maxUsageCount: 50,
+                },
+                {
+                    code: "EXPIRED",
+                    discountPercent: 15,
+                    isActive: true,
+                    expiresAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
+                    currentUsageCount: 0,
+                    maxUsageCount: null,
+                },
+            ];
 
-        // TODO: Replace with database query once connection is fixed
-        // const promoCode = await prisma.promoCode.findUnique({
-        //   where: { code: code.toUpperCase() },
-        // });
+            promoCode = testPromoCodes.find(
+                (p) => p.code === code.toUpperCase()
+            ) as any;
+        }
 
         // Code doesn't exist
         if (!promoCode) {
@@ -90,8 +95,8 @@ export async function POST(req: NextRequest) {
         // Code is valid!
         return NextResponse.json({
             valid: true,
-            discountPercent: promoCode.discountPercent,
-            message: `Promo code applied! ${promoCode.discountPercent}% discount`,
+            discountPercent: Number(promoCode.discountPercent),
+            message: `Promo code applied! ${Number(promoCode.discountPercent)}% discount`,
         });
     } catch (error) {
         console.error("Promo code validation error:", error);
