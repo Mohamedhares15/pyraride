@@ -352,28 +352,29 @@ function BookingContent() {
               </div>
 
               {/* Date & Time Selection */}
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 md:p-6 backdrop-blur-md shadow-xl">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 md:p-6 backdrop-blur-md shadow-xl overflow-hidden">
                 <h2 className="mb-4 text-lg md:text-xl font-bold text-white">Date & Time</h2>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2 w-full min-w-0">
-                    <Label className="text-white">Date</Label>
-                    <div className="relative w-full">
-                      <Calendar className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/50 pointer-events-none" />
+                <div className="grid gap-4 md:grid-cols-2 overflow-hidden">
+                  <div className="space-y-2 w-full min-w-0 overflow-hidden">
+                    <Label className="text-white text-sm">Date</Label>
+                    <div className="relative w-full overflow-hidden">
+                      <Calendar className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/50 pointer-events-none z-10" />
                       <Input
                         type="date"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                         min={new Date().toISOString().split("T")[0]}
-                        className="h-12 bg-white/10 border-white/20 pl-10 pr-2 text-white placeholder:text-white/50 focus:border-white/40 w-full min-w-0"
+                        className="h-12 bg-white/10 border-white/20 pl-10 pr-3 text-white text-base placeholder:text-white/50 focus:border-white/40 w-full"
+                        style={{ fontSize: '16px' }}
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2 w-full min-w-0">
-                    <Label className="text-white">Start Time</Label>
-                    <div className="relative w-full">
-                      <Clock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/50 pointer-events-none" />
+                  <div className="space-y-2 w-full min-w-0 overflow-hidden">
+                    <Label className="text-white text-sm">Start Time</Label>
+                    <div className="relative w-full overflow-hidden">
+                      <Clock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/50 pointer-events-none z-10" />
                       <Input
                         type="time"
                         value={selectedStartTime}
@@ -389,7 +390,8 @@ function BookingContent() {
                             setSelectedEndTime(`${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`);
                           }
                         }}
-                        className="h-12 bg-white/10 border-white/20 pl-10 pr-2 text-white placeholder:text-white/50 focus:border-white/40 w-full min-w-0"
+                        className="h-12 bg-white/10 border-white/20 pl-10 pr-3 text-white text-base placeholder:text-white/50 focus:border-white/40 w-full"
+                        style={{ fontSize: '16px' }}
                       />
                     </div>
                   </div>
@@ -439,14 +441,15 @@ function BookingContent() {
 
                   {/* Promo Code */}
                   <div className="space-y-2 border-t border-white/10 pt-4">
-                    <Label className="text-white">Promo Code</Label>
+                    <Label className="text-white text-sm">Promo Code</Label>
                     <div className="flex gap-2">
                       <Input
                         type="text"
                         placeholder="Enter code"
                         value={promoCode}
                         onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                        className="h-10 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+                        className="h-10 bg-white/10 border-white/20 text-white text-base placeholder:text-white/50 focus:border-white/40"
+                        style={{ fontSize: '16px' }}
                       />
                       <Button
                         type="button"
