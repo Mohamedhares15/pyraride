@@ -196,7 +196,7 @@ function BookingContent() {
     }
   };
 
-  const horseImage = horse?.media?.find(m => m.type === "image")?.url || horse?.imageUrls?.[0] || "/placeholder-horse.jpg";
+  const horseImage = horse?.media?.find(m => m.type === "image")?.url || horse?.imageUrls?.[0] || "/gallery1.jpg";
 
   if (status === "loading" || isLoading) {
     return (
@@ -245,13 +245,13 @@ function BookingContent() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 h-full w-full">
-        <div className="mx-auto max-w-7xl h-full flex flex-col px-4 py-4 md:py-8">
+      <div className="relative z-10 w-full">
+        <div className="mx-auto max-w-7xl flex flex-col px-4 py-2 md:h-full md:py-6">
           {/* Header */}
-          <div className="mb-4 md:mb-8 flex-shrink-0">
+          <div className="mb-4 md:mb-6 flex-shrink-0">
             <Link
               href={`/stables/${stableId}`}
-              className="mb-4 inline-flex items-center gap-2 text-white/70 transition-colors hover:text-white"
+              className="mb-2 inline-flex items-center gap-2 text-white/70 transition-colors hover:text-white"
             >
               <ArrowLeft className="h-4 w-4" />
               <span className="text-sm">Back to Stable</span>
@@ -261,9 +261,10 @@ function BookingContent() {
             </h1>
           </div>
 
-          <div className="flex-1 min-h-0 grid gap-6 md:grid-cols-12 md:gap-8">
-            {/* Left Column: Horse & Date (Scrollable on desktop if needed, or fit) */}
-            <div className="md:col-span-7 lg:col-span-8 flex flex-col gap-6 overflow-y-auto pr-2 custom-scrollbar">
+          <div className="flex-1 grid gap-6 md:grid-cols-12 md:gap-8">
+            {/* Left Column: Horse & Date */}
+            {/* On mobile: h-auto (scrolls with page). On desktop: overflow-y-auto (independent scroll) */}
+            <div className="md:col-span-7 lg:col-span-8 flex flex-col gap-6 md:overflow-y-auto md:pr-2 md:custom-scrollbar pb-8 md:pb-0">
 
               {/* Horse Details */}
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4 md:p-6 backdrop-blur-md shadow-xl">
@@ -271,22 +272,16 @@ function BookingContent() {
 
                 <div className="flex flex-col md:flex-row gap-6">
                   <div className="w-full md:w-1/2 aspect-video relative overflow-hidden rounded-xl bg-white/5">
-                    {horseImage ? (
-                      <Image
-                        src={horseImage}
-                        alt={horse.name}
-                        fill
-                        className="object-cover"
-                        onError={(e) => {
-                          // Fallback logic if needed, though Next.js Image handles this poorly client-side without state
-                          // We'll rely on the default placeholder if src is empty
-                        }}
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-white/30">
-                        No Image
-                      </div>
-                    )}
+                    <Image
+                      src={horseImage}
+                      alt={horse.name}
+                      fill
+                      className="object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/gallery1.jpg";
+                      }}
+                    />
                   </div>
 
                   <div className="flex-1 space-y-3">
@@ -372,12 +367,14 @@ function BookingContent() {
               </div>
             </div>
 
-            {/* Right Column: Summary (Sticky/Fixed on desktop) */}
-            <div className="md:col-span-5 lg:col-span-4 flex flex-col h-full">
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 md:p-6 backdrop-blur-md shadow-xl flex flex-col h-full">
-                <h2 className="mb-4 text-lg md:text-xl font-bold text-white">Booking Summary</h2>
+            {/* Right Column: Summary */}
+            {/* On mobile: h-auto. On desktop: h-full (fixed height) */}
+            <div className="md:col-span-5 lg:col-span-4 flex flex-col md:h-full pb-8 md:pb-0">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 md:p-6 backdrop-blur-md shadow-xl flex flex-col md:h-full">
+                <h2 className="mb-4 text-lg md:text-xl font-bold text-white flex-shrink-0">Booking Summary</h2>
 
-                <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar pr-2">
+                {/* Scrollable content on desktop */}
+                <div className="flex-1 space-y-4 md:overflow-y-auto md:custom-scrollbar md:pr-2">
                   {/* Stable Info */}
                   <div>
                     <p className="text-sm text-white/70">Stable</p>
@@ -462,8 +459,8 @@ function BookingContent() {
                   </div>
                 </div>
 
-                {/* Footer Section of Card */}
-                <div className="mt-4 space-y-4 border-t border-white/10 pt-4">
+                {/* Footer Section of Card - Fixed at bottom on desktop */}
+                <div className="mt-4 space-y-4 border-t border-white/10 pt-4 flex-shrink-0">
                   <div className="flex justify-between text-sm">
                     <span className="text-white/70">Subtotal:</span>
                     <span className="text-white">EGP {safeToFixed((horse?.pricePerHour || 0) * calculateHours(), 0)}</span>
