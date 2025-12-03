@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -26,7 +26,7 @@ interface Stable {
   location: string;
 }
 
-export default function BookingPage() {
+function BookingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
@@ -42,7 +42,7 @@ export default function BookingPage() {
   const [horse, setHorse] = useState<Horse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  
+
   // Booking form state
   const [selectedDate, setSelectedDate] = useState(date);
   const [selectedStartTime, setSelectedStartTime] = useState(startTime);
@@ -163,7 +163,7 @@ export default function BookingPage() {
       }
 
       const data = await response.json();
-      
+
       if (paymentMethod === "cash") {
         // For cash payments, redirect to success page
         router.push(`/payment/success?bookingId=${data.booking.id}`);
@@ -244,7 +244,7 @@ export default function BookingPage() {
               {/* Horse Details */}
               <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl">
                 <h2 className="mb-4 text-xl font-bold text-white">Horse Selection</h2>
-                
+
                 {horseImage && (
                   <div className="mb-4 aspect-video w-full overflow-hidden rounded-xl">
                     <Image
@@ -262,7 +262,7 @@ export default function BookingPage() {
                     <h3 className="text-lg font-semibold text-white">{horse.name}</h3>
                     <p className="text-sm text-white/70">{horse.description}</p>
                   </div>
-                  
+
                   <div className="flex items-center justify-between border-t border-white/10 pt-3">
                     <span className="text-white/70">Price per hour:</span>
                     <span className="font-semibold text-white">
@@ -287,7 +287,7 @@ export default function BookingPage() {
               {/* Date & Time Selection */}
               <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl">
                 <h2 className="mb-4 text-xl font-bold text-white">Date & Time</h2>
-                
+
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label className="text-white">Date</Label>
@@ -313,7 +313,7 @@ export default function BookingPage() {
                         onChange={(e) => {
                           const newStartTime = e.target.value;
                           setSelectedStartTime(newStartTime);
-                          
+
                           // Automatically set end time to 1 hour after start time
                           if (newStartTime) {
                             const [hours, minutes] = newStartTime.split(':').map(Number);
@@ -409,11 +409,10 @@ export default function BookingPage() {
                       <button
                         type="button"
                         onClick={() => setPaymentMethod("cash")}
-                        className={`w-full rounded-lg border p-3 text-left transition-colors ${
-                          paymentMethod === "cash"
+                        className={`w-full rounded-lg border p-3 text-left transition-colors ${paymentMethod === "cash"
                             ? "border-[rgb(218,165,32)] bg-[rgba(218,165,32,0.1)]"
                             : "border-white/20 bg-white/5 hover:bg-white/10"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -505,5 +504,17 @@ export default function BookingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-black/90 via-black/95 to-black flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    }>
+      <BookingContent />
+    </Suspense>
   );
 }
