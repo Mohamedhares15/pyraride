@@ -186,6 +186,7 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
             endTime: `${hours + 1}:${minutes === 0 ? "00" : minutes}`,
             horseId,
             duration: 60,
+            timezoneOffset: new Date().getTimezoneOffset(), // Send timezone offset in minutes
         };
 
         console.log(`[ScheduleGrid] POST payload:`, payload);

@@ -103,6 +103,7 @@ export default function StableDetailPage() {
   const [availableSlots, setAvailableSlots] = useState<Record<string, Record<string, string[]>>>({});
   const [takenSlots, setTakenSlots] = useState<Record<string, Record<string, any[]>>>({});
   const [portfolioViewer, setPortfolioViewer] = useState<PortfolioViewerState | null>(null);
+  const [showAllSlots, setShowAllSlots] = useState<Record<string, boolean>>({});
   const { data: session } = useSession();
   const [bookingSelection, setBookingSelection] = useState<{
     horseId?: string;
@@ -134,13 +135,15 @@ export default function StableDetailPage() {
     const endHours = (hours + 1) % 24;
     const endTime = `${endHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 
-    setBookingSelection({
+    // Redirect to booking page with booking details in URL params
+    const bookingParams = new URLSearchParams({
+      stableId: id,
       horseId,
       date: date.toISOString().split("T")[0],
       startTime,
       endTime,
     });
-    setIsBookingModalOpen(true);
+    router.push(`/booking?${bookingParams.toString()}`);
   };
 
   useEffect(() => {
@@ -239,10 +242,14 @@ export default function StableDetailPage() {
           });
 
           slotsData.forEach((slot: any) => {
-            const time = new Date(slot.startTime).toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "2-digit",
-            });
+            // Parse the slot time and display in local time, ensuring consistency
+            const slotDate = new Date(slot.startTime);
+            // Use getHours/getMinutes to get local time components directly
+            const hours = slotDate.getHours();
+            const minutes = slotDate.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+            const time = `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
 
             // If horseId is null, it applies to ALL horses
             const targetHorses = slot.horseId
@@ -677,27 +684,50 @@ export default function StableDetailPage() {
                             <div className="mt-6 border-t pt-4">
                               <h4 className="mb-3 text-sm font-semibold">Today&apos;s Availability</h4>
                               {availableTimes.length > 0 ? (
-                                <div className="flex flex-wrap gap-2 mb-3">
-                                  {availableTimes.slice(0, 6).map((time: string) => (
-                                    <Button
-                                      key={time}
-                                      variant="outline"
-                                      size="sm"
-                                      className="h-6 bg-green-500/10 text-green-700 border-green-500/30 hover:bg-green-500/20 hover:text-green-800 text-xs px-2"
-                                      onClick={(e) => {
-                                        e.stopPropagation(); // Prevent opening portfolio
-                                        handleSlotClick(horse.id, time);
-                                      }}
-                                    >
-                                      {time}
-                                    </Button>
-                                  ))}
-                                  {availableTimes.length > 6 && (
-                                    <Badge variant="outline">
-                                      +{availableTimes.length - 6} more
-                                    </Badge>
-                                  )}
-                                </div>
+                                <>
+                                  <div className="flex flex-wrap gap-2 mb-3">
+                                    {(showAllSlots[horse.id] ? availableTimes : availableTimes.slice(0, 6)).map((time: string) => (
+                                      <Button
+                                        key={time}
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-6 bg-green-500/10 text-green-700 border-green-500/30 hover:bg-green-500/20 hover:text-green-800 text-xs px-2"
+                                        onClick={(e) => {
+                                          e.stopPropagation(); // Prevent opening portfolio
+                                          handleSlotClick(horse.id, time);
+                                        }}
+                                      >
+                                        {time}
+                                      </Button>
+                                    ))}
+                                    {availableTimes.length > 6 && !showAllSlots[horse.id] && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-6 text-xs px-2"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setShowAllSlots(prev => ({ ...prev, [horse.id]: true }));
+                                        }}
+                                      >
+                                        +{availableTimes.length - 6} more
+                                      </Button>
+                                    )}
+                                    {showAllSlots[horse.id] && availableTimes.length > 6 && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-6 text-xs px-2"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setShowAllSlots(prev => ({ ...prev, [horse.id]: false }));
+                                        }}
+                                      >
+                                        Show less
+                                      </Button>
+                                    )}
+                                  </div>
+                                </>
                               ) : (
                                 <p className="text-xs text-muted-foreground mb-3">No available slots today</p>
                               )}
@@ -786,7 +816,10 @@ export default function StableDetailPage() {
                 <Button
                   className="w-full"
                   size="lg"
-                  onClick={() => setIsBookingModalOpen(true)}
+                  onClick={() => {
+                    // Redirect to booking page - user can select horse and time there
+                    router.push(`/booking?stableId=${stable.id}`);
+                  }}
                 >
                   Book Now
                 </Button>
