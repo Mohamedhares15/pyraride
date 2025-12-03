@@ -59,6 +59,7 @@ function BookingContent() {
   const [promoValidating, setPromoValidating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [leadTimeWarning, setLeadTimeWarning] = useState("");
+  const [hasAdjustedForLeadTime, setHasAdjustedForLeadTime] = useState(false);
 
   // Initialize date/time from URL params after mount (client-side only)
   useEffect(() => {
@@ -155,24 +156,27 @@ function BookingContent() {
     const now = new Date();
     const hoursUntilBooking = (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-    if (hoursUntilBooking < stable.minLeadTimeHours && hoursUntilBooking >= 0) {
+    // Only adjust if we haven't already adjusted AND we're within lead time
+    if (hoursUntilBooking < stable.minLeadTimeHours && hoursUntilBooking >= 0 && !hasAdjustedForLeadTime) {
       // Booking is within lead time, adjust to tomorrow same time
       const tomorrow = new Date(now);
       tomorrow.setDate(tomorrow.getDate() + 1);
       const adjustedDate = tomorrow.toISOString().split("T")[0];
 
       setSelectedDate(adjustedDate);
+      setHasAdjustedForLeadTime(true);
       setLeadTimeWarning(
         `Note: This stable requires at least ${stable.minLeadTimeHours} hours advance notice. Your booking has been scheduled for tomorrow at the same time.`
       );
     } else if (hoursUntilBooking >= stable.minLeadTimeHours) {
       setLeadTimeWarning("");
+      setHasAdjustedForLeadTime(false);
     }
-  }, [stable, selectedDate, selectedStartTime]);
+  }, [stable, selectedDate, selectedStartTime, hasAdjustedForLeadTime]);
 
   const handlePromoCode = async () => {
     if (!promoCode.trim()) {
-      toast.error("Please enter a promo code");
+      toast.error("Please enter a promo code to apply.");
       return;
     }
 
