@@ -229,7 +229,7 @@ function BookingContent() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black overflow-y-auto md:overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-black overflow-y-auto overflow-x-hidden md:overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div
@@ -313,23 +313,23 @@ function BookingContent() {
                 <h2 className="mb-4 text-lg md:text-xl font-bold text-white">Date & Time</h2>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
+                  <div className="space-y-2 w-full">
                     <Label className="text-white">Date</Label>
-                    <div className="relative">
+                    <div className="relative w-full">
                       <Calendar className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/50" />
                       <Input
                         type="date"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                         min={new Date().toISOString().split("T")[0]}
-                        className="h-12 bg-white/10 border-white/20 pl-10 text-white placeholder:text-white/50 focus:border-white/40 w-full"
+                        className="h-12 bg-white/10 border-white/20 pl-10 pr-2 text-white placeholder:text-white/50 focus:border-white/40 w-full max-w-full box-border"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 w-full">
                     <Label className="text-white">Start Time</Label>
-                    <div className="relative">
+                    <div className="relative w-full">
                       <Clock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/50" />
                       <Input
                         type="time"
@@ -346,7 +346,7 @@ function BookingContent() {
                             setSelectedEndTime(`${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`);
                           }
                         }}
-                        className="h-12 bg-white/10 border-white/20 pl-10 text-white placeholder:text-white/50 focus:border-white/40 w-full"
+                        className="h-12 bg-white/10 border-white/20 pl-10 pr-2 text-white placeholder:text-white/50 focus:border-white/40 w-full max-w-full box-border"
                       />
                     </div>
                   </div>
