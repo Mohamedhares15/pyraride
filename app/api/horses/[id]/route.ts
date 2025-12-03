@@ -4,6 +4,38 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const horse = await prisma.horse.findUnique({
+      where: {
+        id: params.id,
+      },
+      include: {
+        stable: true,
+        media: true,
+      },
+    });
+
+    if (!horse) {
+      return NextResponse.json(
+        { error: "Horse not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(horse);
+  } catch (error) {
+    console.error("Error fetching horse:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -69,9 +101,9 @@ export async function PATCH(
     }
 
     // Check if price or description changed (these need admin approval)
-    const priceChanged = pricePerHour !== undefined && 
-      (horse.pricePerHour === null || 
-       Math.abs(Number(pricePerHour) - Number(horse.pricePerHour)) > 0.01);
+    const priceChanged = pricePerHour !== undefined &&
+      (horse.pricePerHour === null ||
+        Math.abs(Number(pricePerHour) - Number(horse.pricePerHour)) > 0.01);
     const descriptionChanged = description && description.trim() !== horse.description.trim();
 
     // If price or description changed, create a change request instead of direct update
@@ -102,7 +134,7 @@ export async function PATCH(
 
       // adminTier is admin-only - stable owners cannot change it
       // Only admins can update adminTier through /api/admin/horses/[id]/admin-tier
-      
+
       // Update non-restricted fields immediately (name, age, skills, availability, images)
       const updatedHorse = await prisma.horse.update({
         where: { id: params.id },
@@ -137,7 +169,7 @@ export async function PATCH(
         await Promise.all(mediaPromises);
       }
 
-      return NextResponse.json({ 
+      return NextResponse.json({
         horse: updatedHorse,
         changeRequestCreated: true,
         changeRequestId: changeRequest.id,
