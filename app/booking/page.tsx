@@ -34,23 +34,31 @@ function BookingContent() {
   // Get booking details from URL params
   const stableId = searchParams.get("stableId");
   const horseId = searchParams.get("horseId");
-  const date = searchParams.get("date") || new Date().toISOString().split("T")[0];
-  const startTime = searchParams.get("startTime") || "09:00";
-  const endTime = searchParams.get("endTime") || "10:00";
 
   const [stable, setStable] = useState<Stable | null>(null);
   const [horse, setHorse] = useState<Horse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Booking form state
-  const [selectedDate, setSelectedDate] = useState(date);
-  const [selectedStartTime, setSelectedStartTime] = useState(startTime);
-  const [selectedEndTime, setSelectedEndTime] = useState(endTime);
+  // Booking form state - initialize with empty/static values to prevent hydration mismatch
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedStartTime, setSelectedStartTime] = useState("");
+  const [selectedEndTime, setSelectedEndTime] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card">("cash");
   const [promoCode, setPromoCode] = useState("");
   const [promoDiscount, setPromoDiscount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Initialize date/time from URL params after mount (client-side only)
+  useEffect(() => {
+    const date = searchParams.get("date") || new Date().toISOString().split("T")[0];
+    const startTime = searchParams.get("startTime") || "09:00";
+    const endTime = searchParams.get("endTime") || "10:00";
+
+    setSelectedDate(date);
+    setSelectedStartTime(startTime);
+    setSelectedEndTime(endTime);
+  }, [searchParams]);
 
   // Fetch stable and horse data
   useEffect(() => {
@@ -410,8 +418,8 @@ function BookingContent() {
                         type="button"
                         onClick={() => setPaymentMethod("cash")}
                         className={`w-full rounded-lg border p-3 text-left transition-colors ${paymentMethod === "cash"
-                            ? "border-[rgb(218,165,32)] bg-[rgba(218,165,32,0.1)]"
-                            : "border-white/20 bg-white/5 hover:bg-white/10"
+                          ? "border-[rgb(218,165,32)] bg-[rgba(218,165,32,0.1)]"
+                          : "border-white/20 bg-white/5 hover:bg-white/10"
                           }`}
                       >
                         <div className="flex items-center justify-between">
