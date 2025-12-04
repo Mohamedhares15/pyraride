@@ -57,6 +57,7 @@ function BookingContent() {
   const [promoDiscount, setPromoDiscount] = useState(0);
   const [promoError, setPromoError] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
+  const [promoCodeId, setPromoCodeId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [leadTimeWarning, setLeadTimeWarning] = useState("");
 
@@ -174,34 +175,49 @@ function BookingContent() {
     setPromoError("");
     const code = promoCode.trim().toUpperCase();
 
-    // Mock validation - replace with API call when backend is ready
-    if (code === "INVALID" || code === "TEST123" || code.length < 3) {
-      setPromoError("Invalid promo code");
-      toast.error("Invalid promo code");
-      return;
-    }
+    try {
+      const res = await fetch("/api/promo-codes/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
 
-    if (code === "EXPIRED" || code === "OLD") {
-      setPromoError("This promo code has expired");
-      toast.error("This promo code has expired");
-      return;
-    }
+      const data = await res.json();
 
-    if (code.startsWith("SAVE")) {
-      const discount = 50;
-      setPromoDiscount(discount);
-      setAppliedPromo(code);
-      setPromoCode("");
-      toast.success(`Promo code applied! EGP ${discount} discount`);
-    } else {
-      setPromoError("Promo code feature coming soon");
-      toast.info("Promo code feature coming soon");
+      if (!res.ok) {
+        setPromoError(data.error || "Invalid promo code");
+        toast.error(data.error || "Invalid promo code");
+        return;
+      }
+
+      if (data.valid) {
+        // Calculate discount
+        let discount = 0;
+        const price = calculatePrice();
+
+        if (data.discountType === "percentage") {
+          discount = (price * data.discountAmount) / 100;
+        } else {
+          discount = data.discountAmount;
+        }
+
+        setPromoDiscount(discount);
+        setAppliedPromo(data.code);
+        setPromoCodeId(data.id);
+        setPromoCode("");
+        toast.success(`Promo code applied! EGP ${discount.toFixed(2)} discount`);
+      }
+    } catch (err) {
+      console.error("Promo validation error:", err);
+      setPromoError("Failed to validate promo code");
+      toast.error("Failed to validate promo code");
     }
   };
 
   const removePromoCode = () => {
     setPromoDiscount(0);
     setAppliedPromo(null);
+    setPromoCodeId(null);
     setPromoCode("");
     setPromoError("");
     toast.success("Promo code removed");
@@ -239,6 +255,7 @@ function BookingContent() {
           addons: [],
           totalPrice,
           currency: "EGP",
+          promoCodeId,
         }),
       });
 

@@ -327,6 +327,7 @@ model Booking {
   rescheduledTo      DateTime?
   isRescheduled      Boolean       @default(false)
   cancelledBy        String? // "rider", "owner", "admin"
+  promoCodeId        String?
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
@@ -338,6 +339,7 @@ model Booking {
   riderReview      RiderReview? // A booking can have one rider review from stable owner
   rideResult       RideResult?
   availabilitySlot AvailabilitySlot? // The availability slot consumed by this booking
+  promoCode        PromoCode?        @relation(fields: [promoCodeId], references: [id])
 }
 
 model Review {
@@ -392,22 +394,6 @@ model LoyaltyPoints {
   updatedAt DateTime @updatedAt
 }
 
-model PromoCode {
-  id                String    @id @default(uuid())
-  code              String    @unique
-  discountPercent   Decimal   @db.Decimal(5, 2) // e.g., 15.00 for 15%
-  isActive          Boolean   @default(true)
-  maxUsageCount     Int? // null = unlimited
-  currentUsageCount Int       @default(0)
-  expiresAt         DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-
-  @@index([code])
-  @@index([isActive])
-}
-
-
 model PasswordResetToken {
   id        String   @id @default(uuid())
   token     String   @unique
@@ -457,4 +443,19 @@ model LeagueStanding {
   @@index([leagueId])
   @@index([riderId])
   @@index([finalRank])
+}
+
+model PromoCode {
+  id             String    @id @default(uuid())
+  code           String    @unique
+  discountType   String    @default("percentage") // "percentage" or "fixed"
+  discountAmount Decimal   @db.Decimal(10, 2)
+  expiresAt      DateTime?
+  maxUses        Int? // Null = unlimited
+  currentUses    Int       @default(0)
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  bookings Booking[]
 }

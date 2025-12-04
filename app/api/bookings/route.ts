@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { stableId, horseId, startTime, endTime } = body;
+    const { stableId, horseId, startTime, endTime, promoCodeId } = body;
 
     // Validate required fields
     if (!stableId || !horseId || !startTime || !endTime) {
@@ -169,38 +169,56 @@ export async function POST(req: NextRequest) {
     const totalPrice = hours * pricePerHour;
     const commission = totalPrice * commissionRate;
 
-    // Create booking
-    const booking = await prisma.booking.create({
-      data: {
-        riderId: session.user.id,
-        stableId,
-        horseId,
-        startTime,
-        endTime,
-        totalPrice,
-        commission,
-        status: "confirmed",
-      },
-      include: {
-        stable: {
-          select: {
-            name: true,
-            location: true,
-          },
+    // Create booking and increment promo code usage in transaction
+    const booking = await prisma.$transaction(async (tx) => {
+      // Create the booking
+      const newBooking = await tx.booking.create({
+        data: {
+          riderId: session.user.id,
+          stableId,
+          horseId,
+          startTime,
+          endTime,
+          totalPrice,
+          commission,
+          status: "confirmed",
+          promoCodeId: promoCodeId || null,
         },
-        horse: {
-          select: {
-            name: true,
+        include: {
+          stable: {
+            select: {
+              name: true,
+              location: true,
+            },
           },
-        },
-        rider: {
-          select: {
-            fullName: true,
-            email: true,
-            phoneNumber: true,
+          horse: {
+            select: {
+              name: true,
+            },
+          },
+          rider: {
+            select: {
+              fullName: true,
+              email: true,
+              phoneNumber: true,
+            }
           }
-        }
-      },
+        },
+      });
+
+      // Increment promo code usage if applied
+      if (promoCodeId) {
+        await tx.promoCode.update({
+          where: { id: promoCodeId },
+          data: {
+            currentUses: {
+              increment: 1,
+            },
+          },
+        });
+      }
+
+      return newBooking;
     });
 
     // Update corresponding availability slots
