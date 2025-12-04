@@ -26,13 +26,13 @@ export default function FilmGrainCanvas() {
         <div
             className="pointer-events-none fixed inset-0 z-50"
             style={{
-                mixBlendMode: "normal", // Changed from overlay to normal for visibility
-                pointerEvents: "none"   // Inline style override
+                mixBlendMode: "normal", // Ensure visibility on dark backgrounds
+                pointerEvents: "none"   // CRITICAL: Allow clicks to pass through
             }}
             aria-hidden="true"
         >
             <Canvas
-                className="pointer-events-none" // Class on Canvas
+                className="pointer-events-none"
                 gl={{
                     alpha: true,
                     stencil: false,
@@ -42,7 +42,7 @@ export default function FilmGrainCanvas() {
                 style={{
                     width: "100%",
                     height: "100%",
-                    pointerEvents: "none" // Inline style on Canvas
+                    pointerEvents: "none" // CRITICAL: Ensure Canvas doesn't block clicks
                 }}
                 camera={{ position: [0, 0, 1] }}
             >

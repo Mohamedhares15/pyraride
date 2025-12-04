@@ -4,7 +4,7 @@ import { ReactNode, Component, ErrorInfo } from "react";
 import dynamic from "next/dynamic";
 import { ReactLenis } from "@studio-freight/react-lenis";
 
-// Dynamically import canvas component with SSR disabled
+// Dynamically import canvas component with SSR disabled to prevent hydration errors
 const FilmGrainCanvas = dynamic(() => import("./FilmGrainCanvas"), {
     ssr: false,
 });
@@ -47,7 +47,7 @@ export default function CinematicWrapper({ children }: CinematicWrapperProps) {
                 touchMultiplier: 2,
             }}
         >
-            {/* Film Grain Overlay Canvas - SSR disabled & Error Boundary protected */}
+            {/* Film Grain Overlay - Wrapped in ErrorBoundary and SSR disabled */}
             <ErrorBoundary>
                 <FilmGrainCanvas />
             </ErrorBoundary>
