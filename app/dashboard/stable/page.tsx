@@ -20,6 +20,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import CancelRescheduleModal from "@/components/shared/CancelRescheduleModal";
+import RiderReviewModal from "@/components/shared/RiderReviewModal";
+import { Star } from "lucide-react";
 
 interface Booking {
   id: string;
@@ -36,6 +38,9 @@ interface Booking {
     fullName: string | null;
     email: string;
   };
+  riderReview?: {
+    id: string;
+  } | null;
 }
 
 interface Stable {
@@ -64,6 +69,7 @@ export default function StableOwnerDashboard() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [cancelRescheduleModalOpen, setCancelRescheduleModalOpen] = useState(false);
   const [cancelRescheduleMode, setCancelRescheduleMode] = useState<"cancel" | "reschedule">("cancel");
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -393,6 +399,21 @@ export default function StableOwnerDashboard() {
                               </Button>
                             </>
                           )}
+                          {booking.status === "completed" && (
+                            <Button
+                              onClick={() => {
+                                setSelectedBooking(booking);
+                                setReviewModalOpen(true);
+                              }}
+                              disabled={!!booking.riderReview}
+                              size="sm"
+                              variant="outline"
+                              className="whitespace-nowrap gap-2"
+                            >
+                              <Star className="h-4 w-4" />
+                              {booking.riderReview ? "Reviewed" : "Review Rider"}
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </Card>
@@ -424,6 +445,22 @@ export default function StableOwnerDashboard() {
           />
         )
       }
+
+      {/* Rider Review Modal */}
+      {selectedBooking && (
+        <RiderReviewModal
+          open={reviewModalOpen}
+          onOpenChange={setReviewModalOpen}
+          booking={{
+            id: selectedBooking.id,
+            rider: selectedBooking.rider,
+            horse: { name: selectedBooking.horse.name },
+          }}
+          onSuccess={() => {
+            fetchStableData(); // Refresh to show "Reviewed" status
+          }}
+        />
+      )}
     </div >
   );
 }
