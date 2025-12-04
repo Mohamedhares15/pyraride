@@ -6,6 +6,7 @@ import AIAgent from "@/components/shared/AIAgent";
 import CookieConsent from "@/components/shared/CookieConsent";
 import Footer from "@/components/shared/Footer";
 import OrientationLock from "@/components/shared/OrientationLock";
+import CinematicWrapper from "@/components/CinematicWrapper";
 import { GoogleAnalytics, Plausible } from "@/components/shared/Analytics";
 import "./globals.css";
 
@@ -384,14 +385,16 @@ export default function RootLayout({
         </a>
 
         <AuthProvider>
-          <ImageProtectionProvider />
-          <OrientationLock />
-          <main id="main-content" className="pb-0">{children}</main>
-          <Footer />
-          <AIAgent />
-          <CookieConsent />
-          <GoogleAnalytics trackingId={process.env.NEXT_PUBLIC_GA_ID} />
-          <Plausible domain="www.pyrarides.com" />
+          <CinematicWrapper>
+            <ImageProtectionProvider />
+            <OrientationLock />
+            <main id="main-content" className="pb-0">{children}</main>
+            <Footer />
+            <AIAgent />
+            <CookieConsent />
+            <GoogleAnalytics trackingId={process.env.NEXT_PUBLIC_GA_ID} />
+            <Plausible domain="www.pyrarides.com" />
+          </CinematicWrapper>
         </AuthProvider>
       </body>
     </html>
