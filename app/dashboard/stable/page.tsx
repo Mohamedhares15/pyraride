@@ -73,6 +73,10 @@ export default function StableOwnerDashboard() {
       return;
     }
 
+    // Trigger auto-completion of past bookings
+    fetch("/api/system/auto-complete-bookings", { method: "POST" })
+      .catch(err => console.error("Failed to auto-complete bookings:", err));
+
     fetchStableData();
   }, [session, status, router]);
 
