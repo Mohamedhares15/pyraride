@@ -186,7 +186,6 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
             endTime: `${hours + 1}:${minutes === 0 ? "00" : minutes}`,
             horseId,
             duration: 60,
-            timezoneOffset: new Date().getTimezoneOffset(), // Send timezone offset in minutes
         };
 
         console.log(`[ScheduleGrid] POST payload:`, payload);
@@ -203,10 +202,10 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
             if (res.ok) {
                 const responseData = await res.json();
                 console.log("[ScheduleGrid] Create response:", responseData);
-                
+
                 // Remove optimistic update immediately
                 setSlots(prevSlots => prevSlots.filter(s => s.id !== tempId));
-                
+
                 if (responseData.count > 0) {
                     toast.success(`Slot created successfully`);
                 } else if (responseData.skipped > 0) {
@@ -214,7 +213,7 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
                 } else {
                     toast.warning(`No slots were created`);
                 }
-                
+
                 // Fetch real slots from database to ensure UI is in sync
                 setTimeout(() => fetchSlots(), 300);
             } else {

@@ -82,7 +82,6 @@ export async function POST(
       endTime,
       horseId,
       duration = 60, // Default 1 hour slots
-      timezoneOffset, // Client's timezone offset in minutes (optional)
     } = await req.json();
 
     if (!date || !startTime || !endTime) {
@@ -100,7 +99,7 @@ export async function POST(
 
     // Parse date string same way as GET endpoint - use local time to match GET query
     const [year, month, day] = date.split('-').map(Number);
-    
+
     // Validate parsed date
     if (isNaN(year) || isNaN(month) || isNaN(day) || month < 1 || month > 12 || day < 1 || day > 31) {
       return NextResponse.json(
@@ -112,7 +111,7 @@ export async function POST(
     // Create date at local midnight - same as GET endpoint
     const slotDate = new Date(year, month - 1, day);
     slotDate.setHours(0, 0, 0, 0); // Ensure it's at midnight
-    
+
     console.log(`[POST /api/stables/${params.id}/slots] Date string: ${date}, Parsed date: ${slotDate.toISOString()}`);
 
     // Parse times - validate format HH:MM
@@ -135,25 +134,10 @@ export async function POST(
       );
     }
 
-    // Create start and end datetimes - handle timezone correctly
-    // If timezone offset is provided, use it to create dates in user's timezone
-    // Otherwise, use server's local time
-    let start: Date;
-    let end: Date;
-    
-    if (timezoneOffset !== undefined) {
-      // Create dates in UTC, then adjust for user's timezone offset
-      // timezoneOffset is in minutes (negative for timezones ahead of UTC, positive behind)
-      const userOffsetMs = timezoneOffset * 60000;
-      start = new Date(Date.UTC(year, month - 1, day, startHour, startMinute, 0, 0));
-      start = new Date(start.getTime() - userOffsetMs);
-      end = new Date(Date.UTC(year, month - 1, day, endHour, endMinute, 0, 0));
-      end = new Date(end.getTime() - userOffsetMs);
-    } else {
-      // Fallback to server local time if offset not provided
-      start = new Date(year, month - 1, day, startHour, startMinute, 0, 0);
-      end = new Date(year, month - 1, day, endHour, endMinute, 0, 0);
-    }
+    // Create start and end datetimes using local time - no timezone conversion needed
+    // This ensures the time in database matches exactly what user clicked
+    const start = new Date(year, month - 1, day, startHour, startMinute, 0, 0);
+    const end = new Date(year, month - 1, day, endHour, endMinute, 0, 0);
 
     // Validate that start is before end
     if (start >= end) {
@@ -171,7 +155,7 @@ export async function POST(
 
     while (current < end) {
       const slotEnd = new Date(current.getTime() + duration * 60000);
-      
+
       // Only create slot if it fits within the end time
       if (slotEnd <= end) {
         slots.push({
