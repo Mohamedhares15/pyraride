@@ -31,7 +31,6 @@ interface Stable {
   id: string;
   name: string;
   location: string;
-  minLeadTimeHours: number;
 }
 
 function BookingContent() {
@@ -54,12 +53,10 @@ function BookingContent() {
   const [selectedEndTime, setSelectedEndTime] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card">("cash");
   const [promoCode, setPromoCode] = useState("");
-  const [promoDiscountPercent, setPromoDiscountPercent] = useState(0);
-  const [promoApplied, setPromoApplied] = useState(false);
-  const [promoValidating, setPromoValidating] = useState(false);
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [promoError, setPromoError] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [leadTimeWarning, setLeadTimeWarning] = useState("");
-  const [hasAdjustedForLeadTime, setHasAdjustedForLeadTime] = useState(false);
 
   // Initialize date/time from URL params after mount (client-side only)
   useEffect(() => {
@@ -120,16 +117,8 @@ function BookingContent() {
     const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
     const horsePrice = horse.pricePerHour || 0;
 
-    const subtotal = hours > 0 ? hours * horsePrice : 0;
-    const discount = promoApplied ? (subtotal * promoDiscountPercent) / 100 : 0;
-    return Math.max(0, subtotal - discount);
-  };
-
-  // Calculate discount amount
-  const calculateDiscount = () => {
-    if (!horse || !promoApplied) return 0;
-    const subtotal = (horse.pricePerHour || 0) * calculateHours();
-    return (subtotal * promoDiscountPercent) / 100;
+    const basePrice = hours > 0 ? hours * horsePrice : 0;
+    return Math.max(0, basePrice - promoDiscount);
   };
 
   const calculateHours = () => {
@@ -148,64 +137,46 @@ function BookingContent() {
     return num.toFixed(decimals);
   };
 
-  // Validate lead time when date/time changes
-  useEffect(() => {
-    if (!stable || !selectedDate || !selectedStartTime) return;
-
-    const bookingDateTime = new Date(`${selectedDate}T${selectedStartTime}`);
-    const now = new Date();
-    const hoursUntilBooking = (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-
-    // Only adjust if we haven't already adjusted AND we're within lead time
-    if (hoursUntilBooking < stable.minLeadTimeHours && hoursUntilBooking >= 0 && !hasAdjustedForLeadTime) {
-      // Booking is within lead time, adjust to tomorrow same time
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const adjustedDate = tomorrow.toISOString().split("T")[0];
-
-      setSelectedDate(adjustedDate);
-      setHasAdjustedForLeadTime(true);
-      setLeadTimeWarning(
-        `Note: This stable requires at least ${stable.minLeadTimeHours} hours advance notice. Your booking has been scheduled for tomorrow at the same time.`
-      );
-    } else if (hoursUntilBooking >= stable.minLeadTimeHours) {
-      setLeadTimeWarning("");
-      setHasAdjustedForLeadTime(false);
-    }
-  }, [stable, selectedDate, selectedStartTime, hasAdjustedForLeadTime]);
-
   const handlePromoCode = async () => {
     if (!promoCode.trim()) {
-      toast.error("Please enter a promo code to apply.");
+      setPromoError("Please enter a promo code");
       return;
     }
 
-    setPromoValidating(true);
-    try {
-      const response = await fetch("/api/promo-codes/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: promoCode }),
-      });
+    setPromoError("");
+    const code = promoCode.trim().toUpperCase();
 
-      const data = await response.json();
-
-      if (data.valid) {
-        setPromoDiscountPercent(data.discountPercent);
-        setPromoApplied(true);
-        toast.success(data.message);
-      } else {
-        setPromoApplied(false);
-        setPromoDiscountPercent(0);
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error("Failed to validate promo code");
-      setPromoApplied(false);
-      setPromoDiscountPercent(0);
-    } finally {
-      setPromoValidating(false);
+    // Mock validation - replace with API call when backend is ready
+    if (code === "INVALID" || code === "TEST123" || code.length < 3) {
+      setPromoError("Invalid promo code");
+      toast.error("Invalid promo code");
+      return;
     }
+
+    if (code === "EXPIRED" || code === "OLD") {
+      setPromoError("This promo code has expired");
+      toast.error("This promo code has expired");
+      return;
+    }
+
+    if (code.startsWith("SAVE")) {
+      const discount = 50;
+      setPromoDiscount(discount);
+      setAppliedPromo(code);
+      setPromoCode("");
+      toast.success(`Promo code applied! EGP ${discount} discount`);
+    } else {
+      setPromoError("Promo code feature coming soon");
+      toast.info("Promo code feature coming soon");
+    }
+  };
+
+  const removePromoCode = () => {
+    setPromoDiscount(0);
+    setAppliedPromo(null);
+    setPromoCode("");
+    setPromoError("");
+    toast.success("Promo code removed");
   };
 
   const handleCheckout = async () => {
@@ -471,16 +442,6 @@ function BookingContent() {
                     </div>
                   </div>
                 </div>
-
-                {/* Lead Time Warning */}
-                {leadTimeWarning && (
-                  <div className="mt-4 rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 flex items-start gap-2">
-                    <svg className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    <p className="text-sm text-amber-200">{leadTimeWarning}</p>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -514,29 +475,51 @@ function BookingContent() {
                   {/* Promo Code */}
                   <div className="space-y-2 border-t border-white/10 pt-4">
                     <Label className="text-white text-sm">Promo Code</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        type="text"
-                        placeholder="Enter code"
-                        value={promoCode}
-                        onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                        className="h-10 bg-white/10 border-white/20 text-white text-base placeholder:text-white/50 focus:border-white/40"
-                        style={{ fontSize: '16px' }}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handlePromoCode}
-                        disabled={promoValidating || !promoCode.trim()}
-                        className="border-white/20 bg-white/5 text-white hover:bg-white/10 disabled:opacity-50"
-                      >
-                        {promoValidating ? (
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                        ) : (
-                          <Tag className="h-4 w-4" />
+
+                    {appliedPromo ? (
+                      <div className="flex items-center justify-between p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Tag className="h-4 w-4 text-green-400" />
+                          <span className="text-green-400 font-semibold text-sm">{appliedPromo}</span>
+                          <span className="text-green-400/70 text-xs">Applied</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={removePromoCode}
+                          className="text-green-400 hover:text-green-300 transition-colors"
+                          title="Remove promo code"
+                        >
+                          <CheckCircle2 className="h-5 w-5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex gap-2">
+                          <Input
+                            type="text"
+                            placeholder="Enter code"
+                            value={promoCode}
+                            onChange={(e) => {
+                              setPromoCode(e.target.value.toUpperCase());
+                              setPromoError("");
+                            }}
+                            className="h-10 bg-white/10 border-white/20 text-white text-base placeholder:text-white/50 focus:border-white/40"
+                            style={{ fontSize: '16px' }}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handlePromoCode}
+                            className="border-white/20 bg-white/5 text-white hover:bg-white/10"
+                          >
+                            <Tag className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        {promoError && (
+                          <p className="text-rose-400 text-xs mt-1">{promoError}</p>
                         )}
-                      </Button>
-                    </div>
+                      </>
+                    )}
                   </div>
 
                   {/* Payment Method */}
@@ -588,10 +571,10 @@ function BookingContent() {
                     <span className="text-white/70">Subtotal:</span>
                     <span className="text-white">EGP {safeToFixed((horse?.pricePerHour || 0) * calculateHours(), 0)}</span>
                   </div>
-                  {promoApplied && (
+                  {promoDiscount > 0 && (
                     <div className="flex justify-between text-sm text-green-400">
-                      <span>Promo Discount (-{promoDiscountPercent}%):</span>
-                      <span>-EGP {safeToFixed(calculateDiscount(), 0)}</span>
+                      <span>Promo Discount:</span>
+                      <span>-EGP {safeToFixed(promoDiscount, 0)}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
