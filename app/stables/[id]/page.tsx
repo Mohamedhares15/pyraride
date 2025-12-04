@@ -763,75 +763,14 @@ export default function StableDetailPage() {
                               </div>
                             </div>
 
-                            {/* Available Slots */}
+                            {/* Next Available Rides */}
                             <div className="mt-6 border-t pt-4">
-                              <h4 className="mb-3 text-sm font-semibold">Today&apos;s Availability</h4>
-                              {availableTimes.length > 0 ? (
-                                <>
-                                  <div className="flex flex-wrap gap-2 mb-3">
-                                    {(showAllSlots[horse.id] ? availableTimes : availableTimes.slice(0, 6)).map((time: string) => (
-                                      <Button
-                                        key={time}
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-6 bg-green-500/10 text-green-700 border-green-500/30 hover:bg-green-500/20 hover:text-green-800 text-xs px-2"
-                                        onClick={(e) => {
-                                          e.stopPropagation(); // Prevent opening portfolio
-                                          handleSlotClick(horse.id, time);
-                                        }}
-                                      >
-                                        {time}
-                                      </Button>
-                                    ))}
-                                    {availableTimes.length > 6 && !showAllSlots[horse.id] && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-6 text-xs px-2"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setShowAllSlots(prev => ({ ...prev, [horse.id]: true }));
-                                        }}
-                                      >
-                                        +{availableTimes.length - 6} more
-                                      </Button>
-                                    )}
-                                    {showAllSlots[horse.id] && availableTimes.length > 6 && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-6 text-xs px-2"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setShowAllSlots(prev => ({ ...prev, [horse.id]: false }));
-                                        }}
-                                      >
-                                        Show less
-                                      </Button>
-                                    )}
-                                  </div>
-                                </>
-                              ) : (
-                                <p className="text-xs text-muted-foreground mb-3">No available slots today</p>
-                              )}
-
-                              {takenTimes.length > 0 && (
-                                <div className="mt-2">
-                                  <p className="text-xs text-muted-foreground mb-2">Booked:</p>
-                                  <div className="flex flex-wrap gap-2">
-                                    {takenTimes.slice(0, 4).map((time: string) => (
-                                      <Badge key={time} variant="outline" className="opacity-60">
-                                        {time}
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-
-                              <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-                                <Clock className="h-3 w-3" />
-                                <span>Updated every 30 seconds</span>
-                              </div>
+                              <h4 className="mb-3 text-sm font-semibold">Next Available Rides</h4>
+                              <DynamicAvailability
+                                grouped={groupedSlots[horse.id]}
+                                horseId={horse.id}
+                                onSlotClick={handleSlotClick}
+                              />
                             </div>
                           </div>
                         </div>
