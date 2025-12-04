@@ -25,6 +25,7 @@ import BookingModal from "@/components/shared/BookingModal";
 import AuthModal from "@/components/shared/AuthModal";
 import ReviewsSection from "@/components/sections/ReviewsSection";
 import StableLocationMap from "@/components/maps/StableLocationMap";
+import DynamicAvailability from "@/components/availability/DynamicAvailability";
 import {
   Dialog,
   DialogContent,
@@ -80,6 +81,7 @@ interface Stable {
   rating: number;
   totalBookings: number;
   totalReviews: number;
+  minLeadTimeHours?: number;
   createdAt: string;
   owner: {
     id: string;
@@ -88,6 +90,71 @@ interface Stable {
   };
   horses: Horse[];
   reviews: Review[];
+}
+
+// Dynamic availability grouping types
+type TimePeriod = 'morning' | 'afternoon' | 'evening';
+
+interface GroupedSlots {
+  morning: string[];
+  afternoon: string[];
+  evening: string[];
+}
+
+interface DayGroupedSlots {
+  today: GroupedSlots;
+  tomorrow: GroupedSlots;
+}
+
+// Helper: Determine time period from hour (24h format)
+function getTimePeriod(hour: number): TimePeriod {
+  if (hour >= 6 && hour < 12) return 'morning';
+  if (hour >= 12 && hour < 18) return 'afternoon';
+  return 'evening';
+}
+
+// Helper: Parse time string "10:00 AM" to Date object for today
+function parseTimeString(timeStr: string, baseDate: Date): Date {
+  const timeParts = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (!timeParts) return baseDate;
+
+  let hours = parseInt(timeParts[1]);
+  const minutes = parseInt(timeParts[2]);
+  const ampm = timeParts[3].toUpperCase();
+
+  if (ampm === 'PM' && hours < 12) hours += 12;
+  if (ampm === 'AM' && hours === 12) hours = 0;
+
+  const result = new Date(baseDate);
+  result.setHours(hours, minutes, 0, 0);
+  return result;
+}
+
+// Helper: Group slots by day and time period with lead time filtering
+function groupSlotsByDayAndPeriod(
+  availableSlots: string[],
+  leadTimeHours: number,
+  currentDate: Date = new Date()
+): DayGroupedSlots {
+  const safeBookingTime = new Date(currentDate.getTime() + leadTimeHours * 60 * 60 * 1000);
+
+  const today: GroupedSlots = { morning: [], afternoon: [], evening: [] };
+  const tomorrow: GroupedSlots = { morning: [], afternoon: [], evening: [] };
+
+  availableSlots.forEach(timeStr => {
+    const slotDateTime = parseTimeString(timeStr, currentDate);
+    const period = getTimePeriod(slotDateTime.getHours());
+
+    if (slotDateTime < safeBookingTime) {
+      // Slot is within lead time window, push to tomorrow
+      tomorrow[period].push(timeStr);
+    } else {
+      // Slot is safe to book today
+      today[period].push(timeStr);
+    }
+  });
+
+  return { today, tomorrow };
 }
 
 export default function StableDetailPage() {
@@ -102,6 +169,7 @@ export default function StableDetailPage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<Record<string, Record<string, string[]>>>({});
   const [takenSlots, setTakenSlots] = useState<Record<string, Record<string, any[]>>>({});
+  const [groupedSlots, setGroupedSlots] = useState<Record<string, DayGroupedSlots>>({});
   const [portfolioViewer, setPortfolioViewer] = useState<PortfolioViewerState | null>(null);
   const [showAllSlots, setShowAllSlots] = useState<Record<string, boolean>>({});
   const { data: session } = useSession();
@@ -206,6 +274,21 @@ export default function StableDetailPage() {
 
           setAvailableSlots(newAvailable);
           setTakenSlots(newTaken);
+
+          // Group slots by day and time period for each horse
+          const newGrouped: Record<string, DayGroupedSlots> = {};
+          const leadTimeHours = stableData.minLeadTimeHours || 8;
+
+          stableData.horses.forEach((horse: any) => {
+            const horseSlots = newAvailable[today][horse.id] || [];
+            newGrouped[horse.id] = groupSlotsByDayAndPeriod(
+              horseSlots,
+              leadTimeHours,
+              new Date()
+            );
+          });
+
+          setGroupedSlots(newGrouped);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load stable");
