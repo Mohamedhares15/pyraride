@@ -82,6 +82,7 @@ export async function POST(
       endTime,
       horseId,
       duration = 60, // Default 1 hour slots
+      timezoneOffset, // Client's timezone offset in minutes
     } = await req.json();
 
     if (!date || !startTime || !endTime) {
@@ -134,10 +135,26 @@ export async function POST(
       );
     }
 
-    // Create start and end datetimes using local time - no timezone conversion needed
-    // This ensures the time in database matches exactly what user clicked
-    const start = new Date(year, month - 1, day, startHour, startMinute, 0, 0);
-    const end = new Date(year, month - 1, day, endHour, endMinute, 0, 0);
+    // Create start and end datetimes - handle timezone correctly
+    // We want to store the time such that when the client (in their timezone) reads it, it matches what they selected.
+    // Example: Client in Egypt (UTC+2) selects 3:00. timezoneOffset is -120.
+    // We want stored UTC to be 1:00.
+    // Date.UTC(..., 3, 0) is 3:00 UTC.
+    // 3:00 UTC + (-120 * 60000) = 3:00 - 2h = 1:00 UTC. Correct.
+
+    let start: Date;
+    let end: Date;
+
+    if (timezoneOffset !== undefined) {
+      const userOffsetMs = timezoneOffset * 60000;
+      // Add the offset (which is negative for East of UTC) to go "back" to UTC
+      start = new Date(Date.UTC(year, month - 1, day, startHour, startMinute, 0, 0) + userOffsetMs);
+      end = new Date(Date.UTC(year, month - 1, day, endHour, endMinute, 0, 0) + userOffsetMs);
+    } else {
+      // Fallback to server local time if offset not provided
+      start = new Date(year, month - 1, day, startHour, startMinute, 0, 0);
+      end = new Date(year, month - 1, day, endHour, endMinute, 0, 0);
+    }
 
     // Validate that start is before end
     if (start >= end) {

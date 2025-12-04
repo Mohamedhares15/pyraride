@@ -28,7 +28,6 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
         const addRange = (startHour: number, endHour: number) => {
             for (let h = startHour; h < endHour; h++) {
                 slots.push(`${h}:00`);
-                slots.push(`${h}:30`);
             }
         };
 
@@ -186,6 +185,7 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
             endTime: `${hours + 1}:${minutes === 0 ? "00" : minutes}`,
             horseId,
             duration: 60,
+            timezoneOffset: new Date().getTimezoneOffset(), // Send offset again for correct UTC calculation
         };
 
         console.log(`[ScheduleGrid] POST payload:`, payload);
