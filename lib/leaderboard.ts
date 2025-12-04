@@ -35,50 +35,84 @@ export function getRiderTier(rankPoints: number): RiderTier {
 }
 
 /**
- * Calculate points change using Payoff Matrix
- * Based on rider tier, horse admin tier, and RPS (Pass/Fail)
+ * Calculate points change using Fair Payoff Matrix
+ * Based on rider tier, horse admin tier, and RPS (Fail/Good/Excellent)
+ * 
+ * New 3-Tier Scoring:
+ * - Fail: 1-6 RPS
+ * - Good: 7-8 RPS
+ * - Excellent: 9-10 RPS
  */
 export function calculatePointsChange(
     riderTier: RiderTier,
     horseAdminTier: HorseAdminTier,
     rps: number
 ): number {
-    // Determine Pass (rps >= 7) or Fail (rps <= 6)
-    const isPass = rps >= 7;
+    // Determine performance tier
+    let performanceTier: "Fail" | "Good" | "Excellent";
+    if (rps >= 9) {
+        performanceTier = "Excellent";
+    } else if (rps >= 7) {
+        performanceTier = "Good";
+    } else {
+        performanceTier = "Fail";
+    }
 
     let pointsChange = 0;
+
+    // --- NEW FAIR MATRIX ---
+    // Principle: Higher skill always rewards more than penalties
+    // Advanced riders get small rewards for easy horses (not penalties)
 
     // --- Rider is BEGINNER (0-1300) ---
     if (riderTier === "Beginner") {
         if (horseAdminTier === "Beginner") {
-            pointsChange = isPass ? +15 : -10; // Pass/Fail
+            if (performanceTier === "Excellent") pointsChange = 20;
+            else if (performanceTier === "Good") pointsChange = 10;
+            else pointsChange = -5;
         } else if (horseAdminTier === "Intermediate") {
-            pointsChange = isPass ? +30 : -5;
+            if (performanceTier === "Excellent") pointsChange = 40;
+            else if (performanceTier === "Good") pointsChange = 20;
+            else pointsChange = -5;
         } else if (horseAdminTier === "Advanced") {
-            pointsChange = isPass ? +70 : 0; // No penalty for failing advanced horse
+            if (performanceTier === "Excellent") pointsChange = 80;
+            else if (performanceTier === "Good") pointsChange = 40;
+            else pointsChange = 0; // No penalty for failing advanced horse
         }
     }
     // --- Rider is INTERMEDIATE (1301-1700) ---
     else if (riderTier === "Intermediate") {
         if (horseAdminTier === "Beginner") {
-            // Penalty for riding down
-            pointsChange = isPass ? -20 : -40; // Lose points even on a "Pass"
+            // Small rewards for easy horses (not penalties)
+            if (performanceTier === "Excellent") pointsChange = 10;
+            else if (performanceTier === "Good") pointsChange = 5;
+            else pointsChange = -10;
         } else if (horseAdminTier === "Intermediate") {
-            pointsChange = isPass ? +20 : -15; // Pass/Fail
+            if (performanceTier === "Excellent") pointsChange = 30;
+            else if (performanceTier === "Good") pointsChange = 15;
+            else pointsChange = -10;
         } else if (horseAdminTier === "Advanced") {
-            pointsChange = isPass ? +50 : -10; // Upset
+            if (performanceTier === "Excellent") pointsChange = 60;
+            else if (performanceTier === "Good") pointsChange = 30;
+            else pointsChange = -5;
         }
     }
     // --- Rider is ADVANCED (1701+) ---
     else if (riderTier === "Advanced") {
         if (horseAdminTier === "Beginner") {
-            // Huge penalty for riding down
-            pointsChange = isPass ? -50 : -80;
+            // Small rewards for easy horses (not penalties)
+            if (performanceTier === "Excellent") pointsChange = 8;
+            else if (performanceTier === "Good") pointsChange = 3;
+            else pointsChange = -15;
         } else if (horseAdminTier === "Intermediate") {
-            // Penalty for riding down
-            pointsChange = isPass ? -10 : -30;
+            // Moderate rewards (not penalties)
+            if (performanceTier === "Excellent") pointsChange = 25;
+            else if (performanceTier === "Good") pointsChange = 10;
+            else pointsChange = -15;
         } else if (horseAdminTier === "Advanced") {
-            pointsChange = isPass ? +25 : -20; // Pass/Fail
+            if (performanceTier === "Excellent") pointsChange = 50;
+            else if (performanceTier === "Good") pointsChange = 20;
+            else pointsChange = -15;
         }
     }
 
