@@ -31,6 +31,7 @@ interface Stable {
   id: string;
   name: string;
   location: string;
+  minLeadTimeHours?: number;
 }
 
 function BookingContent() {
@@ -57,6 +58,7 @@ function BookingContent() {
   const [promoError, setPromoError] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [leadTimeWarning, setLeadTimeWarning] = useState("");
 
   // Initialize date/time from URL params after mount (client-side only)
   useEffect(() => {
@@ -107,6 +109,32 @@ function BookingContent() {
       router.push(`/signin?redirect=/booking?${searchParams.toString()}`);
     }
   }, [status, router, searchParams]);
+
+  // Enforce lead time: check if booking is within minimum notice period
+  useEffect(() => {
+    if (!stable || !selectedDate || !selectedStartTime) return;
+
+    const minLeadTimeHours = stable.minLeadTimeHours || 8; // Default 8 hours
+    const now = new Date();
+    const bookingDateTime = new Date(`${selectedDate}T${selectedStartTime}`);
+    const minimumBookingTime = new Date(now.getTime() + minLeadTimeHours * 60 * 60 * 1000);
+
+    // Check if booking is within lead time period
+    if (bookingDateTime < minimumBookingTime) {
+      // Auto-shift to next day at same time
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowDate = tomorrow.toISOString().split("T")[0];
+
+      setSelectedDate(tomorrowDate);
+      setLeadTimeWarning(
+        `This stable requires ${minLeadTimeHours} hours advance booking. Your ride has been scheduled for ${new Date(tomorrowDate).toLocaleDateString()}.`
+      );
+      toast.warning(`Booking requires ${minLeadTimeHours} hours notice. Date adjusted to tomorrow.`);
+    } else {
+      setLeadTimeWarning(""); // Clear warning if booking time is valid
+    }
+  }, [stable, selectedDate, selectedStartTime]);
 
   // Calculate price
   const calculatePrice = () => {
@@ -442,6 +470,12 @@ function BookingContent() {
                     </div>
                   </div>
                 </div>
+
+                {leadTimeWarning && (
+                  <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                    <p className="text-amber-400 text-xs">{leadTimeWarning}</p>
+                  </div>
+                )}
               </div>
             </div>
 
