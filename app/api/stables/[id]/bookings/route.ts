@@ -65,11 +65,6 @@ export async function GET(
             email: true,
           },
         },
-        riderReview: {
-          select: {
-            id: true,
-          },
-        },
       },
       orderBy: {
         createdAt: "desc",
