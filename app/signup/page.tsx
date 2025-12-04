@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ArrowLeft, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import PasswordInput from "@/components/shared/PasswordInput";
 import PhoneInput from "@/components/shared/PhoneInput";
 import {
@@ -27,6 +28,7 @@ export default function SignUpPage() {
     gender: "",
     initialTier: "",
   });
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -212,12 +214,33 @@ export default function SignUpPage() {
                 </p>
               </div>
 
+              {/* Terms Acceptance Checkbox */}
+              <div className="flex items-start gap-3 mt-4 p-4 rounded-lg bg-white/5 border border-white/10">
+                <Checkbox
+                  id="terms"
+                  checked={acceptedTerms}
+                  onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
+                  className="mt-0.5 border-white/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                />
+                <label htmlFor="terms" className="text-sm text-white/70 leading-relaxed cursor-pointer">
+                  I have read and agree to the{" "}
+                  <Link
+                    href="/terms"
+                    target="_blank"
+                    className="text-primary hover:text-primary/80 underline font-semibold"
+                  >
+                    Terms & Conditions
+                  </Link>
+                  , including the assumption of risk for horse riding activities pursuant to Egyptian Electronic Signature Law No. 15 of 2004.
+                </label>
+              </div>
+
               <Button
                 type="submit"
-                className="w-full h-12 mt-2 bg-primary hover:bg-primary/90 text-white font-semibold"
-                disabled={isLoading}
+                className="w-full h-12 mt-4 bg-primary hover:bg-primary/90 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isLoading || !acceptedTerms}
               >
-                {isLoading ? "Creating account..." : "Sign Up"}
+                {isLoading ? "Creating account..." : !acceptedTerms ? "Accept Terms to Continue" : "Sign Up"}
               </Button>
             </form>
 
