@@ -755,7 +755,7 @@ export async function sendOwnerBookingNotification(data: OwnerBookingNotificatio
   if (resend) {
     try {
       const { data: result, error } = await resend.emails.send({
-        from: "PyraRide <notifications@pyraride.com>",
+        from: "PyraRides <pyrarides@pyrarides.com>",
         to: data.ownerEmail,
         subject,
         html,
