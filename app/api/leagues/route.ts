@@ -28,6 +28,8 @@ export async function GET(req: NextRequest) {
               id: true,
               fullName: true,
               email: true,
+              profilePhoto: true,
+              profileImageUrl: true,
               rankPoints: true,
               rank: {
                 select: {
@@ -72,6 +74,8 @@ export async function GET(req: NextRequest) {
             id: true,
             fullName: true,
             email: true,
+            profilePhoto: true,
+            profileImageUrl: true,
             rankPoints: true,
             rank: {
               select: {
@@ -112,6 +116,8 @@ export async function GET(req: NextRequest) {
                 id: true,
                 fullName: true,
                 email: true,
+                profilePhoto: true,
+                profileImageUrl: true,
                 rankPoints: true,
                 rank: {
                   select: {

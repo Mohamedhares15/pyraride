@@ -154,6 +154,24 @@ export async function POST(req: NextRequest) {
             data: { updatedAt: new Date() },
         });
 
+        // Send email notification to recipient (non-blocking)
+        const recipientId = conversation.participants.find(
+            (p) => p.id !== session.user.id
+        )?.id;
+
+        if (recipientId) {
+            // Fire and forget - don't wait for Email to complete
+            fetch(`${process.env.NEXTAUTH_URL || ''}/api/notifications/message`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    recipientId,
+                    messagePreview: content.trim(),
+                    senderName: message.sender.fullName || 'Someone',
+                }),
+            }).catch((err) => console.error('Failed to send notification:', err));
+        }
+
         return NextResponse.json({
             message: {
                 id: message.id,
