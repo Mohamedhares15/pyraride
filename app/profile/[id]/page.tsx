@@ -17,9 +17,11 @@ import {
     Home,
     CheckCircle,
     XCircle,
+    Sparkles,
+    Award,
+    MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import Link from "next/link";
 
 interface UserProfile {
@@ -51,8 +53,19 @@ interface UserProfile {
     }[];
 }
 
+const getRankColor = (rankName: string) => {
+    const name = rankName?.toLowerCase() || "";
+    if (name.includes("champion")) return "from-yellow-400 via-amber-500 to-yellow-600";
+    if (name.includes("elite")) return "from-red-500 via-rose-500 to-red-600";
+    if (name.includes("platinum")) return "from-purple-400 via-violet-500 to-purple-600";
+    if (name.includes("gold")) return "from-yellow-400 via-yellow-500 to-amber-500";
+    if (name.includes("silver")) return "from-gray-300 via-gray-400 to-gray-500";
+    if (name.includes("bronze")) return "from-orange-400 via-orange-500 to-orange-600";
+    return "from-amber-700 via-amber-800 to-amber-900"; // Wood default
+};
+
 export default function ProfilePage() {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const router = useRouter();
     const params = useParams();
     const userId = params.id as string;
@@ -138,40 +151,54 @@ export default function ProfilePage() {
 
     if (isLoading) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-black/80 via-black/90 to-black/95">
-                <div className="h-12 w-12 animate-spin rounded-full border-4 border-white border-t-transparent" />
+            <div className="flex min-h-screen items-center justify-center bg-black">
+                <div className="relative">
+                    <div className="h-16 w-16 animate-spin rounded-full border-4 border-primary/30 border-t-primary" />
+                    <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 text-primary animate-pulse" />
+                </div>
             </div>
         );
     }
 
     if (!profile) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-black/80 via-black/90 to-black/95">
-                <Card className="p-8 text-center max-w-md">
-                    <h2 className="text-xl font-bold mb-4">User Not Found</h2>
-                    <Button asChild>
-                        <Link href="/">Go Home</Link>
-                    </Button>
-                </Card>
+            <div className="flex min-h-screen flex-col items-center justify-center bg-black px-4">
+                <div className="text-center">
+                    <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-white/5 border border-white/10">
+                        <User className="h-10 w-10 text-white/30" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-2">User Not Found</h2>
+                    <p className="text-white/50 mb-6">This profile doesn't exist or has been removed.</p>
+                    <Link href="/">
+                        <Button className="gap-2">
+                            <Home className="h-4 w-4" />
+                            Back to Home
+                        </Button>
+                    </Link>
+                </div>
             </div>
         );
     }
 
     const isStableOwner = profile.role === "stable_owner";
+    const rankGradient = getRankColor(profile.rank?.name || "wood");
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95">
+        <div className="min-h-screen bg-black">
+            {/* Background Gradient */}
+            <div className="fixed inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
+
             {/* Header */}
-            <div className="border-b border-white/10 bg-black/60 py-6 backdrop-blur-lg">
-                <div className="mx-auto max-w-4xl px-4">
-                    <div className="flex items-center gap-4">
+            <div className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
+                <div className="mx-auto max-w-4xl px-4 py-4">
+                    <div className="flex items-center gap-3">
                         <Link href="/">
-                            <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10">
+                            <Button variant="ghost" size="sm" className="gap-2 text-white/70 hover:text-white hover:bg-white/10">
                                 <Home className="h-4 w-4" />
                                 Home
                             </Button>
                         </Link>
-                        <Button variant="ghost" size="sm" onClick={() => router.back()} className="gap-2 text-white/70">
+                        <Button variant="ghost" size="sm" onClick={() => router.back()} className="gap-2 text-white/70 hover:text-white hover:bg-white/10">
                             <ArrowLeft className="h-4 w-4" />
                             Back
                         </Button>
@@ -186,139 +213,163 @@ export default function ProfilePage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                 >
-                    {/* Profile Header */}
-                    <Card className="p-8 mb-8">
-                        <div className="flex flex-col md:flex-row items-center gap-6">
-                            {/* Profile Photo */}
-                            <div className="relative">
-                                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center overflow-hidden">
-                                    {profile.profilePhoto ? (
-                                        <img
-                                            src={profile.profilePhoto}
-                                            alt={profile.fullName || "User"}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <User className="w-16 h-16 text-white/50" />
+                    {/* Profile Card */}
+                    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-transparent backdrop-blur-sm">
+                        {/* Banner Gradient */}
+                        <div className={`h-32 bg-gradient-to-r ${rankGradient} opacity-20`} />
+
+                        {/* Profile Content */}
+                        <div className="relative px-6 pb-8 -mt-16">
+                            <div className="flex flex-col md:flex-row items-center md:items-end gap-6">
+                                {/* Profile Photo */}
+                                <div className="relative">
+                                    <div className={`w-32 h-32 rounded-full bg-gradient-to-br ${rankGradient} p-1`}>
+                                        <div className="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden">
+                                            {profile.profilePhoto ? (
+                                                <img
+                                                    src={profile.profilePhoto}
+                                                    alt={profile.fullName || "User"}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <User className="w-12 h-12 text-white/30" />
+                                            )}
+                                        </div>
+                                    </div>
+                                    {isStableOwner && (
+                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg whitespace-nowrap">
+                                            🏇 Stable Owner
+                                        </div>
                                     )}
                                 </div>
-                                {isStableOwner && (
-                                    <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground px-2 py-1 rounded-full text-xs font-bold">
-                                        Stable Owner
+
+                                {/* Profile Info */}
+                                <div className="flex-1 text-center md:text-left mt-4 md:mt-0">
+                                    <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                                        {profile.fullName || "Anonymous Rider"}
+                                    </h1>
+
+                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm">
+                                        {profile.rank && (
+                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r ${rankGradient} text-white font-semibold`}>
+                                                <Trophy className="w-3.5 h-3.5" />
+                                                {profile.rank.name}
+                                            </span>
+                                        )}
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white/70">
+                                            <Star className="w-3.5 h-3.5 text-yellow-400" />
+                                            {profile.rankPoints} Points
+                                        </span>
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white/70">
+                                            <Calendar className="w-3.5 h-3.5" />
+                                            Joined {new Date(profile.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                {!isOwnProfile && session?.user && (
+                                    <div className="flex flex-col gap-2 mt-4 md:mt-0">
+                                        {!friendshipStatus && (
+                                            <Button onClick={handleFriendRequest} disabled={actionLoading} className="gap-2 bg-gradient-to-r from-primary to-purple-600 hover:opacity-90">
+                                                <UserPlus className="w-4 h-4" />
+                                                Add Friend
+                                            </Button>
+                                        )}
+
+                                        {friendshipStatus?.status === "pending" && friendshipStatus.isSender && (
+                                            <Button disabled variant="outline" className="gap-2 border-white/20 text-white/50">
+                                                <Clock className="w-4 h-4" />
+                                                Request Sent
+                                            </Button>
+                                        )}
+
+                                        {friendshipStatus?.status === "pending" && !friendshipStatus.isSender && (
+                                            <div className="flex gap-2">
+                                                <Button onClick={() => handleFriendAction("accept")} disabled={actionLoading} className="gap-2 bg-green-600 hover:bg-green-700">
+                                                    <CheckCircle className="w-4 h-4" />
+                                                    Accept
+                                                </Button>
+                                                <Button onClick={() => handleFriendAction("reject")} disabled={actionLoading} variant="destructive" className="gap-2">
+                                                    <XCircle className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        )}
+
+                                        {friendshipStatus?.status === "accepted" && (
+                                            <div className="flex gap-2">
+                                                <Button disabled variant="outline" className="gap-2 border-green-500/30 text-green-400 bg-green-500/10">
+                                                    <UserCheck className="w-4 h-4" />
+                                                    Friends
+                                                </Button>
+                                                <Button onClick={() => router.push(`/chat?user=${userId}`)} className="gap-2 bg-gradient-to-r from-primary to-purple-600 hover:opacity-90">
+                                                    <MessageCircle className="w-4 h-4" />
+                                                    Message
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
 
-                            {/* Profile Info */}
-                            <div className="flex-1 text-center md:text-left">
-                                <h1 className="text-3xl font-bold text-white mb-2">
-                                    {profile.fullName || "Anonymous Rider"}
-                                </h1>
-                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-white/70 mb-4">
-                                    {profile.rank && (
-                                        <span className="flex items-center gap-1">
-                                            <Trophy className="w-4 h-4 text-yellow-400" />
-                                            {profile.rank.name}
-                                        </span>
-                                    )}
-                                    <span className="flex items-center gap-1">
-                                        <Star className="w-4 h-4 text-primary" />
-                                        {profile.rankPoints} Points
-                                    </span>
-                                    <span className="flex items-center gap-1">
-                                        <Calendar className="w-4 h-4" />
-                                        Joined {new Date(profile.createdAt).toLocaleDateString()}
-                                    </span>
+                            {/* Stats */}
+                            <div className="grid grid-cols-3 gap-4 mt-8 max-w-md mx-auto md:mx-0">
+                                <div className="text-center p-4 rounded-xl bg-white/5 border border-white/10">
+                                    <p className="text-3xl font-bold text-white">{profile._count.bookings}</p>
+                                    <p className="text-xs text-white/50 mt-1">Total Rides</p>
                                 </div>
-
-                                {/* Stats */}
-                                <div className="flex items-center justify-center md:justify-start gap-6">
-                                    <div className="text-center">
-                                        <p className="text-2xl font-bold text-white">{profile._count.bookings}</p>
-                                        <p className="text-xs text-white/50">Rides</p>
-                                    </div>
-                                    <div className="text-center">
-                                        <p className="text-2xl font-bold text-white">{profile._count.reviews}</p>
-                                        <p className="text-xs text-white/50">Reviews</p>
-                                    </div>
-                                    {profile.ownedStables && profile.ownedStables.length > 0 && (
-                                        <div className="text-center">
-                                            <p className="text-2xl font-bold text-white">{profile.ownedStables.length}</p>
-                                            <p className="text-xs text-white/50">Stables</p>
-                                        </div>
-                                    )}
+                                <div className="text-center p-4 rounded-xl bg-white/5 border border-white/10">
+                                    <p className="text-3xl font-bold text-white">{profile._count.reviews}</p>
+                                    <p className="text-xs text-white/50 mt-1">Reviews</p>
+                                </div>
+                                <div className="text-center p-4 rounded-xl bg-white/5 border border-white/10">
+                                    <p className="text-3xl font-bold text-white">{profile.ownedStables?.length || 0}</p>
+                                    <p className="text-xs text-white/50 mt-1">Stables</p>
                                 </div>
                             </div>
-
-                            {/* Action Buttons */}
-                            {!isOwnProfile && session?.user && (
-                                <div className="flex flex-col gap-2">
-                                    {!friendshipStatus && (
-                                        <Button onClick={handleFriendRequest} disabled={actionLoading} className="gap-2">
-                                            <UserPlus className="w-4 h-4" />
-                                            Add Friend
-                                        </Button>
-                                    )}
-
-                                    {friendshipStatus?.status === "pending" && friendshipStatus.isSender && (
-                                        <Button disabled variant="outline" className="gap-2">
-                                            <Clock className="w-4 h-4" />
-                                            Request Sent
-                                        </Button>
-                                    )}
-
-                                    {friendshipStatus?.status === "pending" && !friendshipStatus.isSender && (
-                                        <div className="flex gap-2">
-                                            <Button onClick={() => handleFriendAction("accept")} disabled={actionLoading} className="gap-2 bg-green-600 hover:bg-green-700">
-                                                <CheckCircle className="w-4 h-4" />
-                                                Accept
-                                            </Button>
-                                            <Button onClick={() => handleFriendAction("reject")} disabled={actionLoading} variant="destructive" className="gap-2">
-                                                <XCircle className="w-4 h-4" />
-                                                Reject
-                                            </Button>
-                                        </div>
-                                    )}
-
-                                    {friendshipStatus?.status === "accepted" && (
-                                        <>
-                                            <Button disabled variant="outline" className="gap-2">
-                                                <UserCheck className="w-4 h-4 text-green-500" />
-                                                Friends
-                                            </Button>
-                                            <Button onClick={() => router.push(`/chat?user=${userId}`)} className="gap-2">
-                                                <MessageCircle className="w-4 h-4" />
-                                                Message
-                                            </Button>
-                                        </>
-                                    )}
-                                </div>
-                            )}
                         </div>
-                    </Card>
+                    </div>
 
                     {/* Recent Rides (only shown on own profile) */}
                     {isOwnProfile && profile.bookings && profile.bookings.length > 0 && (
-                        <Card className="p-6">
-                            <h2 className="text-xl font-bold text-white mb-4">Recent Rides</h2>
-                            <div className="space-y-3">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
+                            className="mt-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden"
+                        >
+                            <div className="p-6 border-b border-white/10">
+                                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                    <Award className="w-5 h-5 text-primary" />
+                                    Recent Rides
+                                </h2>
+                            </div>
+                            <div className="divide-y divide-white/5">
                                 {profile.bookings.map((booking) => (
                                     <div
                                         key={booking.id}
-                                        className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+                                        className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
                                     >
-                                        <div>
-                                            <p className="font-medium text-white">{booking.horse.name}</p>
-                                            <p className="text-sm text-white/50">at {booking.stable.name}</p>
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center">
+                                                <span className="text-lg">🐴</span>
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-white">{booking.horse.name}</p>
+                                                <p className="text-sm text-white/50 flex items-center gap-1">
+                                                    <MapPin className="w-3 h-3" />
+                                                    {booking.stable.name}
+                                                </p>
+                                            </div>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-sm text-white/70">
                                                 {new Date(booking.startTime).toLocaleDateString()}
                                             </p>
-                                            <span className={`text-xs font-semibold ${booking.status === "completed" ? "text-green-400" :
-                                                    booking.status === "confirmed" ? "text-blue-400" :
-                                                        booking.status === "cancelled" ? "text-red-400" :
-                                                            "text-yellow-400"
+                                            <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${booking.status === "completed" ? "bg-green-500/20 text-green-400" :
+                                                    booking.status === "confirmed" ? "bg-blue-500/20 text-blue-400" :
+                                                        booking.status === "cancelled" ? "bg-red-500/20 text-red-400" :
+                                                            "bg-yellow-500/20 text-yellow-400"
                                                 }`}>
                                                 {booking.status}
                                             </span>
@@ -326,26 +377,40 @@ export default function ProfilePage() {
                                     </div>
                                 ))}
                             </div>
-                        </Card>
+                        </motion.div>
                     )}
 
                     {/* Owned Stables */}
                     {profile.ownedStables && profile.ownedStables.length > 0 && (
-                        <Card className="p-6 mt-6">
-                            <h2 className="text-xl font-bold text-white mb-4">Stables</h2>
-                            <div className="space-y-3">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                            className="mt-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden"
+                        >
+                            <div className="p-6 border-b border-white/10">
+                                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                    🏇 Owned Stables
+                                </h2>
+                            </div>
+                            <div className="divide-y divide-white/5">
                                 {profile.ownedStables.map((stable) => (
                                     <Link
                                         key={stable.id}
                                         href={`/stables/${stable.id}`}
-                                        className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                                        className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors group"
                                     >
-                                        <p className="font-medium text-white">{stable.name}</p>
-                                        <ArrowLeft className="w-4 h-4 text-white/50 rotate-180" />
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500/30 to-orange-500/30 flex items-center justify-center">
+                                                <span className="text-lg">🏠</span>
+                                            </div>
+                                            <p className="font-medium text-white group-hover:text-primary transition-colors">{stable.name}</p>
+                                        </div>
+                                        <ArrowLeft className="w-4 h-4 text-white/30 rotate-180 group-hover:text-primary group-hover:translate-x-1 transition-all" />
                                     </Link>
                                 ))}
                             </div>
-                        </Card>
+                        </motion.div>
                     )}
                 </motion.div>
             </div>
