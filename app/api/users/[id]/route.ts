@@ -33,25 +33,35 @@ export async function GET(
                         reviews: true,
                     },
                 },
-                // Get recent bookings for own profile or if admin
-                bookings: session?.user?.id === userId || session?.user?.role === "admin" ? {
+                // Get recent bookings with reviews - visible to all
+                bookings: {
+                    where: {
+                        status: { in: ["completed", "confirmed"] },
+                    },
                     select: {
                         id: true,
                         startTime: true,
                         status: true,
                         horse: { select: { name: true } },
-                        stable: { select: { name: true } },
+                        stable: { select: { id: true, name: true } },
+                        review: {
+                            select: {
+                                id: true,
+                                stableRating: true,
+                                horseRating: true,
+                                comment: true,
+                            },
+                        },
                     },
                     orderBy: { startTime: "desc" },
-                    take: 5,
-                } : undefined,
+                    take: 10,
+                },
                 // Check if owns a stable
                 ownedStables: {
                     select: {
                         id: true,
                         name: true,
                     },
-                    take: 1,
                 },
             },
         });

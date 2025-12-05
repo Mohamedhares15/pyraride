@@ -358,6 +358,7 @@ model Review {
   stableRating Int // 1-5
   horseRating  Int // 1-5
   comment      String   @db.Text
+  photos       String[] // Array of photo URLs
   createdAt    DateTime @default(now())
 
   // Relations

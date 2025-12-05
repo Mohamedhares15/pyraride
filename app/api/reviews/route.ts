@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { bookingId, stableRating, horseRating, comment } = body;
+    const { bookingId, stableRating, horseRating, comment, photos } = body;
 
     // Validate required fields
     if (!bookingId || !stableRating || !horseRating) {
@@ -76,6 +76,7 @@ export async function POST(req: NextRequest) {
         stableRating,
         horseRating,
         comment: comment || "",
+        photos: photos || [],
       },
       include: {
         rider: {
@@ -120,6 +121,7 @@ export async function GET(req: NextRequest) {
             id: true,
             fullName: true,
             email: true,
+            profilePhoto: true,
           },
         },
       },

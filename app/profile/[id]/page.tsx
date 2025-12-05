@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
+
 interface UserProfile {
     id: string;
     fullName: string;
@@ -45,7 +46,13 @@ interface UserProfile {
         startTime: string;
         status: string;
         horse: { name: string };
-        stable: { name: string };
+        stable: { id: string; name: string };
+        review?: {
+            id: string;
+            stableRating: number;
+            horseRating: number;
+            comment: string;
+        };
     }[];
     ownedStables?: {
         id: string;
@@ -313,7 +320,7 @@ export default function ProfilePage() {
                             </div>
 
                             {/* Stats */}
-                            <div className="grid grid-cols-3 gap-4 mt-8 max-w-md mx-auto md:mx-0">
+                            <div className={`grid ${isStableOwner ? 'grid-cols-3' : 'grid-cols-2'} gap-4 mt-8 max-w-md mx-auto md:mx-0`}>
                                 <div className="text-center p-4 rounded-xl bg-white/5 border border-white/10">
                                     <p className="text-3xl font-bold text-white">{profile._count.bookings}</p>
                                     <p className="text-xs text-white/50 mt-1">Total Rides</p>
@@ -322,16 +329,18 @@ export default function ProfilePage() {
                                     <p className="text-3xl font-bold text-white">{profile._count.reviews}</p>
                                     <p className="text-xs text-white/50 mt-1">Reviews</p>
                                 </div>
-                                <div className="text-center p-4 rounded-xl bg-white/5 border border-white/10">
-                                    <p className="text-3xl font-bold text-white">{profile.ownedStables?.length || 0}</p>
-                                    <p className="text-xs text-white/50 mt-1">Stables</p>
-                                </div>
+                                {isStableOwner && (
+                                    <div className="text-center p-4 rounded-xl bg-white/5 border border-white/10">
+                                        <p className="text-3xl font-bold text-white">{profile.ownedStables?.length || 0}</p>
+                                        <p className="text-xs text-white/50 mt-1">Stables</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    {/* Recent Rides (only shown on own profile) */}
-                    {isOwnProfile && profile.bookings && profile.bookings.length > 0 && (
+                    {/* Ride History (visible to everyone) */}
+                    {profile.bookings && profile.bookings.length > 0 && (
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -341,39 +350,67 @@ export default function ProfilePage() {
                             <div className="p-6 border-b border-white/10">
                                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                                     <Award className="w-5 h-5 text-primary" />
-                                    Recent Rides
+                                    Ride History
                                 </h2>
                             </div>
                             <div className="divide-y divide-white/5">
                                 {profile.bookings.map((booking) => (
                                     <div
                                         key={booking.id}
-                                        className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
+                                        className="p-4 hover:bg-white/5 transition-colors"
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center">
-                                                <span className="text-lg">🐴</span>
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center">
+                                                    <span className="text-2xl">🐴</span>
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-white text-lg">{booking.horse.name}</p>
+                                                    <Link href={`/stables/${booking.stable.id}`} className="text-sm text-white/60 hover:text-primary flex items-center gap-1">
+                                                        <MapPin className="w-3 h-3" />
+                                                        {booking.stable.name}
+                                                    </Link>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="font-medium text-white">{booking.horse.name}</p>
-                                                <p className="text-sm text-white/50 flex items-center gap-1">
-                                                    <MapPin className="w-3 h-3" />
-                                                    {booking.stable.name}
+                                            <div className="text-right">
+                                                <p className="text-sm text-white/70">
+                                                    {new Date(booking.startTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                                 </p>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-sm text-white/70">
-                                                {new Date(booking.startTime).toLocaleDateString()}
-                                            </p>
-                                            <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${booking.status === "completed" ? "bg-green-500/20 text-green-400" :
+                                                <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${booking.status === "completed" ? "bg-green-500/20 text-green-400" :
                                                     booking.status === "confirmed" ? "bg-blue-500/20 text-blue-400" :
                                                         booking.status === "cancelled" ? "bg-red-500/20 text-red-400" :
                                                             "bg-yellow-500/20 text-yellow-400"
-                                                }`}>
-                                                {booking.status}
-                                            </span>
+                                                    }`}>
+                                                    {booking.status}
+                                                </span>
+                                            </div>
                                         </div>
+                                        {/* Review Rating */}
+                                        {booking.review && (
+                                            <div className="mt-3 p-3 rounded-lg bg-white/5 border border-white/10">
+                                                <div className="flex items-center gap-4 mb-2">
+                                                    <div className="flex items-center gap-1">
+                                                        <span className="text-xs text-white/50">Horse:</span>
+                                                        <div className="flex">
+                                                            {[...Array(5)].map((_, i) => (
+                                                                <Star key={i} className={`w-3.5 h-3.5 ${i < booking.review!.horseRating ? 'text-yellow-400 fill-yellow-400' : 'text-white/20'}`} />
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <span className="text-xs text-white/50">Stable:</span>
+                                                        <div className="flex">
+                                                            {[...Array(5)].map((_, i) => (
+                                                                <Star key={i} className={`w-3.5 h-3.5 ${i < booking.review!.stableRating ? 'text-yellow-400 fill-yellow-400' : 'text-white/20'}`} />
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {booking.review.comment && (
+                                                    <p className="text-sm text-white/70 italic">"{booking.review.comment}"</p>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
