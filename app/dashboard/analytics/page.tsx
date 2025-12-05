@@ -67,6 +67,18 @@ interface AnalyticsData {
     avgHorseRating: number;
     totalReviews: number;
   };
+  recentBookings?: {
+    id: string;
+    horseName: string;
+    riderName: string;
+    riderEmail: string;
+    stableName: string;
+    date: string;
+    time: string;
+    totalPrice: number;
+    status: string;
+    createdAt: string;
+  }[];
 }
 
 export default function AnalyticsPage() {
@@ -581,6 +593,56 @@ export default function AnalyticsPage() {
                     </div>
                     <Users className="h-12 w-12 text-blue-500" />
                   </div>
+                </div>
+              </Card>
+            )}
+
+            {/* Recent Bookings Table */}
+            {analytics.recentBookings && analytics.recentBookings.length > 0 && (
+              <Card className="p-6 mb-8">
+                <h3 className="mb-6 font-display text-2xl font-bold">Recent Bookings</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="pb-3 text-left font-semibold text-sm">Horse</th>
+                        <th className="pb-3 text-left font-semibold text-sm">Date</th>
+                        <th className="pb-3 text-left font-semibold text-sm">Time</th>
+                        <th className="pb-3 text-left font-semibold text-sm">Rider</th>
+                        <th className="pb-3 text-left font-semibold text-sm">Stable</th>
+                        <th className="pb-3 text-right font-semibold text-sm">Price</th>
+                        <th className="pb-3 text-center font-semibold text-sm">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {analytics.recentBookings.map((booking: any) => (
+                        <tr key={booking.id} className="border-b border-white/5 hover:bg-white/5">
+                          <td className="py-3 font-medium">{booking.horseName}</td>
+                          <td className="py-3 text-muted-foreground">{booking.date}</td>
+                          <td className="py-3 text-muted-foreground">{booking.time}</td>
+                          <td className="py-3">
+                            <div>
+                              <p className="font-medium">{booking.riderName}</p>
+                              <p className="text-xs text-muted-foreground">{booking.riderEmail}</p>
+                            </div>
+                          </td>
+                          <td className="py-3 text-muted-foreground">{booking.stableName}</td>
+                          <td className="py-3 text-right font-semibold text-green-600">
+                            ${booking.totalPrice.toFixed(2)}
+                          </td>
+                          <td className="py-3 text-center">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${booking.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-950/50 dark:text-green-400' :
+                                booking.status === 'confirmed' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-400' :
+                                  booking.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-400' :
+                                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-400'
+                              }`}>
+                              {booking.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </Card>
             )}
