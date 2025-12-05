@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -78,6 +78,23 @@ interface AnalyticsData {
     totalPrice: number;
     status: string;
     createdAt: string;
+  }[];
+  detailedUsers?: {
+    id: string;
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+    createdAt: string;
+    totalBookings: number;
+    bookings: {
+      id: string;
+      horseName: string;
+      stableName: string;
+      date: string;
+      time: string;
+      totalPrice: number;
+      status: string;
+    }[];
   }[];
 }
 
@@ -632,14 +649,85 @@ export default function AnalyticsPage() {
                           </td>
                           <td className="py-3 text-center">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${booking.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-950/50 dark:text-green-400' :
-                                booking.status === 'confirmed' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-400' :
-                                  booking.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-400' :
-                                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-400'
+                              booking.status === 'confirmed' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-400' :
+                                booking.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-400' :
+                                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-400'
                               }`}>
                               {booking.status}
                             </span>
                           </td>
                         </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            )}
+
+            {/* Detailed Users Section */}
+            {analytics.detailedUsers && analytics.detailedUsers.length > 0 && (
+              <Card className="p-6 mb-8">
+                <h3 className="mb-6 font-display text-2xl font-bold">User Details</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="pb-3 text-left font-semibold text-sm">Name</th>
+                        <th className="pb-3 text-left font-semibold text-sm">Email</th>
+                        <th className="pb-3 text-left font-semibold text-sm">Phone</th>
+                        <th className="pb-3 text-center font-semibold text-sm">Bookings</th>
+                        <th className="pb-3 text-left font-semibold text-sm">Joined</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {analytics.detailedUsers.map((user: any) => (
+                        <React.Fragment key={user.id}>
+                          <tr className="border-b border-white/5 hover:bg-white/5 cursor-pointer group">
+                            <td className="py-3 font-medium">{user.fullName}</td>
+                            <td className="py-3 text-muted-foreground text-sm">{user.email}</td>
+                            <td className="py-3 text-muted-foreground text-sm">{user.phoneNumber}</td>
+                            <td className="py-3 text-center">
+                              <span className="inline-flex px-3 py-1 bg-primary/20 text-primary rounded-full font-semibold">
+                                {user.totalBookings}
+                              </span>
+                            </td>
+                            <td className="py-3 text-muted-foreground text-sm">
+                              {new Date(user.createdAt).toLocaleDateString()}
+                            </td>
+                          </tr>
+                          {/* Booking History */}
+                          {user.bookings && user.bookings.length > 0 && (
+                            <tr>
+                              <td colSpan={5} className="pb-4 pt-2">
+                                <div className="ml-4 p-3 bg-white/5 rounded-lg border border-white/10">
+                                  <p className="text-xs font-semibold text-muted-foreground mb-2">BOOKING HISTORY</p>
+                                  <div className="space-y-2">
+                                    {user.bookings.map((b: any) => (
+                                      <div key={b.id} className="flex items-center justify-between text-sm p-2 bg-white/5 rounded">
+                                        <div className="flex items-center gap-4">
+                                          <span className="font-medium">{b.horseName}</span>
+                                          <span className="text-muted-foreground">@</span>
+                                          <span className="text-muted-foreground">{b.stableName}</span>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                          <span className="text-muted-foreground">{b.date} {b.time}</span>
+                                          <span className="font-semibold text-green-600">${b.totalPrice.toFixed(2)}</span>
+                                          <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${b.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-950/50 dark:text-green-400' :
+                                            b.status === 'confirmed' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-400' :
+                                              b.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-400' :
+                                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-400'
+                                            }`}>
+                                            {b.status}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
                       ))}
                     </tbody>
                   </table>

@@ -487,6 +487,68 @@ export async function GET(req: NextRequest) {
             totalReviews: Number(totalReviewsCount) || 0,
           },
         };
+
+        // Fetch detailed users with their bookings
+        let detailedUsers: any[] = [];
+        try {
+          const users = await prisma.user.findMany({
+            where: {
+              role: "rider",
+            },
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              phoneNumber: true,
+              createdAt: true,
+              bookings: {
+                select: {
+                  id: true,
+                  startTime: true,
+                  endTime: true,
+                  totalPrice: true,
+                  status: true,
+                  horse: {
+                    select: { name: true },
+                  },
+                  stable: {
+                    select: { name: true },
+                  },
+                },
+                orderBy: { startTime: "desc" },
+                take: 10,
+              },
+              _count: {
+                select: { bookings: true },
+              },
+            },
+            orderBy: { createdAt: "desc" },
+            take: 100,
+          });
+
+          detailedUsers = users.map((u) => ({
+            id: u.id,
+            fullName: u.fullName,
+            email: u.email,
+            phoneNumber: u.phoneNumber || "N/A",
+            createdAt: u.createdAt ? new Date(u.createdAt).toISOString() : "",
+            totalBookings: u._count.bookings,
+            bookings: u.bookings.map((b) => ({
+              id: b.id,
+              horseName: b.horse?.name || "Unknown",
+              stableName: b.stable?.name || "Unknown",
+              date: b.startTime ? new Date(b.startTime).toISOString().split("T")[0] : "",
+              time: b.startTime ? new Date(b.startTime).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "",
+              totalPrice: decimalToNumber(b.totalPrice),
+              status: b.status,
+            })),
+          }));
+        } catch (e) {
+          console.error("Error fetching detailed users:", e);
+        }
+
+        // Add detailedUsers to analytics
+        (analytics as any).detailedUsers = detailedUsers;
       } catch (adminError: any) {
         console.error("Error in admin analytics:", adminError);
         throw new Error(`Admin analytics failed: ${adminError?.message || "Unknown error"}`);
