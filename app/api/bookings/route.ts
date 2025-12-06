@@ -186,6 +186,39 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Critical Fix: Strict Session Limit Check (Horse Welfare)
+    // Ensure horse is not booked more than once per session (AM/PM)
+    const bookingHour = start.getHours();
+    const isAmBooking = bookingHour < 12;
+
+    // Define session boundaries for the check
+    const sessionStart = new Date(start);
+    sessionStart.setHours(isAmBooking ? 0 : 12, 0, 0, 0);
+
+    const sessionEnd = new Date(start);
+    sessionEnd.setHours(isAmBooking ? 12 : 23, 59, 59, 999);
+
+    const existingSessionBooking = await prisma.booking.findFirst({
+      where: {
+        horseId,
+        status: "confirmed",
+        startTime: {
+          gte: sessionStart,
+          lt: sessionEnd,
+        },
+      },
+    });
+
+    if (existingSessionBooking) {
+      return NextResponse.json(
+        {
+          error: "Horse welfare limit reached",
+          details: `This horse already has a booking in the ${isAmBooking ? "morning" : "afternoon"} session. Only one ride per session is allowed.`
+        },
+        { status: 400 }
+      );
+    }
+
     // Calculate price using horse's actual price per hour
     const pricePerHour = Number(horse.pricePerHour ?? 50); // Default to 50 if not set
     const totalPrice = hours * pricePerHour;

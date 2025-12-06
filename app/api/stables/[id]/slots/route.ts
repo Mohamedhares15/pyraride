@@ -46,33 +46,43 @@ export async function GET(
 
       const newSlots = [];
       for (const horse of horses) {
-        // 7:00 AM Slot (Egypt Time UTC+2) -> 5:00 AM Server Time
-        const start7 = new Date(queryDate);
-        start7.setHours(5, 0, 0, 0);
-        const end7 = new Date(queryDate);
-        end7.setHours(6, 0, 0, 0); // 1 hour duration default
+        // Sunrise Session (AM)
+        // Egypt Time (UTC+2): 7:00, 8:00, 9:00, 10:00 AM
+        // Server Time (UTC): 5:00, 6:00, 7:00, 8:00 AM
+        const amHours = [5, 6, 7, 8];
+        for (const hour of amHours) {
+          const start = new Date(queryDate);
+          start.setHours(hour, 0, 0, 0);
+          const end = new Date(queryDate);
+          end.setHours(hour + 1, 0, 0, 0);
 
-        newSlots.push({
-          stableId: params.id,
-          horseId: horse.id,
-          date: queryDate,
-          startTime: start7,
-          endTime: end7,
-        });
+          newSlots.push({
+            stableId: params.id,
+            horseId: horse.id,
+            date: queryDate,
+            startTime: start,
+            endTime: end,
+          });
+        }
 
-        // 3:00 PM Slot (15:00 Egypt Time UTC+2) -> 1:00 PM (13:00) Server Time
-        const start3 = new Date(queryDate);
-        start3.setHours(13, 0, 0, 0);
-        const end3 = new Date(queryDate);
-        end3.setHours(14, 0, 0, 0);
+        // Sunset Session (PM)
+        // Egypt Time (UTC+2): 3:00, 4:00, 5:00 PM (15:00, 16:00, 17:00)
+        // Server Time (UTC): 1:00, 2:00, 3:00 PM (13:00, 14:00, 15:00)
+        const pmHours = [13, 14, 15];
+        for (const hour of pmHours) {
+          const start = new Date(queryDate);
+          start.setHours(hour, 0, 0, 0);
+          const end = new Date(queryDate);
+          end.setHours(hour + 1, 0, 0, 0);
 
-        newSlots.push({
-          stableId: params.id,
-          horseId: horse.id,
-          date: queryDate,
-          startTime: start3,
-          endTime: end3,
-        });
+          newSlots.push({
+            stableId: params.id,
+            horseId: horse.id,
+            date: queryDate,
+            startTime: start,
+            endTime: end,
+          });
+        }
       }
 
       if (newSlots.length > 0) {
