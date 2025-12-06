@@ -46,25 +46,25 @@ export async function GET(
 
       const newSlots = [];
       for (const horse of horses) {
-        // 8:00 AM Slot
-        const start8 = new Date(queryDate);
-        start8.setHours(8, 0, 0, 0);
-        const end8 = new Date(queryDate);
-        end8.setHours(9, 0, 0, 0); // 1 hour duration default
+        // 7:00 AM Slot (Egypt Time UTC+2) -> 5:00 AM Server Time
+        const start7 = new Date(queryDate);
+        start7.setHours(5, 0, 0, 0);
+        const end7 = new Date(queryDate);
+        end7.setHours(6, 0, 0, 0); // 1 hour duration default
 
         newSlots.push({
           stableId: params.id,
           horseId: horse.id,
           date: queryDate,
-          startTime: start8,
-          endTime: end8,
+          startTime: start7,
+          endTime: end7,
         });
 
-        // 3:00 PM Slot (15:00)
+        // 3:00 PM Slot (15:00 Egypt Time UTC+2) -> 1:00 PM (13:00) Server Time
         const start3 = new Date(queryDate);
-        start3.setHours(15, 0, 0, 0);
+        start3.setHours(13, 0, 0, 0);
         const end3 = new Date(queryDate);
-        end3.setHours(16, 0, 0, 0);
+        end3.setHours(14, 0, 0, 0);
 
         newSlots.push({
           stableId: params.id,
