@@ -216,7 +216,6 @@ export async function POST(req: NextRequest) {
           horse: {
             select: {
               name: true,
-              name: true,
             },
           },
           rider: {
