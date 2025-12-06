@@ -272,7 +272,7 @@ export default function TermsPage() {
               </p>
               <ul className="list-none space-y-2 text-white/70">
                 <li><strong className="text-white">Email:</strong> <a href="mailto:support@pyraride.com" className="text-primary hover:underline">support@pyraride.com</a></li>
-                <li><strong className="text-white">Website:</strong> <a href="https://pyraride.vercel.app" className="text-primary hover:underline">pyraride.vercel.app</a></li>
+                <li><strong className="text-white">Website:</strong> <a href="https://www.pyrarides.com" className="text-primary hover:underline">www.pyrarides.com</a></li>
               </ul>
             </section>
 

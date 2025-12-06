@@ -57,6 +57,97 @@ export async function GET(
       },
     });
 
+    // Feature: Automatic 8 AM and 3 PM slots
+    // If no slots exist for this date, automatically create them for all active horses
+    if (slots.length === 0 && (!horseId || horseId === "all")) {
+      console.log(`[GET /api/stables/${params.id}/slots] No slots found for ${dateStr}. Generating defaults...`);
+
+      // Fetch all active horses for this stable
+      const horses = await prisma.horse.findMany({
+        where: {
+          stableId: params.id,
+          isActive: true,
+        },
+        select: { id: true },
+      });
+
+      if (horses.length > 0) {
+        const defaultSlots = [];
+
+        for (const horse of horses) {
+          // Create 8:00 AM slot
+          const start8AM = new Date(queryDate);
+          start8AM.setHours(8, 0, 0, 0);
+          const end8AM = new Date(start8AM);
+          end8AM.setHours(9, 0, 0, 0);
+
+          defaultSlots.push({
+            stableId: params.id,
+            horseId: horse.id,
+            date: queryDate,
+            startTime: start8AM,
+            endTime: end8AM,
+            isBooked: false,
+          });
+
+          // Create 3:00 PM slot
+          const start3PM = new Date(queryDate);
+          start3PM.setHours(15, 0, 0, 0);
+          const end3PM = new Date(start3PM);
+          end3PM.setHours(16, 0, 0, 0);
+
+          defaultSlots.push({
+            stableId: params.id,
+            horseId: horse.id,
+            date: queryDate,
+            startTime: start3PM,
+            endTime: end3PM,
+            isBooked: false,
+          });
+        }
+
+        // Bulk create slots
+        if (defaultSlots.length > 0) {
+          await prisma.availabilitySlot.createMany({
+            data: defaultSlots,
+            skipDuplicates: true,
+          });
+
+          console.log(`[GET /api/stables/${params.id}/slots] Generated ${defaultSlots.length} default slots`);
+
+          // Re-fetch slots to return them
+          const newSlots = await prisma.availabilitySlot.findMany({
+            where: {
+              stableId: params.id,
+              date: queryDate,
+            },
+            include: {
+              booking: {
+                select: {
+                  id: true,
+                  riderId: true,
+                  startTime: true,
+                  endTime: true,
+                  status: true,
+                  rider: {
+                    select: {
+                      fullName: true,
+                      email: true,
+                    },
+                  },
+                },
+              },
+            },
+            orderBy: {
+              startTime: "asc",
+            },
+          });
+
+          return NextResponse.json(newSlots);
+        }
+      }
+    }
+
     console.log(`[GET /api/stables/${params.id}/slots] Found ${slots.length} slots`);
     return NextResponse.json(slots);
   } catch (error) {

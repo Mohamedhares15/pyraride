@@ -1,150 +1,163 @@
+"use client";
+
 import { Metadata } from "next";
 import { Card } from "@/components/ui/card";
+import { Shield, Lock, Eye, Share2, Globe, UserCheck, Mail } from "lucide-react";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
-
-export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description: "PyraRide Privacy Policy - How we collect, use, and protect your personal information.",
-};
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-4xl px-4 py-16">
-        <Breadcrumbs items={[{ label: "Privacy Policy" }]} />
-        <h1 className="mb-8 font-display text-4xl font-bold">Privacy Policy</h1>
-        
-        <Card className="p-8">
-          <div className="prose prose-slate max-w-none">
-            <p className="text-sm text-muted-foreground mb-6">
+    <div className="min-h-screen bg-black text-white">
+      {/* Hero Section */}
+      <div className="relative h-[300px] w-full overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-black/90 z-10" />
+        <div className="absolute inset-0 bg-[url('/images/hero-bg.jpg')] bg-cover bg-center opacity-30" />
+        <div className="relative z-20 container mx-auto px-4 h-full flex flex-col justify-end pb-12">
+          <Breadcrumbs items={[{ label: "Privacy Policy" }]} />
+          <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60 mt-4">
+            Privacy Policy
+          </h1>
+          <p className="text-white/60 mt-2 max-w-2xl">
+            How we collect, use, and protect your personal information.
+          </p>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-12 max-w-4xl">
+        <div className="space-y-8">
+          <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm">
+            <p className="text-white/80 leading-relaxed">
+              At PyraRide, we take your privacy seriously. This policy outlines how we handle your data to ensure a secure and transparent experience.
+            </p>
+            <p className="text-sm text-white/40 mt-4">
               Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
+          </Card>
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">1. Information We Collect</h2>
-              <p className="mb-4">
-                We collect information you provide directly to us when you:
-              </p>
-              <ul className="list-disc pl-6 mb-4 space-y-2">
-                <li>Create an account and register as a rider or stable owner</li>
-                <li>Make a booking or payment</li>
-                <li>Contact our customer support</li>
-                <li>Sign up for our newsletter</li>
-                <li>Leave reviews or interact with our platform</li>
+          {/* 1. Information We Collect */}
+          <section className="space-y-6">
+            <h2 className="text-2xl font-bold text-primary flex items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary text-sm">1</span>
+              Information We Collect
+            </h2>
+            <Card className="p-6 bg-white/5 border-white/10">
+              <div className="grid gap-6 md:grid-cols-2">
+                <div>
+                  <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                    <UserCheck className="w-5 h-5 text-blue-400" />
+                    Personal Information
+                  </h3>
+                  <ul className="space-y-2 text-white/70 text-sm">
+                    <li>• Name, email, phone number</li>
+                    <li>• Payment information</li>
+                    <li>• Booking preferences</li>
+                    <li>• Profile photos and reviews</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                    <Globe className="w-5 h-5 text-purple-400" />
+                    Automatically Collected
+                  </h3>
+                  <ul className="space-y-2 text-white/70 text-sm">
+                    <li>• IP address and device info</li>
+                    <li>• Browser type and usage data</li>
+                    <li>• Cookies and analytics</li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
+          </section>
+
+          {/* 2. How We Use Your Information */}
+          <section className="space-y-6">
+            <h2 className="text-2xl font-bold text-primary flex items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary text-sm">2</span>
+              How We Use Your Information
+            </h2>
+            <Card className="p-6 bg-white/5 border-white/10">
+              <ul className="grid gap-3 md:grid-cols-2 text-white/70">
+                <li className="flex gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2" />
+                  Process and manage your bookings
+                </li>
+                <li className="flex gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2" />
+                  Send booking confirmations and updates
+                </li>
+                <li className="flex gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2" />
+                  Process payments securely
+                </li>
+                <li className="flex gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2" />
+                  Improve our platform services
+                </li>
+                <li className="flex gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2" />
+                  Comply with legal obligations
+                </li>
               </ul>
-              <p className="mb-4">
-                <strong>Personal Information:</strong> Name, email address, phone number, payment information, 
-                booking preferences, and any other information you choose to provide.
-              </p>
-              <p className="mb-4">
-                <strong>Automatically Collected Information:</strong> IP address, browser type, device information, 
-                usage data, cookies, and analytics data to improve our services.
-              </p>
-            </section>
+            </Card>
+          </section>
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">2. How We Use Your Information</h2>
-              <p className="mb-4">We use the information we collect to:</p>
-              <ul className="list-disc pl-6 mb-4 space-y-2">
-                <li>Process and manage your bookings</li>
-                <li>Communicate with you about your reservations</li>
-                <li>Send booking confirmations and updates</li>
-                <li>Process payments and prevent fraud</li>
-                <li>Improve our platform and user experience</li>
-                <li>Send you marketing communications (with your consent)</li>
-                <li>Comply with legal obligations</li>
-              </ul>
-            </section>
+          {/* 3. Information Sharing */}
+          <section className="space-y-6">
+            <h2 className="text-2xl font-bold text-primary flex items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary text-sm">3</span>
+              Information Sharing
+            </h2>
+            <Card className="p-6 bg-white/5 border-white/10">
+              <p className="text-white/80 mb-4">We do not sell your personal information. We share it only with:</p>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <Share2 className="w-5 h-5 text-green-400 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-white">Stable Owners</h3>
+                    <p className="text-sm text-white/60">To facilitate your bookings (name, contact details).</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Lock className="w-5 h-5 text-orange-400 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-white">Service Providers</h3>
+                    <p className="text-sm text-white/60">Trusted partners for payments, email, and analytics.</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </section>
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">3. Information Sharing and Disclosure</h2>
-              <p className="mb-4">
-                We do not sell your personal information. We may share your information with:
-              </p>
-              <ul className="list-disc pl-6 mb-4 space-y-2">
-                <li><strong>Stable Owners:</strong> To facilitate your bookings (name, contact details, booking information)</li>
-                <li><strong>Service Providers:</strong> Payment processors, email services, analytics providers</li>
-                <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
-                <li><strong>Business Transfers:</strong> In case of merger, acquisition, or sale of assets</li>
-              </ul>
-            </section>
+          {/* 4. Data Security */}
+          <section className="space-y-6">
+            <h2 className="text-2xl font-bold text-primary flex items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary text-sm">4</span>
+              Data Security
+            </h2>
+            <Card className="p-6 bg-gradient-to-br from-blue-900/20 to-black border-blue-500/30">
+              <div className="flex items-center gap-4 mb-4">
+                <Shield className="w-8 h-8 text-blue-400" />
+                <p className="text-white/80">
+                  We implement robust security measures including SSL/TLS encryption, secure payment processing, and regular security audits to protect your data.
+                </p>
+              </div>
+            </Card>
+          </section>
 
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">4. Data Security</h2>
-              <p className="mb-4">
-                We implement appropriate technical and organizational measures to protect your personal information 
-                against unauthorized access, alteration, disclosure, or destruction. These measures include:
-              </p>
-              <ul className="list-disc pl-6 mb-4 space-y-2">
-                <li>SSL/TLS encryption for data transmission</li>
-                <li>Secure payment processing through trusted providers</li>
-                <li>Regular security audits and updates</li>
-                <li>Access controls and authentication</li>
-                <li>Employee training on data protection</li>
-              </ul>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">5. Your Rights and Choices</h2>
-              <p className="mb-4">You have the right to:</p>
-              <ul className="list-disc pl-6 mb-4 space-y-2">
-                <li><strong>Access:</strong> Request a copy of your personal information</li>
-                <li><strong>Correction:</strong> Update or correct inaccurate information</li>
-                <li><strong>Deletion:</strong> Request deletion of your account and data</li>
-                <li><strong>Opt-Out:</strong> Unsubscribe from marketing communications</li>
-                <li><strong>Data Portability:</strong> Receive your data in a portable format</li>
-                <li><strong>Withdraw Consent:</strong> Revoke consent for data processing</li>
-              </ul>
-              <p className="mb-4">
-                To exercise these rights, contact us at: <a href="mailto:privacy@pyraride.com" className="text-primary hover:underline">privacy@pyraride.com</a>
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">6. Cookies and Tracking</h2>
-              <p className="mb-4">
-                We use cookies and similar tracking technologies to enhance your experience. You can control cookies 
-                through your browser settings. Essential cookies are necessary for the platform to function properly.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">7. International Data Transfers</h2>
-              <p className="mb-4">
-                Your information may be transferred to and processed in countries other than your own. 
-                We ensure appropriate safeguards are in place to protect your data in accordance with this Privacy Policy.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">8. Children's Privacy</h2>
-              <p className="mb-4">
-                Our services are not directed to children under 16. We do not knowingly collect personal information 
-                from children. If you believe we have collected information from a child, please contact us immediately.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">9. Changes to This Policy</h2>
-              <p className="mb-4">
-                We may update this Privacy Policy from time to time. We will notify you of any material changes 
-                by posting the new policy on this page and updating the "Last Updated" date.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4">10. Contact Us</h2>
-              <p className="mb-4">
-                If you have any questions about this Privacy Policy, please contact us:
-              </p>
-              <ul className="list-none space-y-2">
-                <li><strong>Email:</strong> <a href="mailto:privacy@pyraride.com" className="text-primary hover:underline">privacy@pyraride.com</a></li>
-                <li><strong>Address:</strong> [Your Business Address - To be provided by stable owner]</li>
-                <li><strong>Phone:</strong> [Your Contact Number - To be provided by stable owner]</li>
-              </ul>
-            </section>
-          </div>
-        </Card>
+          {/* Contact */}
+          <section className="mt-10 pt-6 border-t border-white/10">
+            <h2 className="text-xl font-bold text-white mb-4">Contact Us</h2>
+            <p className="text-white/70 mb-4">
+              If you have any questions about this Privacy Policy, please contact us:
+            </p>
+            <div className="flex items-center gap-3 text-white/70">
+              <Mail className="w-5 h-5 text-primary" />
+              <a href="mailto:privacy@pyraride.com" className="text-white hover:text-primary transition-colors">
+                privacy@pyraride.com
+              </a>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   );
