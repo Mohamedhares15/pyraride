@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { stableId, horseId, startTime, endTime, promoCodeId } = body;
+    const { stableId, horseId, startTime, endTime, promoCodeId, paymentMethod } = body;
 
     // Validate required fields
     if (!stableId || !horseId || !startTime || !endTime) {
@@ -32,6 +32,28 @@ export async function POST(req: NextRequest) {
         { error: "Missing required fields" },
         { status: 400 }
       );
+    }
+
+    // Cash Privilege Check
+    if (paymentMethod === 'cash') {
+      const cashConfig = await prisma.systemConfig.findUnique({
+        where: { key: 'CASH_RESTRICTION_ENABLED' }
+      });
+
+      // Default to allowed (false) if not set. If 'true', then restricted.
+      if (cashConfig?.value === 'true') {
+        const user = await prisma.user.findUnique({
+          where: { id: session.user.id },
+          select: { isTrustedRider: true }
+        });
+
+        if (!user?.isTrustedRider) {
+          return NextResponse.json(
+            { error: "Cash payment is only available for Trusted Riders. Please pay online for your first booking." },
+            { status: 403 }
+          );
+        }
+      }
     }
 
     // Validate dates
@@ -164,43 +186,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Feature: 1 Sunrise, 1 Sunset constraint
-    // Sunrise: Start time < 12:00 PM
-    // Sunset: Start time >= 12:00 PM
-    const startHour = start.getHours();
-    const isSunrise = startHour < 12;
-    const periodName = isSunrise ? "sunrise (morning)" : "sunset (afternoon)";
-
-    // Define the period range for the query
-    // We need to check if there are ANY confirmed bookings for this horse in the same period on this day
-    const periodStart = new Date(start);
-    periodStart.setHours(isSunrise ? 0 : 12, 0, 0, 0);
-
-    const periodEnd = new Date(start);
-    // If sunrise, end at 12:00. If sunset, end at 23:59:59
-    periodEnd.setHours(isSunrise ? 12 : 23, 59, 59, 999);
-
-    const existingBookingsInPeriod = await prisma.booking.count({
-      where: {
-        horseId,
-        status: "confirmed",
-        startTime: {
-          gte: periodStart,
-          lt: periodEnd, // Use lt to exclude 12:00 boundary for sunrise
-        },
-      },
-    });
-
-    if (existingBookingsInPeriod >= 1) {
-      return NextResponse.json(
-        {
-          error: `This horse already has a ${periodName} booking for this day`,
-          details: `Each horse is limited to one sunrise and one sunset booking per day to ensure their well-being.`
-        },
-        { status: 400 }
-      );
-    }
-
     // Calculate price using horse's actual price per hour
     const pricePerHour = Number(horse.pricePerHour ?? 50); // Default to 50 if not set
     const totalPrice = hours * pricePerHour;
@@ -231,6 +216,7 @@ export async function POST(req: NextRequest) {
           horse: {
             select: {
               name: true,
+              name: true,
             },
           },
           rider: {
@@ -252,6 +238,14 @@ export async function POST(req: NextRequest) {
               increment: 1,
             },
           },
+        });
+      }
+
+      // Update Trusted Rider status if paying online (not cash)
+      if (paymentMethod !== 'cash') {
+        await tx.user.update({
+          where: { id: session.user.id },
+          data: { isTrustedRider: true }
         });
       }
 

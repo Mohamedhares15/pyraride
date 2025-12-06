@@ -2,7 +2,7 @@
 
 import { Metadata } from "next";
 import { Card } from "@/components/ui/card";
-import { AlertCircle, Clock, CheckCircle, XCircle, Shield, Wallet, CreditCard, Users, User } from "lucide-react";
+import { AlertCircle, Clock, CheckCircle, XCircle, Shield, Wallet, CreditCard, Users, User, Lock } from "lucide-react";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 
 export default function RefundPolicyPage() {
@@ -34,7 +34,9 @@ export default function RefundPolicyPage() {
           {/* Intro */}
           <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm">
             <p className="text-white/80 leading-relaxed">
-              Welcome to Pyraride! We are committed to providing a transparent, fair, and secure booking experience for all our users, including our valued Riders (customers) and Stable Partners (stables). Your use of our platform and the completion of any booking constitutes your full agreement to these terms. Please read this policy carefully.
+              Welcome to Pyraride! We are committed to providing a transparent, fair, and secure booking experience for all our users, including our valued Riders (customers) and Stable Partners (stables).
+              <br /><br />
+              Your use of our platform and the completion of any booking constitutes your full agreement to these terms. Please read this policy carefully.
             </p>
           </Card>
 
@@ -62,9 +64,9 @@ export default function RefundPolicyPage() {
                 <div className="flex items-start gap-4">
                   <Users className="w-6 h-6 text-purple-400 mt-1" />
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">1.2 Group Booking</h3>
+                    <h3 className="text-lg font-semibold text-white mb-2">1.2 Group Booking ("Smart Link Reservation")</h3>
                     <p className="text-white/70 text-sm mb-2">
-                      "Smart Link Reservation" - To maintain the integrity of our individual rider rating system, all group bookings must have each spot assigned to a registered Pyraride user.
+                      To maintain the integrity of our individual rider rating system, all group bookings must have each spot assigned to a registered Pyraride user.
                     </p>
                   </div>
                 </div>
@@ -87,7 +89,7 @@ export default function RefundPolicyPage() {
                     <ul className="pl-4 mt-2 space-y-2 border-l-2 border-white/10 ml-1">
                       <li>• <strong>Pay for All:</strong> The Leader pays the full amount for the entire group.</li>
                       <li>• <strong>Split the Bill:</strong> A "Smart Link" is generated for each individual to pay their own share.</li>
-                      <li>• <strong>Customize Payment:</strong> The Leader can choose to pay for specific members while others pay their own share.</li>
+                      <li>• <strong>Customize Payment:</strong> The Leader can choose to pay for specific members (e.g., themselves and one friend) while others pay their own share via the Smart Link.</li>
                     </ul>
                   </div>
                 </li>
@@ -95,7 +97,11 @@ export default function RefundPolicyPage() {
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 flex-shrink-0" />
                   <div>
                     <strong className="text-red-400">Booking Confirmation (Important):</strong>
-                    <p className="mt-1">Spots are NOT held or temporarily reserved during the payment process. A group booking is only confirmed when the last member successfully completes their payment. If a slot becomes unavailable, paid members are automatically refunded.</p>
+                    <p className="mt-1">
+                      Spots are NOT held or temporarily reserved during the payment process.
+                      A group booking is only confirmed when the last member of the group successfully completes their payment.
+                      If a horse or time slot becomes unavailable before the last person pays, the booking will fail, and any members who have already paid will be automatically refunded.
+                    </p>
                   </div>
                 </li>
               </ul>
@@ -106,7 +112,7 @@ export default function RefundPolicyPage() {
           <section className="space-y-6">
             <h2 className="text-2xl font-bold text-primary flex items-center gap-3">
               <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary text-sm">2</span>
-              Cancellation Policy (Online Payments)
+              Cancellation Policy (For Online Payments)
             </h2>
             <p className="text-white/60">This policy applies only to bookings made using our electronic payment gateways (e.g., Visa, Mastercard, Vodafone Cash).</p>
 
@@ -121,9 +127,10 @@ export default function RefundPolicyPage() {
                   <p className="text-green-200/60 text-sm mb-4">More than 48 hours in advance</p>
                   <div className="flex items-center gap-4">
                     <div className="px-4 py-2 rounded-lg bg-green-500/20 text-green-300 font-bold">
-                      100% Full Cash Refund
+                      Action: 100% full cash refund.
                     </div>
                   </div>
+                  <p className="text-sm text-green-200/60 mt-2">Outcome: The customer is fully refunded.</p>
                 </div>
               </div>
 
@@ -137,18 +144,18 @@ export default function RefundPolicyPage() {
                   <p className="text-yellow-200/60 text-sm mb-4">Between 24 to 48 hours in advance</p>
                   <div className="mb-4">
                     <span className="text-white/80">Penalty: </span>
-                    <span className="text-red-400 font-semibold">50% fee applied</span>
+                    <span className="text-red-400 font-semibold">A 50% penalty fee is applied.</span>
+                    <p className="text-xs text-white/50 mt-1">This fee is used to partially compensate the Stable Partner for the slot.</p>
                   </div>
                   <div className="space-y-3">
-                    <p className="text-sm text-white/60">Your Refund Options (for the remaining 50%):</p>
+                    <p className="text-sm text-white/60">Your Refund: For the remaining 50% of your payment, you have two choices:</p>
                     <div className="grid gap-3 md:grid-cols-2">
                       <div className="p-3 rounded bg-white/5 border border-white/10">
-                        <span className="block text-white font-semibold">Option A</span>
-                        <span className="text-sm text-white/60">50% Cash Refund</span>
+                        <span className="block text-white font-semibold">(a) Receive a 50% cash refund.</span>
                       </div>
                       <div className="p-3 rounded bg-primary/10 border border-primary/30">
-                        <span className="block text-primary font-semibold">Option B (Recommended)</span>
-                        <span className="text-sm text-white/60">60% Credit in Pyraride Wallet</span>
+                        <span className="block text-primary font-semibold">(b) Receive a 60% credit in your Pyraride Wallet.</span>
+                        <span className="text-xs text-white/60 block mt-1">(We, as Pyraride, sacrifice a portion of our earnings to give you a higher value back, encouraging you to ride again).</span>
                       </div>
                     </div>
                   </div>
@@ -165,13 +172,22 @@ export default function RefundPolicyPage() {
                   <p className="text-red-200/60 text-sm mb-4">Less than 24 hours in advance</p>
                   <div className="mb-4">
                     <span className="text-white/80">Penalty: </span>
-                    <span className="text-red-400 font-semibold">100% fee applied</span>
+                    <span className="text-red-400 font-semibold">A 100% penalty fee is applied.</span>
                   </div>
-                  <div className="p-4 rounded bg-white/5 border border-white/10">
-                    <h4 className="font-semibold text-white mb-2">Rider Courtesy</h4>
-                    <p className="text-sm text-white/70">
-                      So you don't lose everything, Pyraride sacrifices its entire commission (e.g., 20%). This amount is automatically credited to your Pyraride Wallet for a future booking.
-                    </p>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="p-4 rounded bg-white/5 border border-white/10">
+                      <h4 className="font-semibold text-white mb-2">Stable Protection</h4>
+                      <p className="text-sm text-white/70">
+                        Our first priority is to protect our partners. The Stable's full share (e.g., 80%) is paid to them as if the ride occurred.
+                      </p>
+                    </div>
+                    <div className="p-4 rounded bg-white/5 border border-white/10">
+                      <h4 className="font-semibold text-white mb-2">Rider Courtesy</h4>
+                      <p className="text-sm text-white/70">
+                        So you don't lose everything, Pyraride sacrifices its entire commission (e.g., 20%). This amount is automatically credited to your Pyraride Wallet for a future booking.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -186,14 +202,20 @@ export default function RefundPolicyPage() {
             </h2>
             <Card className="p-6 bg-gradient-to-br from-yellow-900/20 to-black border-yellow-500/30">
               <p className="text-white/80 mb-4">
-                This feature applies only to Tier 3 (Late Cancellation) scenarios. When you make a late cancellation, your spot is automatically relisted on Pyraride as a "Last-Minute" deal.
+                This feature applies only to Tier 3 (Late Cancellation) scenarios:
+                <br />
+                When you make a late cancellation, your spot is automatically relisted on Pyraride as a "Last-Minute" deal.
               </p>
               <div className="flex items-start gap-4 p-4 rounded bg-yellow-500/10 border border-yellow-500/20">
                 <Shield className="w-6 h-6 text-yellow-400 flex-shrink-0" />
                 <div>
-                  <h4 className="font-bold text-yellow-400 mb-1">If another rider books your spot:</h4>
-                  <p className="text-sm text-white/70">
-                    The remaining amount (the original stable's share, e.g., 80%) will be added to your Pyraride Wallet as a "Bonus Credit". Your wallet credit can jump from 20% up to 100%. This is a "chance" to recover your funds, not a guarantee.
+                  <h4 className="font-bold text-yellow-400 mb-1">IF another rider books and pays for that spot:</h4>
+                  <ul className="list-disc pl-5 text-sm text-white/70 space-y-1 mt-2">
+                    <li>Pyraride will take its normal commission from the new sale.</li>
+                    <li>The remaining amount (the original stable's share, e.g., 80%) will be added to your Pyraride Wallet as a "Bonus Credit".</li>
+                  </ul>
+                  <p className="text-sm text-yellow-200/80 mt-3 font-semibold">
+                    Result: Your wallet credit can jump from 20% (our sacrificed commission) up to 100% (full ride value). This is a "chance" to recover your funds, not a guarantee.
                   </p>
                 </div>
               </div>
@@ -208,20 +230,22 @@ export default function RefundPolicyPage() {
             </h2>
             <Card className="p-6 bg-white/5 border-white/10">
               <p className="text-white/80 mb-6">
-                We understand some users prefer to pay in cash. However, to protect stables from "No-Shows", cash payment is an earned privilege, not a default right.
+                We understand some users prefer to pay in cash. However, to protect stables from "No-Shows" (fake or abandoned bookings), cash payment is an earned privilege, not a default right.
               </p>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="p-4 rounded bg-white/5">
                   <h3 className="font-bold text-white mb-2">4.1 New Users</h3>
                   <p className="text-sm text-white/60">
-                    "Pay at Stable" is Disabled. You must complete your first booking using Online Payment to unlock this privilege.
+                    The "Pay at Stable (Cash)" option is Disabled for all new accounts.
+                    <br />
+                    To prove seriousness and unlock this privilege, a new user must complete their first booking using an Online Payment method.
                   </p>
                 </div>
                 <div className="p-4 rounded bg-green-500/10 border border-green-500/20">
                   <h3 className="font-bold text-green-400 mb-2">4.2 Trusted Riders</h3>
                   <p className="text-sm text-white/60">
-                    After one successful online booking, the "Cash Payment" privilege is automatically unlocked.
+                    After a user successfully completes their first online-paid booking (and attends the ride), the "Cash Payment" privilege is automatically unlocked for their account.
                   </p>
                 </div>
               </div>
@@ -229,11 +253,24 @@ export default function RefundPolicyPage() {
               <div className="mt-6 p-4 rounded bg-red-500/10 border border-red-500/20">
                 <h3 className="font-bold text-red-400 mb-2">4.3 The "No-Show" Penalty</h3>
                 <p className="text-sm text-white/70 mb-2">
-                  If a "Trusted Rider" books via cash and fails to show up:
+                  Cash payment is a privilege built on trust.
+                  <br />
+                  If a "Trusted Rider" books a ride using the "Cash Payment" option and fails to show up (a "No-Show"), or makes a late cancellation that harms the stable:
+                </p>
+                <ul className="list-disc pl-5 text-sm text-white/60 space-y-1 mt-2">
+                  <li><strong>Action:</strong> The stable will report the No-Show. The system will permanently revoke the "Cash Payment" privilege from that user's account.</li>
+                </ul>
+              </div>
+
+              <div className="mt-6 p-4 rounded bg-white/5 border border-white/10">
+                <h3 className="font-bold text-white mb-2">4.4 Closing the "New Account" Loophole</h3>
+                <p className="text-sm text-white/70 mb-2">
+                  If a user (who lost their cash privilege) attempts to bypass this penalty by creating a new account with a new phone number:
                 </p>
                 <ul className="list-disc pl-5 text-sm text-white/60 space-y-1">
-                  <li>The system will permanently revoke the "Cash Payment" privilege.</li>
-                  <li>New accounts created to bypass this will be identified and forced to pay online.</li>
+                  <li>The system will identify them as a "New User".</li>
+                  <li>As a "New User", they will be forced to pay online again.</li>
+                  <li>This model ensures that no user can repeatedly book and abandon cash rides.</li>
                 </ul>
               </div>
             </Card>
@@ -256,14 +293,17 @@ export default function RefundPolicyPage() {
                   <p className="text-sm text-white/60 mb-2">You have a choice in your dashboard:</p>
                   <ul className="space-y-2 text-sm text-white/60">
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-400" />
-                      <span><strong>Disable Cash:</strong> Receive 100% guaranteed, pre-paid online bookings only (0% risk).</span>
+                      <Lock className="w-4 h-4 text-green-400" />
+                      <span><strong>Disable Cash Bookings:</strong> Receive 100% guaranteed, pre-paid online bookings only (0% risk).</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-yellow-400" />
-                      <span><strong>Enable Cash:</strong> Increase potential sales by accepting cash from "Trusted Riders".</span>
+                      <Wallet className="w-4 h-4 text-yellow-400" />
+                      <span><strong>Enable Cash Bookings:</strong> Increase your potential sales by accepting cash payments only from Pyraride's pre-vetted "Trusted Riders".</span>
                     </li>
                   </ul>
+                  <p className="text-sm text-white/50 mt-3 italic">
+                    The Cash Risk: By enabling option (2), you acknowledge a minimal risk. If a "Trusted Rider" defaults, Pyraride will penalize them, but we cannot compensate you financially for that ride as no funds were ever collected.
+                  </p>
                 </div>
               </div>
             </Card>

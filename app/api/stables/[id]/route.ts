@@ -56,7 +56,12 @@ export async function GET(
           },
         },
         reviews: {
-          include: {
+          select: {
+            id: true,
+            stableRating: true,
+            horseRating: true,
+            comment: true,
+            createdAt: true,
             rider: {
               select: {
                 id: true,

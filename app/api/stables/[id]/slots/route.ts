@@ -29,6 +29,60 @@ export async function GET(
 
     console.log(`[GET /api/stables/${params.id}/slots] Query date string: ${dateStr}, Created Date object: ${queryDate.toISOString()}`);
 
+    // 1. Automatic Slot Generation
+    // Check if any slots exist for this stable on this date
+    const existingSlotsCount = await prisma.availabilitySlot.count({
+      where: {
+        stableId: params.id,
+        date: queryDate,
+      },
+    });
+
+    if (existingSlotsCount === 0) {
+      // Fetch all active horses
+      const horses = await prisma.horse.findMany({
+        where: { stableId: params.id, isActive: true },
+      });
+
+      const newSlots = [];
+      for (const horse of horses) {
+        // 8:00 AM Slot
+        const start8 = new Date(queryDate);
+        start8.setHours(8, 0, 0, 0);
+        const end8 = new Date(queryDate);
+        end8.setHours(9, 0, 0, 0); // 1 hour duration default
+
+        newSlots.push({
+          stableId: params.id,
+          horseId: horse.id,
+          date: queryDate,
+          startTime: start8,
+          endTime: end8,
+        });
+
+        // 3:00 PM Slot (15:00)
+        const start3 = new Date(queryDate);
+        start3.setHours(15, 0, 0, 0);
+        const end3 = new Date(queryDate);
+        end3.setHours(16, 0, 0, 0);
+
+        newSlots.push({
+          stableId: params.id,
+          horseId: horse.id,
+          date: queryDate,
+          startTime: start3,
+          endTime: end3,
+        });
+      }
+
+      if (newSlots.length > 0) {
+        await prisma.availabilitySlot.createMany({
+          data: newSlots,
+        });
+        console.log(`[GET /api/stables/${params.id}/slots] Auto-generated ${newSlots.length} slots for ${horses.length} horses`);
+      }
+    }
+
     const slots = await prisma.availabilitySlot.findMany({
       where: {
         stableId: params.id,
@@ -43,6 +97,7 @@ export async function GET(
             startTime: true,
             endTime: true,
             status: true,
+            cancelledBy: true, // Include cancelledBy to check cancellation
             rider: {
               select: {
                 fullName: true,
@@ -57,99 +112,57 @@ export async function GET(
       },
     });
 
-    // Feature: Automatic 8 AM and 3 PM slots
-    // If no slots exist for this date, automatically create them for all active horses
-    if (slots.length === 0 && (!horseId || horseId === "all")) {
-      console.log(`[GET /api/stables/${params.id}/slots] No slots found for ${dateStr}. Generating defaults...`);
+    // 2. Horse Welfare Logic
+    // Filter out available slots if the horse already has a booking in the same session (AM/PM)
+    // AM: < 12:00, PM: >= 12:00
 
-      // Fetch all active horses for this stable
-      const horses = await prisma.horse.findMany({
-        where: {
-          stableId: params.id,
-          isActive: true,
-        },
-        select: { id: true },
-      });
+    // Track booked sessions per horse
+    const horseBookings = new Map<string, { am: boolean; pm: boolean }>();
 
-      if (horses.length > 0) {
-        const defaultSlots = [];
+    // First pass: Identify booked sessions
+    slots.forEach(slot => {
+      if (!slot.horseId) return; // Skip if no horseId
 
-        for (const horse of horses) {
-          // Create 8:00 AM slot
-          const start8AM = new Date(queryDate);
-          start8AM.setHours(8, 0, 0, 0);
-          const end8AM = new Date(start8AM);
-          end8AM.setHours(9, 0, 0, 0);
+      // Check if booked and NOT cancelled
+      if (slot.booking && !slot.booking.cancelledBy) {
+        const hour = new Date(slot.startTime).getHours();
+        const isAm = hour < 12;
 
-          defaultSlots.push({
-            stableId: params.id,
-            horseId: horse.id,
-            date: queryDate,
-            startTime: start8AM,
-            endTime: end8AM,
-            isBooked: false,
-          });
+        const current = horseBookings.get(slot.horseId) || { am: false, pm: false };
+        if (isAm) current.am = true;
+        else current.pm = true;
 
-          // Create 3:00 PM slot
-          const start3PM = new Date(queryDate);
-          start3PM.setHours(15, 0, 0, 0);
-          const end3PM = new Date(start3PM);
-          end3PM.setHours(16, 0, 0, 0);
-
-          defaultSlots.push({
-            stableId: params.id,
-            horseId: horse.id,
-            date: queryDate,
-            startTime: start3PM,
-            endTime: end3PM,
-            isBooked: false,
-          });
-        }
-
-        // Bulk create slots
-        if (defaultSlots.length > 0) {
-          await prisma.availabilitySlot.createMany({
-            data: defaultSlots,
-            skipDuplicates: true,
-          });
-
-          console.log(`[GET /api/stables/${params.id}/slots] Generated ${defaultSlots.length} default slots`);
-
-          // Re-fetch slots to return them
-          const newSlots = await prisma.availabilitySlot.findMany({
-            where: {
-              stableId: params.id,
-              date: queryDate,
-            },
-            include: {
-              booking: {
-                select: {
-                  id: true,
-                  riderId: true,
-                  startTime: true,
-                  endTime: true,
-                  status: true,
-                  rider: {
-                    select: {
-                      fullName: true,
-                      email: true,
-                    },
-                  },
-                },
-              },
-            },
-            orderBy: {
-              startTime: "asc",
-            },
-          });
-
-          return NextResponse.json(newSlots);
-        }
+        horseBookings.set(slot.horseId, current);
       }
-    }
+    });
 
-    console.log(`[GET /api/stables/${params.id}/slots] Found ${slots.length} slots`);
-    return NextResponse.json(slots);
+    // Second pass: Filter slots
+    const filteredSlots = slots.filter(slot => {
+      if (!slot.horseId) return true; // Keep slots without horseId (stable-wide?)
+
+      // Always keep booked slots (so they show as booked)
+      if (slot.booking && !slot.booking.cancelledBy) {
+        return true;
+      }
+
+      const hour = new Date(slot.startTime).getHours();
+      const isAm = hour < 12;
+      const horseStatus = horseBookings.get(slot.horseId);
+
+      // If horse has no bookings, keep slot
+      if (!horseStatus) return true;
+
+      // If slot is AM and horse already has AM booking, hide this available slot
+      if (isAm && horseStatus.am) return false;
+
+      // If slot is PM and horse already has PM booking, hide this available slot
+      if (!isAm && horseStatus.pm) return false;
+
+      return true;
+    });
+
+    console.log(`[GET /api/stables/${params.id}/slots] Found ${slots.length} slots, returning ${filteredSlots.length} after welfare filtering`);
+    return NextResponse.json(filteredSlots);
   } catch (error) {
     console.error("Error fetching availability slots:", error);
     return new NextResponse("Internal Error", { status: 500 });

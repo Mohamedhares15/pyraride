@@ -99,6 +99,9 @@ model User {
   stable       Stable?  @relation("StableOwners", fields: [stableId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   ownedStables Stable[] @relation("StableOwner")
 
+  // Cash Privilege
+  isTrustedRider Boolean @default(false)
+
   //Leaderboard & Ranking
   rankPoints      Int        @default(1400) // Will be set based on initial tier selection
   rankId          String?
@@ -399,6 +402,13 @@ model LoyaltyPoints {
   points    Int      @default(0)
   tier      String   @default("bronze") // "bronze", "silver", "gold", "platinum"
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SystemConfig {
+  id        String   @id @default(uuid())
+  key       String   @unique // e.g., "CASH_RESTRICTION_ENABLED"
+  value     String // "true" or "false"
   updatedAt DateTime @updatedAt
 }
 
