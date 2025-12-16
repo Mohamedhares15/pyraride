@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { ArrowLeft, Home, Calendar, Clock, CreditCard, Tag, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Home, Calendar, Clock, CreditCard, Tag, CheckCircle2, CloudSun, Wind, AlertTriangle } from "lucide-react";
+import { getWeatherForecast, getWeatherWarning, WeatherData } from "@/lib/weather";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,6 +61,9 @@ function BookingContent() {
   const [promoCodeId, setPromoCodeId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [leadTimeWarning, setLeadTimeWarning] = useState("");
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [weatherWarning, setWeatherWarning] = useState<string | null>(null);
+  const [groupSize, setGroupSize] = useState(1); // Group booking support
 
   // Initialize date/time from URL params after mount (client-side only)
   useEffect(() => {
@@ -137,7 +141,18 @@ function BookingContent() {
     }
   }, [stable, selectedDate, selectedStartTime]);
 
-  // Calculate price
+  // Fetch weather forecast
+  useEffect(() => {
+    if (selectedDate && selectedStartTime) {
+      const date = new Date(`${selectedDate}T${selectedStartTime}`);
+      getWeatherForecast(date).then(data => {
+        setWeather(data);
+        setWeatherWarning(getWeatherWarning(data));
+      });
+    }
+  }, [selectedDate, selectedStartTime]);
+
+  // Calculate price with group discount
   const calculatePrice = () => {
     if (!horse || !selectedDate || !selectedStartTime || !selectedEndTime) return 0;
 
@@ -146,8 +161,25 @@ function BookingContent() {
     const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
     const horsePrice = horse.pricePerHour || 0;
 
-    const basePrice = hours > 0 ? hours * horsePrice : 0;
+    let basePrice = hours > 0 ? hours * horsePrice * groupSize : 0;
+
+    // Apply 10% group discount for 5+ riders
+    if (groupSize >= 5) {
+      basePrice = basePrice * 0.9;
+    }
+
     return Math.max(0, basePrice - promoDiscount);
+  };
+
+  const getGroupDiscount = () => {
+    if (groupSize < 5) return 0;
+    if (!horse || !selectedDate || !selectedStartTime || !selectedEndTime) return 0;
+    const start = new Date(`${selectedDate}T${selectedStartTime}`);
+    const end = new Date(`${selectedDate}T${selectedEndTime}`);
+    const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+    const horsePrice = horse.pricePerHour || 0;
+    const basePrice = hours > 0 ? hours * horsePrice * groupSize : 0;
+    return basePrice * 0.1; // 10% discount
   };
 
   const calculateHours = () => {
@@ -488,9 +520,87 @@ function BookingContent() {
                   </div>
                 </div>
 
+                {/* Group Size Selector */}
+                <div className="mt-4 rounded-lg bg-white/5 border border-white/10 p-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-white/70">Number of Riders</p>
+                      <p className="text-xs text-green-400">5+ riders = 10% discount!</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setGroupSize(Math.max(1, groupSize - 1))}
+                        className="w-8 h-8 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center"
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center font-bold text-white">{groupSize}</span>
+                      <button
+                        type="button"
+                        onClick={() => setGroupSize(Math.min(10, groupSize + 1))}
+                        className="w-8 h-8 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Group Member Info */}
+                  {groupSize > 1 && (
+                    <div className="mt-3 space-y-2">
+                      <p className="text-xs text-white/50 flex items-center gap-1">
+                        <span className="text-amber-400">⚠️</span>
+                        All group members must have a PyraRide account
+                      </p>
+                      <div className="p-2 rounded bg-blue-500/10 border border-blue-500/20">
+                        <p className="text-xs text-blue-300">
+                          💡 Ask your friends to sign up at pyraride.com before the ride.
+                          They'll receive a confirmation email with ride details.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {groupSize >= 5 && (
+                    <div className="mt-2 p-2 rounded bg-green-500/20 border border-green-500/30">
+                      <p className="text-xs text-green-300">🎉 Group discount applied! You save 10%</p>
+                    </div>
+                  )}
+                </div>
+
                 {leadTimeWarning && (
                   <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
                     <p className="text-amber-400 text-xs">{leadTimeWarning}</p>
+                  </div>
+                )}
+
+                {/* Weather Widget */}
+                {weather && (
+                  <div className="mt-4 rounded-lg bg-blue-500/10 border border-blue-500/20 p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">{weather.icon}</span>
+                        <div>
+                          <p className="text-white font-medium text-sm">Weather Forecast</p>
+                          <p className="text-white/60 text-xs">{weather.description}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-white font-bold">{weather.temp}°C</p>
+                        <div className="flex items-center gap-1 text-white/60 text-xs">
+                          <Wind className="h-3 w-3" />
+                          <span>{weather.windSpeed} km/h</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {weatherWarning && (
+                      <div className="mt-2 flex items-start gap-2 p-2 rounded bg-amber-500/20 border border-amber-500/30">
+                        <AlertTriangle className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                        <p className="text-xs text-amber-200">{weatherWarning}</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

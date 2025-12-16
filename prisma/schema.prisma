@@ -172,6 +172,12 @@ model Stable {
   rideResults       RideResult[]
 }
 
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
 model Horse {
   id                 String              @id @default(uuid())
   stableId           String
@@ -180,6 +186,7 @@ model Horse {
   imageUrls          String[]
   pricePerHour       Decimal?            @db.Decimal(10, 2)
   age                Int?
+  skillLevel         SkillLevel          @default(BEGINNER)
   skills             String[]            @default([])
   isActive           Boolean             @default(true)
   availabilityStatus AvailabilityStatus? @default(available)
@@ -338,6 +345,8 @@ model Booking {
   isRescheduled      Boolean       @default(false)
   cancelledBy        String? // "rider", "owner", "admin"
   promoCodeId        String?
+  groupSize          Int           @default(1) // Number of riders (1 = solo, 5+ = group discount)
+  groupDiscount      Decimal?      @db.Decimal(10, 2) // Discount applied for groups
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
@@ -397,12 +406,25 @@ model NewsletterSubscriber {
 }
 
 model LoyaltyPoints {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  points    Int      @default(0)
-  tier      String   @default("bronze") // "bronze", "silver", "gold", "platinum"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String              @id @default(uuid())
+  userId       String              @unique
+  points       Int                 @default(0)
+  tier         String              @default("bronze") // "bronze", "silver", "gold", "platinum"
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  transactions PointsTransaction[]
+}
+
+model PointsTransaction {
+  id              String        @id @default(uuid())
+  loyaltyPointsId String
+  loyaltyPoints   LoyaltyPoints @relation(fields: [loyaltyPointsId], references: [id], onDelete: Cascade)
+  amount          Int // positive = earned, negative = redeemed
+  type            String // "booking", "review", "referral", "redemption"
+  description     String?
+  createdAt       DateTime      @default(now())
+
+  @@index([loyaltyPointsId])
 }
 
 model SystemConfig {
@@ -410,6 +432,23 @@ model SystemConfig {
   key       String   @unique // e.g., "CASH_RESTRICTION_ENABLED"
   value     String // "true" or "false"
   updatedAt DateTime @updatedAt
+}
+
+model Subscription {
+  id             String   @id @default(uuid())
+  userId         String
+  planType       String // "monthly", "annual", "family"
+  ridesRemaining Int? // null = unlimited
+  ridesUsed      Int      @default(0)
+  startDate      DateTime @default(now())
+  endDate        DateTime
+  isActive       Boolean  @default(true)
+  price          Decimal  @db.Decimal(10, 2)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+  @@index([isActive])
 }
 
 model PasswordResetToken {

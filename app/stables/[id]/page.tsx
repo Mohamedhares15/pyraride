@@ -26,6 +26,7 @@ import AuthModal from "@/components/shared/AuthModal";
 import ReviewsSection from "@/components/sections/ReviewsSection";
 import StableLocationMap from "@/components/maps/StableLocationMap";
 import DynamicAvailability from "@/components/availability/DynamicAvailability";
+import VideoMeetButton from "@/components/shared/VideoMeetButton";
 import {
   Dialog,
   DialogContent,
@@ -62,6 +63,7 @@ interface Horse {
   pricePerHour?: number | null;
   age?: number | null;
   skills?: string[];
+  skillLevel?: string;
   media: HorseMediaItem[];
 }
 
@@ -173,6 +175,8 @@ export default function StableDetailPage() {
   const [portfolioViewer, setPortfolioViewer] = useState<PortfolioViewerState | null>(null);
   const [showAllSlots, setShowAllSlots] = useState<Record<string, boolean>>({});
   const { data: session } = useSession();
+  const [hasBookingWithStable, setHasBookingWithStable] = useState(false);
+  const [userBookingDate, setUserBookingDate] = useState<string | null>(null);
   const [bookingSelection, setBookingSelection] = useState<{
     horseId?: string;
     date?: string;
@@ -301,6 +305,36 @@ export default function StableDetailPage() {
       fetchStable();
     }
   }, [id]);
+
+  // Check if user has a booking with this stable (for video chat access)
+  useEffect(() => {
+    async function checkUserBooking() {
+      if (!session?.user?.id || !id) return;
+
+      try {
+        const res = await fetch(`/api/bookings?stableId=${id}&status=confirmed,pending`);
+        if (res.ok) {
+          const bookings = await res.json();
+          const futureBookings = bookings.filter((b: any) => new Date(b.startTime) > new Date());
+          if (futureBookings.length > 0) {
+            setHasBookingWithStable(true);
+            const nextBooking = futureBookings[0];
+            setUserBookingDate(new Date(nextBooking.startTime).toLocaleDateString('en-US', {
+              weekday: 'long',
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit'
+            }));
+          }
+        }
+      } catch (error) {
+        console.error("Error checking bookings:", error);
+      }
+    }
+
+    checkUserBooking();
+  }, [session?.user?.id, id]);
 
   // Refresh slots every 15 seconds (more frequent updates)
   // Refresh slots every 15 seconds (more frequent updates)
@@ -588,6 +622,17 @@ export default function StableDetailPage() {
               <span className="text-sm font-medium">{stable.totalReviews} Reviews</span>
             </div>
           </div>
+
+          {/* Video Chat Button */}
+          <div className="mt-6">
+            <VideoMeetButton
+              stableId={stable.id}
+              stableName={stable.name}
+              ownerName={stable.owner?.fullName || "Stable Guide"}
+              hasBooking={hasBookingWithStable}
+              bookingDate={userBookingDate || undefined}
+            />
+          </div>
         </motion.div>
 
         <div className="grid gap-8 md:grid-cols-3 items-start max-w-full">
@@ -737,7 +782,15 @@ export default function StableDetailPage() {
                           {/* Horse Info */}
                           <div className="p-6">
                             <div className="mb-4">
-                              <h3 className="mb-2 font-semibold text-2xl">{horse.name}</h3>
+                              <div className="flex items-center justify-between mb-2">
+                                <h3 className="font-semibold text-2xl">{horse.name}</h3>
+                                <Badge className={`${horse.skillLevel === 'ADVANCED' ? 'bg-red-500 hover:bg-red-600' :
+                                  horse.skillLevel === 'INTERMEDIATE' ? 'bg-yellow-500 hover:bg-yellow-600' :
+                                    'bg-green-500 hover:bg-green-600'
+                                  } text-white border-0`}>
+                                  {horse.skillLevel || 'BEGINNER'}
+                                </Badge>
+                              </div>
                               <p className="text-sm text-muted-foreground mb-4">{horse.description}</p>
                             </div>
 

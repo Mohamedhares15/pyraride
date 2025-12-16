@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useMemo, useState, useEffect } from "react";
 import AuthModal from "./AuthModal";
 import Image from "next/image";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -237,6 +238,9 @@ export default function Navbar() {
         <nav className="desktop-nav">
           <ul>
             {desktopLinks}
+            <li>
+              <LanguageSwitcher />
+            </li>
             {desktopAuthSection}
           </ul>
         </nav>

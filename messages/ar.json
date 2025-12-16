@@ -1,8 +1,8 @@
 {
   "common": {
-    "loading": "جارٍ التحميل...",
+    "loading": "جاري التحميل...",
     "error": "حدث خطأ",
-    "success": "نجاح",
+    "success": "تم بنجاح",
     "cancel": "إلغاء",
     "confirm": "تأكيد",
     "save": "حفظ",
@@ -16,26 +16,26 @@
   },
   "nav": {
     "home": "الرئيسية",
-    "browseStables": "تصفح الإسطبلات",
+    "browseStables": "تصفح الاسطبلات",
     "dashboard": "لوحة التحكم",
     "signIn": "تسجيل الدخول",
     "signOut": "تسجيل الخروج",
     "getStarted": "ابدأ الآن"
   },
   "hero": {
-    "title": "الأهرامات، لا تُنسى.",
+    "title": "الأهرامات، تجربة لا تُنسى.",
     "subtitle": "الرحلة، بدون تعقيد.",
-    "description": "احجز رحلتك الموثوقة والمعتمدة في الجيزة وسقارة.",
+    "description": "احجز رحلتك الموثوقة في الجيزة وسقارة.",
     "search": "بحث"
   },
   "stables": {
-    "title": "تصفح الإسطبلات",
-    "noResults": "لم يتم العثور على إسطبلات",
-    "loading": "جارٍ تحميل الإسطبلات...",
-    "searchPlaceholder": "ابحث عن إسطبلات...",
+    "title": "تصفح الاسطبلات",
+    "noResults": "لم يتم العثور على اسطبلات",
+    "loading": "جاري تحميل الاسطبلات...",
+    "searchPlaceholder": "ابحث عن الاسطبلات...",
     "allLocations": "جميع المواقع",
-    "minimumRating": "الحد الأدنى للتصنيف",
-    "anyRating": "أي تصنيف",
+    "minimumRating": "الحد الأدنى للتقييم",
+    "anyRating": "أي تقييم",
     "filterBy": "تصفية حسب",
     "discover": "اكتشف مغامرتك القادمة"
   },
@@ -44,11 +44,11 @@
     "selectDate": "اختر التاريخ",
     "selectHorse": "اختر الحصان",
     "selectTime": "اختر الوقت",
-    "riders": "عدد الركاب",
-    "pickup": "نقل من الفندق",
+    "riders": "عدد الفرسان",
+    "pickup": "التوصيل من الفندق",
     "addons": "إضافات",
-    "summary": "راجع حجزك",
-    "total": "المجموع",
+    "summary": "مراجعة حجزك",
+    "total": "الإجمالي",
     "completeBooking": "إتمام الحجز",
     "bookingSuccess": "تم الحجز بنجاح!",
     "confirmDetails": "يرجى تأكيد تفاصيل حجزك"
@@ -58,16 +58,15 @@
     "upcomingBookings": "الحجوزات القادمة",
     "pastBookings": "الحجوزات السابقة",
     "noBookings": "لا توجد حجوزات بعد",
-    "startAdventure": "ابدأ مغامرتك بحجز تجربة ركوب خيل في أحد إسطبلاتنا الموثوقة!"
+    "startAdventure": "ابدأ مغامرتك بحجز تجربة ركوب الخيل في أحد اسطبلاتنا الموثوقة!"
   },
   "payment": {
-    "proceedToPay": "المتابعة إلى الدفع",
+    "proceedToPay": "المتابعة للدفع",
     "paymentMethod": "طريقة الدفع",
     "totalAmount": "المبلغ الإجمالي",
-    "currency": "جنيه",
-    "processing": "جارٍ معالجة دفعتك...",
+    "currency": "جنيه مصري",
+    "processing": "جاري معالجة الدفع...",
     "success": "تم الدفع بنجاح!",
     "failed": "فشل الدفع"
   }
 }
-
