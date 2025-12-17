@@ -24,12 +24,12 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { stableId, horseId, startTime, endTime, promoCodeId, paymentMethod } = body;
+    const { stableId, startTime, endTime, promoCodeId, paymentMethod, bookings } = body;
 
     // Validate required fields
-    if (!stableId || !horseId || !startTime || !endTime) {
+    if (!stableId || !startTime || !endTime || !bookings || !Array.isArray(bookings) || bookings.length === 0) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing required fields or invalid bookings data" },
         { status: 400 }
       );
     }
@@ -128,140 +128,117 @@ export async function POST(req: NextRequest) {
       ? Number(stable.commissionRate)
       : 0.15; // Default 15%
 
-    // Check if horse exists and is active
-    const horse = await prisma.horse.findUnique({
-      where: {
-        id: horseId,
-        isActive: true,
-      },
-    });
+    // Validate and process each booking in the group
+    const createdBookings = await prisma.$transaction(async (tx) => {
+      const results = [];
 
-    if (!horse) {
-      return NextResponse.json(
-        { error: "Horse not found or not available" },
-        { status: 404 }
-      );
-    }
+      for (const bookingItem of bookings) {
+        const { horseId, riderId } = bookingItem;
 
-    // Check if horse belongs to stable
-    if (horse.stableId !== stableId) {
-      return NextResponse.json(
-        { error: "Horse does not belong to this stable" },
-        { status: 400 }
-      );
-    }
+        if (!horseId || !riderId) {
+          throw new Error("Missing horseId or riderId for one of the bookings");
+        }
 
-    // Check for overlapping bookings (only confirmed, excluding cancelled and completed past bookings)
-    const overlappingBookings = await prisma.booking.findFirst({
-      where: {
-        horseId,
-        status: "confirmed", // Only check confirmed bookings (not completed or cancelled)
-        AND: [
-          {
-            // Booking starts before our end time
+        // Check if horse exists and is active
+        const horse = await tx.horse.findUnique({
+          where: {
+            id: horseId,
+            isActive: true,
+          },
+        });
+
+        if (!horse) {
+          throw new Error(`Horse not found or not available (ID: ${horseId})`);
+        }
+
+        // Check if horse belongs to stable
+        if (horse.stableId !== stableId) {
+          throw new Error(`Horse ${horse.name} does not belong to this stable`);
+        }
+
+        // Check for overlapping bookings
+        const overlappingBookings = await tx.booking.findFirst({
+          where: {
+            horseId,
+            status: "confirmed",
+            AND: [
+              { startTime: { lte: end } },
+              { endTime: { gte: start } },
+            ],
+          },
+        });
+
+        if (overlappingBookings) {
+          throw new Error(`Horse ${horse.name} is already booked for the selected time`);
+        }
+
+        // Strict Session Limit Check (Horse Welfare)
+        const bookingHour = start.getHours();
+        const isAmBooking = bookingHour < 12;
+        const sessionStart = new Date(start);
+        sessionStart.setHours(isAmBooking ? 0 : 12, 0, 0, 0);
+        const sessionEnd = new Date(start);
+        sessionEnd.setHours(isAmBooking ? 12 : 23, 59, 59, 999);
+
+        const existingSessionBooking = await tx.booking.findFirst({
+          where: {
+            horseId,
+            status: "confirmed",
             startTime: {
-              lte: end,
+              gte: sessionStart,
+              lt: sessionEnd,
             },
           },
-          {
-            // Booking ends after our start time
-            endTime: {
-              gte: start,
-            },
+        });
+
+        if (existingSessionBooking) {
+          throw new Error(`Horse ${horse.name} welfare limit reached. Only one ride per session allowed.`);
+        }
+
+        // Calculate price
+        const pricePerHour = Number(horse.pricePerHour ?? 50);
+        const totalPrice = hours * pricePerHour;
+        const commission = totalPrice * commissionRate;
+
+        // Create the booking
+        const newBooking = await tx.booking.create({
+          data: {
+            riderId,
+            stableId,
+            horseId,
+            startTime,
+            endTime,
+            totalPrice,
+            commission,
+            status: "confirmed",
+            promoCodeId: promoCodeId || null,
           },
-        ],
-      },
-    });
-
-    if (overlappingBookings) {
-      // Get details of the conflicting booking for better error message
-      const conflictStart = new Date(overlappingBookings.startTime).toLocaleString();
-      const conflictEnd = new Date(overlappingBookings.endTime).toLocaleString();
-      return NextResponse.json(
-        {
-          error: "This horse is already booked for the selected time",
-          details: `Conflicting booking: ${conflictStart} - ${conflictEnd}. Please choose a different time.`
-        },
-        { status: 400 }
-      );
-    }
-
-    // Critical Fix: Strict Session Limit Check (Horse Welfare)
-    // Ensure horse is not booked more than once per session (AM/PM)
-    const bookingHour = start.getHours();
-    const isAmBooking = bookingHour < 12;
-
-    // Define session boundaries for the check
-    const sessionStart = new Date(start);
-    sessionStart.setHours(isAmBooking ? 0 : 12, 0, 0, 0);
-
-    const sessionEnd = new Date(start);
-    sessionEnd.setHours(isAmBooking ? 12 : 23, 59, 59, 999);
-
-    const existingSessionBooking = await prisma.booking.findFirst({
-      where: {
-        horseId,
-        status: "confirmed",
-        startTime: {
-          gte: sessionStart,
-          lt: sessionEnd,
-        },
-      },
-    });
-
-    if (existingSessionBooking) {
-      return NextResponse.json(
-        {
-          error: "Horse welfare limit reached",
-          details: `This horse already has a booking in the ${isAmBooking ? "morning" : "afternoon"} session. Only one ride per session is allowed.`
-        },
-        { status: 400 }
-      );
-    }
-
-    // Calculate price using horse's actual price per hour
-    const pricePerHour = Number(horse.pricePerHour ?? 50); // Default to 50 if not set
-    const totalPrice = hours * pricePerHour;
-    const commission = totalPrice * commissionRate;
-
-    // Create booking and increment promo code usage in transaction
-    const booking = await prisma.$transaction(async (tx) => {
-      // Create the booking
-      const newBooking = await tx.booking.create({
-        data: {
-          riderId: session.user.id,
-          stableId,
-          horseId,
-          startTime,
-          endTime,
-          totalPrice,
-          commission,
-          status: "confirmed",
-          promoCodeId: promoCodeId || null,
-        },
-        include: {
-          stable: {
-            select: {
-              name: true,
-              location: true,
-            },
+          include: {
+            stable: { select: { name: true, location: true } },
+            horse: { select: { name: true } },
+            rider: { select: { fullName: true, email: true, phoneNumber: true } }
           },
-          horse: {
-            select: {
-              name: true,
-            },
-          },
-          rider: {
-            select: {
-              fullName: true,
-              email: true,
-              phoneNumber: true,
-            }
-          }
-        },
-      });
+        });
 
-      // Increment promo code usage if applied
+        // Update availability slots
+        await tx.availabilitySlot.updateMany({
+          where: {
+            stableId,
+            horseId,
+            startTime: { gte: new Date(startTime) },
+            endTime: { lte: new Date(endTime) },
+            isBooked: false,
+          },
+          data: {
+            isBooked: true,
+            bookingId: newBooking.id,
+          },
+        });
+
+        results.push(newBooking);
+      }
+
+      // Increment promo code usage if applied (once per group booking transaction)
       if (promoCodeId) {
         await tx.promoCode.update({
           where: { id: promoCodeId },
@@ -281,66 +258,45 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      return newBooking;
+      return results;
     });
 
-    // Update corresponding availability slots
-    // We need to find slots that overlap with this booking for this horse
-    await prisma.availabilitySlot.updateMany({
-      where: {
-        stableId,
-        horseId,
-        startTime: {
-          gte: new Date(startTime),
-        },
-        endTime: {
-          lte: new Date(endTime),
-        },
-        isBooked: false,
-      },
-      data: {
-        isBooked: true,
-        bookingId: booking.id,
-      },
-    });
-
-    // Send email notification to stable owner(s)
-    // Feature 2 & 3: Support multiple owners
+    // Send email notifications
     const owners = await prisma.user.findMany({
       where: {
         stableId: stableId,
         role: "stable_owner",
       },
-      select: {
-        email: true,
-      }
+      select: { email: true }
     });
 
     if (owners.length > 0) {
       const { sendOwnerBookingNotification } = await import("@/lib/email");
 
-      // Send email to all owners
-      await Promise.all(owners.map(owner =>
-        sendOwnerBookingNotification({
-          ownerEmail: owner.email,
-          riderName: booking.rider.fullName || "Guest Rider",
-          riderEmail: booking.rider.email,
-          riderPhone: booking.rider.phoneNumber || undefined,
-          horseName: booking.horse.name,
-          date: booking.startTime.toISOString(),
-          startTime: new Date(booking.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-          endTime: new Date(booking.endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-          totalPrice: Number(booking.totalPrice),
-          bookingId: booking.id,
-        })
-      ));
+      // Send notifications for each booking in the group
+      for (const booking of createdBookings) {
+        await Promise.all(owners.map(owner =>
+          sendOwnerBookingNotification({
+            ownerEmail: owner.email,
+            riderName: booking.rider.fullName || "Guest Rider",
+            riderEmail: booking.rider.email,
+            riderPhone: booking.rider.phoneNumber || undefined,
+            horseName: booking.horse.name,
+            date: booking.startTime.toISOString(),
+            startTime: new Date(booking.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+            endTime: new Date(booking.endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+            totalPrice: Number(booking.totalPrice),
+            bookingId: booking.id,
+          })
+        ));
+      }
     }
 
-    return NextResponse.json({ booking }, { status: 201 });
+    return NextResponse.json({ bookings: createdBookings }, { status: 201 });
   } catch (error) {
     console.error("Error creating booking:", error);
     return NextResponse.json(
-      { error: "Failed to create booking" },
+      { error: error instanceof Error ? error.message : "Failed to create booking" },
       { status: 500 }
     );
   }
