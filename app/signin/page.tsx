@@ -109,7 +109,7 @@ function SignInContent() {
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium text-white">Password</label>
                   <Link
-                    href="/reset-password"
+                    href="/forgot-password"
                     className="text-xs text-white/70 hover:text-white transition-colors"
                   >
                     Forgot password?
