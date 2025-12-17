@@ -90,7 +90,7 @@ export default function StablesClient() {
       setMode((data.mode as StableMode) || "stable");
       setResults(
         (data.stables || []).map((item: any) =>
-          sort === "price-asc" || sort === "price-desc"
+          sort === "price-asc" || sort === "price-desc" || minPrice || maxPrice
             ? ({
               type: "horse",
               id: item.id,

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -109,25 +110,27 @@ export default function SearchFilters({
         </div>
 
         {/* Price Range Filter */}
-        <div className="space-y-2">
-          <Label>Price Range (EGP)</Label>
-          <div className="flex items-center gap-2">
-            <Input
-              type="number"
-              placeholder="Min"
-              value={minPrice}
-              onChange={(e) => onPriceChange(e.target.value, maxPrice)}
-              className="w-full"
-            />
-            <span className="text-muted-foreground">-</span>
-            <Input
-              type="number"
-              placeholder="Max"
-              value={maxPrice}
-              onChange={(e) => onPriceChange(minPrice, e.target.value)}
-              className="w-full"
-            />
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label>Price Range (EGP)</Label>
+            <span className="text-sm text-muted-foreground">
+              {minPrice || 0} - {maxPrice || 1000}
+            </span>
           </div>
+          <Slider
+            defaultValue={[0, 1000]}
+            value={[
+              minPrice ? parseInt(minPrice) : 0,
+              maxPrice ? parseInt(maxPrice) : 1000
+            ]}
+            max={1000}
+            step={50}
+            minStepsBetweenThumbs={1}
+            onValueChange={(value) => {
+              onPriceChange(value[0].toString(), value[1].toString());
+            }}
+            className="py-4"
+          />
         </div>
 
         {/* Rating Filter */}
