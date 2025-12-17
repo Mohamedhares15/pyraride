@@ -5,13 +5,10 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { useMemo, useState, useEffect } from "react";
-import AuthModal from "./AuthModal";
 import Image from "next/image";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authModalInitialTab, setAuthModalInitialTab] = useState<"signin" | "signup">("signin");
   const { data: session, status } = useSession();
 
   const [userImage, setUserImage] = useState<string | null>(null);
@@ -136,25 +133,14 @@ export default function Navbar() {
     ) : (
       <>
         <li>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setAuthModalInitialTab("signin");
-              setIsAuthModalOpen(true);
-            }}
-          >
-            Sign In
-          </Button>
+          <Link href="/signin">
+            <Button variant="ghost">Sign In</Button>
+          </Link>
         </li>
         <li>
-          <Button
-            onClick={() => {
-              setAuthModalInitialTab("signup");
-              setIsAuthModalOpen(true);
-            }}
-          >
-            Get Started
-          </Button>
+          <Link href="/signup">
+            <Button>Get Started</Button>
+          </Link>
         </li>
       </>
     );
@@ -184,23 +170,15 @@ export default function Navbar() {
         </>
       ) : (
         <>
-          <li
-            onClick={() => {
-              closeMenu();
-              setAuthModalInitialTab("signin");
-              setIsAuthModalOpen(true);
-            }}
-          >
-            <button>Sign In</button>
+          <li onClick={closeMenu}>
+            <Link href="/signin">
+              <button>Sign In</button>
+            </Link>
           </li>
-          <li
-            onClick={() => {
-              closeMenu();
-              setAuthModalInitialTab("signup");
-              setIsAuthModalOpen(true);
-            }}
-          >
-            <button>Get Started</button>
+          <li onClick={closeMenu}>
+            <Link href="/signup">
+              <button>Get Started</button>
+            </Link>
           </li>
         </>
       )}
@@ -209,11 +187,6 @@ export default function Navbar() {
 
   return (
     <>
-      <AuthModal
-        open={isAuthModalOpen}
-        onOpenChange={setIsAuthModalOpen}
-        initialTab={authModalInitialTab}
-      />
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
