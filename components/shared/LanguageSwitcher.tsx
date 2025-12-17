@@ -1,37 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLocale } from "@/lib/i18n-provider";
 
 const languages = [
-    { code: "en", name: "EN", flag: "🇬🇧" },
-    { code: "ar", name: "ع", flag: "🇪🇬" },
+    { code: "en" as const, name: "EN", flag: "🇬🇧" },
+    { code: "ar" as const, name: "ع", flag: "🇪🇬" },
 ];
 
 export default function LanguageSwitcher() {
-    const [currentLang, setCurrentLang] = useState("en");
-
-    useEffect(() => {
-        const saved = localStorage.getItem("pyraride-lang");
-        if (saved) {
-            setCurrentLang(saved);
-            document.documentElement.dir = saved === "ar" ? "rtl" : "ltr";
-            document.documentElement.lang = saved;
-        }
-    }, []);
+    const { locale, setLocale } = useLocale();
 
     const toggleLanguage = () => {
-        const newLang = currentLang === "en" ? "ar" : "en";
-        setCurrentLang(newLang);
-        localStorage.setItem("pyraride-lang", newLang);
-        document.documentElement.dir = newLang === "ar" ? "rtl" : "ltr";
-        document.documentElement.lang = newLang;
-        window.location.reload();
+        const newLang = locale === "en" ? "ar" : "en";
+        setLocale(newLang);
     };
 
-    const current = languages.find((l) => l.code === currentLang);
-    const other = languages.find((l) => l.code !== currentLang);
+    const current = languages.find((l) => l.code === locale);
+    const other = languages.find((l) => l.code !== locale);
 
     return (
         <Button

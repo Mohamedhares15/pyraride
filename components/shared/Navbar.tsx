@@ -9,7 +9,10 @@ import AuthModal from "./AuthModal";
 import Image from "next/image";
 import LanguageSwitcher from "./LanguageSwitcher";
 
+import { useTranslation } from "@/lib/i18n-provider";
+
 export default function Navbar() {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalInitialTab, setAuthModalInitialTab] = useState<"signin" | "signup">("signin");
@@ -20,8 +23,8 @@ export default function Navbar() {
 
   const displayName = useMemo(() => {
     const user = session?.user as any;
-    return user?.name || user?.email || "Profile";
-  }, [session?.user]);
+    return user?.name || user?.email || t('nav.profile');
+  }, [session?.user, t]);
 
   // Fetch profile image separately from API to avoid JWT cookie size limits
   useEffect(() => {
@@ -81,79 +84,80 @@ export default function Navbar() {
   const desktopLinks = (
     <>
       <li>
-        <Link href="/">Home</Link>
+        <Link href="/">{t('nav.home')}</Link>
       </li>
       <li>
-        <Link href="/stables">Stables</Link>
+        <Link href="/stables">{t('nav.stables')}</Link>
       </li>
       <li>
-        <Link href="/gallery">Gallery</Link>
+        <Link href="/gallery">{t('nav.gallery')}</Link>
       </li>
       {session && (
         <li>
-          <Link href="/dashboard">Dashboard</Link>
+          <Link href="/dashboard">{t('nav.dashboard')}</Link>
         </li>
       )}
     </>
   );
 
   const desktopAuthSection =
-    status === "loading" ? (
-      <li>
-        <div className="h-8 w-20 animate-pulse rounded-md bg-white/20" />
-      </li>
-    ) : session ? (
-      <>
-        <li>
-          <Link href="/profile" className="profile-chip">
-            <div className="profile-chip__avatar">
-              {userImage && !imageError ? (
-                <Image
-                  src={userImage}
-                  alt={displayName}
-                  fill
-                  sizes="32px"
-                  className="object-cover"
-                  unoptimized
-                  onError={() => setImageError(true)}
-                />
-              ) : (
-                <span>{initials}</span>
-              )}
-            </div>
-            <span>{displayName}</span>
-          </Link>
-        </li>
-        <li>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => signOut()}
-            className="border-white/30 bg-white/10 text-white hover:bg-white/20"
+    status === "authenticated" ? (
+      <li className="relative group">
+        <button className="flex items-center gap-2 focus:outline-none">
+          <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/20">
+            {userImage && !imageError ? (
+              <Image
+                src={userImage}
+                alt="Profile"
+                fill
+                className="object-cover"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-primary text-xs font-bold text-primary-foreground">
+                {initials}
+              </div>
+            )}
+          </div>
+          <span className="text-sm font-medium">{displayName}</span>
+        </button>
+        {/* Dropdown Menu */}
+        <div className="absolute right-0 top-full mt-2 w-48 origin-top-right rounded-md bg-background py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+          <Link
+            href="/profile"
+            className="block px-4 py-2 text-sm text-foreground hover:bg-muted"
           >
-            Sign Out
-          </Button>
-        </li>
-      </>
+            {t('nav.profile')}
+          </Link>
+          <button
+            onClick={() => signOut()}
+            className="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
+          >
+            {t('nav.signOut')}
+          </button>
+        </div>
+      </li>
     ) : (
       <>
         <li>
           <Button
-            variant="outline"
-            size="sm"
-            asChild
-            className="border-white/30 bg-white/10 text-white hover:bg-white/20"
+            variant="ghost"
+            onClick={() => {
+              setAuthModalInitialTab("signin");
+              setIsAuthModalOpen(true);
+            }}
           >
-            <Link href="/signin">Sign In</Link>
+            {t('nav.signIn')}
           </Button>
         </li>
         <li>
           <Button
-            size="sm"
-            asChild
-            className="bg-nile-blue text-white hover:bg-nile-blue/90"
+            onClick={() => {
+              setAuthModalInitialTab("signup");
+              setIsAuthModalOpen(true);
+            }}
           >
-            <Link href="/signup">Get Started</Link>
+            {t('nav.getStarted')}
           </Button>
         </li>
       </>
@@ -161,82 +165,74 @@ export default function Navbar() {
 
   const mobileMenuLinks = (
     <>
-      <li>
-        <Link href="/" onClick={closeMenu}>
-          Home
-        </Link>
+      <li onClick={closeMenu}>
+        <Link href="/">{t('nav.home')}</Link>
       </li>
-      <li>
-        <Link href="/stables" onClick={closeMenu}>
-          Stables
-        </Link>
+      <li onClick={closeMenu}>
+        <Link href="/stables">{t('nav.stables')}</Link>
       </li>
-      <li>
-        <Link href="/gallery" onClick={closeMenu}>
-          Gallery
-        </Link>
+      <li onClick={closeMenu}>
+        <Link href="/gallery">{t('nav.gallery')}</Link>
       </li>
-      {session && (
-        <li>
-          <Link href="/dashboard" onClick={closeMenu}>
-            Dashboard
-          </Link>
-        </li>
-      )}
-      {status === "loading" ? (
-        <li>
-          <div className="h-10 w-full animate-pulse rounded-md bg-white/20" />
-        </li>
-      ) : session ? (
+      {session ? (
         <>
-          <li>
-            <Link href="/profile" onClick={closeMenu}>
-              Profile
-            </Link>
+          <li onClick={closeMenu}>
+            <Link href="/dashboard">{t('nav.dashboard')}</Link>
           </li>
-          <li>
-            <button
-              type="button"
-              onClick={() => {
-                signOut();
-                closeMenu();
-              }}
-            >
-              Sign Out
-            </button>
+          <li onClick={closeMenu}>
+            <Link href="/profile">{t('nav.profile')}</Link>
+          </li>
+          <li onClick={() => { closeMenu(); signOut(); }}>
+            <button>{t('nav.signOut')}</button>
           </li>
         </>
       ) : (
         <>
-          <li>
-            <Link href="/signin" onClick={closeMenu}>
-              Sign In
-            </Link>
+          <li
+            onClick={() => {
+              closeMenu();
+              setAuthModalInitialTab("signin");
+              setIsAuthModalOpen(true);
+            }}
+          >
+            <button>{t('nav.signIn')}</button>
           </li>
-          <li>
-            <Link href="/signup" onClick={closeMenu}>
-              Get Started
-            </Link>
+          <li
+            onClick={() => {
+              closeMenu();
+              setAuthModalInitialTab("signup");
+              setIsAuthModalOpen(true);
+            }}
+          >
+            <button>{t('nav.getStarted')}</button>
           </li>
         </>
       )}
+      {/* Language Switcher in Mobile Menu */}
+      <li className="mt-4 border-t border-white/10 pt-4 flex justify-center">
+        <LanguageSwitcher />
+      </li>
     </>
   );
 
   return (
     <>
+      <AuthModal
+        open={isAuthModalOpen}
+        onOpenChange={setIsAuthModalOpen}
+        initialTab={authModalInitialTab}
+      />
       <motion.header
-        className="main-header"
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.6 }}
+        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 backdrop-blur-md bg-black/30 border-b border-white/10"
       >
-        <Link href="/" className="logo">
+        <Link href="/" className="text-2xl font-bold font-display tracking-tight">
           PyraRide
         </Link>
 
-        <nav className="desktop-nav">
-          <ul>
+        <nav className="hidden md:block">
+          <ul className="flex items-center gap-8">
             {desktopLinks}
             <li>
               <LanguageSwitcher />
@@ -247,7 +243,7 @@ export default function Navbar() {
 
         <button
           type="button"
-          className="hamburger-menu"
+          className="hamburger-menu md:hidden text-2xl"
           aria-label="Toggle navigation menu"
           aria-expanded={isOpen}
           aria-controls="mobile-nav"
@@ -267,7 +263,15 @@ export default function Navbar() {
         id="mobile-nav"
         className={`mobile-off-canvas-menu ${isOpen ? "is-open" : ""}`}
       >
-        <ul>{mobileMenuLinks}</ul>
+        <div className="p-6 flex flex-col h-full">
+          <div className="flex justify-between items-center mb-8">
+            <span className="text-xl font-bold">Menu</span>
+            <button onClick={closeMenu} className="text-2xl">✕</button>
+          </div>
+          <ul className="space-y-6 text-lg text-center">
+            {mobileMenuLinks}
+          </ul>
+        </div>
       </nav>
     </>
   );
