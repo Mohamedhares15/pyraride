@@ -88,3 +88,42 @@ export async function GET(
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (session.user.id !== params.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const body = await req.json();
+    const { bio, location } = body;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: params.id },
+      data: {
+        bio,
+        // location is not in User model yet, we need to handle it or add it.
+        // The previous code showed location in the interface but it was removed from select because it didn't exist.
+        // For now, let's just update bio. If location is needed, we must add it to schema.
+        // User requested "world class", so let's stick to what we have or add location if critical.
+        // The interface had location, but the select removed it.
+        // Let's check schema again. User model has `bio` (added recently).
+        // It does NOT have `location`.
+        // I will only update bio for now to avoid schema errors.
+      }
+    });
+
+    return NextResponse.json({ user: updatedUser });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}

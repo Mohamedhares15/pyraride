@@ -104,7 +104,7 @@ model User {
   isTrustedRider Boolean @default(false)
 
   //Leaderboard & Ranking
-  rankPoints      Int        @default(1400) // Will be set based on initial tier selection
+  rankPoints      Int        @default(1000) // Will be set based on initial tier selection
   rankId          String?
   rank            RiderRank? @relation(fields: [rankId], references: [id])
   currentLeagueId String? // Current league the rider is in

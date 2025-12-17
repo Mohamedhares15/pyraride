@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import {
     MapPin, Calendar, Star, Users, Grid, Image as ImageIcon,
     MessageSquare, Heart, Share2, Settings, UserPlus, UserCheck,
-    Camera, MoreHorizontal
+    Camera, MoreHorizontal, Edit
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,6 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { useRouter } from "next/navigation";
+import CreatePostModal from "@/components/shared/CreatePostModal";
+import EditProfileModal from "@/components/shared/EditProfileModal";
 
 interface UserProfileData {
     id: string;
@@ -54,6 +56,8 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     const [isLoading, setIsLoading] = useState(true);
     const [profile, setProfile] = useState<UserProfileData | null>(null);
     const [error, setError] = useState("");
+    const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+    const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
     useEffect(() => {
         fetchProfile();
@@ -135,52 +139,53 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     }
 
     return (
-        <div className="min-h-screen bg-black text-white">
+        <div className="min-h-screen bg-gradient-to-b from-black via-zinc-900 to-black text-white">
             <Navbar />
 
             <main className="pb-20">
-                {/* Cover Image (Placeholder for now as DB doesn't have coverImage yet) */}
-                <div className="h-64 md:h-80 w-full relative overflow-hidden bg-zinc-900">
-                    <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-black/80"></div>
+                {/* Cover Image */}
+                <div className="h-64 md:h-80 w-full relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('/hero-bg.webp')] bg-cover bg-center opacity-30 blur-sm"></div>
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black"></div>
                 </div>
 
-                <div className="container mx-auto px-4 -mt-20 relative z-10">
+                <div className="container mx-auto px-4 -mt-24 relative z-10">
                     <div className="flex flex-col md:flex-row items-start md:items-end gap-6 mb-8">
                         {/* Profile Image */}
-                        <div className="relative">
-                            <div className="h-32 w-32 md:h-40 md:w-40 rounded-full border-4 border-black overflow-hidden bg-zinc-800 shadow-xl">
+                        <div className="relative group">
+                            <div className="h-32 w-32 md:h-40 md:w-40 rounded-full border-4 border-black overflow-hidden bg-zinc-800 shadow-2xl ring-4 ring-white/5">
                                 <Avatar className="h-full w-full">
                                     <AvatarImage src={profile.profileImageUrl || ""} alt={profile.fullName} className="object-cover" />
-                                    <AvatarFallback className="text-2xl bg-zinc-800">{profile.fullName.charAt(0)}</AvatarFallback>
+                                    <AvatarFallback className="text-3xl font-bold bg-gradient-to-br from-zinc-700 to-zinc-900">{profile.fullName.charAt(0)}</AvatarFallback>
                                 </Avatar>
                             </div>
                             {session?.user?.id === profile.id && (
-                                <button className="absolute bottom-2 right-2 p-2 bg-primary rounded-full text-white shadow-lg hover:bg-primary/90 transition-colors">
+                                <button className="absolute bottom-2 right-2 p-2.5 bg-primary rounded-full text-white shadow-lg hover:bg-primary/90 transition-all hover:scale-110">
                                     <Camera className="h-4 w-4" />
                                 </button>
                             )}
                         </div>
 
                         {/* Profile Info */}
-                        <div className="flex-1 mb-4 md:mb-0">
-                            <div className="flex flex-col md:flex-row md:items-center gap-4 mb-2">
-                                <h1 className="text-3xl font-bold">{profile.fullName}</h1>
+                        <div className="flex-1 mb-4 md:mb-2">
+                            <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
+                                <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{profile.fullName}</h1>
                                 {profile.role === "stable_owner" && (
-                                    <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/50">Stable Owner</Badge>
+                                    <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20 px-3 py-1">Stable Owner</Badge>
                                 )}
                                 {profile.role === "admin" && (
-                                    <Badge className="bg-red-500/20 text-red-500 border-red-500/50">Admin</Badge>
+                                    <Badge className="bg-red-500/10 text-red-500 border-red-500/20 px-3 py-1">Admin</Badge>
                                 )}
                             </div>
-                            <p className="text-zinc-400 mb-4 max-w-2xl">{profile.bio || "No bio yet."}</p>
-                            <div className="flex flex-wrap gap-4 text-sm text-zinc-400">
+                            <p className="text-zinc-300 mb-4 max-w-2xl text-lg leading-relaxed">{profile.bio || "No bio yet."}</p>
+                            <div className="flex flex-wrap gap-6 text-sm text-zinc-400 font-medium">
                                 {profile.location && (
-                                    <div className="flex items-center gap-1">
+                                    <div className="flex items-center gap-2">
                                         <MapPin className="h-4 w-4 text-primary" />
                                         {profile.location}
                                     </div>
                                 )}
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4 text-primary" />
                                     Joined {new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                                 </div>
@@ -188,19 +193,23 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex gap-3 mt-4 md:mt-0">
+                        <div className="flex gap-3 mt-4 md:mt-0 w-full md:w-auto">
                             {session?.user?.id === profile.id ? (
-                                <Button variant="outline" className="gap-2 border-zinc-700 hover:bg-zinc-800">
-                                    <Settings className="h-4 w-4" />
+                                <Button
+                                    variant="outline"
+                                    className="gap-2 border-white/10 bg-white/5 hover:bg-white/10 hover:text-white transition-all flex-1 md:flex-none"
+                                    onClick={() => setIsEditProfileOpen(true)}
+                                >
+                                    <Edit className="h-4 w-4" />
                                     Edit Profile
                                 </Button>
                             ) : (
                                 <>
                                     <Button
                                         onClick={toggleFollow}
-                                        className={`gap-2 ${profile.isFollowing
-                                            ? "bg-zinc-800 hover:bg-zinc-700 text-white"
-                                            : "bg-primary hover:bg-primary/90 text-white"}`}
+                                        className={`gap-2 flex-1 md:flex-none transition-all ${profile.isFollowing
+                                            ? "bg-zinc-800 hover:bg-zinc-700 text-white border border-white/10"
+                                            : "bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 text-white shadow-lg shadow-primary/20"}`}
                                     >
                                         {profile.isFollowing ? (
                                             <>
@@ -214,11 +223,8 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                                             </>
                                         )}
                                     </Button>
-                                    <Button variant="outline" size="icon" className="border-zinc-700 hover:bg-zinc-800">
+                                    <Button variant="outline" size="icon" className="border-white/10 bg-white/5 hover:bg-white/10 hover:text-white">
                                         <MessageSquare className="h-4 w-4" />
-                                    </Button>
-                                    <Button variant="outline" size="icon" className="border-zinc-700 hover:bg-zinc-800">
-                                        <MoreHorizontal className="h-4 w-4" />
                                     </Button>
                                 </>
                             )}
@@ -226,94 +232,110 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                        <Card className="bg-zinc-900/50 border-zinc-800 p-4 text-center hover:bg-zinc-900 transition-colors">
-                            <div className="text-2xl font-bold text-white mb-1">{profile.stats.rides}</div>
-                            <div className="text-xs text-zinc-500 uppercase tracking-wider">Rides Completed</div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                        <Card className="bg-white/5 backdrop-blur-md border-white/5 p-5 text-center hover:bg-white/10 transition-all cursor-default group">
+                            <div className="text-3xl font-bold text-white mb-1 group-hover:text-primary transition-colors">{profile.stats.rides}</div>
+                            <div className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Rides</div>
                         </Card>
-                        <Card className="bg-zinc-900/50 border-zinc-800 p-4 text-center hover:bg-zinc-900 transition-colors cursor-pointer">
-                            <div className="text-2xl font-bold text-white mb-1">{profile.stats.followers}</div>
-                            <div className="text-xs text-zinc-500 uppercase tracking-wider">Followers</div>
+                        <Card className="bg-white/5 backdrop-blur-md border-white/5 p-5 text-center hover:bg-white/10 transition-all cursor-pointer group">
+                            <div className="text-3xl font-bold text-white mb-1 group-hover:text-primary transition-colors">{profile.stats.followers}</div>
+                            <div className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Followers</div>
                         </Card>
-                        <Card className="bg-zinc-900/50 border-zinc-800 p-4 text-center hover:bg-zinc-900 transition-colors cursor-pointer">
-                            <div className="text-2xl font-bold text-white mb-1">{profile.stats.following}</div>
-                            <div className="text-xs text-zinc-500 uppercase tracking-wider">Following</div>
+                        <Card className="bg-white/5 backdrop-blur-md border-white/5 p-5 text-center hover:bg-white/10 transition-all cursor-pointer group">
+                            <div className="text-3xl font-bold text-white mb-1 group-hover:text-primary transition-colors">{profile.stats.following}</div>
+                            <div className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Following</div>
                         </Card>
-                        <Card className="bg-zinc-900/50 border-zinc-800 p-4 text-center hover:bg-zinc-900 transition-colors">
-                            <div className="text-2xl font-bold text-white mb-1">{profile.stats.reviews}</div>
-                            <div className="text-xs text-zinc-500 uppercase tracking-wider">Reviews</div>
+                        <Card className="bg-white/5 backdrop-blur-md border-white/5 p-5 text-center hover:bg-white/10 transition-all cursor-default group">
+                            <div className="text-3xl font-bold text-white mb-1 group-hover:text-primary transition-colors">{profile.stats.reviews}</div>
+                            <div className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Reviews</div>
                         </Card>
                     </div>
 
                     {/* Content Tabs */}
                     <Tabs defaultValue="posts" className="w-full" onValueChange={setActiveTab}>
-                        <TabsList className="w-full justify-start bg-transparent border-b border-zinc-800 rounded-none h-auto p-0 mb-6">
+                        <TabsList className="w-full justify-start bg-transparent border-b border-white/10 rounded-none h-auto p-0 mb-8">
                             <TabsTrigger
                                 value="posts"
-                                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 gap-2"
+                                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent px-8 py-4 gap-2 text-zinc-400 hover:text-white transition-colors text-base"
                             >
                                 <Grid className="h-4 w-4" />
                                 Posts
                             </TabsTrigger>
                             <TabsTrigger
                                 value="reviews"
-                                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 gap-2"
+                                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent px-8 py-4 gap-2 text-zinc-400 hover:text-white transition-colors text-base"
                             >
                                 <Star className="h-4 w-4" />
                                 Reviews
                             </TabsTrigger>
                         </TabsList>
 
-                        <TabsContent value="posts" className="mt-0">
+                        <TabsContent value="posts" className="mt-0 focus-visible:outline-none">
                             {profile.userPosts.length > 0 ? (
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {session?.user?.id === profile.id && (
+                                        <div
+                                            onClick={() => setIsCreatePostOpen(true)}
+                                            className="aspect-square rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-zinc-500 hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group"
+                                        >
+                                            <div className="h-12 w-12 rounded-full bg-white/5 flex items-center justify-center mb-3 group-hover:bg-primary/10 transition-colors">
+                                                <Camera className="h-6 w-6" />
+                                            </div>
+                                            <span className="font-medium">Add New Post</span>
+                                        </div>
+                                    )}
                                     {profile.userPosts.map((post) => (
                                         <motion.div
                                             key={post.id}
                                             initial={{ opacity: 0, scale: 0.9 }}
                                             animate={{ opacity: 1, scale: 1 }}
-                                            className="aspect-square relative group cursor-pointer overflow-hidden rounded-lg bg-zinc-900"
+                                            className="aspect-square relative group cursor-pointer overflow-hidden rounded-xl bg-zinc-900"
                                         >
                                             <img
                                                 src={post.imageUrl}
                                                 alt="Post"
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             />
-                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6 text-white">
+                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6 text-white backdrop-blur-sm">
                                                 <div className="flex items-center gap-2">
-                                                    <Heart className="h-6 w-6 fill-white" />
+                                                    <Heart className="h-8 w-8 fill-white drop-shadow-lg" />
                                                 </div>
                                             </div>
+                                            {post.caption && (
+                                                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <p className="text-sm text-white line-clamp-2">{post.caption}</p>
+                                                </div>
+                                            )}
                                         </motion.div>
                                     ))}
-
-                                    {/* Add Post Button (Only for owner) */}
-                                    {session?.user?.id === profile.id && (
-                                        <div className="aspect-square rounded-lg border-2 border-dashed border-zinc-800 flex flex-col items-center justify-center text-zinc-500 hover:text-white hover:border-zinc-600 hover:bg-zinc-900/50 transition-all cursor-pointer">
-                                            <Camera className="h-8 w-8 mb-2" />
-                                            <span className="font-medium">Add Photo</span>
-                                        </div>
-                                    )}
                                 </div>
                             ) : (
-                                <div className="text-center py-20 text-zinc-500">
-                                    <ImageIcon className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                                    <p>No posts yet</p>
+                                <div className="text-center py-24 bg-white/5 rounded-2xl border border-white/5">
+                                    <div className="h-16 w-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <ImageIcon className="h-8 w-8 text-zinc-600" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-white mb-2">No posts yet</h3>
+                                    <p className="text-zinc-400 max-w-sm mx-auto mb-6">Share your riding moments with the community.</p>
                                     {session?.user?.id === profile.id && (
-                                        <Button variant="outline" className="mt-4 border-zinc-700">Create your first post</Button>
+                                        <Button
+                                            onClick={() => setIsCreatePostOpen(true)}
+                                            className="bg-primary hover:bg-primary/90 text-white px-8"
+                                        >
+                                            Create your first post
+                                        </Button>
                                     )}
                                 </div>
                             )}
                         </TabsContent>
 
-                        <TabsContent value="reviews" className="mt-0">
+                        <TabsContent value="reviews" className="mt-0 focus-visible:outline-none">
                             <div className="grid gap-4">
                                 {profile.reviews.length > 0 ? profile.reviews.map((review) => (
-                                    <Card key={review.id} className="bg-zinc-900/50 border-zinc-800 p-6">
+                                    <Card key={review.id} className="bg-white/5 backdrop-blur-md border-white/5 p-6 hover:bg-white/10 transition-colors">
                                         <div className="flex justify-between items-start mb-4">
                                             <div>
-                                                <h3 className="font-bold text-white">{review.stable.name}</h3>
-                                                <div className="flex items-center gap-1 text-amber-400 mt-1">
+                                                <h3 className="font-bold text-white text-lg mb-1">{review.stable.name}</h3>
+                                                <div className="flex items-center gap-1 text-amber-400">
                                                     {[...Array(5)].map((_, i) => (
                                                         <Star
                                                             key={i}
@@ -322,13 +344,17 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                                                     ))}
                                                 </div>
                                             </div>
-                                            <span className="text-sm text-zinc-500">{new Date(review.createdAt).toLocaleDateString()}</span>
+                                            <span className="text-sm text-zinc-500 font-medium">{new Date(review.createdAt).toLocaleDateString()}</span>
                                         </div>
-                                        <p className="text-zinc-300">{review.comment}</p>
+                                        <p className="text-zinc-300 leading-relaxed">{review.comment}</p>
                                     </Card>
                                 )) : (
-                                    <div className="text-center py-10 text-zinc-500">
-                                        <p>No reviews yet</p>
+                                    <div className="text-center py-24 bg-white/5 rounded-2xl border border-white/5">
+                                        <div className="h-16 w-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <Star className="h-8 w-8 text-zinc-600" />
+                                        </div>
+                                        <h3 className="text-xl font-semibold text-white mb-2">No reviews yet</h3>
+                                        <p className="text-zinc-400">Book a ride and share your experience.</p>
                                     </div>
                                 )}
                             </div>
@@ -337,6 +363,18 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 </div>
             </main>
             <Footer />
+
+            {/* Modals */}
+            <CreatePostModal
+                isOpen={isCreatePostOpen}
+                onClose={() => setIsCreatePostOpen(false)}
+            />
+            <EditProfileModal
+                isOpen={isEditProfileOpen}
+                onClose={() => setIsEditProfileOpen(false)}
+                currentBio={profile.bio || ""}
+                userId={profile.id}
+            />
         </div>
     );
 }

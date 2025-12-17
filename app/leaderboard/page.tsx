@@ -254,7 +254,7 @@ export default function LeaderboardPage() {
                   return (
                     <Link
                       key={rider.id}
-                      href={`/profile/${rider.id}`}
+                      href={`/users/${rider.id}`}
                       className="block"
                     >
                       <div className={`flex items-center gap-4 p-4 transition-all hover:bg-white/5 ${rank <= 3 ? 'bg-gradient-to-r from-primary/5 to-transparent' : ''}`}>

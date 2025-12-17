@@ -14,9 +14,10 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
-        const { email } = body;
+        const { email, identifier } = body;
+        const searchEmail = email || identifier;
 
-        if (!email) {
+        if (!searchEmail) {
             return NextResponse.json(
                 { error: "Email is required" },
                 { status: 400 }
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
         }
 
         const user = await prisma.user.findUnique({
-            where: { email },
+            where: { email: searchEmail },
             select: {
                 id: true,
                 fullName: true,
