@@ -175,6 +175,7 @@ export async function GET(req: NextRequest) {
             pricePerHour: true,
             age: true,
             skills: true,
+            skillLevel: true,
             stable: {
               select: {
                 id: true,
@@ -337,6 +338,7 @@ export async function GET(req: NextRequest) {
           stableRating,
           age: horse.age,
           skills: horse.skills,
+          skillLevel: horse.skillLevel,
           description: horse.description,
         };
       });
@@ -393,11 +395,18 @@ export async function GET(req: NextRequest) {
                 horse.pricePerHour !== null && horse.pricePerHour !== undefined
             )
             .filter((horse: any) => {
-              if (minRatingValue === null) return true;
-              if (typeof horse.rating === "number") {
-                return horse.rating >= minRatingValue;
+              // Filter by rating
+              if (minRatingValue !== null) {
+                const rating = typeof horse.rating === "number" ? horse.rating : stable.rating;
+                if (rating < minRatingValue) return false;
               }
-              return stable.rating >= minRatingValue;
+
+              // Filter by price
+              const price = horse.pricePerHour;
+              if (minPriceValue !== null && price < minPriceValue) return false;
+              if (maxPriceValue !== null && price > maxPriceValue) return false;
+
+              return true;
             })
             .map((horse: any) => {
               return {
@@ -417,6 +426,7 @@ export async function GET(req: NextRequest) {
                 reviewCount: horse.reviewCount ?? 0,
                 description: horse.description,
                 skills: horse.skills,
+                skillLevel: horse.skillLevel,
                 age: horse.age,
               };
             })

@@ -162,8 +162,28 @@ export default function StableList({ results, mode, isLoading }: StableListProps
                         {(item as any).description || "A wonderful horse ready for your adventure."}
                       </p>
 
+                      {/* Skill Level Badge */}
+                      {(item as any).skillLevel && (
+                        <div className="mb-3">
+                          <span className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wide ${(item as any).skillLevel?.toLowerCase() === 'beginner'
+                              ? 'bg-green-500/20 text-green-600 border border-green-500/30'
+                              : (item as any).skillLevel?.toLowerCase() === 'intermediate'
+                                ? 'bg-amber-500/20 text-amber-600 border border-amber-500/30'
+                                : 'bg-red-500/20 text-red-600 border border-red-500/30'
+                            }`}>
+                            <span className={`w-2 h-2 rounded-full ${(item as any).skillLevel?.toLowerCase() === 'beginner'
+                                ? 'bg-green-500'
+                                : (item as any).skillLevel?.toLowerCase() === 'intermediate'
+                                  ? 'bg-amber-500'
+                                  : 'bg-red-500'
+                              }`} />
+                            {(item as any).skillLevel} Level
+                          </span>
+                        </div>
+                      )}
+
                       <div className="flex flex-wrap gap-2 mb-6">
-                        {/* Mock skills if not present, or use real ones if available */}
+                        {/* Skills tags */}
                         {((item as any).skills || ["Beginner Friendly", "Tour Guide"]).slice(0, 3).map((skill: string, i: number) => (
                           <span key={i} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
                             {skill}

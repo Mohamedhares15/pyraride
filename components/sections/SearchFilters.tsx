@@ -113,24 +113,29 @@ export default function SearchFilters({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <Label>Price Range (EGP)</Label>
-            <span className="text-sm text-muted-foreground">
-              {minPrice || 0} - {maxPrice || 1000}
+            <span className="text-sm font-medium text-primary">
+              EGP {minPrice || 0} - EGP {maxPrice || 5000}
             </span>
           </div>
           <Slider
-            defaultValue={[0, 1000]}
+            defaultValue={[0, 5000]}
             value={[
               minPrice ? parseInt(minPrice) : 0,
-              maxPrice ? parseInt(maxPrice) : 1000
+              maxPrice ? parseInt(maxPrice) : 5000
             ]}
-            max={1000}
-            step={50}
+            max={5000}
+            step={100}
             minStepsBetweenThumbs={1}
             onValueChange={(value) => {
               onPriceChange(value[0].toString(), value[1].toString());
             }}
             className="py-4"
           />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>EGP 0</span>
+            <span>EGP 2,500</span>
+            <span>EGP 5,000+</span>
+          </div>
         </div>
 
         {/* Rating Filter */}
