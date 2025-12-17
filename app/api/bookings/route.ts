@@ -340,7 +340,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ bookings: createdBookings }, { status: 201 });
+    return NextResponse.json({
+      bookings: createdBookings,
+      debug: {
+        riderTier: bookings[0]?.riderId ? await (async () => {
+          const r = await prisma.user.findUnique({ where: { id: bookings[0].riderId }, select: { rankPoints: true } });
+          return r ? (r.rankPoints >= 1701 ? "ADVANCED" : r.rankPoints >= 1301 ? "INTERMEDIATE" : "BEGINNER") : "UNKNOWN";
+        })() : "N/A",
+        horseLevel: bookings[0]?.horseId ? await (async () => {
+          const h = await prisma.horse.findUnique({ where: { id: bookings[0].horseId }, select: { skillLevel: true } });
+          return h?.skillLevel;
+        })() : "N/A"
+      }
+    }, { status: 201 });
   } catch (error) {
     console.error("Error creating booking:", error);
     return NextResponse.json(
