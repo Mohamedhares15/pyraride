@@ -17,10 +17,13 @@ interface SearchFiltersProps {
   search: string;
   location: string;
   minRating: string;
+  minPrice: string;
+  maxPrice: string;
   sort: string;
   onSearchChange: (value: string) => void;
   onLocationChange: (value: string) => void;
   onRatingChange: (value: string) => void;
+  onPriceChange: (min: string, max: string) => void;
   onSortChange: (value: string) => void;
   onClear: () => void;
 }
@@ -29,10 +32,13 @@ export default function SearchFilters({
   search,
   location,
   minRating,
+  minPrice,
+  maxPrice,
   sort,
   onSearchChange,
   onLocationChange,
   onRatingChange,
+  onPriceChange,
   onSortChange,
   onClear,
 }: SearchFiltersProps) {
@@ -46,7 +52,7 @@ export default function SearchFilters({
   }, []);
 
   const hasActiveFilters =
-    search || location !== "all" || minRating !== "0";
+    search || location !== "all" || minRating !== "0" || minPrice || maxPrice;
 
   return (
     <div className="space-y-6 rounded-lg border border-border bg-card p-6 shadow-sm">
@@ -102,6 +108,28 @@ export default function SearchFilters({
           </Select>
         </div>
 
+        {/* Price Range Filter */}
+        <div className="space-y-2">
+          <Label>Price Range (EGP)</Label>
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              placeholder="Min"
+              value={minPrice}
+              onChange={(e) => onPriceChange(e.target.value, maxPrice)}
+              className="w-full"
+            />
+            <span className="text-muted-foreground">-</span>
+            <Input
+              type="number"
+              placeholder="Max"
+              value={maxPrice}
+              onChange={(e) => onPriceChange(minPrice, e.target.value)}
+              className="w-full"
+            />
+          </div>
+        </div>
+
         {/* Rating Filter */}
         <div className="space-y-2">
           <Label htmlFor="rating">Minimum Rating</Label>
@@ -127,9 +155,6 @@ export default function SearchFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="recommended">Recommended</SelectItem>
-              <SelectItem value="location">Location (A-Z)</SelectItem>
-              <SelectItem value="price-asc">Price: Low to High</SelectItem>
-              <SelectItem value="price-desc">Price: High to Low</SelectItem>
               <SelectItem value="rating">Rating: High to Low</SelectItem>
               <SelectItem value="distance">Distance: Nearest first</SelectItem>
             </SelectContent>

@@ -63,6 +63,8 @@ export default function StablesClient() {
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [location, setLocation] = useState(normalizeLocationParam(searchParams.get("location")));
   const [minRating, setMinRating] = useState(searchParams.get("minRating") || "0");
+  const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
+  const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
   const [sort, setSort] = useState(searchParams.get("sort") || "recommended");
 
   const fetchStables = useCallback(async () => {
@@ -74,6 +76,8 @@ export default function StablesClient() {
       if (search) params.append("search", search);
       if (location !== "all") params.append("location", location);
       if (minRating !== "0") params.append("minRating", minRating);
+      if (minPrice) params.append("minPrice", minPrice);
+      if (maxPrice) params.append("maxPrice", maxPrice);
       if (sort && sort !== "recommended") params.append("sort", sort);
 
       const response = await fetch(`/api/stables?${params.toString()}`);
@@ -124,7 +128,7 @@ export default function StablesClient() {
     } finally {
       setIsLoading(false);
     }
-  }, [search, location, minRating, sort]);
+  }, [search, location, minRating, minPrice, maxPrice, sort]);
 
   useEffect(() => {
     fetchStables();
@@ -163,6 +167,17 @@ export default function StablesClient() {
     router.push(`?${params.toString()}`);
   };
 
+  const handlePriceChange = (min: string, max: string) => {
+    setMinPrice(min);
+    setMaxPrice(max);
+    const params = new URLSearchParams(searchParams);
+    if (min) params.set("minPrice", min);
+    else params.delete("minPrice");
+    if (max) params.set("maxPrice", max);
+    else params.delete("maxPrice");
+    router.push(`?${params.toString()}`);
+  };
+
   const handleSortChange = (value: string) => {
     setSort(value);
     const params = new URLSearchParams(searchParams);
@@ -178,6 +193,8 @@ export default function StablesClient() {
     setSearch("");
     setLocation("all");
     setMinRating("0");
+    setMinPrice("");
+    setMaxPrice("");
     setSort("recommended");
     router.push("/stables");
   };
@@ -227,10 +244,13 @@ export default function StablesClient() {
             search={search}
             location={location}
             minRating={minRating}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
             sort={sort}
             onSearchChange={handleSearchChange}
             onLocationChange={handleLocationChange}
             onRatingChange={handleRatingChange}
+            onPriceChange={handlePriceChange}
             onSortChange={handleSortChange}
             onClear={handleClear}
           />

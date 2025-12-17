@@ -101,6 +101,8 @@ export async function GET(req: NextRequest) {
     const location = searchParams.get("location");
     const search = searchParams.get("search");
     const minRating = searchParams.get("minRating");
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
     const ownerOnly = searchParams.get("ownerOnly") === "true"; // Get only owner's stable
     const sort = searchParams.get("sort") || "recommended";
     const isAdmin = session?.user?.role === "admin";
@@ -359,10 +361,26 @@ export async function GET(req: NextRequest) {
 
     // Filter by minimum rating if provided
     const minRatingValue = minRating ? Number(minRating) : null;
-    const filteredStables =
+    let filteredStables =
       minRatingValue !== null
         ? stablesWithRating.filter((s: any) => s.rating >= minRatingValue)
         : stablesWithRating;
+
+    // Filter by price range if provided
+    const minPriceValue = minPrice ? Number(minPrice) : null;
+    const maxPriceValue = maxPrice ? Number(maxPrice) : null;
+
+    if (minPriceValue !== null || maxPriceValue !== null) {
+      filteredStables = filteredStables.filter((s: any) => {
+        return s.horses.some((h: any) => {
+          const price = h.pricePerHour;
+          if (price === null || price === undefined) return false;
+          if (minPriceValue !== null && price < minPriceValue) return false;
+          if (maxPriceValue !== null && price > maxPriceValue) return false;
+          return true;
+        });
+      });
+    }
 
     const sortByHorsePrice = sort === "price-asc" || sort === "price-desc";
 

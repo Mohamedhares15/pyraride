@@ -41,6 +41,7 @@ export async function GET(
             pricePerHour: true,
             age: true,
             skills: true,
+            adminTier: true,
             isActive: true,
             media: {
               select: {
@@ -118,6 +119,7 @@ export async function GET(
           ? Number(horse.pricePerHour)
           : null,
       skills: horse.skills ?? [],
+      skillLevel: horse.adminTier || "Beginner",
       media: Array.isArray(horse.media) ? horse.media : [],
     }));
 
