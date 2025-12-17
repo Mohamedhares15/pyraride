@@ -185,18 +185,19 @@ export async function POST(req: NextRequest) {
         );
 
         if (!canBook) {
+          // TODO: Uncomment after running database migration for SkillOverrideRequest model
           // Check if there's an approved override request
-          const approvedOverride = await tx.skillOverrideRequest.findFirst({
-            where: {
-              riderId,
-              horseId,
-              status: "approved",
-            },
-          });
+          // const approvedOverride = await tx.skillOverrideRequest.findFirst({
+          //   where: {
+          //     riderId,
+          //     horseId,
+          //     status: "approved",
+          //   },
+          // });
 
-          if (!approvedOverride) {
-            throw new Error(`Skill level mismatch: ${riderTier} rider cannot book ${horseLevel} horse "${horse.name}" without an approved override request.`);
-          }
+          // if (!approvedOverride) {
+          throw new Error(`Skill level mismatch: ${riderTier} rider cannot book ${horseLevel} horse "${horse.name}". Please contact the stable to request access.`);
+          // }
         }
 
         // Check for overlapping bookings

@@ -104,6 +104,15 @@ YOUR KNOWLEDGE BASE:
 - If you don't know something, admit it and suggest alternatives
 - Use markdown formatting for clarity (bold, lists, etc.)
 
+**BILINGUAL SUPPORT (Arabic/English):**
+- DETECT the user's language automatically from their message
+- If user writes in Arabic, respond ENTIRELY in Arabic (use formal Arabic العربية الفصحى)
+- If user writes in English, respond in English
+- Support for Arabic greetings: مرحبا، أهلا، السلام عليكم، etc.
+- Arabic keywords: "الخيول" (horses), "حجز" (booking), "سعر" (price), "اين" (where), "مزرعة" (stable)
+- When responding in Arabic, keep the same helpful tone and emoji usage
+- For Arabic responses, use right-to-left formatting hints where possible
+
 CRITICAL: You must respond ONLY in valid JSON format. No additional text before or after the JSON.
 
 Required JSON Format:
@@ -142,18 +151,18 @@ function parseLLMResponse(raw: string): LLMResult {
   try {
     // Try to find JSON in the response (may have markdown code blocks or extra text)
     let jsonString = raw;
-    
+
     // Remove markdown code blocks if present
     jsonString = jsonString.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    
+
     // Find JSON object in the string
     const jsonMatch = jsonString.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
       return {
         answer: parsed.answer || parsed.response || raw,
-        suggestions: Array.isArray(parsed.suggestions) && parsed.suggestions.length > 0 
-          ? parsed.suggestions.slice(0, 4) 
+        suggestions: Array.isArray(parsed.suggestions) && parsed.suggestions.length > 0
+          ? parsed.suggestions.slice(0, 4)
           : defaultSuggestions,
         actions: typeof parsed.actions === "object" && parsed.actions !== null && !Array.isArray(parsed.actions)
           ? parsed.actions
@@ -164,7 +173,7 @@ function parseLLMResponse(raw: string): LLMResult {
     console.error("Failed to parse LLM response:", error?.message);
     console.error("Raw response:", raw.substring(0, 200));
   }
-  
+
   // If no JSON found, return the raw text as answer
   return {
     answer: raw,
@@ -179,7 +188,7 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
     // Fetch real-time context data for better responses
     const [stablesCount, bookingsCount] = await Promise.all([
       prisma.stable.count({ where: { status: "approved" } }).catch(() => 0),
-      session?.user?.id 
+      session?.user?.id
         ? prisma.booking.count({ where: { riderId: session.user.id } }).catch(() => 0)
         : Promise.resolve(0),
     ]);
@@ -200,9 +209,9 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
 
     // Build conversation messages with context
     const messages: ChatCompletionCreateParams["messages"] = [
-      { 
-        role: "system", 
-        content: `${SYSTEM_PROMPT}\n\nCURRENT CONTEXT:\n${contextSummary}\n\nRemember: Commission is 15%, not 20%!` 
+      {
+        role: "system",
+        content: `${SYSTEM_PROMPT}\n\nCURRENT CONTEXT:\n${contextSummary}\n\nRemember: Commission is 15%, not 20%!`
       },
       ...history.slice(-8).map( // Limit history to last 8 messages to stay within token limits
         (msg): ChatCompletionCreateParams["messages"][number] => ({
@@ -240,11 +249,11 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
         lastError = error;
         const errorCode = error?.error?.code || error?.code;
         const isModelError = error?.status === 400 && (
-          errorCode === "model_decommissioned" || 
+          errorCode === "model_decommissioned" ||
           errorCode === "model_not_found" ||
           error?.error?.message?.includes("model")
         );
-        
+
         if (isModelError) {
           console.warn(`Model ${model} failed (${errorCode}), trying next model...`);
           continue; // Try next model
@@ -261,7 +270,7 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
 
     const raw = completion.choices[0]?.message?.content?.trim() ?? "";
     const parsed = parseLLMResponse(raw);
-    
+
     // If parsing failed but we got a response, try to extract just the answer
     if (!parsed.answer && raw) {
       return {
@@ -270,7 +279,7 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
         actions: {},
       };
     }
-    
+
     return parsed;
   } catch (error: any) {
     console.error("Groq error:", error);
@@ -315,7 +324,7 @@ export async function POST(req: NextRequest) {
     // Enhanced AI understanding with better intent recognition
     const userRole = (session as any)?.user?.role || "guest";
     const isOwnerQuery = userRole === "stable_owner";
-    
+
     const isBookingQuery = /book|booking|reserve|schedule|ride|appointment|make a booking/i.test(userMessage);
     const isCancellationQuery = /cancel|cancellation|refund|cancel my/i.test(userMessage);
     const isRescheduleQuery = /reschedule|change|modify|move my/i.test(userMessage);
@@ -328,7 +337,9 @@ export async function POST(req: NextRequest) {
     const isDashboardQuery = /dashboard|my bookings|my rides|bookings/i.test(userMessage);
     const isHelpQuery = /help|how|what|guide|tutorial|assist/i.test(userMessage);
     const isGreetingQuery = /hello|hi|hey|greetings|good morning|good evening/i.test(userMessage);
-    
+    const isArabicQuery = /[\u0600-\u06FF]/.test(userMessage); // Detect Arabic script
+    const isArabicGreeting = /مرحبا|أهلا|السلام عليكم|صباح الخير|مساء الخير/i.test(userMessage);
+
     // Premium Stable Owner Features Detection
     const isPricingOptimizationQuery = /optimize|pricing strategy|dynamic pricing|maximize revenue|increase earnings|price optimization/i.test(userMessage);
     const isAnalyticsQuery = /analytics|performance|metrics|stats|statistics|insights|data|forecast|prediction/i.test(userMessage);
@@ -336,7 +347,7 @@ export async function POST(req: NextRequest) {
     const isCompetitiveQuery = /competitor|competition|market|benchmark|compare|positioning/i.test(userMessage);
     const isMarketingQuery = /marketing|campaign|promote|advertise|customers|leads|conversion/i.test(userMessage);
     const isBusinessQuery = /business advice|strategy|growth|improve|suggestions|recommendations|coach/i.test(userMessage);
-    
+
     // Extract price range from message
     let minPrice: number | null = null;
     let maxPrice: number | null = null;
@@ -384,6 +395,32 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
         "Find stables in Giza"
       ];
     }
+    else if (isArabicGreeting) {
+      const sessionData = session as any;
+      const userName = sessionData?.user?.name || "صديق";
+      const userRole = sessionData?.user?.role || "guest";
+
+      response = `مرحباً ${userName}! 👋 أهلاً بك في بيراريد!
+
+أنا هنا لمساعدتك في اكتشاف تجارب ركوب الخيل المذهلة عند أهرامات الجيزة وسقارة.
+
+يمكنني مساعدتك في:
+🐴 إيجاد الإسطبل المثالي
+📅 حجز الجلسات
+✏️ إدارة حجوزاتك
+⭐ كتابة المراجعات
+💰 فهم الأسعار
+📍 معلومات الموقع
+
+${userRole === "rider" ? "ماذا تريد أن تفعل اليوم؟" : "كيف يمكنني مساعدتك؟"}`;
+
+      suggestions = [
+        "أرني الإسطبلات",
+        "كيف أحجز؟",
+        "ما هي الأسعار؟",
+        "إسطبلات الجيزة"
+      ];
+    }
     else if (isBookingQuery) {
       // Fetch available stables for booking
       const availableStables = await prisma.stable.findMany({
@@ -398,7 +435,7 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
       });
 
       if (availableStables.length > 0) {
-        const stableList = availableStables.map((s: any, i: number) => 
+        const stableList = availableStables.map((s: any, i: number) =>
           `${i + 1}. **${s.name}** (${s.location})\n   ${s.description.substring(0, 100)}...`
         ).join("\n\n");
 
@@ -425,7 +462,7 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
       });
 
       if (stables.length > 0) {
-        const stableInfo = stables.map((s: any) => 
+        const stableInfo = stables.map((s: any) =>
           `🐴 **${s.name}**\n📍 ${s.location}\n${s.description.substring(0, 80)}...`
         ).join("\n\n");
 
@@ -481,8 +518,8 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
           const priceRangeText = minPrice !== null && maxPrice !== null
             ? `$${minPrice}-$${maxPrice}`
             : minPrice !== null
-            ? `above $${minPrice}`
-            : `under $${maxPrice}`;
+              ? `above $${minPrice}`
+              : `under $${maxPrice}`;
 
           const horseList = horsesInRange.slice(0, 5).map((horse: any) => {
             const price = horse.pricePerHour ? Number(horse.pricePerHour) : 50;
@@ -493,7 +530,7 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
           response = `💰 **Found ${horsesInRange.length} horse(s) in your price range (${priceRangeText}/hour):**\n\n${horseList}${horsesInRange.length > 5 ? `\n\n...and ${horsesInRange.length - 5} more horses in this range!` : ""}\n\n✨ Would you like to book one? I can help you create a booking directly! Just tell me which horse and when you'd like to ride.`;
 
           suggestions = ["Book a horse", "Show all horses", "Filter by location"];
-          actions = { 
+          actions = {
             "Browse Horses": `/stables?sort=price-asc`,
             "View Stables": "/stables"
           };
@@ -520,7 +557,7 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
         const prices = allHorses
           .map((h: any) => h.pricePerHour ? Number(h.pricePerHour) : null)
           .filter((p: any): p is number => p !== null);
-        
+
         const minPriceAvailable = prices.length > 0 ? Math.min(...prices) : 40;
         const maxPriceAvailable = prices.length > 0 ? Math.max(...prices) : 100;
         const avgPrice = prices.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 50;
@@ -564,7 +601,7 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
 
       if (gizaMatch || !saqqaraMatch) {
         const gizaStables = await prisma.stable.findMany({
-          where: { 
+          where: {
             status: "approved",
             location: { contains: "Giza", mode: "insensitive" }
           },
@@ -572,7 +609,7 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
           select: { name: true, location: true },
         });
 
-        const stableList = gizaStables.length > 0 
+        const stableList = gizaStables.length > 0
           ? gizaStables.map((s: any) => `• ${s.name}`).join("\n")
           : "• Premium Giza stables available";
 
@@ -596,17 +633,17 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
       if (session) {
         const sessionData = session as any;
         const userRole = sessionData?.user?.role || "rider";
-        
-        const dashPath = userRole === "rider" 
-          ? "/dashboard/rider" 
-          : userRole === "stable_owner"
-          ? "/dashboard/stable"
-          : "/dashboard";
 
-        response = `📊 **Your Dashboard:**\n\nAccess your dashboard to:\n${userRole === "rider" 
+        const dashPath = userRole === "rider"
+          ? "/dashboard/rider"
+          : userRole === "stable_owner"
+            ? "/dashboard/stable"
+            : "/dashboard";
+
+        response = `📊 **Your Dashboard:**\n\nAccess your dashboard to:\n${userRole === "rider"
           ? "- View all bookings\n- Manage reservations\n- Cancel or reschedule\n- Leave reviews\n- Track history"
           : "- View stable stats\n- Manage horses\n- Track bookings\n- View analytics"
-        }\n\nReady to manage your ${userRole === "rider" ? "rides" : "stable"}?`;
+          }\n\nReady to manage your ${userRole === "rider" ? "rides" : "stable"}?`;
 
         actions = { "Open Dashboard": dashPath };
       } else {
@@ -623,10 +660,10 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
       // Check if user has premium AI subscription
       const user = await prisma.user.findUnique({
         where: { id: (session as any)?.user?.id },
-        select: { 
-          hasPremiumAI: true, 
+        select: {
+          hasPremiumAI: true,
           premiumAIExpiresAt: true,
-          role: true 
+          role: true
         },
       }).catch(() => null);
 
@@ -663,12 +700,12 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
                 horse: { select: { name: true, pricePerHour: true } },
               },
             },
-        },
-      }).catch(() => null);
+          },
+        }).catch(() => null);
 
         if (!ownerStable) {
           response = `💎 **Premium AI Features Available!**\n\nI can help you with:\n\n🤖 **Dynamic Pricing Optimization**\n- Auto-adjust prices for max revenue (increases earnings 25-40%)\n- Demand-based pricing\n- Competitive pricing analysis\n\n📊 **Predictive Analytics**\n- Forecast demand 30-90 days ahead\n- Optimize scheduling\n- Revenue forecasting with 85%+ accuracy\n\n💰 **Revenue Optimization**\n- Identify best-performing horses\n- Suggest optimal time slots\n- Upselling opportunities\n\n🎯 **Competitive Intelligence**\n- Real-time market analysis\n- Competitor pricing monitoring\n- Positioning recommendations\n\n📧 **Automated Marketing**\n- Personalized campaigns\n- Customer retention\n- Increase repeat bookings 50%+\n\n💬 **Automated Customer Service**\n- Handle 90% of inquiries automatically\n- Save 10-15 hours/week\n\n**To activate premium features, ensure your stable is registered!**`;
-          
+
           suggestions = ["Register stable", "View dashboard", "Learn more"];
           actions = { "Stable Dashboard": "/dashboard/stable" };
         } else {
@@ -677,7 +714,7 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
           const completedBookings = ownerStable.bookings.filter((b: any) => b.status === "completed");
           const totalRevenue = completedBookings.reduce((sum: number, b: any) => sum + Number(b.totalPrice || 0), 0);
           const avgPrice = totalBookings > 0 ? totalRevenue / totalBookings : 0;
-          
+
           const horses = ownerStable.horses || [];
           const horseRevenue = horses.map((horse: any) => {
             const bookings = horse.bookings || [];
@@ -696,7 +733,7 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
 
           // Get competitor data for comparison
           const allStables = await prisma.stable.findMany({
-            where: { 
+            where: {
               status: "approved",
               location: ownerStable.location,
               NOT: { id: ownerStable.id },
@@ -710,92 +747,92 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
             take: 5,
           }).catch(() => []);
 
-          const competitorPrices = allStables.flatMap((s: any) => 
+          const competitorPrices = allStables.flatMap((s: any) =>
             s.horses.map((h: any) => Number(h.pricePerHour || 50))
           );
-          const marketAvgPrice = competitorPrices.length > 0 
+          const marketAvgPrice = competitorPrices.length > 0
             ? competitorPrices.reduce((a: number, b: number) => a + b, 0) / competitorPrices.length
             : 50;
 
           // Premium AI Insights
           let insights = "";
-          
+
           if (isPricingOptimizationQuery || isRevenueQuery) {
-          const priceOptimization = bestPerformer 
-            ? `💰 **PRICING OPTIMIZATION INSIGHTS:**\n\n**Your Current Performance:**\n- Average price: $${avgPrice.toFixed(0)}/hour\n- Market average: $${marketAvgPrice.toFixed(0)}/hour\n- Total revenue (90 days): $${totalRevenue.toFixed(0)}\n\n**AI Recommendations:**\n`
-            : "";
+            const priceOptimization = bestPerformer
+              ? `💰 **PRICING OPTIMIZATION INSIGHTS:**\n\n**Your Current Performance:**\n- Average price: $${avgPrice.toFixed(0)}/hour\n- Market average: $${marketAvgPrice.toFixed(0)}/hour\n- Total revenue (90 days): $${totalRevenue.toFixed(0)}\n\n**AI Recommendations:**\n`
+              : "";
 
-          const recommendations = [];
-          if (bestPerformer) {
-            if (bestPerformer.price < marketAvgPrice * 0.9) {
-              recommendations.push(`🚀 **${bestPerformer.name}** could increase price by 15% ($${bestPerformer.price} → $${Math.round(bestPerformer.price * 1.15)}) - Still below market average!\n   *Expected impact: +$${Math.round(bestPerformer.revenue * 0.15)}/month*`);
+            const recommendations = [];
+            if (bestPerformer) {
+              if (bestPerformer.price < marketAvgPrice * 0.9) {
+                recommendations.push(`🚀 **${bestPerformer.name}** could increase price by 15% ($${bestPerformer.price} → $${Math.round(bestPerformer.price * 1.15)}) - Still below market average!\n   *Expected impact: +$${Math.round(bestPerformer.revenue * 0.15)}/month*`);
+              }
             }
-          }
-          
-          if (underperformers.length > 0) {
-            recommendations.push(`📉 **Underperformers:** ${underperformers.map((h: any) => h.name).join(", ")}\n   *Consider promotional pricing or bundle offers*`);
-          }
 
-          const peakHours = ownerStable.bookings.reduce((acc: any, b: any) => {
-            const hour = new Date(b.startTime).getHours();
-            acc[hour] = (acc[hour] || 0) + 1;
-            return acc;
-          }, {});
-          const topHours = Object.entries(peakHours)
-            .sort(([, a]: any, [, b]: any) => (b as number) - (a as number))
-            .slice(0, 3);
+            if (underperformers.length > 0) {
+              recommendations.push(`📉 **Underperformers:** ${underperformers.map((h: any) => h.name).join(", ")}\n   *Consider promotional pricing or bundle offers*`);
+            }
 
-          if (topHours.length > 0) {
-            recommendations.push(`⏰ **Peak Booking Times:** ${topHours.map(([hour]: any) => `${hour}:00`).join(", ")}\n   *Consider premium pricing (+20%) during these hours*`);
-          }
+            const peakHours = ownerStable.bookings.reduce((acc: any, b: any) => {
+              const hour = new Date(b.startTime).getHours();
+              acc[hour] = (acc[hour] || 0) + 1;
+              return acc;
+            }, {});
+            const topHours = Object.entries(peakHours)
+              .sort(([, a]: any, [, b]: any) => (b as number) - (a as number))
+              .slice(0, 3);
 
-          insights = `${priceOptimization}${recommendations.length > 0 ? recommendations.join("\n\n") : "✅ Your pricing strategy is well optimized!"}\n\n**Projected Revenue Increase:** If implemented, expect **+25-40% revenue** over next 90 days.`;
+            if (topHours.length > 0) {
+              recommendations.push(`⏰ **Peak Booking Times:** ${topHours.map(([hour]: any) => `${hour}:00`).join(", ")}\n   *Consider premium pricing (+20%) during these hours*`);
+            }
 
-          suggestions = ["Apply recommendations", "View analytics", "Optimize all horses"];
-          actions = { "Analytics Dashboard": "/dashboard/analytics", "Manage Stable": "/dashboard/stable/manage" };
-        } else if (isAnalyticsQuery) {
-          const bookingsByDay = ownerStable.bookings.reduce((acc: any, b: any) => {
-            const day = new Date(b.startTime).toLocaleDateString('en-US', { weekday: 'long' });
-            acc[day] = (acc[day] || 0) + 1;
-            return acc;
-          }, {});
+            insights = `${priceOptimization}${recommendations.length > 0 ? recommendations.join("\n\n") : "✅ Your pricing strategy is well optimized!"}\n\n**Projected Revenue Increase:** If implemented, expect **+25-40% revenue** over next 90 days.`;
 
-          const topDay = Object.entries(bookingsByDay)
-            .sort(([, a]: any, [, b]: any) => (b as number) - (a as number))[0];
+            suggestions = ["Apply recommendations", "View analytics", "Optimize all horses"];
+            actions = { "Analytics Dashboard": "/dashboard/analytics", "Manage Stable": "/dashboard/stable/manage" };
+          } else if (isAnalyticsQuery) {
+            const bookingsByDay = ownerStable.bookings.reduce((acc: any, b: any) => {
+              const day = new Date(b.startTime).toLocaleDateString('en-US', { weekday: 'long' });
+              acc[day] = (acc[day] || 0) + 1;
+              return acc;
+            }, {});
 
-          insights = `📊 **PREDICTIVE ANALYTICS DASHBOARD:**\n\n**Performance Metrics (Last 90 Days):**\n- Total bookings: ${totalBookings}\n- Completion rate: ${totalBookings > 0 ? ((completedBookings.length / totalBookings) * 100).toFixed(1) : 0}%\n- Total revenue: $${totalRevenue.toFixed(0)}\n- Average booking value: $${avgPrice.toFixed(0)}\n\n**Top Performing Horse:**\n${bestPerformer ? `- **${bestPerformer.name}**: $${bestPerformer.revenue.toFixed(0)} revenue, ${bestPerformer.bookings} bookings\n  Utilization: ${bestPerformer.utilization.toFixed(1)} bookings/day` : "None yet"}\n\n**Demand Forecast:**\n- Peak day: ${topDay ? `${topDay[0]} (${topDay[1]} bookings)` : "No data"}\n- Recommended capacity: Add 1-2 more horses for peak times\n\n**Next 30 Days Forecast:**\n- Expected bookings: ${Math.round(totalBookings / 3)}\n- Projected revenue: $${Math.round(totalRevenue / 3)}\n- Confidence: 85%+\n\n**Action Items:**\n1. ${bestPerformer ? `Promote ${bestPerformer.name} more (best performer)` : "Add more horses"}\n2. ${topDay ? `Increase availability on ${topDay[0]}s` : "Monitor booking patterns"}\n3. Focus marketing on underperforming time slots`;
+            const topDay = Object.entries(bookingsByDay)
+              .sort(([, a]: any, [, b]: any) => (b as number) - (a as number))[0];
 
-          suggestions = ["View detailed analytics", "Export report", "Set up alerts"];
-          actions = { "Full Analytics": "/dashboard/analytics" };
-        } else if (isCompetitiveQuery) {
-          insights = `🎯 **COMPETITIVE INTELLIGENCE:**\n\n**Market Position:**\n- Your average price: $${avgPrice.toFixed(0)}/hour\n- Market average: $${marketAvgPrice.toFixed(0)}/hour\n- Price position: ${avgPrice > marketAvgPrice ? "PREMIUM" : avgPrice < marketAvgPrice ? "BUDGET" : "MARKET RATE"}\n\n**Competitive Analysis:**\n- ${allStables.length} competitors in ${ownerStable.location}\n- Your bookings: ${totalBookings} (90 days)\n- Market share: *Calculating...*\n\n**AI Recommendations:**\n${avgPrice < marketAvgPrice * 0.9 ? "🚀 **UNDERVALUED:** You're pricing 10%+ below market. Consider increasing prices 10-15% for premium positioning." : avgPrice > marketAvgPrice * 1.1 ? "💎 **PREMIUM POSITIONING:** You're priced above market. Ensure quality/service matches premium pricing." : "✅ **WELL POSITIONED:** Your pricing aligns with market average."}\n\n**Competitor Insights:**\n- Monitor top 3 competitors weekly\n- Track their pricing changes\n- Analyze their peak booking times\n\n**Strategic Positioning:**\n1. Differentiate through unique experiences\n2. Emphasize quality in marketing\n3. Build repeat customer base (higher retention = less price sensitivity)`;
+            insights = `📊 **PREDICTIVE ANALYTICS DASHBOARD:**\n\n**Performance Metrics (Last 90 Days):**\n- Total bookings: ${totalBookings}\n- Completion rate: ${totalBookings > 0 ? ((completedBookings.length / totalBookings) * 100).toFixed(1) : 0}%\n- Total revenue: $${totalRevenue.toFixed(0)}\n- Average booking value: $${avgPrice.toFixed(0)}\n\n**Top Performing Horse:**\n${bestPerformer ? `- **${bestPerformer.name}**: $${bestPerformer.revenue.toFixed(0)} revenue, ${bestPerformer.bookings} bookings\n  Utilization: ${bestPerformer.utilization.toFixed(1)} bookings/day` : "None yet"}\n\n**Demand Forecast:**\n- Peak day: ${topDay ? `${topDay[0]} (${topDay[1]} bookings)` : "No data"}\n- Recommended capacity: Add 1-2 more horses for peak times\n\n**Next 30 Days Forecast:**\n- Expected bookings: ${Math.round(totalBookings / 3)}\n- Projected revenue: $${Math.round(totalRevenue / 3)}\n- Confidence: 85%+\n\n**Action Items:**\n1. ${bestPerformer ? `Promote ${bestPerformer.name} more (best performer)` : "Add more horses"}\n2. ${topDay ? `Increase availability on ${topDay[0]}s` : "Monitor booking patterns"}\n3. Focus marketing on underperforming time slots`;
 
-          suggestions = ["View market data", "Update pricing", "Competitor analysis"];
-          actions = { "Manage Stable": "/dashboard/stable/manage" };
-        } else if (isMarketingQuery) {
-          const repeatCustomers = new Set(ownerStable.bookings.map((b: any) => b.riderId)).size;
-          const repeatRate = totalBookings > 0 ? (repeatCustomers / totalBookings) * 100 : 0;
+            suggestions = ["View detailed analytics", "Export report", "Set up alerts"];
+            actions = { "Full Analytics": "/dashboard/analytics" };
+          } else if (isCompetitiveQuery) {
+            insights = `🎯 **COMPETITIVE INTELLIGENCE:**\n\n**Market Position:**\n- Your average price: $${avgPrice.toFixed(0)}/hour\n- Market average: $${marketAvgPrice.toFixed(0)}/hour\n- Price position: ${avgPrice > marketAvgPrice ? "PREMIUM" : avgPrice < marketAvgPrice ? "BUDGET" : "MARKET RATE"}\n\n**Competitive Analysis:**\n- ${allStables.length} competitors in ${ownerStable.location}\n- Your bookings: ${totalBookings} (90 days)\n- Market share: *Calculating...*\n\n**AI Recommendations:**\n${avgPrice < marketAvgPrice * 0.9 ? "🚀 **UNDERVALUED:** You're pricing 10%+ below market. Consider increasing prices 10-15% for premium positioning." : avgPrice > marketAvgPrice * 1.1 ? "💎 **PREMIUM POSITIONING:** You're priced above market. Ensure quality/service matches premium pricing." : "✅ **WELL POSITIONED:** Your pricing aligns with market average."}\n\n**Competitor Insights:**\n- Monitor top 3 competitors weekly\n- Track their pricing changes\n- Analyze their peak booking times\n\n**Strategic Positioning:**\n1. Differentiate through unique experiences\n2. Emphasize quality in marketing\n3. Build repeat customer base (higher retention = less price sensitivity)`;
 
-          insights = `📧 **AUTOMATED MARKETING CAMPAIGNS:**\n\n**Customer Insights:**\n- Total customers: ${new Set(ownerStable.bookings.map((b: any) => b.riderId)).size}\n- Repeat booking rate: ${repeatRate.toFixed(1)}%\n- Average bookings per customer: ${(totalBookings / (new Set(ownerStable.bookings.map((b: any) => b.riderId)).size || 1)).toFixed(1)}\n\n**AI Marketing Recommendations:**\n\n1. **Customer Retention Campaign**\n   - Target: Customers with 1+ booking\n   - Offer: 15% off next booking\n   - Expected: +50% repeat bookings\n   - *I can automate this campaign for you!*\n\n2. **Win-Back Campaign**\n   - Target: Customers who haven't booked in 60+ days\n   - Offer: Special discount + priority booking\n   - Expected: +30% reactivation\n\n3. **Peak Time Promotion**\n   - Target: Low-demand time slots\n   - Offer: 20% off during slow periods\n   - Expected: +40% utilization\n\n4. **Referral Program**\n   - Offer: "Bring a friend, get 20% off both"\n   - Expected: +25% new customers\n\n**Automated Campaigns Available:**\n✅ Email campaigns\n✅ SMS notifications\n✅ Personalized offers\n✅ Review request automation\n\n**Projected Impact:**\n- Increase bookings: +40-60%\n- Increase revenue: +35-50%\n- Customer lifetime value: +2x`;
+            suggestions = ["View market data", "Update pricing", "Competitor analysis"];
+            actions = { "Manage Stable": "/dashboard/stable/manage" };
+          } else if (isMarketingQuery) {
+            const repeatCustomers = new Set(ownerStable.bookings.map((b: any) => b.riderId)).size;
+            const repeatRate = totalBookings > 0 ? (repeatCustomers / totalBookings) * 100 : 0;
 
-          suggestions = ["Activate campaigns", "View customer list", "Create custom campaign"];
-          actions = { "Dashboard": "/dashboard/stable" };
-        } else if (isBusinessQuery) {
-          const utilizationRate = horses.length > 0 
-            ? (totalBookings / (horses.length * 90)) * 100 
-            : 0;
-          
-          const uniqueCustomers = new Set(ownerStable.bookings.map((b: any) => b.riderId)).size;
-          const repeatRate = totalBookings > 0 ? (uniqueCustomers / totalBookings) : 0;
-          
-          const healthScore = ((completedBookings.length / (totalBookings || 1)) * 0.3 + 
-                              (utilizationRate / 100) * 0.3 + 
-                              (1 - repeatRate) * 0.4) * 100;
+            insights = `📧 **AUTOMATED MARKETING CAMPAIGNS:**\n\n**Customer Insights:**\n- Total customers: ${new Set(ownerStable.bookings.map((b: any) => b.riderId)).size}\n- Repeat booking rate: ${repeatRate.toFixed(1)}%\n- Average bookings per customer: ${(totalBookings / (new Set(ownerStable.bookings.map((b: any) => b.riderId)).size || 1)).toFixed(1)}\n\n**AI Marketing Recommendations:**\n\n1. **Customer Retention Campaign**\n   - Target: Customers with 1+ booking\n   - Offer: 15% off next booking\n   - Expected: +50% repeat bookings\n   - *I can automate this campaign for you!*\n\n2. **Win-Back Campaign**\n   - Target: Customers who haven't booked in 60+ days\n   - Offer: Special discount + priority booking\n   - Expected: +30% reactivation\n\n3. **Peak Time Promotion**\n   - Target: Low-demand time slots\n   - Offer: 20% off during slow periods\n   - Expected: +40% utilization\n\n4. **Referral Program**\n   - Offer: "Bring a friend, get 20% off both"\n   - Expected: +25% new customers\n\n**Automated Campaigns Available:**\n✅ Email campaigns\n✅ SMS notifications\n✅ Personalized offers\n✅ Review request automation\n\n**Projected Impact:**\n- Increase bookings: +40-60%\n- Increase revenue: +35-50%\n- Customer lifetime value: +2x`;
 
-          insights = `🎓 **AI BUSINESS COACH:**\n\n**Your Business Health Score: ${healthScore.toFixed(0)}%**\n\n**Key Metrics:**\n- Horse utilization: ${utilizationRate.toFixed(1)}%\n- Completion rate: ${totalBookings > 0 ? ((completedBookings.length / totalBookings) * 100).toFixed(1) : 0}%\n- Revenue efficiency: $${avgPrice.toFixed(0)}/booking\n- Unique customers: ${uniqueCustomers}\n\n**Strategic Recommendations:**\n\n1. **Revenue Growth:**\n   ${utilizationRate < 50 ? "⚠️ **Low Utilization:** Add more availability or reduce prices during off-peak" : utilizationRate > 80 ? "✅ **High Utilization:** Consider adding more horses or increasing prices" : "✅ **Optimal Utilization:** Maintain current strategy"}\n\n2. **Operational Efficiency:**\n   - ${bestPerformer ? `Focus on promoting ${bestPerformer.name} (top performer)` : "Identify top performers"}\n   - Optimize scheduling around peak times\n   - Consider automated booking confirmations\n\n3. **Customer Experience:**\n   - Response time to inquiries: Target <5 minutes\n   - Review collection: Automated follow-up after rides\n   - Personalization: Remember customer preferences\n\n4. **Financial Health:**\n   - Revenue forecast: $${Math.round(totalRevenue / 3)} next 30 days\n   - Break-even analysis: *Available in premium analytics*\n   - Tax preparation: Track all earnings automatically\n\n**Long-term Growth Strategy:**\n- Month 1-3: Optimize pricing & scheduling\n- Month 4-6: Expand horse capacity (if utilization >70%)\n- Month 7-12: Build brand & customer loyalty\n\n**Ready to implement? I can automate most of these recommendations!**`;
+            suggestions = ["Activate campaigns", "View customer list", "Create custom campaign"];
+            actions = { "Dashboard": "/dashboard/stable" };
+          } else if (isBusinessQuery) {
+            const utilizationRate = horses.length > 0
+              ? (totalBookings / (horses.length * 90)) * 100
+              : 0;
 
-          suggestions = ["Implement recommendations", "View growth plan", "Set up automation"];
-          actions = { "Analytics": "/dashboard/analytics", "Manage Stable": "/dashboard/stable/manage" };
+            const uniqueCustomers = new Set(ownerStable.bookings.map((b: any) => b.riderId)).size;
+            const repeatRate = totalBookings > 0 ? (uniqueCustomers / totalBookings) : 0;
+
+            const healthScore = ((completedBookings.length / (totalBookings || 1)) * 0.3 +
+              (utilizationRate / 100) * 0.3 +
+              (1 - repeatRate) * 0.4) * 100;
+
+            insights = `🎓 **AI BUSINESS COACH:**\n\n**Your Business Health Score: ${healthScore.toFixed(0)}%**\n\n**Key Metrics:**\n- Horse utilization: ${utilizationRate.toFixed(1)}%\n- Completion rate: ${totalBookings > 0 ? ((completedBookings.length / totalBookings) * 100).toFixed(1) : 0}%\n- Revenue efficiency: $${avgPrice.toFixed(0)}/booking\n- Unique customers: ${uniqueCustomers}\n\n**Strategic Recommendations:**\n\n1. **Revenue Growth:**\n   ${utilizationRate < 50 ? "⚠️ **Low Utilization:** Add more availability or reduce prices during off-peak" : utilizationRate > 80 ? "✅ **High Utilization:** Consider adding more horses or increasing prices" : "✅ **Optimal Utilization:** Maintain current strategy"}\n\n2. **Operational Efficiency:**\n   - ${bestPerformer ? `Focus on promoting ${bestPerformer.name} (top performer)` : "Identify top performers"}\n   - Optimize scheduling around peak times\n   - Consider automated booking confirmations\n\n3. **Customer Experience:**\n   - Response time to inquiries: Target <5 minutes\n   - Review collection: Automated follow-up after rides\n   - Personalization: Remember customer preferences\n\n4. **Financial Health:**\n   - Revenue forecast: $${Math.round(totalRevenue / 3)} next 30 days\n   - Break-even analysis: *Available in premium analytics*\n   - Tax preparation: Track all earnings automatically\n\n**Long-term Growth Strategy:**\n- Month 1-3: Optimize pricing & scheduling\n- Month 4-6: Expand horse capacity (if utilization >70%)\n- Month 7-12: Build brand & customer loyalty\n\n**Ready to implement? I can automate most of these recommendations!**`;
+
+            suggestions = ["Implement recommendations", "View growth plan", "Set up automation"];
+            actions = { "Analytics": "/dashboard/analytics", "Manage Stable": "/dashboard/stable/manage" };
           }
 
           // Ensure insights is set before using it
@@ -810,7 +847,7 @@ ${userRole === "rider" ? "What would you like to do today?" : "How can I assist 
         }
       }
     }
-    
+
     // Final fallback for any unmatched queries
     if (!response) {
       response = `I understand you're asking about: "${message}"\n\n**Let me help you with:**\n\n🐴 Finding and booking stables\n💰 Understanding prices\n📅 Managing bookings\n⭐ Leaving reviews\n📍 Location information\n\n**Try asking:**\n- "Show me stables"\n- "How do I book a ride?"\n- "What are the prices?"\n- "Find stables in Giza"\n\nWhat would you like to know?`;
