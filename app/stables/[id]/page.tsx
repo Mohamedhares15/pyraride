@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import BookingModal from "@/components/shared/BookingModal";
-import AuthModal from "@/components/shared/AuthModal";
+
 import ReviewsSection from "@/components/sections/ReviewsSection";
 import StableLocationMap from "@/components/maps/StableLocationMap";
 import DynamicAvailability from "@/components/availability/DynamicAvailability";
@@ -168,7 +168,7 @@ export default function StableDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
   const [availableSlots, setAvailableSlots] = useState<Record<string, Record<string, string[]>>>({});
   const [takenSlots, setTakenSlots] = useState<Record<string, Record<string, any[]>>>({});
   const [groupedSlots, setGroupedSlots] = useState<Record<string, DayGroupedSlots>>({});
@@ -900,14 +900,15 @@ export default function StableDetailPage() {
                 </Button>
               ) : (
                 <div className="space-y-3">
-                  <Button
-                    className="w-full"
-                    size="lg"
-                    variant="outline"
-                    onClick={() => setIsAuthModalOpen(true)}
-                  >
-                    Sign In to Book
-                  </Button>
+                  <Link href="/signin" className="w-full">
+                    <Button
+                      className="w-full"
+                      size="lg"
+                      variant="outline"
+                    >
+                      Sign In to Book
+                    </Button>
+                  </Link>
                   <p className="text-xs text-muted-foreground text-center">
                     Only riders can create bookings
                   </p>
@@ -1273,7 +1274,7 @@ export default function StableDetailPage() {
           </div>
         </>
       )}
-      <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
+
     </div>
   );
 }
