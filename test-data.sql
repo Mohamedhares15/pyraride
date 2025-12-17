@@ -1,7 +1,7 @@
 -- SQL Code to add a Stable Owner, a Stable, and 5 Horses
 
 -- 1. Insert Stable Owner (Password is 'password123')
-INSERT INTO "User" ("id", "email", "phoneNumber", "passwordHash", "fullName", "role", "createdAt", "updatedAt")
+INSERT INTO "User" ("id", "email", "phoneNumber", "passwordHash", "fullName", "role", "createdAt")
 VALUES (
   'owner-uuid-123456', 
   'testowner@pyraride.com', 
@@ -9,7 +9,6 @@ VALUES (
   '$2b$10$EpWaTucFF9y.qjFv.WjHO.qjFv.WjHO.qjFv.WjHO.qjFv.WjHO', -- Placeholder hash for 'password123'
   'Test Stable Owner', 
   'stable_owner', 
-  NOW(), 
   NOW()
 );
 
