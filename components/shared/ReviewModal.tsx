@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import StarRating from "./StarRating";
-import { Star, Loader2, CheckCircle, X } from "lucide-react";
+import { Star, Loader2, CheckCircle, X, Camera } from "lucide-react";
 
 interface ReviewModalProps {
   open: boolean;
@@ -37,6 +37,7 @@ export default function ReviewModal({
   const [stableRating, setStableRating] = useState(0);
   const [horseRating, setHorseRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
@@ -61,6 +62,7 @@ export default function ReviewModal({
           stableRating,
           horseRating,
           comment,
+          photos,
         }),
       });
 
@@ -72,12 +74,12 @@ export default function ReviewModal({
 
       // Success! Show toast and auto-close
       setShowSuccessToast(true);
-      
+
       setTimeout(() => {
         onOpenChange(false);
         onReviewSubmitted?.();
         router.refresh();
-        
+
         // Reset form
         setStableRating(0);
         setHorseRating(0);
@@ -152,6 +154,41 @@ export default function ReviewModal({
               onChange={(e) => setComment(e.target.value)}
               rows={4}
             />
+          </div>
+
+          {/* Photo Upload */}
+          <div className="space-y-3">
+            <Label>Add Photos</Label>
+            <div className="flex flex-wrap gap-3">
+              {photos.map((photo, index) => (
+                <div key={index} className="relative h-20 w-20 rounded-lg overflow-hidden border border-border group">
+                  <img src={photo} alt="Review" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setPhotos(photos.filter((_, i) => i !== index))}
+                    className="absolute top-1 right-1 bg-black/50 rounded-full p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+              <label className="h-20 w-20 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent/50 transition-colors">
+                <Camera className="h-6 w-6 text-muted-foreground mb-1" />
+                <span className="text-[10px] text-muted-foreground">Add Photo</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      // Simulate upload by creating a local object URL
+                      const url = URL.createObjectURL(e.target.files[0]);
+                      setPhotos([...photos, url]);
+                    }
+                  }}
+                />
+              </label>
+            </div>
           </div>
 
           {/* Submit Buttons */}
