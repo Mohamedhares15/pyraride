@@ -216,7 +216,7 @@ function BookingContent() {
     if (!slot || !slot.riderEmail) return;
 
     try {
-      const res = await fetch("/api/users/verify-user", {
+      const res = await fetch("/api/users/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: slot.riderEmail }),
