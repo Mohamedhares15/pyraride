@@ -156,6 +156,49 @@ export async function POST(req: NextRequest) {
           throw new Error(`Horse ${horse.name} does not belong to this stable`);
         }
 
+        // Skill-based booking restriction
+        // Get rider's skill level
+        const riderUser = await tx.user.findUnique({
+          where: { id: riderId },
+          select: { rankPoints: true },
+        });
+
+        if (!riderUser) {
+          throw new Error(`Rider not found (ID: ${riderId})`);
+        }
+
+        // Determine rider tier based on rank points
+        const getRiderTier = (points: number) => {
+          if (points >= 1701) return "ADVANCED";
+          if (points >= 1301) return "INTERMEDIATE";
+          return "BEGINNER";
+        };
+
+        const riderTier = getRiderTier(riderUser.rankPoints);
+        const horseLevel = horse.skillLevel; // BEGINNER, INTERMEDIATE, ADVANCED
+
+        // Skill restriction rules
+        const canBook = (
+          (riderTier === "ADVANCED") || // Advanced can ride anything
+          (riderTier === "INTERMEDIATE" && horseLevel !== "ADVANCED") || // Intermediate can ride beginner/intermediate
+          (riderTier === "BEGINNER" && horseLevel === "BEGINNER") // Beginner can only ride beginner
+        );
+
+        if (!canBook) {
+          // Check if there's an approved override request
+          const approvedOverride = await tx.skillOverrideRequest.findFirst({
+            where: {
+              riderId,
+              horseId,
+              status: "approved",
+            },
+          });
+
+          if (!approvedOverride) {
+            throw new Error(`Skill level mismatch: ${riderTier} rider cannot book ${horseLevel} horse "${horse.name}" without an approved override request.`);
+          }
+        }
+
         // Check for overlapping bookings
         const overlappingBookings = await tx.booking.findFirst({
           where: {

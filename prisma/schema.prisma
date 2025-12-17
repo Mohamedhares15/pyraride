@@ -125,6 +125,16 @@ model User {
   friendRequestsReceived Friend[]       @relation("FriendsReceived")
   messages               Message[]      @relation("MessageSender")
   conversations          Conversation[] @relation("ConversationParticipants")
+
+  // Skill Override Requests
+  skillOverrideRequests SkillOverrideRequest[] @relation("RiderSkillRequests")
+
+  // Instagram-style Follow System
+  followers UserFollow[] @relation("Following")
+  following UserFollow[] @relation("Followers")
+
+  // User Posts
+  userPosts UserPost[] @relation("UserPosts")
 }
 
 model RiderRank {
@@ -201,14 +211,15 @@ model Horse {
   tier              HorseTier? @relation(fields: [tierId], references: [id])
 
   // Relations
-  stable            Stable               @relation(fields: [stableId], references: [id], onDelete: Cascade)
-  bookings          Booking[]
-  reviews           Review[]
-  media             HorseMedia[]
-  changeRequests    HorseChangeRequest[]
-  rideResults       RideResult[]
-  blockedSlots      BlockedSlot[]
-  availabilitySlots AvailabilitySlot[]
+  stable                Stable                 @relation(fields: [stableId], references: [id], onDelete: Cascade)
+  bookings              Booking[]
+  reviews               Review[]
+  media                 HorseMedia[]
+  changeRequests        HorseChangeRequest[]
+  rideResults           RideResult[]
+  blockedSlots          BlockedSlot[]
+  availabilitySlots     AvailabilitySlot[]
+  skillOverrideRequests SkillOverrideRequest[]
 }
 
 model BlockedSlot {
@@ -374,10 +385,11 @@ model Review {
   createdAt    DateTime @default(now())
 
   // Relations
-  booking Booking @relation(fields: [bookingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  rider   User    @relation(fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  stable  Stable  @relation(fields: [stableId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  horse   Horse   @relation(fields: [horseId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  booking      Booking       @relation(fields: [bookingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rider        User          @relation(fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  stable       Stable        @relation(fields: [stableId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  horse        Horse         @relation(fields: [horseId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  reviewMedias ReviewMedia[]
 }
 
 // Stable Owner reviews Riders
@@ -566,4 +578,71 @@ model Message {
   @@index([conversationId])
   @@index([senderId])
   @@index([createdAt])
+}
+
+// Skill Override Request - When rider wants to book a horse above their skill level
+enum SkillRequestStatus {
+  pending
+  approved
+  rejected
+}
+
+model SkillOverrideRequest {
+  id        String             @id @default(uuid())
+  riderId   String
+  horseId   String
+  stableId  String
+  reason    String?            @db.Text
+  status    SkillRequestStatus @default(pending)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  rider User  @relation("RiderSkillRequests", fields: [riderId], references: [id], onDelete: Cascade)
+  horse Horse @relation(fields: [horseId], references: [id], onDelete: Cascade)
+
+  @@index([riderId])
+  @@index([horseId])
+  @@index([stableId])
+  @@index([status])
+}
+
+// Instagram-style Follow System
+model UserFollow {
+  id          String   @id @default(uuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+// User Posts for Instagram-style profile
+model UserPost {
+  id        String   @id @default(uuid())
+  userId    String
+  imageUrl  String
+  caption   String?  @db.Text
+  createdAt DateTime @default(now())
+
+  user User @relation("UserPosts", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// Review Media - Photos attached to reviews
+model ReviewMedia {
+  id        String   @id @default(uuid())
+  reviewId  String
+  url       String
+  createdAt DateTime @default(now())
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
 }
