@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -162,6 +162,7 @@ function groupSlotsByDayAndPeriod(
 export default function StableDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const pathname = usePathname();
   const id = params.id as string;
 
   const [stable, setStable] = useState<Stable | null>(null);
@@ -900,7 +901,7 @@ export default function StableDetailPage() {
                 </Button>
               ) : (
                 <div className="space-y-3">
-                  <Link href="/signin" className="w-full">
+                  <Link href={`/signin?callbackUrl=${encodeURIComponent(pathname)}`} className="w-full">
                     <Button
                       className="w-full"
                       size="lg"

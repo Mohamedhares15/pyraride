@@ -105,7 +105,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "img-src 'self' data: https: blob: images.unsplash.com images.pexels.com lh3.googleusercontent.com",
-              "connect-src 'self' https://api.paymob.com https://www.google-analytics.com https://*.vercel.app https://*.tile.openstreetmap.org https://cdnjs.cloudflare.com https://raw.githubusercontent.com",
+              "connect-src 'self' https://api.paymob.com https://www.google-analytics.com https://*.vercel.app https://*.tile.openstreetmap.org https://cdnjs.cloudflare.com https://raw.githubusercontent.com https://*.googleusercontent.com",
               "frame-src 'self' https://accept.paymob.com https://www.google.com",
               "media-src 'self' https://videos.pexels.com",
               "base-uri 'self'",

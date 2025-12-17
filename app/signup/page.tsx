@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { ArrowLeft, Home } from "lucide-react";
@@ -18,8 +18,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function SignUpPage() {
+function SignUpContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -68,7 +70,7 @@ export default function SignUpPage() {
         redirect: false,
       });
 
-      router.push("/");
+      router.push(callbackUrl);
       router.refresh();
     } catch (error) {
       setError("An error occurred. Please try again.");
@@ -249,7 +251,7 @@ export default function SignUpPage() {
               <p className="text-sm text-white/70">
                 Already have an account?{" "}
                 <Link
-                  href="/signin"
+                  href={callbackUrl !== "/" ? `/signin?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/signin"}
                   className="font-semibold text-primary hover:text-primary/80 transition-colors"
                 >
                   Sign in
@@ -273,6 +275,14 @@ export default function SignUpPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>}>
+      <SignUpContent />
+    </Suspense>
   );
 }
 

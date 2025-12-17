@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { ArrowLeft, Home } from "lucide-react";
@@ -9,8 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PasswordInput from "@/components/shared/PasswordInput";
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +33,7 @@ export default function SignInPage() {
       if (result?.error) {
         setError("Invalid credentials. Please check your email/phone and password.");
       } else {
-        router.push("/");
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch (error) {
@@ -139,7 +141,7 @@ export default function SignInPage() {
               <p className="text-sm text-white/70">
                 Don't have an account?{" "}
                 <Link
-                  href="/signup"
+                  href={callbackUrl !== "/" ? `/signup?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/signup"}
                   className="font-semibold text-primary hover:text-primary/80 transition-colors"
                 >
                   Sign up
@@ -163,5 +165,13 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>}>
+      <SignInContent />
+    </Suspense>
   );
 }
