@@ -41,7 +41,9 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        return NextResponse.json({ user });
+        return NextResponse.json({ user }, {
+            headers: { "X-Version": "2.0.0" }
+        });
     } catch (error) {
         console.error("Error verifying user:", error);
         return NextResponse.json(

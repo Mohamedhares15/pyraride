@@ -785,11 +785,11 @@ export default function StableDetailPage() {
                             <div className="mb-4">
                               <div className="flex items-center justify-between mb-2">
                                 <h3 className="font-semibold text-2xl">{horse.name}</h3>
-                                <Badge className={`${(horse.skillLevel === 'ADVANCED' || horse.skillLevel === 'Advanced') ? 'bg-red-500 hover:bg-red-600' :
-                                  (horse.skillLevel === 'INTERMEDIATE' || horse.skillLevel === 'Intermediate') ? 'bg-yellow-500 hover:bg-yellow-600' :
+                                <Badge className={`${(horse.adminTier === 'Advanced') ? 'bg-red-500 hover:bg-red-600' :
+                                  (horse.adminTier === 'Intermediate') ? 'bg-yellow-500 hover:bg-yellow-600' :
                                     'bg-green-500 hover:bg-green-600'
                                   } text-white border-0`}>
-                                  {horse.skillLevel || 'BEGINNER'}
+                                  {horse.adminTier || 'Beginner'}
                                 </Badge>
                               </div>
                               <p className="text-sm text-muted-foreground mb-4">{horse.description}</p>

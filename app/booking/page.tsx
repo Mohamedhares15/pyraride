@@ -222,10 +222,15 @@ function BookingContent() {
         body: JSON.stringify({ email: slot.riderEmail }),
       });
 
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Server returned non-JSON response. Please try again later.");
+      }
+
       const data = await res.json();
 
       if (!res.ok) {
-        toast.error(data.error || "User not found");
+        toast.error(data.error || "User not found. Please check the email.");
         return;
       }
 
@@ -239,7 +244,8 @@ function BookingContent() {
       ));
       toast.success(`Verified: ${data.user.fullName}`);
     } catch (err) {
-      toast.error("Failed to verify user");
+      console.error("Verification error:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to verify user");
     }
   };
 
