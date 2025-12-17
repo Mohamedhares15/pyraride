@@ -513,21 +513,6 @@
   }
 
   h2,
-  h3 {
-    page-break-after: avoid;
-  }
-}
-
-/* Hide scrollbar utility */
-
-.hamburger-menu {
-  display: block;
-}
-}
-
-@media (min-width: 769px) {
-
-  .hamburger-menu,
   .mobile-off-canvas-menu,
   .mobile-off-canvas-backdrop {
     display: none;
@@ -562,7 +547,7 @@
   clip: auto;
   white-space: normal;
 }
-}
+
 
 /* Animation keyframes */
 @keyframes gradient {
