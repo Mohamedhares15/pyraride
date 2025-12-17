@@ -117,7 +117,7 @@ export default function Navbar() {
         {/* Dropdown Menu */}
         <div className="absolute right-0 top-full mt-2 w-48 origin-top-right rounded-md bg-background py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
           <Link
-            href="/profile"
+            href={`/users/${session?.user?.id}`}
             className="block px-4 py-2 text-sm text-foreground hover:bg-muted"
           >
             Profile
@@ -162,7 +162,7 @@ export default function Navbar() {
             <Link href="/dashboard">Dashboard</Link>
           </li>
           <li onClick={closeMenu}>
-            <Link href="/profile">Profile</Link>
+            <Link href={`/users/${session?.user?.id}`}>Profile</Link>
           </li>
           <li onClick={() => { closeMenu(); signOut(); }}>
             <button>Sign Out</button>

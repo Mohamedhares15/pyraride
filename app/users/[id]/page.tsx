@@ -15,52 +15,106 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
+import { useRouter } from "next/navigation";
+
+interface UserProfileData {
+    id: string;
+    fullName: string;
+    role: string;
+    bio: string | null;
+    location: string | null;
+    createdAt: string;
+    profileImageUrl: string | null;
+    stats: {
+        rides: number;
+        followers: number;
+        following: number;
+        reviews: number;
+        posts: number;
+    };
+    userPosts: {
+        id: string;
+        imageUrl: string;
+        caption: string | null;
+    }[];
+    reviews: {
+        id: string;
+        stable: { name: string };
+        stableRating: number;
+        comment: string | null;
+        createdAt: string;
+    }[];
+    isFollowing: boolean;
+}
 
 export default function UserProfile({ params }: { params: { id: string } }) {
     const { data: session } = useSession();
+    const router = useRouter();
     const [activeTab, setActiveTab] = useState("posts");
-    const [isFollowing, setIsFollowing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-
-    // Mock data for UI development (since DB is down)
-    const [profile, setProfile] = useState<any>({
-        id: params.id,
-        name: "Sarah Jenkins",
-        role: "rider",
-        bio: "Passionate equestrian exploring the ancient wonders of Egypt. 🐎✨ | Dressage enthusiast | Travel addict",
-        location: "Cairo, Egypt",
-        joinDate: "Member since 2023",
-        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop",
-        coverImage: "https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?q=80&w=2069&auto=format&fit=crop",
-        stats: {
-            rides: 42,
-            followers: 128,
-            following: 85,
-            reviews: 15
-        },
-        posts: [
-            { id: 1, image: "https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?q=80&w=2071&auto=format&fit=crop", likes: 24, comments: 3 },
-            { id: 2, image: "https://images.unsplash.com/photo-1534056784236-47005f77839d?q=80&w=2070&auto=format&fit=crop", likes: 56, comments: 8 },
-            { id: 3, image: "https://images.unsplash.com/photo-1598974357801-cbca100e65d3?q=80&w=1887&auto=format&fit=crop", likes: 12, comments: 1 },
-            { id: 4, image: "https://images.unsplash.com/photo-1528659576203-376466e75836?q=80&w=2069&auto=format&fit=crop", likes: 89, comments: 12 },
-            { id: 5, image: "https://images.unsplash.com/photo-1605218427368-35b019b8a391?q=80&w=1887&auto=format&fit=crop", likes: 34, comments: 5 },
-            { id: 6, image: "https://images.unsplash.com/photo-1629814684393-246df162923d?q=80&w=1887&auto=format&fit=crop", likes: 45, comments: 6 },
-        ],
-        reviews: [
-            { id: 1, stable: "Pyramids Royal Stable", rating: 5, comment: "Amazing sunset ride! The horses were so well behaved.", date: "2 days ago" },
-            { id: 2, stable: "Sahara Horse Club", rating: 4, comment: "Great guide, but a bit crowded.", date: "1 week ago" }
-        ]
-    });
+    const [profile, setProfile] = useState<UserProfileData | null>(null);
+    const [error, setError] = useState("");
 
     useEffect(() => {
-        // TODO: Fetch real data from API when DB is available
-        // fetchProfile();
-        setTimeout(() => setIsLoading(false), 1000);
+        fetchProfile();
     }, [params.id]);
 
-    const toggleFollow = () => {
-        setIsFollowing(!isFollowing);
-        // TODO: Call API
+    async function fetchProfile() {
+        try {
+            setIsLoading(true);
+            const response = await fetch(`/api/users/${params.id}/profile`);
+            if (!response.ok) {
+                if (response.status === 404) throw new Error("User not found");
+                throw new Error("Failed to fetch profile");
+            }
+            const data = await response.json();
+            setProfile(data.user);
+        } catch (err) {
+            console.error(err);
+            setError("Failed to load profile");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const toggleFollow = async () => {
+        if (!session) {
+            router.push("/signin");
+            return;
+        }
+
+        if (!profile) return;
+
+        // Optimistic update
+        const newIsFollowing = !profile.isFollowing;
+        setProfile(prev => prev ? {
+            ...prev,
+            isFollowing: newIsFollowing,
+            stats: {
+                ...prev.stats,
+                followers: prev.stats.followers + (newIsFollowing ? 1 : -1)
+            }
+        } : null);
+
+        try {
+            const response = await fetch(`/api/users/${params.id}/follow`, {
+                method: "POST"
+            });
+
+            if (!response.ok) {
+                // Revert on error
+                setProfile(prev => prev ? {
+                    ...prev,
+                    isFollowing: !newIsFollowing,
+                    stats: {
+                        ...prev.stats,
+                        followers: prev.stats.followers + (!newIsFollowing ? 1 : -1)
+                    }
+                } : null);
+            }
+        } catch (error) {
+            console.error("Error toggling follow:", error);
+        }
     };
 
     if (isLoading) {
@@ -71,19 +125,23 @@ export default function UserProfile({ params }: { params: { id: string } }) {
         );
     }
 
+    if (error || !profile) {
+        return (
+            <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center gap-4">
+                <h2 className="text-xl font-bold">User not found</h2>
+                <Button onClick={() => router.push("/")}>Return Home</Button>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-black text-white">
             <Navbar />
 
             <main className="pb-20">
-                {/* Cover Image */}
-                <div className="h-64 md:h-80 w-full relative overflow-hidden">
-                    <img
-                        src={profile.coverImage}
-                        alt="Cover"
-                        className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+                {/* Cover Image (Placeholder for now as DB doesn't have coverImage yet) */}
+                <div className="h-64 md:h-80 w-full relative overflow-hidden bg-zinc-900">
+                    <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-black/80"></div>
                 </div>
 
                 <div className="container mx-auto px-4 -mt-20 relative z-10">
@@ -91,11 +149,10 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                         {/* Profile Image */}
                         <div className="relative">
                             <div className="h-32 w-32 md:h-40 md:w-40 rounded-full border-4 border-black overflow-hidden bg-zinc-800 shadow-xl">
-                                <img
-                                    src={profile.image}
-                                    alt={profile.name}
-                                    className="w-full h-full object-cover"
-                                />
+                                <Avatar className="h-full w-full">
+                                    <AvatarImage src={profile.profileImageUrl || ""} alt={profile.fullName} className="object-cover" />
+                                    <AvatarFallback className="text-2xl bg-zinc-800">{profile.fullName.charAt(0)}</AvatarFallback>
+                                </Avatar>
                             </div>
                             {session?.user?.id === profile.id && (
                                 <button className="absolute bottom-2 right-2 p-2 bg-primary rounded-full text-white shadow-lg hover:bg-primary/90 transition-colors">
@@ -107,7 +164,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                         {/* Profile Info */}
                         <div className="flex-1 mb-4 md:mb-0">
                             <div className="flex flex-col md:flex-row md:items-center gap-4 mb-2">
-                                <h1 className="text-3xl font-bold">{profile.name}</h1>
+                                <h1 className="text-3xl font-bold">{profile.fullName}</h1>
                                 {profile.role === "stable_owner" && (
                                     <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/50">Stable Owner</Badge>
                                 )}
@@ -115,15 +172,17 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                                     <Badge className="bg-red-500/20 text-red-500 border-red-500/50">Admin</Badge>
                                 )}
                             </div>
-                            <p className="text-zinc-400 mb-4 max-w-2xl">{profile.bio}</p>
+                            <p className="text-zinc-400 mb-4 max-w-2xl">{profile.bio || "No bio yet."}</p>
                             <div className="flex flex-wrap gap-4 text-sm text-zinc-400">
-                                <div className="flex items-center gap-1">
-                                    <MapPin className="h-4 w-4 text-primary" />
-                                    {profile.location}
-                                </div>
+                                {profile.location && (
+                                    <div className="flex items-center gap-1">
+                                        <MapPin className="h-4 w-4 text-primary" />
+                                        {profile.location}
+                                    </div>
+                                )}
                                 <div className="flex items-center gap-1">
                                     <Calendar className="h-4 w-4 text-primary" />
-                                    {profile.joinDate}
+                                    Joined {new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                                 </div>
                             </div>
                         </div>
@@ -139,11 +198,11 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                                 <>
                                     <Button
                                         onClick={toggleFollow}
-                                        className={`gap-2 ${isFollowing
+                                        className={`gap-2 ${profile.isFollowing
                                             ? "bg-zinc-800 hover:bg-zinc-700 text-white"
                                             : "bg-primary hover:bg-primary/90 text-white"}`}
                                     >
-                                        {isFollowing ? (
+                                        {profile.isFollowing ? (
                                             <>
                                                 <UserCheck className="h-4 w-4" />
                                                 Following
@@ -203,21 +262,12 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                                 <Star className="h-4 w-4" />
                                 Reviews
                             </TabsTrigger>
-                            {profile.role === "stable_owner" && (
-                                <TabsTrigger
-                                    value="horses"
-                                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 gap-2"
-                                >
-                                    <Users className="h-4 w-4" />
-                                    Horses
-                                </TabsTrigger>
-                            )}
                         </TabsList>
 
                         <TabsContent value="posts" className="mt-0">
-                            {profile.posts.length > 0 ? (
+                            {profile.userPosts.length > 0 ? (
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                    {profile.posts.map((post: any) => (
+                                    {profile.userPosts.map((post) => (
                                         <motion.div
                                             key={post.id}
                                             initial={{ opacity: 0, scale: 0.9 }}
@@ -225,18 +275,13 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                                             className="aspect-square relative group cursor-pointer overflow-hidden rounded-lg bg-zinc-900"
                                         >
                                             <img
-                                                src={post.image}
+                                                src={post.imageUrl}
                                                 alt="Post"
                                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                             />
                                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6 text-white">
                                                 <div className="flex items-center gap-2">
                                                     <Heart className="h-6 w-6 fill-white" />
-                                                    <span className="font-bold">{post.likes}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <MessageSquare className="h-6 w-6 fill-white" />
-                                                    <span className="font-bold">{post.comments}</span>
                                                 </div>
                                             </div>
                                         </motion.div>
@@ -254,31 +299,38 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                                 <div className="text-center py-20 text-zinc-500">
                                     <ImageIcon className="h-12 w-12 mx-auto mb-4 opacity-20" />
                                     <p>No posts yet</p>
+                                    {session?.user?.id === profile.id && (
+                                        <Button variant="outline" className="mt-4 border-zinc-700">Create your first post</Button>
+                                    )}
                                 </div>
                             )}
                         </TabsContent>
 
                         <TabsContent value="reviews" className="mt-0">
                             <div className="grid gap-4">
-                                {profile.reviews.map((review: any) => (
+                                {profile.reviews.length > 0 ? profile.reviews.map((review) => (
                                     <Card key={review.id} className="bg-zinc-900/50 border-zinc-800 p-6">
                                         <div className="flex justify-between items-start mb-4">
                                             <div>
-                                                <h3 className="font-bold text-white">{review.stable}</h3>
+                                                <h3 className="font-bold text-white">{review.stable.name}</h3>
                                                 <div className="flex items-center gap-1 text-amber-400 mt-1">
                                                     {[...Array(5)].map((_, i) => (
                                                         <Star
                                                             key={i}
-                                                            className={`h-4 w-4 ${i < review.rating ? "fill-current" : "text-zinc-700"}`}
+                                                            className={`h-4 w-4 ${i < review.stableRating ? "fill-current" : "text-zinc-700"}`}
                                                         />
                                                     ))}
                                                 </div>
                                             </div>
-                                            <span className="text-sm text-zinc-500">{review.date}</span>
+                                            <span className="text-sm text-zinc-500">{new Date(review.createdAt).toLocaleDateString()}</span>
                                         </div>
                                         <p className="text-zinc-300">{review.comment}</p>
                                     </Card>
-                                ))}
+                                )) : (
+                                    <div className="text-center py-10 text-zinc-500">
+                                        <p>No reviews yet</p>
+                                    </div>
+                                )}
                             </div>
                         </TabsContent>
                     </Tabs>

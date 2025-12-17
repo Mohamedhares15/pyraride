@@ -177,12 +177,17 @@ export async function POST(req: NextRequest) {
         const riderTier = getRiderTier(riderUser.rankPoints);
         const horseLevel = horse.skillLevel; // BEGINNER, INTERMEDIATE, ADVANCED
 
+        console.log(`[Booking Debug] Rider: ${riderId}, Points: ${riderUser.rankPoints}, Tier: ${riderTier}`);
+        console.log(`[Booking Debug] Horse: ${horseId}, Level: ${horseLevel}`);
+
         // Skill restriction rules
         const canBook = (
           (riderTier === "ADVANCED") || // Advanced can ride anything
           (riderTier === "INTERMEDIATE" && horseLevel !== "ADVANCED") || // Intermediate can ride beginner/intermediate
           (riderTier === "BEGINNER" && horseLevel === "BEGINNER") // Beginner can only ride beginner
         );
+
+        console.log(`[Booking Debug] Can Book: ${canBook}`);
 
         if (!canBook) {
           // Check if there's an approved override request
