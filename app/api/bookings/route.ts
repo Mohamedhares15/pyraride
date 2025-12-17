@@ -175,7 +175,11 @@ export async function POST(req: NextRequest) {
         };
 
         const riderTier = getRiderTier(riderUser.rankPoints);
-        const horseLevel = horse.skillLevel; // BEGINNER, INTERMEDIATE, ADVANCED
+        // Use adminTier (set by admins) instead of skillLevel (never set)
+        // Normalize to uppercase for consistent comparison
+        const horseLevel = horse.adminTier
+          ? horse.adminTier.toUpperCase()
+          : "BEGINNER"; // Default to BEGINNER if not set
 
         console.log(`[Booking Debug] Rider: ${riderId}, Points: ${riderUser.rankPoints}, Tier: ${riderTier}`);
         console.log(`[Booking Debug] Horse: ${horseId}, Level: ${horseLevel}`);
