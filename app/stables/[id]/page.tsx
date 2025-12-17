@@ -64,6 +64,7 @@ interface Horse {
   age?: number | null;
   skills?: string[];
   skillLevel?: string;
+  adminTier?: string | null;
   media: HorseMediaItem[];
 }
 
