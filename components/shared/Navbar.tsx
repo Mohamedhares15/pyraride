@@ -7,12 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useMemo, useState, useEffect } from "react";
 import AuthModal from "./AuthModal";
 import Image from "next/image";
-import LanguageSwitcher from "./LanguageSwitcher";
-
-import { useTranslation } from "@/lib/i18n-provider";
 
 export default function Navbar() {
-  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalInitialTab, setAuthModalInitialTab] = useState<"signin" | "signup">("signin");
@@ -23,8 +19,8 @@ export default function Navbar() {
 
   const displayName = useMemo(() => {
     const user = session?.user as any;
-    return user?.name || user?.email || t('nav.profile');
-  }, [session?.user, t]);
+    return user?.name || user?.email || "Profile";
+  }, [session?.user]);
 
   // Fetch profile image separately from API to avoid JWT cookie size limits
   useEffect(() => {
@@ -84,17 +80,17 @@ export default function Navbar() {
   const desktopLinks = (
     <>
       <li>
-        <Link href="/">{t('nav.home')}</Link>
+        <Link href="/">Home</Link>
       </li>
       <li>
-        <Link href="/stables">{t('nav.stables')}</Link>
+        <Link href="/stables">Stables</Link>
       </li>
       <li>
-        <Link href="/gallery">{t('nav.gallery')}</Link>
+        <Link href="/gallery">Gallery</Link>
       </li>
       {session && (
         <li>
-          <Link href="/dashboard">{t('nav.dashboard')}</Link>
+          <Link href="/dashboard">Dashboard</Link>
         </li>
       )}
     </>
@@ -127,13 +123,13 @@ export default function Navbar() {
             href="/profile"
             className="block px-4 py-2 text-sm text-foreground hover:bg-muted"
           >
-            {t('nav.profile')}
+            Profile
           </Link>
           <button
             onClick={() => signOut()}
             className="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
           >
-            {t('nav.signOut')}
+            Sign Out
           </button>
         </div>
       </li>
@@ -147,7 +143,7 @@ export default function Navbar() {
               setIsAuthModalOpen(true);
             }}
           >
-            {t('nav.signIn')}
+            Sign In
           </Button>
         </li>
         <li>
@@ -157,7 +153,7 @@ export default function Navbar() {
               setIsAuthModalOpen(true);
             }}
           >
-            {t('nav.getStarted')}
+            Get Started
           </Button>
         </li>
       </>
@@ -166,24 +162,24 @@ export default function Navbar() {
   const mobileMenuLinks = (
     <>
       <li onClick={closeMenu}>
-        <Link href="/">{t('nav.home')}</Link>
+        <Link href="/">Home</Link>
       </li>
       <li onClick={closeMenu}>
-        <Link href="/stables">{t('nav.stables')}</Link>
+        <Link href="/stables">Stables</Link>
       </li>
       <li onClick={closeMenu}>
-        <Link href="/gallery">{t('nav.gallery')}</Link>
+        <Link href="/gallery">Gallery</Link>
       </li>
       {session ? (
         <>
           <li onClick={closeMenu}>
-            <Link href="/dashboard">{t('nav.dashboard')}</Link>
+            <Link href="/dashboard">Dashboard</Link>
           </li>
           <li onClick={closeMenu}>
-            <Link href="/profile">{t('nav.profile')}</Link>
+            <Link href="/profile">Profile</Link>
           </li>
           <li onClick={() => { closeMenu(); signOut(); }}>
-            <button>{t('nav.signOut')}</button>
+            <button>Sign Out</button>
           </li>
         </>
       ) : (
@@ -195,7 +191,7 @@ export default function Navbar() {
               setIsAuthModalOpen(true);
             }}
           >
-            <button>{t('nav.signIn')}</button>
+            <button>Sign In</button>
           </li>
           <li
             onClick={() => {
@@ -204,14 +200,10 @@ export default function Navbar() {
               setIsAuthModalOpen(true);
             }}
           >
-            <button>{t('nav.getStarted')}</button>
+            <button>Get Started</button>
           </li>
         </>
       )}
-      {/* Language Switcher in Mobile Menu */}
-      <li className="mt-4 border-t border-white/10 pt-4 flex justify-center">
-        <LanguageSwitcher />
-      </li>
     </>
   );
 
@@ -234,9 +226,6 @@ export default function Navbar() {
         <nav className="hidden md:block">
           <ul className="flex items-center gap-8">
             {desktopLinks}
-            <li>
-              <LanguageSwitcher />
-            </li>
             {desktopAuthSection}
           </ul>
         </nav>
