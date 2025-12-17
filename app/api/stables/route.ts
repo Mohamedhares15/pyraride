@@ -382,7 +382,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const sortByHorsePrice = sort === "price-asc" || sort === "price-desc";
+    const sortByHorsePrice = sort === "price-asc" || sort === "price-desc" || minPrice || maxPrice;
 
     if (sortByHorsePrice) {
       const horseEntries = stablesWithRating

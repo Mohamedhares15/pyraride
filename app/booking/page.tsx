@@ -346,7 +346,7 @@ function BookingContent() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black overflow-y-auto overflow-x-hidden md:overflow-hidden">
+    <div className="min-h-screen bg-black relative">
       {/* Background Image with Overlay */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div
@@ -363,7 +363,7 @@ function BookingContent() {
 
       {/* Content */}
       <div className="relative z-10 w-full">
-        <div className="mx-auto max-w-7xl flex flex-col px-4 py-2 md:h-full md:py-6">
+        <div className="mx-auto max-w-7xl flex flex-col px-4 py-2 md:py-6">
           {/* Header */}
           <div className="mb-4 md:mb-6 flex-shrink-0">
             <Link
@@ -380,8 +380,7 @@ function BookingContent() {
 
           <div className="flex-1 grid gap-6 md:grid-cols-12 md:gap-8">
             {/* Left Column: Horse & Date */}
-            {/* On mobile: h-auto (scrolls with page). On desktop: overflow-y-auto (independent scroll) */}
-            <div className="md:col-span-7 lg:col-span-8 flex flex-col gap-6 md:overflow-y-auto md:pr-2 md:custom-scrollbar pb-8 md:pb-0">
+            <div className="md:col-span-7 lg:col-span-8 flex flex-col gap-6 pb-8 md:pb-0">
 
 
               {/* Horse Details */}
@@ -607,13 +606,12 @@ function BookingContent() {
             </div>
 
             {/* Right Column: Summary */}
-            {/* On mobile: h-auto. On desktop: h-full (fixed height) */}
-            <div className="md:col-span-5 lg:col-span-4 flex flex-col md:h-full pb-8 md:pb-0">
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 md:p-6 backdrop-blur-md shadow-xl flex flex-col md:h-full">
+            <div className="md:col-span-5 lg:col-span-4 flex flex-col pb-8 md:pb-0">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 md:p-6 backdrop-blur-md shadow-xl flex flex-col">
                 <h2 className="mb-4 text-lg md:text-xl font-bold text-white flex-shrink-0">Booking Summary</h2>
 
-                {/* Scrollable content on desktop */}
-                <div className="flex-1 space-y-4 md:overflow-y-auto md:custom-scrollbar md:pr-2">
+                {/* Content */}
+                <div className="flex-1 space-y-4">
                   {/* Stable Info */}
                   <div>
                     <p className="text-sm text-white/70">Stable</p>
