@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sendBookingRescheduleEmail } from "@/lib/email";
+import { sendBookingRescheduleEmail, sendOwnerRescheduleNotification } from "@/lib/email";
 
 export async function POST(
   req: NextRequest,
@@ -45,7 +45,7 @@ export async function POST(
       );
     }
 
-    // Get booking with stable and horse details
+    // Get booking with stable, horse, and owner details
     const booking = await prisma.booking.findUnique({
       where: { id: params.id },
       include: {
@@ -56,13 +56,14 @@ export async function POST(
             fullName: true,
           },
         },
-        horse: { 
-          select: { 
+        horse: {
+          select: {
             id: true,
             name: true,
             isActive: true,
-            pricePerHour: true 
-          } 
+            pricePerHour: true,
+            images: true,
+          }
         },
         stable: {
           select: {
@@ -71,6 +72,12 @@ export async function POST(
             address: true,
             ownerId: true,
             commissionRate: true,
+            owner: {
+              select: {
+                email: true,
+                fullName: true,
+              }
+            },
           },
         },
       },
@@ -102,7 +109,7 @@ export async function POST(
     const isRider = booking.riderId === session.user.id;
     const isOwner = booking.stable.ownerId === session.user.id;
     const isAdmin = session.user.role === "admin";
-    
+
     if (!isRider && !isOwner && !isAdmin) {
       return NextResponse.json(
         { error: "Unauthorized to reschedule this booking" },
@@ -150,10 +157,10 @@ export async function POST(
     const hours = (newEnd.getTime() - newStart.getTime()) / (1000 * 60 * 60);
     const pricePerHour = Number(booking.horse.pricePerHour ?? 50); // Default to 50 if not set
     const newPrice = hours * pricePerHour;
-    
+
     // Get commission rate from stable (default to 0.15 if not set)
-    const commissionRate = booking.stable.commissionRate 
-      ? Number(booking.stable.commissionRate) 
+    const commissionRate = booking.stable.commissionRate
+      ? Number(booking.stable.commissionRate)
       : 0.15; // Default 15%
     const newCommission = newPrice * commissionRate;
 
@@ -179,8 +186,14 @@ export async function POST(
       },
     });
 
-    // Send email notification to rider if rescheduled by owner or admin
-    if ((rescheduledBy === "owner" || rescheduledBy === "admin") && booking.rider.email) {
+    // Format times for emails
+    const oldStartTimeStr = new Date(booking.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    const oldEndTimeStr = new Date(booking.endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    const newStartTimeStr = newStart.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    const newEndTimeStr = newEnd.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+
+    // Send email to RIDER
+    if (booking.rider.email) {
       try {
         await sendBookingRescheduleEmail({
           bookingId: booking.id,
@@ -188,17 +201,39 @@ export async function POST(
           riderEmail: booking.rider.email,
           stableName: booking.stable.name,
           horseName: booking.horse.name,
+          horseImage: booking.horse.images?.[0],
           oldDate: booking.startTime.toISOString(),
-          oldStartTime: new Date(booking.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-          oldEndTime: new Date(booking.endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+          oldStartTime: oldStartTimeStr,
+          oldEndTime: oldEndTimeStr,
           newDate: newStart.toISOString(),
-          newStartTime: newStart.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-          newEndTime: newEnd.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+          newStartTime: newStartTimeStr,
+          newEndTime: newEndTimeStr,
           rescheduledBy: rescheduledBy as "rider" | "owner" | "admin",
         });
       } catch (emailError) {
-        console.error("Failed to send reschedule email:", emailError);
-        // Don't fail the reschedule if email fails
+        console.error("Failed to send rider reschedule email:", emailError);
+      }
+    }
+
+    // Send email to OWNER
+    if (booking.stable.owner?.email) {
+      try {
+        await sendOwnerRescheduleNotification({
+          ownerEmail: booking.stable.owner.email,
+          riderName: booking.rider.fullName || "Valued Customer",
+          riderEmail: booking.rider.email,
+          horseName: booking.horse.name,
+          horseImage: booking.horse.images?.[0],
+          oldDate: booking.startTime.toISOString(),
+          oldStartTime: oldStartTimeStr,
+          oldEndTime: oldEndTimeStr,
+          newDate: newStart.toISOString(),
+          newStartTime: newStartTimeStr,
+          newEndTime: newEndTimeStr,
+          rescheduledBy: rescheduledBy as "rider" | "owner" | "admin",
+        });
+      } catch (emailError) {
+        console.error("Failed to send owner reschedule email:", emailError);
       }
     }
 
@@ -214,4 +249,3 @@ export async function POST(
     );
   }
 }
-

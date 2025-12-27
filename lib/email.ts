@@ -9,68 +9,68 @@ const LOGO_URL = "https://www.pyrarides.com/logo.png";
 const HERO_BG_URL = "https://www.pyrarides.com/hero-bg.webp";
 
 interface BookingEmailData {
-    bookingId: string;
-    riderName: string;
-    riderEmail: string;
-    stableName: string;
-    stableAddress: string;
-    horseName: string;
-    horseImage?: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    totalPrice: number;
-    riders: number;
+  bookingId: string;
+  riderName: string;
+  riderEmail: string;
+  stableName: string;
+  stableAddress: string;
+  horseName: string;
+  horseImage?: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  totalPrice: number;
+  riders: number;
 }
 
 // Create reusable transporter
 function createTransporter() {
-    if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-        console.warn("Email configuration not set. Emails will not be sent.");
-        return null;
-    }
+  if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    console.warn("Email configuration not set. Emails will not be sent.");
+    return null;
+  }
 
-    return nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: parseInt(process.env.EMAIL_PORT || "587"),
-        secure: false,
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASSWORD,
-        },
-    });
+  return nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: parseInt(process.env.EMAIL_PORT || "587"),
+    secure: false,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
 }
 
 // ============================================================================
 // MASTER EMAIL TEMPLATE - Matches Tinker Watches Minimal Dark Style
 // ============================================================================
 function generateEmailTemplate({
-    headline,
-    subheadline,
-    imageUrl,
-    imageAlt,
-    bodyTitle,
-    bodyText,
-    details,
-    ctaText,
-    ctaUrl,
-    footerNote,
+  headline,
+  subheadline,
+  imageUrl,
+  imageAlt,
+  bodyTitle,
+  bodyText,
+  details,
+  ctaText,
+  ctaUrl,
+  footerNote,
 }: {
-    headline: string;
-    subheadline?: string;
-    imageUrl?: string;
-    imageAlt?: string;
-    bodyTitle: string;
-    bodyText: string;
-    details?: { label: string; value: string }[];
-    ctaText?: string;
-    ctaUrl?: string;
-    footerNote?: string;
+  headline: string;
+  subheadline?: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  bodyTitle: string;
+  bodyText: string;
+  details?: { label: string; value: string }[];
+  ctaText?: string;
+  ctaUrl?: string;
+  footerNote?: string;
 }): string {
-    const detailsHtml = details
-        ? details
-            .map(
-                (d) => `
+  const detailsHtml = details
+    ? details
+      .map(
+        (d) => `
         <tr>
           <td style="padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
             <span style="color:rgba(255,255,255,0.5); font-size:12px; text-transform:uppercase; letter-spacing:0.1em;">${d.label}</span><br>
@@ -78,11 +78,11 @@ function generateEmailTemplate({
           </td>
         </tr>
       `
-            )
-            .join("")
-        : "";
+      )
+      .join("")
+    : "";
 
-    return `
+  return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -126,7 +126,7 @@ function generateEmailTemplate({
           </tr>
           
           ${imageUrl
-            ? `
+      ? `
           <!-- Hero Image -->
           <tr>
             <td style="padding:0 40px 40px;">
@@ -134,8 +134,8 @@ function generateEmailTemplate({
             </td>
           </tr>
           `
-            : ""
-        }
+      : ""
+    }
           
           <!-- Body Content -->
           <tr>
@@ -150,7 +150,7 @@ function generateEmailTemplate({
           </tr>
           
           ${details && details.length > 0
-            ? `
+      ? `
           <!-- Details Section -->
           <tr>
             <td style="padding:0 40px 40px;">
@@ -160,11 +160,11 @@ function generateEmailTemplate({
             </td>
           </tr>
           `
-            : ""
-        }
+      : ""
+    }
           
           ${ctaText && ctaUrl
-            ? `
+      ? `
           <!-- CTA Button -->
           <tr>
             <td align="center" style="padding:0 40px 60px;">
@@ -174,8 +174,8 @@ function generateEmailTemplate({
             </td>
           </tr>
           `
-            : ""
-        }
+      : ""
+    }
           
           <!-- Social Icons -->
           <tr>
@@ -206,9 +206,9 @@ function generateEmailTemplate({
                 You're receiving this because you booked a ride on pyrarides.com
               </p>
               ${footerNote
-            ? `<p style="margin:0; font-family:'Inter', sans-serif; font-size:11px; color:rgba(255,255,255,0.3); text-align:center;">${footerNote}</p>`
-            : ""
-        }
+      ? `<p style="margin:0; font-family:'Inter', sans-serif; font-size:11px; color:rgba(255,255,255,0.3); text-align:center;">${footerNote}</p>`
+      : ""
+    }
               <p style="margin:16px 0 0; font-family:'Inter', sans-serif; font-size:11px; text-align:center;">
                 <a href="mailto:support@pyrarides.com" style="color:rgba(255,255,255,0.5); text-decoration:underline;">Contact Support</a>
               </p>
@@ -229,425 +229,565 @@ function generateEmailTemplate({
 // BOOKING CONFIRMATION EMAIL (Rider)
 // ============================================================================
 function generateBookingConfirmationEmail(data: BookingEmailData): string {
-    const directionsLink = data.stableAddress
-        ? `https://maps.google.com/?daddr=${encodeURIComponent(data.stableAddress)}`
-        : "";
+  const directionsLink = data.stableAddress
+    ? `https://maps.google.com/?daddr=${encodeURIComponent(data.stableAddress)}`
+    : "";
 
-    return generateEmailTemplate({
-        headline: "Your Ride\nAwaits.",
-        subheadline: "Booking Confirmed",
-        imageUrl: data.horseImage || HERO_BG_URL,
-        imageAlt: data.horseName,
-        bodyTitle: "Booking Confirmed",
-        bodyText: `Get ready for an unforgettable adventure at the Giza Pyramids. Your trusted horse ${data.horseName} is waiting for you at ${data.stableName}.`,
-        details: [
-            { label: "Horse", value: data.horseName },
-            { label: "Stable", value: data.stableName },
-            { label: "Date", value: new Date(data.date).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }) },
-            { label: "Time", value: `${data.startTime} - ${data.endTime}` },
-            { label: "Meeting Point", value: data.stableAddress },
-            { label: "Total", value: `EGP ${data.totalPrice.toFixed(0)}` },
-        ],
-        ctaText: "Get Directions",
-        ctaUrl: directionsLink || "https://www.pyrarides.com",
-        footerNote: "Payment is collected on arrival.",
-    });
+  return generateEmailTemplate({
+    headline: "Your Ride\nAwaits.",
+    subheadline: "Booking Confirmed",
+    imageUrl: data.horseImage || HERO_BG_URL,
+    imageAlt: data.horseName,
+    bodyTitle: "Booking Confirmed",
+    bodyText: `Get ready for an unforgettable adventure at the Giza Pyramids. Your trusted horse ${data.horseName} is waiting for you at ${data.stableName}.`,
+    details: [
+      { label: "Horse", value: data.horseName },
+      { label: "Stable", value: data.stableName },
+      { label: "Date", value: new Date(data.date).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }) },
+      { label: "Time", value: `${data.startTime} - ${data.endTime}` },
+      { label: "Meeting Point", value: data.stableAddress },
+      { label: "Total", value: `EGP ${data.totalPrice.toFixed(0)}` },
+    ],
+    ctaText: "Get Directions",
+    ctaUrl: directionsLink || "https://www.pyrarides.com",
+    footerNote: "Payment is collected on arrival.",
+  });
 }
 
 // Send booking confirmation email
 export async function sendBookingConfirmationEmail(data: BookingEmailData): Promise<boolean> {
-    try {
-        const transporter = createTransporter();
+  try {
+    const transporter = createTransporter();
 
-        if (!transporter) {
-            console.warn("Email transporter not configured. Skipping email send.");
-            return false;
-        }
-
-        const mailOptions = {
-            from: `"PyraRide" <${process.env.EMAIL_USER}>`,
-            to: data.riderEmail,
-            subject: `🐴 Booking Confirmed - ${data.horseName} at ${data.stableName}`,
-            html: generateBookingConfirmationEmail(data),
-            text: `Booking Confirmed!\n\nYour booking at ${data.stableName} has been confirmed.\n\nHorse: ${data.horseName}\nDate: ${data.date}\nTime: ${data.startTime} - ${data.endTime}\nTotal: EGP ${data.totalPrice.toFixed(0)}\n\nThank you for choosing PyraRide!`,
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        console.log("Booking confirmation email sent:", info.messageId);
-        return true;
-    } catch (error) {
-        console.error("Error sending booking confirmation email:", error);
-        return false;
+    if (!transporter) {
+      console.warn("Email transporter not configured. Skipping email send.");
+      return false;
     }
+
+    const mailOptions = {
+      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      to: data.riderEmail,
+      subject: `🐴 Booking Confirmed - ${data.horseName} at ${data.stableName}`,
+      html: generateBookingConfirmationEmail(data),
+      text: `Booking Confirmed!\n\nYour booking at ${data.stableName} has been confirmed.\n\nHorse: ${data.horseName}\nDate: ${data.date}\nTime: ${data.startTime} - ${data.endTime}\nTotal: EGP ${data.totalPrice.toFixed(0)}\n\nThank you for choosing PyraRide!`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Booking confirmation email sent:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending booking confirmation email:", error);
+    return false;
+  }
 }
 
 // ============================================================================
 // PASSWORD RESET EMAIL
 // ============================================================================
 interface PasswordResetEmailData {
-    email: string;
-    fullName: string;
-    resetLink: string;
+  email: string;
+  fullName: string;
+  resetLink: string;
 }
 
 function generatePasswordResetEmail(data: PasswordResetEmailData): string {
-    return generateEmailTemplate({
-        headline: "Reset Your\nPassword.",
-        subheadline: "Security Update",
-        bodyTitle: "Password Reset Requested",
-        bodyText: `Hi ${data.fullName}, we received a request to reset your password. Click the button below to choose a new password. This link will expire in 60 minutes for security reasons.`,
-        ctaText: "Reset Password",
-        ctaUrl: data.resetLink,
-        footerNote: "If you didn't request this, you can safely ignore this email.",
-    });
+  return generateEmailTemplate({
+    headline: "Reset Your\nPassword.",
+    subheadline: "Security Update",
+    bodyTitle: "Password Reset Requested",
+    bodyText: `Hi ${data.fullName}, we received a request to reset your password. Click the button below to choose a new password. This link will expire in 60 minutes for security reasons.`,
+    ctaText: "Reset Password",
+    ctaUrl: data.resetLink,
+    footerNote: "If you didn't request this, you can safely ignore this email.",
+  });
 }
 
 export async function sendPasswordResetEmail(data: PasswordResetEmailData): Promise<boolean> {
-    try {
-        const transporter = createTransporter();
+  try {
+    const transporter = createTransporter();
 
-        if (!transporter) {
-            console.warn("Email transporter not configured. Skipping email send.");
-            return false;
-        }
-
-        const mailOptions = {
-            from: `"PyraRide" <${process.env.EMAIL_USER}>`,
-            to: data.email,
-            subject: "Reset your PyraRide password",
-            html: generatePasswordResetEmail(data),
-            text: `Hi ${data.fullName},\n\nWe received a request to reset your PyraRide password.\nClick the link below to set a new password (valid for 60 minutes):\n\n${data.resetLink}\n\nIf you didn't request this, you can ignore this email.\n\n— The PyraRide Team`,
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        console.log("Password reset email sent:", info.messageId);
-        return true;
-    } catch (error) {
-        console.error("Error sending password reset email:", error);
-        return false;
+    if (!transporter) {
+      console.warn("Email transporter not configured. Skipping email send.");
+      return false;
     }
+
+    const mailOptions = {
+      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      to: data.email,
+      subject: "Reset your PyraRide password",
+      html: generatePasswordResetEmail(data),
+      text: `Hi ${data.fullName},\n\nWe received a request to reset your PyraRide password.\nClick the link below to set a new password (valid for 60 minutes):\n\n${data.resetLink}\n\nIf you didn't request this, you can ignore this email.\n\n— The PyraRide Team`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Password reset email sent:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    return false;
+  }
 }
 
 // ============================================================================
 // BOOKING CANCELLATION EMAIL (Rider)
 // ============================================================================
 interface BookingCancellationEmailData {
-    bookingId: string;
-    riderName: string;
-    riderEmail: string;
-    stableName: string;
-    horseName: string;
-    horseImage?: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    cancellationReason?: string;
-    cancelledBy: "rider" | "owner" | "admin";
+  bookingId: string;
+  riderName: string;
+  riderEmail: string;
+  stableName: string;
+  horseName: string;
+  horseImage?: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  cancellationReason?: string;
+  cancelledBy: "rider" | "owner" | "admin";
 }
 
 function generateBookingCancellationEmail(data: BookingCancellationEmailData): string {
-    const isOwnerCancelled = data.cancelledBy === "owner";
+  const isOwnerCancelled = data.cancelledBy === "owner";
 
-    return generateEmailTemplate({
-        headline: "Booking\nCancelled.",
-        subheadline: isOwnerCancelled ? "Cancelled by Stable" : "Cancellation Confirmed",
-        imageUrl: data.horseImage || HERO_BG_URL,
-        imageAlt: data.horseName,
-        bodyTitle: isOwnerCancelled ? "The stable owner has cancelled your booking" : "Your booking has been cancelled",
-        bodyText: isOwnerCancelled
-            ? `We're sorry, but the stable owner has cancelled your booking for ${data.horseName}. ${data.cancellationReason ? `Reason: ${data.cancellationReason}` : ""} A full refund will be processed automatically if you made a payment.`
-            : `Your booking for ${data.horseName} at ${data.stableName} has been cancelled. We hope to see you on another adventure soon!`,
-        details: [
-            { label: "Horse", value: data.horseName },
-            { label: "Stable", value: data.stableName },
-            { label: "Original Date", value: new Date(data.date).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) },
-            { label: "Original Time", value: `${data.startTime} - ${data.endTime}` },
-        ],
-        ctaText: "Book Another Ride",
-        ctaUrl: "https://www.pyrarides.com/stables",
-        footerNote: isOwnerCancelled ? "Refunds take 5-7 business days to process." : undefined,
-    });
+  return generateEmailTemplate({
+    headline: "Booking\nCancelled.",
+    subheadline: isOwnerCancelled ? "Cancelled by Stable" : "Cancellation Confirmed",
+    imageUrl: data.horseImage || HERO_BG_URL,
+    imageAlt: data.horseName,
+    bodyTitle: isOwnerCancelled ? "The stable owner has cancelled your booking" : "Your booking has been cancelled",
+    bodyText: isOwnerCancelled
+      ? `We're sorry, but the stable owner has cancelled your booking for ${data.horseName}. ${data.cancellationReason ? `Reason: ${data.cancellationReason}` : ""} A full refund will be processed automatically if you made a payment.`
+      : `Your booking for ${data.horseName} at ${data.stableName} has been cancelled. We hope to see you on another adventure soon!`,
+    details: [
+      { label: "Horse", value: data.horseName },
+      { label: "Stable", value: data.stableName },
+      { label: "Original Date", value: new Date(data.date).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) },
+      { label: "Original Time", value: `${data.startTime} - ${data.endTime}` },
+    ],
+    ctaText: "Book Another Ride",
+    ctaUrl: "https://www.pyrarides.com/stables",
+    footerNote: isOwnerCancelled ? "Refunds take 5-7 business days to process." : undefined,
+  });
 }
 
 export async function sendBookingCancellationEmail(data: BookingCancellationEmailData): Promise<boolean> {
-    try {
-        const transporter = createTransporter();
-        if (!transporter) {
-            console.warn("Email transporter not configured. Skipping email send.");
-            return false;
-        }
-
-        const mailOptions = {
-            from: `"PyraRide" <${process.env.EMAIL_USER}>`,
-            to: data.riderEmail,
-            subject: data.cancelledBy === "owner" ? `⚠️ Booking Cancelled by Stable - ${data.stableName}` : `Booking Cancelled - ${data.stableName}`,
-            html: generateBookingCancellationEmail(data),
-            text: `${data.cancelledBy === "owner" ? "The stable owner has cancelled your booking" : "Your booking has been cancelled"} at ${data.stableName}.\n\nHorse: ${data.horseName}\nDate: ${data.date}\nTime: ${data.startTime} - ${data.endTime}`,
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        console.log("Cancellation email sent:", info.messageId);
-        return true;
-    } catch (error) {
-        console.error("Error sending cancellation email:", error);
-        return false;
+  try {
+    const transporter = createTransporter();
+    if (!transporter) {
+      console.warn("Email transporter not configured. Skipping email send.");
+      return false;
     }
+
+    const mailOptions = {
+      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      to: data.riderEmail,
+      subject: data.cancelledBy === "owner" ? `⚠️ Booking Cancelled by Stable - ${data.stableName}` : `Booking Cancelled - ${data.stableName}`,
+      html: generateBookingCancellationEmail(data),
+      text: `${data.cancelledBy === "owner" ? "The stable owner has cancelled your booking" : "Your booking has been cancelled"} at ${data.stableName}.\n\nHorse: ${data.horseName}\nDate: ${data.date}\nTime: ${data.startTime} - ${data.endTime}`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Cancellation email sent:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending cancellation email:", error);
+    return false;
+  }
 }
 
 // ============================================================================
 // BOOKING RESCHEDULE EMAIL (Rider)
 // ============================================================================
 interface BookingRescheduleEmailData {
-    bookingId: string;
-    riderName: string;
-    riderEmail: string;
-    stableName: string;
-    horseName: string;
-    horseImage?: string;
-    oldDate: string;
-    oldStartTime: string;
-    oldEndTime: string;
-    newDate: string;
-    newStartTime: string;
-    newEndTime: string;
-    rescheduledBy: "rider" | "owner" | "admin";
+  bookingId: string;
+  riderName: string;
+  riderEmail: string;
+  stableName: string;
+  horseName: string;
+  horseImage?: string;
+  oldDate: string;
+  oldStartTime: string;
+  oldEndTime: string;
+  newDate: string;
+  newStartTime: string;
+  newEndTime: string;
+  rescheduledBy: "rider" | "owner" | "admin";
 }
 
 function generateBookingRescheduleEmail(data: BookingRescheduleEmailData): string {
-    const isOwnerRescheduled = data.rescheduledBy === "owner";
+  const isOwnerRescheduled = data.rescheduledBy === "owner";
 
-    return generateEmailTemplate({
-        headline: "New Time\nConfirmed.",
-        subheadline: isOwnerRescheduled ? "Rescheduled by Stable" : "Booking Rescheduled",
-        imageUrl: data.horseImage || HERO_BG_URL,
-        imageAlt: data.horseName,
-        bodyTitle: isOwnerRescheduled ? "The stable has rescheduled your booking" : "Your booking has been rescheduled",
-        bodyText: `Your ride with ${data.horseName} has been moved to a new time. Please note the updated schedule below.`,
-        details: [
-            { label: "Horse", value: data.horseName },
-            { label: "Stable", value: data.stableName },
-            { label: "New Date", value: new Date(data.newDate).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) },
-            { label: "New Time", value: `${data.newStartTime} - ${data.newEndTime}` },
-            { label: "Previous Date", value: new Date(data.oldDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) },
-            { label: "Previous Time", value: `${data.oldStartTime} - ${data.oldEndTime}` },
-        ],
-        ctaText: "View My Bookings",
-        ctaUrl: "https://www.pyrarides.com/dashboard/rider",
-    });
+  return generateEmailTemplate({
+    headline: "New Time\nConfirmed.",
+    subheadline: isOwnerRescheduled ? "Rescheduled by Stable" : "Booking Rescheduled",
+    imageUrl: data.horseImage || HERO_BG_URL,
+    imageAlt: data.horseName,
+    bodyTitle: isOwnerRescheduled ? "The stable has rescheduled your booking" : "Your booking has been rescheduled",
+    bodyText: `Your ride with ${data.horseName} has been moved to a new time. Please note the updated schedule below.`,
+    details: [
+      { label: "Horse", value: data.horseName },
+      { label: "Stable", value: data.stableName },
+      { label: "New Date", value: new Date(data.newDate).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) },
+      { label: "New Time", value: `${data.newStartTime} - ${data.newEndTime}` },
+      { label: "Previous Date", value: new Date(data.oldDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) },
+      { label: "Previous Time", value: `${data.oldStartTime} - ${data.oldEndTime}` },
+    ],
+    ctaText: "View My Bookings",
+    ctaUrl: "https://www.pyrarides.com/dashboard/rider",
+  });
 }
 
 export async function sendBookingRescheduleEmail(data: BookingRescheduleEmailData): Promise<boolean> {
-    try {
-        const transporter = createTransporter();
-        if (!transporter) {
-            console.warn("Email transporter not configured. Skipping email send.");
-            return false;
-        }
-
-        const mailOptions = {
-            from: `"PyraRide" <${process.env.EMAIL_USER}>`,
-            to: data.riderEmail,
-            subject: data.rescheduledBy === "owner" ? `🔄 Booking Rescheduled by Stable - ${data.stableName}` : `Booking Rescheduled - ${data.stableName}`,
-            html: generateBookingRescheduleEmail(data),
-            text: `Your booking has been rescheduled.\n\nNew Date: ${data.newDate}\nNew Time: ${data.newStartTime} - ${data.newEndTime}\nHorse: ${data.horseName}`,
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        console.log("Reschedule email sent:", info.messageId);
-        return true;
-    } catch (error) {
-        console.error("Error sending reschedule email:", error);
-        return false;
+  try {
+    const transporter = createTransporter();
+    if (!transporter) {
+      console.warn("Email transporter not configured. Skipping email send.");
+      return false;
     }
+
+    const mailOptions = {
+      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      to: data.riderEmail,
+      subject: data.rescheduledBy === "owner" ? `🔄 Booking Rescheduled by Stable - ${data.stableName}` : `Booking Rescheduled - ${data.stableName}`,
+      html: generateBookingRescheduleEmail(data),
+      text: `Your booking has been rescheduled.\n\nNew Date: ${data.newDate}\nNew Time: ${data.newStartTime} - ${data.newEndTime}\nHorse: ${data.horseName}`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Reschedule email sent:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending reschedule email:", error);
+    return false;
+  }
 }
 
 // ============================================================================
 // OWNER BOOKING NOTIFICATION EMAIL
 // ============================================================================
 interface OwnerBookingNotificationData {
-    ownerEmail: string;
-    riderName: string;
-    riderEmail: string;
-    riderPhone?: string;
-    horseName: string;
-    horseImage?: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    totalPrice: number;
-    bookingId: string;
+  ownerEmail: string;
+  riderName: string;
+  riderEmail: string;
+  riderPhone?: string;
+  horseName: string;
+  horseImage?: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  totalPrice: number;
+  bookingId: string;
 }
 
 function generateOwnerBookingNotificationEmail(data: OwnerBookingNotificationData): string {
-    return generateEmailTemplate({
-        headline: "New Booking\nReceived.",
-        subheadline: "Stable Owner Alert",
-        imageUrl: data.horseImage || HERO_BG_URL,
-        imageAlt: data.horseName,
-        bodyTitle: `${data.riderName} has booked a ride`,
-        bodyText: `Great news! A new rider has booked ${data.horseName} for an adventure at the Pyramids. Here are the details.`,
-        details: [
-            { label: "Rider Name", value: data.riderName },
-            { label: "Rider Email", value: data.riderEmail },
-            { label: "Rider Phone", value: data.riderPhone || "Not provided" },
-            { label: "Horse", value: data.horseName },
-            { label: "Date", value: new Date(data.date).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) },
-            { label: "Time", value: `${data.startTime} - ${data.endTime}` },
-            { label: "Earnings", value: `EGP ${data.totalPrice.toFixed(0)}` },
-        ],
-        ctaText: "Open Dashboard",
-        ctaUrl: `${process.env.NEXTAUTH_URL || "https://www.pyrarides.com"}/dashboard/stable`,
-    });
+  return generateEmailTemplate({
+    headline: "New Booking\nReceived.",
+    subheadline: "Stable Owner Alert",
+    imageUrl: data.horseImage || HERO_BG_URL,
+    imageAlt: data.horseName,
+    bodyTitle: `${data.riderName} has booked a ride`,
+    bodyText: `Great news! A new rider has booked ${data.horseName} for an adventure at the Pyramids. Here are the details.`,
+    details: [
+      { label: "Rider Name", value: data.riderName },
+      { label: "Rider Email", value: data.riderEmail },
+      { label: "Rider Phone", value: data.riderPhone || "Not provided" },
+      { label: "Horse", value: data.horseName },
+      { label: "Date", value: new Date(data.date).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) },
+      { label: "Time", value: `${data.startTime} - ${data.endTime}` },
+      { label: "Earnings", value: `EGP ${data.totalPrice.toFixed(0)}` },
+    ],
+    ctaText: "Open Dashboard",
+    ctaUrl: `${process.env.NEXTAUTH_URL || "https://www.pyrarides.com"}/dashboard/stable`,
+  });
 }
 
 export async function sendOwnerBookingNotification(data: OwnerBookingNotificationData): Promise<boolean> {
-    const subject = `🐴 New Booking: ${data.horseName} - ${new Date(data.date).toLocaleDateString()}`;
-    const html = generateOwnerBookingNotificationEmail(data);
-    const text = `New Booking Received!\n\nHorse: ${data.horseName}\nRider: ${data.riderName}\nDate: ${data.date}\nTime: ${data.startTime} - ${data.endTime}\nTotal: EGP ${data.totalPrice}`;
+  const subject = `🐴 New Booking: ${data.horseName} - ${new Date(data.date).toLocaleDateString()}`;
+  const html = generateOwnerBookingNotificationEmail(data);
+  const text = `New Booking Received!\n\nHorse: ${data.horseName}\nRider: ${data.riderName}\nDate: ${data.date}\nTime: ${data.startTime} - ${data.endTime}\nTotal: EGP ${data.totalPrice}`;
 
-    // Try Resend first
-    if (resend) {
-        try {
-            const { data: result, error } = await resend.emails.send({
-                from: "PyraRides <pyrarides@pyrarides.com>",
-                to: data.ownerEmail,
-                subject,
-                html,
-                text,
-            });
-
-            if (error) {
-                console.error("Resend error:", error);
-            } else {
-                console.log("Owner notification sent via Resend:", result?.id);
-                return true;
-            }
-        } catch (resendError) {
-            console.error("Resend failed, trying nodemailer:", resendError);
-        }
-    }
-
-    // Fallback to nodemailer
+  // Try Resend first
+  if (resend) {
     try {
-        const transporter = createTransporter();
-        if (!transporter) {
-            console.warn("Email transporter not configured. Skipping email send.");
-            return false;
-        }
+      const { data: result, error } = await resend.emails.send({
+        from: "PyraRides <pyrarides@pyrarides.com>",
+        to: data.ownerEmail,
+        subject,
+        html,
+        text,
+      });
 
-        const info = await transporter.sendMail({
-            from: `"PyraRide" <${process.env.EMAIL_USER}>`,
-            to: data.ownerEmail,
-            subject,
-            html,
-            text,
-        });
-
-        console.log("Owner notification sent via Nodemailer:", info.messageId);
+      if (error) {
+        console.error("Resend error:", error);
+      } else {
+        console.log("Owner notification sent via Resend:", result?.id);
         return true;
-    } catch (error) {
-        console.error("Error sending owner notification:", error);
-        return false;
+      }
+    } catch (resendError) {
+      console.error("Resend failed, trying nodemailer:", resendError);
     }
+  }
+
+  // Fallback to nodemailer
+  try {
+    const transporter = createTransporter();
+    if (!transporter) {
+      console.warn("Email transporter not configured. Skipping email send.");
+      return false;
+    }
+
+    const info = await transporter.sendMail({
+      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      to: data.ownerEmail,
+      subject,
+      html,
+      text,
+    });
+
+    console.log("Owner notification sent via Nodemailer:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending owner notification:", error);
+    return false;
+  }
+}
+
+// ============================================================================
+// OWNER CANCELLATION NOTIFICATION EMAIL
+// ============================================================================
+interface OwnerCancellationNotificationData {
+  ownerEmail: string;
+  riderName: string;
+  riderEmail: string;
+  horseName: string;
+  horseImage?: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  cancellationReason?: string;
+  cancelledBy: "rider" | "owner" | "admin";
+}
+
+function generateOwnerCancellationEmail(data: OwnerCancellationNotificationData): string {
+  const isRiderCancelled = data.cancelledBy === "rider";
+
+  return generateEmailTemplate({
+    headline: "Booking\nCancelled.",
+    subheadline: isRiderCancelled ? "Cancelled by Rider" : "Cancellation Confirmed",
+    imageUrl: data.horseImage || HERO_BG_URL,
+    imageAlt: data.horseName,
+    bodyTitle: isRiderCancelled ? `${data.riderName} has cancelled their booking` : "You have cancelled this booking",
+    bodyText: isRiderCancelled
+      ? `The rider has cancelled their booking for ${data.horseName}. The time slot is now available for other riders.`
+      : `You have successfully cancelled the booking for ${data.horseName}. ${data.cancellationReason ? `Reason: ${data.cancellationReason}` : ""}`,
+    details: [
+      { label: "Rider Name", value: data.riderName },
+      { label: "Rider Email", value: data.riderEmail },
+      { label: "Horse", value: data.horseName },
+      { label: "Original Date", value: new Date(data.date).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) },
+      { label: "Original Time", value: `${data.startTime} - ${data.endTime}` },
+    ],
+    ctaText: "Open Dashboard",
+    ctaUrl: `${process.env.NEXTAUTH_URL || "https://www.pyrarides.com"}/dashboard/stable`,
+  });
+}
+
+export async function sendOwnerCancellationNotification(data: OwnerCancellationNotificationData): Promise<boolean> {
+  try {
+    const transporter = createTransporter();
+    if (!transporter) {
+      console.warn("Email transporter not configured. Skipping email send.");
+      return false;
+    }
+
+    const isRiderCancelled = data.cancelledBy === "rider";
+    const mailOptions = {
+      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      to: data.ownerEmail,
+      subject: isRiderCancelled
+        ? `❌ Booking Cancelled by Rider - ${data.horseName}`
+        : `✓ Cancellation Confirmed - ${data.horseName}`,
+      html: generateOwnerCancellationEmail(data),
+      text: `Booking Cancelled\n\nHorse: ${data.horseName}\nRider: ${data.riderName}\nDate: ${data.date}\nTime: ${data.startTime} - ${data.endTime}\nCancelled by: ${data.cancelledBy}`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Owner cancellation notification sent:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending owner cancellation notification:", error);
+    return false;
+  }
+}
+
+// ============================================================================
+// OWNER RESCHEDULE NOTIFICATION EMAIL
+// ============================================================================
+interface OwnerRescheduleNotificationData {
+  ownerEmail: string;
+  riderName: string;
+  riderEmail: string;
+  horseName: string;
+  horseImage?: string;
+  oldDate: string;
+  oldStartTime: string;
+  oldEndTime: string;
+  newDate: string;
+  newStartTime: string;
+  newEndTime: string;
+  rescheduledBy: "rider" | "owner" | "admin";
+}
+
+function generateOwnerRescheduleEmail(data: OwnerRescheduleNotificationData): string {
+  const isRiderRescheduled = data.rescheduledBy === "rider";
+
+  return generateEmailTemplate({
+    headline: "Booking\nRescheduled.",
+    subheadline: isRiderRescheduled ? "Rescheduled by Rider" : "Reschedule Confirmed",
+    imageUrl: data.horseImage || HERO_BG_URL,
+    imageAlt: data.horseName,
+    bodyTitle: isRiderRescheduled ? `${data.riderName} has rescheduled their booking` : "You have rescheduled this booking",
+    bodyText: isRiderRescheduled
+      ? `The rider has moved their booking for ${data.horseName} to a new time. Please note the updated schedule below.`
+      : `You have successfully rescheduled the booking for ${data.horseName}. The rider has been notified.`,
+    details: [
+      { label: "Rider Name", value: data.riderName },
+      { label: "Rider Email", value: data.riderEmail },
+      { label: "Horse", value: data.horseName },
+      { label: "New Date", value: new Date(data.newDate).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) },
+      { label: "New Time", value: `${data.newStartTime} - ${data.newEndTime}` },
+      { label: "Previous Date", value: new Date(data.oldDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) },
+      { label: "Previous Time", value: `${data.oldStartTime} - ${data.oldEndTime}` },
+    ],
+    ctaText: "Open Dashboard",
+    ctaUrl: `${process.env.NEXTAUTH_URL || "https://www.pyrarides.com"}/dashboard/stable`,
+  });
+}
+
+export async function sendOwnerRescheduleNotification(data: OwnerRescheduleNotificationData): Promise<boolean> {
+  try {
+    const transporter = createTransporter();
+    if (!transporter) {
+      console.warn("Email transporter not configured. Skipping email send.");
+      return false;
+    }
+
+    const isRiderRescheduled = data.rescheduledBy === "rider";
+    const mailOptions = {
+      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      to: data.ownerEmail,
+      subject: isRiderRescheduled
+        ? `🔄 Booking Rescheduled by Rider - ${data.horseName}`
+        : `✓ Reschedule Confirmed - ${data.horseName}`,
+      html: generateOwnerRescheduleEmail(data),
+      text: `Booking Rescheduled\n\nHorse: ${data.horseName}\nRider: ${data.riderName}\nNew Date: ${data.newDate}\nNew Time: ${data.newStartTime} - ${data.newEndTime}\nRescheduled by: ${data.rescheduledBy}`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Owner reschedule notification sent:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending owner reschedule notification:", error);
+    return false;
+  }
 }
 
 // ============================================================================
 // BOOKING REMINDER EMAIL (5 hours before ride)
 // ============================================================================
 interface BookingReminderEmailData {
-    riderName: string;
-    riderEmail: string;
-    stableName: string;
-    stableAddress: string;
-    horseName: string;
-    horseImage?: string;
-    date: string;
-    startTime: string;
-    endTime: string;
+  riderName: string;
+  riderEmail: string;
+  stableName: string;
+  stableAddress: string;
+  horseName: string;
+  horseImage?: string;
+  date: string;
+  startTime: string;
+  endTime: string;
 }
 
 function generateBookingReminderEmail(data: BookingReminderEmailData): string {
-    const directionsLink = data.stableAddress
-        ? `https://maps.google.com/?daddr=${encodeURIComponent(data.stableAddress)}`
-        : "";
+  const directionsLink = data.stableAddress
+    ? `https://maps.google.com/?daddr=${encodeURIComponent(data.stableAddress)}`
+    : "";
 
-    return generateEmailTemplate({
-        headline: "Your Ride Is\nToday.",
-        subheadline: "Reminder",
-        imageUrl: data.horseImage || HERO_BG_URL,
-        imageAlt: data.horseName,
-        bodyTitle: `${data.horseName} is waiting for you!`,
-        bodyText: `Hi ${data.riderName}, just a friendly reminder that your adventure at the Giza Pyramids is happening today. Please arrive 15 minutes early.`,
-        details: [
-            { label: "Horse", value: data.horseName },
-            { label: "Stable", value: data.stableName },
-            { label: "Time", value: `${data.startTime} - ${data.endTime}` },
-            { label: "Meeting Point", value: data.stableAddress },
-        ],
-        ctaText: "Get Directions",
-        ctaUrl: directionsLink || "https://www.pyrarides.com",
-        footerNote: "Bring sunscreen, comfortable shoes, and your sense of adventure!",
-    });
+  return generateEmailTemplate({
+    headline: "Your Ride Is\nToday.",
+    subheadline: "Reminder",
+    imageUrl: data.horseImage || HERO_BG_URL,
+    imageAlt: data.horseName,
+    bodyTitle: `${data.horseName} is waiting for you!`,
+    bodyText: `Hi ${data.riderName}, just a friendly reminder that your adventure at the Giza Pyramids is happening today. Please arrive 15 minutes early.`,
+    details: [
+      { label: "Horse", value: data.horseName },
+      { label: "Stable", value: data.stableName },
+      { label: "Time", value: `${data.startTime} - ${data.endTime}` },
+      { label: "Meeting Point", value: data.stableAddress },
+    ],
+    ctaText: "Get Directions",
+    ctaUrl: directionsLink || "https://www.pyrarides.com",
+    footerNote: "Bring sunscreen, comfortable shoes, and your sense of adventure!",
+  });
 }
 
 export async function sendBookingReminderEmail(data: BookingReminderEmailData): Promise<boolean> {
-    try {
-        const transporter = createTransporter();
+  try {
+    const transporter = createTransporter();
 
-        if (!transporter) {
-            console.warn("Email transporter not configured. Skipping email send.");
-            return false;
-        }
-
-        const mailOptions = {
-            from: `"PyraRide" <${process.env.EMAIL_USER}>`,
-            to: data.riderEmail,
-            subject: `⏰ Reminder: Your ride with ${data.horseName} is today!`,
-            html: generateBookingReminderEmail(data),
-            text: `Reminder: Your ride is today!\n\nHorse: ${data.horseName}\nStable: ${data.stableName}\nTime: ${data.startTime} - ${data.endTime}\nLocation: ${data.stableAddress}\n\nSee you soon!`,
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        console.log("Reminder email sent:", info.messageId);
-        return true;
-    } catch (error) {
-        console.error("Error sending reminder email:", error);
-        return false;
+    if (!transporter) {
+      console.warn("Email transporter not configured. Skipping email send.");
+      return false;
     }
+
+    const mailOptions = {
+      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      to: data.riderEmail,
+      subject: `⏰ Reminder: Your ride with ${data.horseName} is today!`,
+      html: generateBookingReminderEmail(data),
+      text: `Reminder: Your ride is today!\n\nHorse: ${data.horseName}\nStable: ${data.stableName}\nTime: ${data.startTime} - ${data.endTime}\nLocation: ${data.stableAddress}\n\nSee you soon!`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Reminder email sent:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending reminder email:", error);
+    return false;
+  }
 }
 
 // ============================================================================
 // GENERIC EMAIL SENDING
 // ============================================================================
 interface SendEmailOptions {
-    to: string;
-    subject: string;
-    html: string;
-    text: string;
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
 }
 
 export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
-    try {
-        const transporter = createTransporter();
+  try {
+    const transporter = createTransporter();
 
-        if (!transporter) {
-            console.warn("Email transporter not configured. Skipping email send.");
-            return false;
-        }
-
-        const mailOptions = {
-            from: `"PyraRide" <${process.env.EMAIL_USER}>`,
-            to: options.to,
-            subject: options.subject,
-            html: options.html,
-            text: options.text,
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        console.log("Email sent successfully:", info.messageId);
-        return true;
-    } catch (error) {
-        console.error("Error sending email:", error);
-        throw error;
+    if (!transporter) {
+      console.warn("Email transporter not configured. Skipping email send.");
+      return false;
     }
+
+    const mailOptions = {
+      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+      text: options.text,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw error;
+  }
 }

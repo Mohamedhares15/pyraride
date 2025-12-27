@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sendBookingCancellationEmail } from "@/lib/email";
+import { sendBookingCancellationEmail, sendOwnerCancellationNotification } from "@/lib/email";
 
 export async function POST(
   req: NextRequest,
@@ -20,27 +20,34 @@ export async function POST(
     const body = await req.json();
     const { reason } = body;
 
-    // Get booking
+    // Get booking with all related data
     const booking = await prisma.booking.findUnique({
       where: { id: params.id },
       include: {
-        rider: { 
-          select: { 
+        rider: {
+          select: {
             id: true,
             email: true,
             fullName: true,
-          } 
+          }
         },
-        stable: { 
-          select: { 
+        stable: {
+          select: {
             ownerId: true,
             name: true,
             address: true,
-          } 
+            owner: {
+              select: {
+                email: true,
+                fullName: true,
+              }
+            },
+          }
         },
         horse: {
           select: {
             name: true,
+            images: true,
           },
         },
       },
@@ -97,8 +104,12 @@ export async function POST(
       },
     });
 
-    // Send email notification to rider if cancelled by owner or admin
-    if ((cancelledBy === "owner" || cancelledBy === "admin") && booking.rider.email) {
+    // Format times for email
+    const startTimeStr = new Date(booking.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    const endTimeStr = new Date(booking.endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+
+    // Send email to RIDER
+    if (booking.rider.email) {
       try {
         await sendBookingCancellationEmail({
           bookingId: booking.id,
@@ -106,15 +117,35 @@ export async function POST(
           riderEmail: booking.rider.email,
           stableName: booking.stable.name,
           horseName: booking.horse.name,
+          horseImage: booking.horse.images?.[0],
           date: booking.startTime.toISOString(),
-          startTime: new Date(booking.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-          endTime: new Date(booking.endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+          startTime: startTimeStr,
+          endTime: endTimeStr,
           cancellationReason: reason || undefined,
           cancelledBy: cancelledBy as "rider" | "owner" | "admin",
         });
       } catch (emailError) {
-        console.error("Failed to send cancellation email:", emailError);
-        // Don't fail the cancellation if email fails
+        console.error("Failed to send rider cancellation email:", emailError);
+      }
+    }
+
+    // Send email to OWNER
+    if (booking.stable.owner?.email) {
+      try {
+        await sendOwnerCancellationNotification({
+          ownerEmail: booking.stable.owner.email,
+          riderName: booking.rider.fullName || "Valued Customer",
+          riderEmail: booking.rider.email,
+          horseName: booking.horse.name,
+          horseImage: booking.horse.images?.[0],
+          date: booking.startTime.toISOString(),
+          startTime: startTimeStr,
+          endTime: endTimeStr,
+          cancellationReason: reason || undefined,
+          cancelledBy: cancelledBy as "rider" | "owner" | "admin",
+        });
+      } catch (emailError) {
+        console.error("Failed to send owner cancellation email:", emailError);
       }
     }
 
@@ -134,4 +165,3 @@ export async function POST(
     );
   }
 }
-
