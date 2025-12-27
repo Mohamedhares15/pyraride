@@ -241,6 +241,12 @@ export default function AnalyticsPage() {
                     Manage Locations
                   </Button>
                 </Link>
+                <Link href="/dashboard/admin/instant-booking">
+                  <Button variant="outline" size="sm" className="gap-2 border-teal-500/30 bg-teal-500/10 text-teal-400 hover:bg-teal-500/20 hover:text-teal-300">
+                    <Calendar className="h-4 w-4" />
+                    Instant Booking
+                  </Button>
+                </Link>
               </>
             )}
           </div>

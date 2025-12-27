@@ -195,17 +195,17 @@ export default function Hero() {
                 </Select>
 
                 <div className="relative w-full md:w-56">
-                  <div className="flex !h-[56px] w-full items-center justify-between rounded-2xl border border-white/30 bg-white/5 px-4 text-left text-base text-white transition-all duration-200 focus-within:border-white/70 focus-within:ring-2 focus-within:ring-white/60 md:!h-12 md:rounded-full md:border-white/50 md:bg-white/90 md:text-foreground md:focus-within:ring-ring">
+                  <label className="flex !h-[56px] w-full cursor-pointer items-center justify-between rounded-2xl border border-white/30 bg-white/5 px-4 text-left text-base text-white transition-all duration-200 focus-within:border-white/70 focus-within:ring-2 focus-within:ring-white/60 md:!h-12 md:rounded-full md:border-white/50 md:bg-white/90 md:text-foreground md:focus-within:ring-ring">
                     <span>{displayDate(date)}</span>
                     <CalendarDays className="h-4 w-4 text-white/70 md:text-foreground/60" aria-hidden="true" />
-                  </div>
-                  <Input
-                    type="date"
-                    aria-label="Select ride date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                  />
+                    <Input
+                      type="date"
+                      aria-label="Select ride date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+                    />
+                  </label>
                 </div>
 
                 <Button

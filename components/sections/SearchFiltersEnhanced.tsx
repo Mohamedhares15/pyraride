@@ -159,21 +159,40 @@ export default function SearchFiltersEnhanced({
         {isExpanded && (
           <div className="space-y-4 border-t pt-4">
             <div className="grid gap-4 md:grid-cols-2">
-              {/* Price Range */}
-              <div className="space-y-2">
-                <Label>Price Range (EGP)</Label>
-                <Select value={priceRange} onValueChange={onPriceRangeChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Any Price" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Any Price</SelectItem>
-                    <SelectItem value="0-100">Under 100 EGP</SelectItem>
-                    <SelectItem value="100-200">100-200 EGP</SelectItem>
-                    <SelectItem value="200-300">200-300 EGP</SelectItem>
-                    <SelectItem value="300+">300+ EGP</SelectItem>
-                  </SelectContent>
-                </Select>
+              {/* Price Range Slider */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label>Max Price (EGP)</Label>
+                  <span className="text-sm font-medium text-primary">
+                    {priceRange === "all" || priceRange === "500"
+                      ? "Any Price"
+                      : `Up to ${priceRange} EGP`}
+                  </span>
+                </div>
+                <div className="relative pt-1">
+                  <input
+                    type="range"
+                    min="0"
+                    max="500"
+                    step="25"
+                    value={priceRange === "all" ? 500 : parseInt(priceRange) || 500}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      onPriceRangeChange(val >= 500 ? "all" : val.toString());
+                    }}
+                    className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                    style={{
+                      background: `linear-gradient(to left, hsl(var(--primary)) ${((parseInt(priceRange === "all" ? "500" : priceRange) || 500) / 500) * 100}%, hsl(var(--muted)) ${((parseInt(priceRange === "all" ? "500" : priceRange) || 500) / 500) * 100}%)`
+                    }}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>0</span>
+                    <span>125</span>
+                    <span>250</span>
+                    <span>375</span>
+                    <span>500+</span>
+                  </div>
+                </div>
               </div>
 
               {/* Filter toggles */}
