@@ -359,6 +359,7 @@ model Booking {
   promoCodeId        String?
   groupSize          Int           @default(1) // Number of riders (1 = solo, 5+ = group discount)
   groupDiscount      Decimal?      @db.Decimal(10, 2) // Discount applied for groups
+  reminderSent       Boolean       @default(false) // Whether 5-hour reminder email was sent
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
