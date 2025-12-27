@@ -208,11 +208,11 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        // Check for overlapping bookings
+        // Check for overlapping bookings (include pending to prevent race conditions)
         const overlappingBookings = await tx.booking.findFirst({
           where: {
             horseId,
-            status: "confirmed",
+            status: { in: ["confirmed", "pending"] },
             AND: [
               { startTime: { lte: end } },
               { endTime: { gte: start } },
@@ -235,7 +235,7 @@ export async function POST(req: NextRequest) {
         const existingSessionBooking = await tx.booking.findFirst({
           where: {
             horseId,
-            status: "confirmed",
+            status: { in: ["confirmed", "pending"] },
             startTime: {
               gte: sessionStart,
               lt: sessionEnd,
@@ -313,23 +313,33 @@ export async function POST(req: NextRequest) {
       return results;
     });
 
-    // Send email notifications
-    const owners = await prisma.user.findMany({
-      where: {
-        stableId: stableId,
-        role: "stable_owner",
-      },
-      select: { email: true }
-    });
+    // Send email notifications to stable owners AND admins
+    const [owners, admins] = await Promise.all([
+      prisma.user.findMany({
+        where: {
+          stableId: stableId,
+          role: "stable_owner",
+        },
+        select: { email: true }
+      }),
+      prisma.user.findMany({
+        where: {
+          role: "admin",
+        },
+        select: { email: true }
+      })
+    ]);
 
-    if (owners.length > 0) {
+    const allRecipients = [...owners, ...admins];
+
+    if (allRecipients.length > 0) {
       const { sendOwnerBookingNotification } = await import("@/lib/email");
 
       // Send notifications for each booking in the group
       for (const booking of createdBookings) {
-        await Promise.all(owners.map(owner =>
+        await Promise.all(allRecipients.map(recipient =>
           sendOwnerBookingNotification({
-            ownerEmail: owner.email,
+            ownerEmail: recipient.email,
             riderName: booking.rider.fullName || "Guest Rider",
             riderEmail: booking.rider.email,
             riderPhone: booking.rider.phoneNumber || undefined,
