@@ -84,21 +84,36 @@ function generateEmailTemplate({
 
   return `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <meta name="supported-color-schemes" content="dark">
   <title>${headline} - PyraRide</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      supported-color-schemes: dark;
+    }
+    body {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    .dark-mode-bg {
+      background-color: #000000 !important;
+    }
+  </style>
 </head>
-<body style="margin:0; padding:0; background-color:#000000; font-family:'Inter', -apple-system, sans-serif;">
+<body style="margin:0; padding:0; background-color:#000000; color:#ffffff; font-family:'Inter', -apple-system, sans-serif; -webkit-font-smoothing: antialiased;">
   
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#000000;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#000000; width:100%; margin:0; padding:0;">
     <tr>
-      <td align="center" style="padding:0;">
+      <td align="center" style="padding:0; background-color:#000000;">
         
         <!-- Main Container -->
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px; width:100%; background-color:#000000;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px; width:100%; background-color:#000000; margin:0 auto;">
           
           <!-- Header -->
           <tr>
