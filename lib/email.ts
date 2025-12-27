@@ -360,6 +360,9 @@ interface BookingCancellationEmailData {
 // Email template for booking cancellation
 function generateBookingCancellationEmail(data: BookingCancellationEmailData): string {
   const isOwnerCancelled = data.cancelledBy === "owner";
+  const HERO_BG_URL = "https://www.pyrarides.com/hero-bg.webp";
+  const LOGO_URL = "https://www.pyrarides.com/logo.png";
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -367,84 +370,99 @@ function generateBookingCancellationEmail(data: BookingCancellationEmailData): s
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Booking Cancelled - PyraRide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
-<body style="margin:0; padding:0; background:#000000; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', system-ui, sans-serif;">
-  <table role="presentation" style="width:100%; border-spacing:0; background-color:#000000;">
+<body style="margin:0; padding:0; background-color:#000000; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#000000; background-image:url('${HERO_BG_URL}'); background-size:cover; background-position:center; background-repeat:no-repeat;">
     <tr>
-      <td align="center" style="padding:48px 20px 80px;">
-        <table role="presentation" style="width:600px; max-width:95%; background:rgba(28,28,30,0.95); border-radius:24px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.1);">
+      <td align="center" style="padding: 60px 20px;">
+        
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px; width:100%; background:rgba(20, 20, 20, 0.9); border:1px solid rgba(255,255,255,0.1); border-radius:24px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+          
           <tr>
-            <td style="padding:40px 32px; text-align:center; background:transparent;">
-              <div style="width:64px;height:64px;border-radius:50%;background:rgba(239,68,68,0.2);border:2px solid rgba(239,68,68,0.4);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 24px;">
-                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 18L18 6M6 6l12 12" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
-                </svg>
+            <td align="center" style="padding: 48px 40px 32px;">
+              <div style="margin-bottom: 32px;">
+                <img src="${LOGO_URL}" alt="PyraRide" width="80" height="80" style="width:80px; height:80px; border-radius:50%; border:2px solid rgba(255,255,255,0.2); box-shadow:0 0 20px rgba(239,68,68,0.3); display:block;">
               </div>
-              <h1 style="margin:0 0 12px 0;font-size:36px;font-weight:700;color:#FFFFFF;line-height:1.2;">Booking Cancelled</h1>
-              <div style="font-size:16px;font-weight:400;line-height:1.4;color:#9CA3AF;">
-                ${isOwnerCancelled ? "The stable owner has cancelled your booking" : "Your booking has been cancelled"}
+              
+              <div style="margin-bottom: 24px;">
+                <span style="display:inline-block; padding:8px 16px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); border-radius:100px; color:#ef4444; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase;">Booking Cancelled</span>
               </div>
+
+              <h1 style="margin:0 0 16px; color:#FFFFFF; font-size:36px; font-weight:700; letter-spacing:-0.02em; line-height:1.2;">Booking Cancelled</h1>
+              <p style="margin:0; color:#9CA3AF; font-size:16px; line-height:1.6;">
+                ${isOwnerCancelled ? "The stable owner has cancelled your booking." : "Your booking has been cancelled."}
+              </p>
             </td>
           </tr>
+
           <tr>
-            <td style="padding:0 32px 32px 32px;">
-              <div style="padding:24px;">
-                <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-                  <tr>
-                    <td style="width:32px; vertical-align:top; padding-right:16px;">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5">
-                        <rect x="3" y="6" width="18" height="15" rx="2"/>
-                        <path d="M3 10h18M7 3v6M17 3v6"/>
-                      </svg>
-                    </td>
-                    <td style="vertical-align:top;">
-                      <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#6B7280;margin-bottom:6px;">CANCELLED BOOKING</div>
-                      <div style="font-size:16px;font-weight:600;color:#FFFFFF;margin-bottom:4px;">${new Date(data.date).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                      <div style="font-size:14px;font-weight:400;color:#D1D5DB;">${data.startTime} – ${data.endTime}</div>
-                    </td>
-                  </tr>
-                </table>
-                <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-                  <tr>
-                    <td style="width:32px; vertical-align:top; padding-right:16px;">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="#FFFFFF">
-                        <path d="M12 7c-2 0-3.5 1-4.5 2.5-1-1-2-1-2.5-0.5-0.5 0.5-1 1-0.5 2s1 1 1.5 0.5c0.5-0.2 1-0.5 1.5-1 0.5 0.5 1 1.5 2 2 1 0.5 2 0.5 2.5 0 0.5 0.5 1 0.5 2 0.5 1 0 1.5-0.2 2-0.5 1 0.5 2 0.5 2.5 0 1-0.5 2-1 2-1.5 0.5 0.5 1 1 1.5 0.5 0.5-0.5 0.5-1.5 0-2-0.5-0.5-1.5 0-2.5 0.5-1-1.5-2.5-2.5-4.5-2.5z"/>
-                      </svg>
-                    </td>
-                    <td style="vertical-align:top;">
-                      <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#6B7280;margin-bottom:6px;">HORSE</div>
-                      <div style="font-size:16px;font-weight:600;color:#FFFFFF;">${data.horseName}</div>
-                      <div style="font-size:14px;font-weight:400;color:#D1D5DB;">${data.stableName}</div>
-                    </td>
-                  </tr>
-                </table>
+            <td style="padding: 0 40px 40px;">
+              <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td colspan="2" style="padding-bottom:24px;">
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:16px; padding:24px;">
+                      <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                        <tr>
+                          <td width="48" style="vertical-align:top; padding-right:16px;">
+                            <div style="width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg, #ef4444, #b91c1c); display:flex; align-items:center; justify-content:center; color:#FFFFFF;">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </div>
+                          </td>
+                          <td style="vertical-align:top;">
+                            <div style="color:#6B7280; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">CANCELLED DETAILS</div>
+                            <div style="color:#FFFFFF; font-size:16px; font-weight:600; margin-bottom:2px;">${data.horseName}</div>
+                            <div style="color:#9CA3AF; font-size:14px;">${new Date(data.date).toLocaleDateString("en-US", { weekday: 'long', month: 'long', day: 'numeric' })}</div>
+                            <div style="color:#9CA3AF; font-size:14px;">${data.startTime} - ${data.endTime}</div>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+
                 ${data.cancellationReason ? `
-                <div style="padding:16px;background:rgba(239,68,68,0.1);border-left:3px solid #ef4444;border-radius:8px;margin-bottom:24px;">
-                  <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#ef4444;margin-bottom:6px;">REASON</div>
-                  <div style="font-size:14px;color:#F9FAFB;">${data.cancellationReason}</div>
-                </div>
+                <tr>
+                  <td colspan="2" style="padding-bottom:24px;">
+                    <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); border-radius:16px; padding:20px;">
+                      <div style="color:#ef4444; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">REASON</div>
+                      <div style="color:#FFFFFF; font-size:15px;">${data.cancellationReason}</div>
+                    </div>
+                  </td>
+                </tr>
                 ` : ''}
+
                 ${isOwnerCancelled ? `
-                <div style="padding:16px;background:rgba(59,130,246,0.1);border-left:3px solid #3b82f6;border-radius:8px;margin-top:24px;">
-                  <div style="font-size:13px;color:#F9FAFB;line-height:1.6;">
-                    <strong>What happens next?</strong><br>
-                    If you made a payment, a full refund will be processed automatically. Please allow 5-7 business days for the refund to appear in your account.
-                  </div>
-                </div>
+                <tr>
+                  <td colspan="2">
+                    <div style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2); border-radius:16px; padding:20px;">
+                      <div style="color:#3b82f6; font-size:13px; line-height:1.6;">
+                        <strong>Refund Notice:</strong><br>
+                        A full refund has been initiated. Please allow 5-7 business days for it to appear in your account.
+                      </div>
+                    </div>
+                  </td>
+                </tr>
                 ` : ''}
-              </div>
+              </table>
             </td>
           </tr>
+
           <tr>
-            <td style="padding:24px 32px;text-align:center;background:transparent;border-top:1px solid rgba(255,255,255,0.1);">
-              <div style="font-size:13px;color:#6B7280;line-height:1.6;">
-                <a href="https://www.pyrarides.com" style="color:#FFFFFF;text-decoration:none;font-weight:600;">PyraRide</a><br>
-                <a href="mailto:support@pyraride.com" style="color:#10b981;text-decoration:none;">support@pyraride.com</a><br>
-                <div style="font-size:11px;color:#6B7280;margin-top:12px;">© ${new Date().getFullYear()} PyraRide. All rights reserved.</div>
-              </div>
+            <td style="border-top:1px solid rgba(255,255,255,0.1); padding: 32px 40px; text-align:center;">
+              <p style="margin:0 0 16px; color:#6B7280; font-size:13px;">
+                <a href="https://www.pyrarides.com" style="color:#9CA3AF; text-decoration:none; margin:0 10px;">Website</a> • 
+                <a href="mailto:support@pyrarides.com" style="color:#9CA3AF; text-decoration:none; margin:0 10px;">Support</a>
+              </p>
+              <p style="margin:0; color:#4B5563; font-size:12px;">© ${new Date().getFullYear()} PyraRide. All rights reserved.</p>
             </td>
           </tr>
         </table>
+        
+        <div style="margin-top: 32px; opacity: 0.5;">
+          <img src="${LOGO_URL}" alt="PyraRide" width="32" height="32" style="width:32px; height:32px; border-radius:50%; filter:grayscale(100%);">
+        </div>
+
       </td>
     </tr>
   </table>
@@ -497,6 +515,9 @@ interface BookingRescheduleEmailData {
 // Email template for booking reschedule
 function generateBookingRescheduleEmail(data: BookingRescheduleEmailData): string {
   const isOwnerRescheduled = data.rescheduledBy === "owner";
+  const HERO_BG_URL = "https://www.pyrarides.com/hero-bg.webp";
+  const LOGO_URL = "https://www.pyrarides.com/logo.png";
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -504,66 +525,91 @@ function generateBookingRescheduleEmail(data: BookingRescheduleEmailData): strin
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Booking Rescheduled - PyraRide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
-<body style="margin:0; padding:0; background:#000000; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', system-ui, sans-serif;">
-  <table role="presentation" style="width:100%; border-spacing:0; background-color:#000000;">
+<body style="margin:0; padding:0; background-color:#000000; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#000000; background-image:url('${HERO_BG_URL}'); background-size:cover; background-position:center; background-repeat:no-repeat;">
     <tr>
-      <td align="center" style="padding:48px 20px 80px;">
-        <table role="presentation" style="width:600px; max-width:95%; background:rgba(28,28,30,0.95); border-radius:24px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.1);">
+      <td align="center" style="padding: 60px 20px;">
+        
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px; width:100%; background:rgba(20, 20, 20, 0.9); border:1px solid rgba(255,255,255,0.1); border-radius:24px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+          
           <tr>
-            <td style="padding:40px 32px; text-align:center; background:transparent;">
-              <div style="width:64px;height:64px;border-radius:50%;background:rgba(251,191,36,0.2);border:2px solid rgba(251,191,36,0.4);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 24px;">
-                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 8v4l3 3" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
-                  <circle cx="12" cy="12" r="10" stroke="#fbbf24" stroke-width="2"/>
-                </svg>
+            <td align="center" style="padding: 48px 40px 32px;">
+              <div style="margin-bottom: 32px;">
+                <img src="${LOGO_URL}" alt="PyraRide" width="80" height="80" style="width:80px; height:80px; border-radius:50%; border:2px solid rgba(255,255,255,0.2); box-shadow:0 0 20px rgba(251,191,36,0.3); display:block;">
               </div>
-              <h1 style="margin:0 0 12px 0;font-size:36px;font-weight:700;color:#FFFFFF;line-height:1.2;">Booking Rescheduled</h1>
-              <div style="font-size:16px;font-weight:400;line-height:1.4;color:#9CA3AF;">
-                ${isOwnerRescheduled ? "The stable owner has rescheduled your booking" : "Your booking has been rescheduled"}
+              
+              <div style="margin-bottom: 24px;">
+                <span style="display:inline-block; padding:8px 16px; background:rgba(251,191,36,0.15); border:1px solid rgba(251,191,36,0.3); border-radius:100px; color:#fbbf24; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase;">Booking Rescheduled</span>
               </div>
+
+              <h1 style="margin:0 0 16px; color:#FFFFFF; font-size:36px; font-weight:700; letter-spacing:-0.02em; line-height:1.2;">New Time Confirmed</h1>
+              <p style="margin:0; color:#9CA3AF; font-size:16px; line-height:1.6;">
+                ${isOwnerRescheduled ? "The stable owner has rescheduled your booking." : "Your booking has been rescheduled."}
+              </p>
             </td>
           </tr>
+
           <tr>
-            <td style="padding:0 32px 32px 32px;">
-              <div style="padding:24px;">
-                <div style="margin-bottom:24px;padding:16px;background:rgba(239,68,68,0.1);border-left:3px solid #ef4444;border-radius:8px;">
-                  <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#ef4444;margin-bottom:6px;">OLD TIME</div>
-                  <div style="font-size:14px;color:#F9FAFB;">${new Date(data.oldDate).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                  <div style="font-size:14px;color:#D1D5DB;">${data.oldStartTime} – ${data.oldEndTime}</div>
-                </div>
-                <div style="margin-bottom:24px;padding:16px;background:rgba(16,185,129,0.1);border-left:3px solid #10b981;border-radius:8px;">
-                  <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#10b981;margin-bottom:6px;">NEW TIME</div>
-                  <div style="font-size:16px;font-weight:600;color:#FFFFFF;margin-bottom:4px;">${new Date(data.newDate).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                  <div style="font-size:14px;color:#D1D5DB;">${data.newStartTime} – ${data.newEndTime}</div>
-                </div>
-                <table width="100%" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td style="width:32px; vertical-align:top; padding-right:16px;">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="#FFFFFF">
-                        <path d="M12 7c-2 0-3.5 1-4.5 2.5-1-1-2-1-2.5-0.5-0.5 0.5-1 1-0.5 2s1 1 1.5 0.5c0.5-0.2 1-0.5 1.5-1 0.5 0.5 1 1.5 2 2 1 0.5 2 0.5 2.5 0 0.5 0.5 1 0.5 2 0.5 1 0 1.5-0.2 2-0.5 1 0.5 2 0.5 2.5 0 1-0.5 2-1 2-1.5 0.5 0.5 1 1 1.5 0.5 0.5-0.5 0.5-1.5 0-2-0.5-0.5-1.5 0-2.5 0.5-1-1.5-2.5-2.5-4.5-2.5z"/>
-                      </svg>
-                    </td>
-                    <td style="vertical-align:top;">
-                      <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#6B7280;margin-bottom:6px;">HORSE</div>
-                      <div style="font-size:16px;font-weight:600;color:#FFFFFF;">${data.horseName}</div>
-                      <div style="font-size:14px;font-weight:400;color:#D1D5DB;">${data.stableName}</div>
-                    </td>
-                  </tr>
-                </table>
-              </div>
+            <td style="padding: 0 40px 40px;">
+              <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td width="50%" style="padding-bottom:24px; padding-right:12px; vertical-align:top;">
+                    <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); border-radius:16px; padding:20px;">
+                      <div style="color:#ef4444; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">OLD TIME</div>
+                      <div style="color:#FFFFFF; font-size:14px; font-weight:600;">${new Date(data.oldDate).toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+                      <div style="color:#ef4444; font-size:13px;">${data.oldStartTime} - ${data.oldEndTime}</div>
+                    </div>
+                  </td>
+                  <td width="50%" style="padding-bottom:24px; padding-left:12px; vertical-align:top;">
+                    <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); border-radius:16px; padding:20px;">
+                      <div style="color:#10b981; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">NEW TIME</div>
+                      <div style="color:#FFFFFF; font-size:14px; font-weight:600;">${new Date(data.newDate).toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+                      <div style="color:#10b981; font-size:13px;">${data.newStartTime} - ${data.newEndTime}</div>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td colspan="2">
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:16px; padding:24px;">
+                      <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                        <tr>
+                          <td width="48" style="vertical-align:top; padding-right:16px;">
+                            <div style="width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg, #d4af37, #f59e0b); display:flex; align-items:center; justify-content:center; color:#FFFFFF;">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7c-2 0-3.5 1-4.5 2.5-1-1-2-1-2.5-0.5-0.5 0.5-1 1-0.5 2s1 1 1.5 0.5c0.5-0.2 1-0.5 1.5-1 0.5 0.5 1 1.5 2 2 1 0.5 2 0.5 2.5 0 0.5 0.5 1 0.5 2 0.5 1 0 1.5-0.2 2-0.5 1 0.5 2 0.5 2.5 0 1-0.5 2-1 2-1.5 0.5 0.5 1 1 1.5 0.5 0.5-0.5 0.5-1.5 0-2-0.5-0.5-1.5 0-2.5 0.5-1-1.5-2.5-2.5-4.5-2.5z"/></svg>
+                            </div>
+                          </td>
+                          <td style="vertical-align:top;">
+                            <div style="color:#6B7280; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">HORSE & STABLE</div>
+                            <div style="color:#FFFFFF; font-size:16px; font-weight:600; margin-bottom:2px;">${data.horseName}</div>
+                            <div style="color:#9CA3AF; font-size:14px;">${data.stableName}</div>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
+
           <tr>
-            <td style="padding:24px 32px;text-align:center;background:transparent;border-top:1px solid rgba(255,255,255,0.1);">
-              <div style="font-size:13px;color:#6B7280;line-height:1.6;">
-                <a href="https://www.pyrarides.com" style="color:#FFFFFF;text-decoration:none;font-weight:600;">PyraRide</a><br>
-                <a href="mailto:support@pyraride.com" style="color:#10b981;text-decoration:none;">support@pyraride.com</a><br>
-                <div style="font-size:11px;color:#6B7280;margin-top:12px;">© ${new Date().getFullYear()} PyraRide. All rights reserved.</div>
-              </div>
+            <td style="border-top:1px solid rgba(255,255,255,0.1); padding: 32px 40px; text-align:center;">
+              <p style="margin:0 0 16px; color:#6B7280; font-size:13px;">
+                <a href="https://www.pyrarides.com" style="color:#9CA3AF; text-decoration:none; margin:0 10px;">Website</a> • 
+                <a href="mailto:support@pyrarides.com" style="color:#9CA3AF; text-decoration:none; margin:0 10px;">Support</a>
+              </p>
+              <p style="margin:0; color:#4B5563; font-size:12px;">© ${new Date().getFullYear()} PyraRide. All rights reserved.</p>
             </td>
           </tr>
         </table>
+        
+        <div style="margin-top: 32px; opacity: 0.5;">
+          <img src="${LOGO_URL}" alt="PyraRide" width="32" height="32" style="width:32px; height:32px; border-radius:50%; filter:grayscale(100%);">
+        </div>
+
       </td>
     </tr>
   </table>
