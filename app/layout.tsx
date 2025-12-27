@@ -125,6 +125,13 @@ export default function RootLayout({
         {/* Preload critical resources */}
         <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" />
 
+        {/* Favicon and Icons for Search Engines */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="shortcut icon" href="/favicon.png" />
+        <link rel="manifest" href="/manifest.json" />
+
         {/* Structured Data - Organization */}
         <script
           type="application/ld+json"
