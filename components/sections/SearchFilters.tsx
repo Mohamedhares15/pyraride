@@ -109,27 +109,32 @@ export default function SearchFilters({
           </Select>
         </div>
 
-        {/* Price Range Filter */}
+        {/* Max Price Filter (Single thumb, right-to-left) */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <Label>Price Range (EGP)</Label>
             <span className="text-sm font-medium text-primary">
-              EGP {minPrice || 0} - EGP {maxPrice || 5000}
+              {!maxPrice || parseInt(maxPrice) >= 5000
+                ? "Any Price"
+                : `Up to EGP ${maxPrice}`}
             </span>
           </div>
-          <Slider
-            defaultValue={[0, 5000]}
-            value={[
-              minPrice ? parseInt(minPrice) : 0,
-              maxPrice ? parseInt(maxPrice) : 5000
-            ]}
-            max={5000}
-            step={100}
-            minStepsBetweenThumbs={1}
-            onValueChange={(value) => {
-              onPriceChange(value[0].toString(), value[1].toString());
+          <input
+            type="range"
+            min="0"
+            max="5000"
+            step="100"
+            value={maxPrice ? parseInt(maxPrice) : 5000}
+            onChange={(e) => {
+              e.stopPropagation();
+              const val = parseInt(e.target.value);
+              // Always set minPrice to 0, only adjust maxPrice
+              onPriceChange("0", val >= 5000 ? "" : val.toString());
             }}
-            className="py-4"
+            className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+            style={{
+              background: `linear-gradient(to right, hsl(var(--primary)) ${((maxPrice ? parseInt(maxPrice) : 5000) / 5000) * 100}%, hsl(var(--muted)) ${((maxPrice ? parseInt(maxPrice) : 5000) / 5000) * 100}%)`
+            }}
           />
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>EGP 0</span>

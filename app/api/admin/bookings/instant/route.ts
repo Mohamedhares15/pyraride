@@ -88,6 +88,25 @@ export async function POST(req: NextRequest) {
             : 0.15;
         const commission = totalPrice * commissionRate;
 
+        // Check for duplicate booking (same horse, rider, and overlapping time)
+        const existingBooking = await prisma.booking.findFirst({
+            where: {
+                horseId,
+                riderId: rider.id,
+                AND: [
+                    { startTime: { lte: bookingEnd } },
+                    { endTime: { gte: bookingStart } },
+                ],
+            },
+        });
+
+        if (existingBooking) {
+            return NextResponse.json(
+                { error: `A booking already exists for this rider on horse "${horse.name}" at this time.` },
+                { status: 409 }
+            );
+        }
+
         // Create the instant booking with "completed" status
         const booking = await prisma.booking.create({
             data: {

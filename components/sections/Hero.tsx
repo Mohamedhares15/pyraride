@@ -195,17 +195,32 @@ export default function Hero() {
                 </Select>
 
                 <div className="relative w-full md:w-56">
-                  <label className="flex !h-[56px] w-full cursor-pointer items-center justify-between rounded-2xl border border-white/30 bg-white/5 px-4 text-left text-base text-white transition-all duration-200 focus-within:border-white/70 focus-within:ring-2 focus-within:ring-white/60 md:!h-12 md:rounded-full md:border-white/50 md:bg-white/90 md:text-foreground md:focus-within:ring-ring">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const input = document.getElementById('hero-date-input') as HTMLInputElement;
+                      if (input) {
+                        if (typeof input.showPicker === 'function') {
+                          input.showPicker();
+                        } else {
+                          input.click();
+                        }
+                      }
+                    }}
+                    className="flex !h-[56px] w-full cursor-pointer items-center justify-between rounded-2xl border border-white/30 bg-white/5 px-4 text-left text-base text-white transition-all duration-200 focus-within:border-white/70 focus-within:ring-2 focus-within:ring-white/60 md:!h-12 md:rounded-full md:border-white/50 md:bg-white/90 md:text-foreground md:focus-within:ring-ring"
+                  >
                     <span>{displayDate(date)}</span>
                     <CalendarDays className="h-4 w-4 text-white/70 md:text-foreground/60" aria-hidden="true" />
-                    <Input
-                      type="date"
-                      aria-label="Select ride date"
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
-                    />
-                  </label>
+                  </button>
+                  <Input
+                    id="hero-date-input"
+                    type="date"
+                    aria-label="Select ride date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 pointer-events-none"
+                    tabIndex={-1}
+                  />
                 </div>
 
                 <Button
