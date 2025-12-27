@@ -267,7 +267,7 @@ export async function POST(req: NextRequest) {
           },
           include: {
             stable: { select: { name: true, location: true } },
-            horse: { select: { name: true } },
+            horse: { select: { name: true, imageUrls: true } },
             rider: { select: { fullName: true, email: true, phoneNumber: true } }
           },
         });
@@ -344,6 +344,7 @@ export async function POST(req: NextRequest) {
             riderEmail: booking.rider.email,
             riderPhone: booking.rider.phoneNumber || undefined,
             horseName: booking.horse.name,
+            horseImage: booking.horse.imageUrls?.[0] || undefined,
             date: booking.startTime.toISOString(),
             startTime: new Date(booking.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
             endTime: new Date(booking.endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),

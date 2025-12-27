@@ -611,6 +611,7 @@ interface OwnerBookingNotificationData {
   riderEmail: string;
   riderPhone?: string;
   horseName: string;
+  horseImage?: string;
   date: string;
   startTime: string;
   endTime: string;
@@ -619,6 +620,13 @@ interface OwnerBookingNotificationData {
 }
 
 function generateOwnerBookingNotificationEmail(data: OwnerBookingNotificationData): string {
+  // Use public URLs for images
+  const HERO_BG_URL = "https://www.pyrarides.com/hero-bg.webp";
+  const LOGO_URL = "https://www.pyrarides.com/logo.png";
+
+  // Fallback for horse image if not provided
+  const horseImage = data.horseImage || "https://www.pyrarides.com/og-image.jpg";
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -626,118 +634,136 @@ function generateOwnerBookingNotificationEmail(data: OwnerBookingNotificationDat
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Booking Received - PyraRide</title>
+  <!-- Import Inter font for premium look -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
-<body style="margin:0; padding:0; background:#000000; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', system-ui, sans-serif;">
-  <table role="presentation" style="width:100%; border-spacing:0; background-color:#000000;">
+<body style="margin:0; padding:0; background-color:#000000; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-font-smoothing: antialiased;">
+  <!-- Main Background Container with Hero Image -->
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#000000; background-image:url('${HERO_BG_URL}'); background-size:cover; background-position:center; background-repeat:no-repeat;">
     <tr>
-      <td align="center" style="padding:48px 20px 80px;">
-        <table role="presentation" style="width:600px; max-width:95%; background:rgba(28,28,30,0.95); border-radius:24px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.1);">
-          <!-- Header with Logo -->
-          <tr>
-            <td style="padding:40px 32px; text-align:center; background:transparent;">
-              <!-- PyraRide Logo -->
-              <div style="margin-bottom:24px;">
-                <img src="${PYRARIDE_LOGO_URL}" alt="PyraRide" width="80" height="80" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.2);" />
-              </div>
-              <!-- Success Icon -->
-              <div style="width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,0.2);border:2px solid rgba(16,185,129,0.4);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 24px;">
-                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#10b981"/>
-                </svg>
-              </div>
-              <h1 style="margin:0 0 12px 0;font-size:32px;font-weight:700;color:#FFFFFF;line-height:1.2;">New Booking! 🎉</h1>
-              <div style="font-size:16px;font-weight:400;line-height:1.4;color:#9CA3AF;">A rider has just booked a ride at your stable</div>
-            </td>
-          </tr>
-
-          <!-- Booking Details Card -->
-          <tr>
-            <td style="padding:0 32px 32px 32px;">
-              <div style="padding:24px; border-radius:16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);">
-                
-                <!-- Horse Info -->
-                <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
-                  <tr>
-                    <td style="width:40px; vertical-align:top; padding-right:16px;">
-                      <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#0d9488,#2563eb);display:flex;align-items:center;justify-content:center;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M12 7c-2 0-3.5 1-4.5 2.5-1-1-2-1-2.5-0.5-0.5 0.5-1 1-0.5 2s1 1 1.5 0.5c0.5-0.2 1-0.5 1.5-1 0.5 0.5 1 1.5 2 2 1 0.5 2 0.5 2.5 0 0.5 0.5 1 0.5 2 0.5 1 0 1.5-0.2 2-0.5 1 0.5 2 0.5 2.5 0 1-0.5 2-1 2-1.5 0.5 0.5 1 1 1.5 0.5 0.5-0.5 0.5-1.5 0-2-0.5-0.5-1.5 0-2.5 0.5-1-1.5-2.5-2.5-4.5-2.5z"/></svg>
-                      </div>
-                    </td>
-                    <td style="vertical-align:top;">
-                      <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#6B7280;line-height:1.2;margin-bottom:4px;">HORSE</div>
-                      <div style="font-size:18px;font-weight:700;color:#FFFFFF;line-height:1.3;">${data.horseName}</div>
-                    </td>
-                  </tr>
-                </table>
-
-                <!-- Date & Time -->
-                <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
-                  <tr>
-                    <td style="width:40px; vertical-align:top; padding-right:16px;">
-                      <div style="width:40px;height:40px;border-radius:10px;background:rgba(251,191,36,0.2);display:flex;align-items:center;justify-content:center;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><rect x="3" y="6" width="18" height="15" rx="2"/><path d="M3 10h18M7 3v6M17 3v6"/></svg>
-                      </div>
-                    </td>
-                    <td style="vertical-align:top;">
-                      <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#6B7280;line-height:1.2;margin-bottom:4px;">DATE & TIME</div>
-                      <div style="font-size:16px;font-weight:600;color:#FFFFFF;line-height:1.3;">${new Date(data.date).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                      <div style="font-size:14px;font-weight:400;color:#D1D5DB;line-height:1.3;">${data.startTime} – ${data.endTime}</div>
-                    </td>
-                  </tr>
-                </table>
-
-                <!-- Rider Info Section -->
-                <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:20px;margin-top:8px;">
-                  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
-                    <tr>
-                      <td style="width:40px; vertical-align:top; padding-right:16px;">
-                        <div style="width:40px;height:40px;border-radius:10px;background:rgba(59,130,246,0.2);display:flex;align-items:center;justify-content:center;">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M5 21c0-4.4 3.6-8 8-8h-2c-4.4 0-8 3.6-8 8"/></svg>
-                        </div>
-                      </td>
-                      <td style="vertical-align:top;">
-                        <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#6B7280;line-height:1.2;margin-bottom:4px;">RIDER</div>
-                        <div style="font-size:16px;font-weight:600;color:#FFFFFF;line-height:1.3;margin-bottom:2px;">${data.riderName}</div>
-                        <div style="font-size:14px;color:#D1D5DB;line-height:1.3;">${data.riderEmail}</div>
-                        ${data.riderPhone ? `<div style="font-size:14px;color:#10b981;line-height:1.3;margin-top:4px;">📞 ${data.riderPhone}</div>` : ''}
-                      </td>
-                    </tr>
-                  </table>
-                </div>
-
-                <!-- Revenue Box -->
-                <div style="background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(16,185,129,0.05));border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:16px;margin-top:16px;text-align:center;">
-                  <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#10b981;margin-bottom:6px;">BOOKING VALUE</div>
-                  <div style="font-size:28px;font-weight:700;color:#FFFFFF;">EGP ${data.totalPrice}</div>
-                </div>
-              </div>
-
-              <!-- CTA Button -->
-              <div style="text-align:center;margin-top:24px;">
-                <a href="${process.env.NEXTAUTH_URL || 'https://pyraride.vercel.app'}/dashboard/stable" style="display:inline-block;padding:16px 32px;background:linear-gradient(90deg,#0d9488,#2563eb);color:#FFFFFF;font-size:16px;font-weight:600;border-radius:12px;text-decoration:none;box-shadow:0 4px 14px rgba(13,148,136,0.4);">
-                  View in Dashboard →
-                </a>
-              </div>
-            </td>
-          </tr>
+      <td align="center" style="padding: 60px 20px;">
+        
+        <!-- Glassmorphism Card -->
+        <!-- Fallback background for clients that don't support backdrop-filter -->
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px; width:100%; background:rgba(20, 20, 20, 0.85); border:1px solid rgba(255,255,255,0.1); border-radius:24px; backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
           
+          <!-- Header Section -->
+          <tr>
+            <td align="center" style="padding: 48px 40px 32px;">
+              <!-- Circular Logo with Glow -->
+              <div style="margin-bottom: 32px;">
+                <img src="${LOGO_URL}" alt="PyraRide" width="80" height="80" style="width:80px; height:80px; border-radius:50%; border:2px solid rgba(255,255,255,0.2); box-shadow:0 0 20px rgba(16,185,129,0.3); display:block;">
+              </div>
+              
+              <!-- Success Indicator -->
+              <div style="margin-bottom: 24px;">
+                <span style="display:inline-block; padding:8px 16px; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); border-radius:100px; color:#10b981; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase;">New Booking Confirmed</span>
+              </div>
+
+              <h1 style="margin:0 0 16px; color:#FFFFFF; font-size:36px; font-weight:700; letter-spacing:-0.02em; line-height:1.2;">Ride Scheduled! 🐎</h1>
+              <p style="margin:0; color:#9CA3AF; font-size:16px; line-height:1.6;">A new rider is ready for an adventure at your stable.</p>
+            </td>
+          </tr>
+
+          <!-- Horse Image Section -->
+          <tr>
+            <td style="padding: 0 40px 32px;">
+              <div style="border-radius:16px; overflow:hidden; border:1px solid rgba(255,255,255,0.1); position:relative;">
+                <img src="${horseImage}" alt="${data.horseName}" width="520" style="width:100%; height:auto; display:block; object-fit:cover; aspect-ratio:16/9;">
+                <!-- Overlay Gradient -->
+                <div style="position:absolute; bottom:0; left:0; right:0; height:50%; background:linear-gradient(to top, rgba(0,0,0,0.8), transparent);"></div>
+                <!-- Horse Name on Image -->
+                <div style="position:absolute; bottom:20px; left:20px;">
+                  <h2 style="margin:0; color:#FFFFFF; font-size:24px; font-weight:700; text-shadow:0 2px 4px rgba(0,0,0,0.5);">${data.horseName}</h2>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Details Grid -->
+          <tr>
+            <td style="padding: 0 40px 40px;">
+              <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                <!-- Row 1: Date & Time -->
+                <tr>
+                  <td width="50%" style="padding-bottom:24px; padding-right:12px; vertical-align:top;">
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:16px; padding:20px;">
+                      <div style="color:#6B7280; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">DATE</div>
+                      <div style="color:#FFFFFF; font-size:15px; font-weight:600;">${new Date(data.date).toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+                    </div>
+                  </td>
+                  <td width="50%" style="padding-bottom:24px; padding-left:12px; vertical-align:top;">
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:16px; padding:20px;">
+                      <div style="color:#6B7280; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">TIME</div>
+                      <div style="color:#FFFFFF; font-size:15px; font-weight:600;">${data.startTime} - ${data.endTime}</div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 2: Rider Info -->
+                <tr>
+                  <td colspan="2" style="padding-bottom:24px;">
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:16px; padding:24px; display:flex; align-items:center;">
+                      <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                        <tr>
+                          <td width="48" style="vertical-align:middle; padding-right:16px;">
+                            <div style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, #3b82f6, #06b6d4); display:flex; align-items:center; justify-content:center; color:#FFFFFF; font-weight:700; font-size:20px;">
+                              ${data.riderName.charAt(0).toUpperCase()}
+                            </div>
+                          </td>
+                          <td style="vertical-align:middle;">
+                            <div style="color:#6B7280; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">RIDER DETAILS</div>
+                            <div style="color:#FFFFFF; font-size:16px; font-weight:600; margin-bottom:2px;">${data.riderName}</div>
+                            <div style="color:#9CA3AF; font-size:14px;">${data.riderEmail}</div>
+                            ${data.riderPhone ? `<div style="color:#10b981; font-size:13px; margin-top:4px; font-weight:500;">📞 ${data.riderPhone}</div>` : ''}
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 3: Total Price -->
+                <tr>
+                  <td colspan="2">
+                    <div style="background:linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05)); border:1px solid rgba(16,185,129,0.3); border-radius:16px; padding:24px; text-align:center;">
+                      <div style="color:#10b981; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">TOTAL EARNINGS</div>
+                      <div style="color:#FFFFFF; font-size:32px; font-weight:800; letter-spacing:-0.02em;">EGP ${data.totalPrice}</div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Action Button -->
+          <tr>
+            <td align="center" style="padding: 0 40px 48px;">
+              <a href="${process.env.NEXTAUTH_URL || 'https://www.pyrarides.com'}/dashboard/stable" style="display:inline-block; padding:18px 48px; background:linear-gradient(90deg, #0d9488, #2563eb); color:#FFFFFF; font-size:16px; font-weight:600; border-radius:100px; text-decoration:none; box-shadow:0 10px 25px -5px rgba(37,99,235,0.5); transition:transform 0.2s;">
+                Open Dashboard
+              </a>
+            </td>
+          </tr>
+
           <!-- Footer -->
           <tr>
-            <td style="padding:24px 32px;text-align:center;background:transparent;border-top:1px solid rgba(255,255,255,0.1);">
-              <div style="font-size:13px;color:#6B7280;line-height:1.6;">
-                <div style="margin-bottom:8px;">
-                  <a href="https://pyraride.vercel.app" style="color:#FFFFFF;text-decoration:none;font-weight:600;">PyraRide</a>
-                </div>
-                <div style="margin-bottom:4px;">
-                  <a href="mailto:support@pyraride.com" style="color:#10b981;text-decoration:none;">support@pyraride.com</a>
-                </div>
-                <div style="font-size:11px;color:#6B7280;margin-top:12px;">
-                  © ${new Date().getFullYear()} PyraRide. All rights reserved.
-                </div>
-              </div>
+            <td style="border-top:1px solid rgba(255,255,255,0.1); padding: 32px 40px; text-align:center;">
+              <p style="margin:0 0 16px; color:#6B7280; font-size:13px;">
+                <a href="https://www.pyrarides.com" style="color:#9CA3AF; text-decoration:none; margin:0 10px;">Website</a> • 
+                <a href="mailto:support@pyrarides.com" style="color:#9CA3AF; text-decoration:none; margin:0 10px;">Support</a> • 
+                <a href="#" style="color:#9CA3AF; text-decoration:none; margin:0 10px;">Terms</a>
+              </p>
+              <p style="margin:0; color:#4B5563; font-size:12px;">© ${new Date().getFullYear()} PyraRide. All rights reserved.</p>
             </td>
           </tr>
+
         </table>
+        
+        <!-- Bottom Branding -->
+        <div style="margin-top: 32px; opacity: 0.5;">
+          <img src="${LOGO_URL}" alt="PyraRide" width="32" height="32" style="width:32px; height:32px; border-radius:50%; filter:grayscale(100%);">
+        </div>
+
       </td>
     </tr>
   </table>
