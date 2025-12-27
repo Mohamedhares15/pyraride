@@ -108,7 +108,8 @@ function BookingContent() {
     }
   }, [session, horse]);
 
-  // Fetch stable and horse data
+
+  // Fetch stable and horse data, AND check slot availability
   useEffect(() => {
     if (!stableId || !horseId) {
       setError("Missing booking information. Please select a horse from the stable page.");
@@ -129,6 +130,40 @@ function BookingContent() {
         if (!horseRes.ok) throw new Error("Failed to fetch horse");
         const horseData = await horseRes.json();
         setHorse(horseData);
+
+        // Check slot availability BEFORE showing booking form
+        const date = searchParams.get("date");
+        const startTime = searchParams.get("startTime");
+
+        if (date && startTime && horseId) {
+          const slotsRes = await fetch(`/api/stables/${stableId}/slots?date=${date}&horseId=${horseId}`);
+          if (slotsRes.ok) {
+            const slots = await slotsRes.json();
+
+            // Parse the requested start time to compare
+            const [reqHour, reqMinute] = startTime.split(':').map(Number);
+
+            // Find if the requested slot exists and is available
+            const requestedSlot = slots.find((slot: any) => {
+              const slotDate = new Date(slot.startTime);
+              return slotDate.getHours() === reqHour && slotDate.getMinutes() === reqMinute;
+            });
+
+            // If slot exists and has a booking, redirect back
+            if (requestedSlot?.booking && !requestedSlot.booking.cancelledBy) {
+              toast.error(`Horse ${horseData.name} is already booked for the selected time`);
+              router.push(`/stables/${stableId}#horse-${horseId}`);
+              return;
+            }
+
+            // If slot doesn't exist (horse welfare restriction), redirect back
+            if (!requestedSlot) {
+              toast.error(`This time slot is no longer available for ${horseData.name}`);
+              router.push(`/stables/${stableId}#horse-${horseId}`);
+              return;
+            }
+          }
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load booking details");
         toast.error("Failed to load booking details");
@@ -138,7 +173,8 @@ function BookingContent() {
     }
 
     fetchBookingData();
-  }, [stableId, horseId]);
+  }, [stableId, horseId, searchParams, router]);
+
 
   // Check authentication
   useEffect(() => {
