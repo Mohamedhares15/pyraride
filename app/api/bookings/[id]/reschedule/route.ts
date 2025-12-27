@@ -62,7 +62,7 @@ export async function POST(
             name: true,
             isActive: true,
             pricePerHour: true,
-            images: true,
+            imageUrls: true,
           }
         },
         stable: {
@@ -201,7 +201,7 @@ export async function POST(
           riderEmail: booking.rider.email,
           stableName: booking.stable.name,
           horseName: booking.horse.name,
-          horseImage: booking.horse.images?.[0],
+          horseImage: booking.horse.imageUrls?.[0],
           oldDate: booking.startTime.toISOString(),
           oldStartTime: oldStartTimeStr,
           oldEndTime: oldEndTimeStr,
@@ -223,7 +223,7 @@ export async function POST(
           riderName: booking.rider.fullName || "Valued Customer",
           riderEmail: booking.rider.email,
           horseName: booking.horse.name,
-          horseImage: booking.horse.images?.[0],
+          horseImage: booking.horse.imageUrls?.[0],
           oldDate: booking.startTime.toISOString(),
           oldStartTime: oldStartTimeStr,
           oldEndTime: oldEndTimeStr,

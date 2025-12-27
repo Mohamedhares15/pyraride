@@ -47,7 +47,7 @@ export async function POST(
         horse: {
           select: {
             name: true,
-            images: true,
+            imageUrls: true,
           },
         },
       },
@@ -117,7 +117,7 @@ export async function POST(
           riderEmail: booking.rider.email,
           stableName: booking.stable.name,
           horseName: booking.horse.name,
-          horseImage: booking.horse.images?.[0],
+          horseImage: booking.horse.imageUrls?.[0],
           date: booking.startTime.toISOString(),
           startTime: startTimeStr,
           endTime: endTimeStr,
@@ -130,14 +130,15 @@ export async function POST(
     }
 
     // Send email to OWNER
-    if (booking.stable.owner?.email) {
+    const ownerEmail = booking.stable.owner?.email;
+    if (ownerEmail) {
       try {
         await sendOwnerCancellationNotification({
-          ownerEmail: booking.stable.owner.email,
+          ownerEmail: ownerEmail,
           riderName: booking.rider.fullName || "Valued Customer",
           riderEmail: booking.rider.email,
           horseName: booking.horse.name,
-          horseImage: booking.horse.images?.[0],
+          horseImage: booking.horse.imageUrls?.[0],
           date: booking.startTime.toISOString(),
           startTime: startTimeStr,
           endTime: endTimeStr,
