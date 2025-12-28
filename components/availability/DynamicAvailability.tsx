@@ -19,7 +19,7 @@ interface DayGroupedSlots {
 interface DynamicAvailabilityProps {
     grouped: DayGroupedSlots | null | undefined;
     horseId: string;
-    onSlotClick: (horseId: string, time: string) => void;
+    onSlotClick: (horseId: string, time: string, isTomorrow?: boolean) => void;
 }
 
 export default function DynamicAvailability({ grouped, horseId, onSlotClick }: DynamicAvailabilityProps) {
