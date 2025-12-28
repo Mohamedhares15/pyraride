@@ -186,11 +186,15 @@ export default function StableDetailPage() {
     endTime?: string;
   } | undefined>(undefined);
 
-  const handleSlotClick = (horseId: string, timeStr: string) => {
+  const handleSlotClick = (horseId: string, timeStr: string, isTomorrow?: boolean) => {
     // Convert "10:00 AM" to "10:00" (24h format if needed, but input type=time expects HH:mm)
     // The Badge displays formatted time like "10:00 AM"
     // We need to parse it back to HH:mm for the input
     const date = new Date(); // Today
+    if (isTomorrow) {
+      date.setDate(date.getDate() + 1);
+    }
+
     const timeParts = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
     let hours = 0;
     let minutes = 0;

@@ -36,7 +36,7 @@ export default function DynamicAvailability({ grouped, horseId, onSlotClick }: D
         return <p className="text-xs text-muted-foreground">No available slots</p>;
     }
 
-    const renderPeriod = (title: string, emoji: string, times: string[]) => {
+    const renderPeriod = (title: string, emoji: string, times: string[], isTomorrow: boolean) => {
         if (times.length === 0) return null;
 
         return (
@@ -54,7 +54,7 @@ export default function DynamicAvailability({ grouped, horseId, onSlotClick }: D
                             className="h-6 bg-green-500/10 text-green-700 border-green-500/30 hover:bg-green-500/20 hover:text-green-800 text-xs px-2"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onSlotClick(horseId, time);
+                                onSlotClick(horseId, time, isTomorrow);
                             }}
                         >
                             {time}
@@ -70,18 +70,18 @@ export default function DynamicAvailability({ grouped, horseId, onSlotClick }: D
             {/* Today's Slots */}
             {hasToday && (
                 <div className="mb-4">
-                    {renderPeriod("Today: Morning", "🌅", todaySlots.morning)}
-                    {renderPeriod("Today: Afternoon", "☀", todaySlots.afternoon)}
-                    {renderPeriod("Today: Evening", "🌙", todaySlots.evening)}
+                    {renderPeriod("Today: Morning", "🌅", todaySlots.morning, false)}
+                    {renderPeriod("Today: Afternoon", "☀", todaySlots.afternoon, false)}
+                    {renderPeriod("Today: Evening", "🌙", todaySlots.evening, false)}
                 </div>
             )}
 
             {/* Tomorrow's Slots */}
             {hasTomorrow && (
                 <div className="mb-4">
-                    {renderPeriod("Tomorrow: Morning", "🌅", tomorrowSlots.morning)}
-                    {renderPeriod("Tomorrow: Afternoon", "☀", tomorrowSlots.afternoon)}
-                    {renderPeriod("Tomorrow: Evening", "🌙", tomorrowSlots.evening)}
+                    {renderPeriod("Tomorrow: Morning", "🌅", tomorrowSlots.morning, true)}
+                    {renderPeriod("Tomorrow: Afternoon", "☀", tomorrowSlots.afternoon, true)}
+                    {renderPeriod("Tomorrow: Evening", "🌙", tomorrowSlots.evening, true)}
                 </div>
             )}
 
