@@ -135,7 +135,7 @@ export async function GET(
       if (!slot.horseId) return; // Skip if no horseId
 
       // Check if booked and NOT cancelled
-      if (slot.booking && !slot.booking.cancelledBy) {
+      if (slot.booking && slot.booking.status !== 'cancelled') {
         const hour = new Date(slot.startTime).getHours();
         const isAm = hour < 12;
 
@@ -151,8 +151,8 @@ export async function GET(
     const filteredSlots = slots.filter(slot => {
       if (!slot.horseId) return true; // Keep slots without horseId (stable-wide?)
 
-      // Always keep booked slots (so they show as booked)
-      if (slot.booking && !slot.booking.cancelledBy) {
+      // Always keep booked slots (so they show as booked) - UNLESS they are cancelled
+      if (slot.booking && slot.booking.status !== 'cancelled') {
         return true;
       }
 
@@ -170,6 +170,12 @@ export async function GET(
       if (!isAm && horseStatus.pm) return false;
 
       return true;
+    }).map(slot => {
+      // If booking is cancelled, remove it from the response so frontend sees it as available
+      if (slot.booking && slot.booking.status === 'cancelled') {
+        return { ...slot, booking: null };
+      }
+      return slot;
     });
 
     console.log(`[GET /api/stables/${params.id}/slots] Found ${slots.length} slots, returning ${filteredSlots.length} after welfare filtering`);
