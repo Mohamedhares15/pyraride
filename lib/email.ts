@@ -108,16 +108,26 @@ function generateEmailTemplate({
 </head>
 <body style="margin:0; padding:0; background-color:#000000; color:#ffffff; font-family:'Inter', -apple-system, sans-serif; -webkit-font-smoothing: antialiased;">
   
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#000000; width:100%; margin:0; padding:0;">
-    <tr>
-      <td align="center" style="padding:0; background-color:#000000;">
-        
-        <!-- Main Container -->
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px; width:100%; background-color:#000000; margin:0 auto;">
+  <!-- Outlook Background Fix -->
+  <!--[if mso]>
+  <v:background xmlns:v="urn:schemas-microsoft-com:vml" fill="t">
+    <v:fill type="tile" color="#000000"/>
+  </v:background>
+  <![endif]-->
+
+  <!-- Main Wrapper Div -->
+  <div style="background-color:#000000; background-image:linear-gradient(#000000,#000000); width:100%; height:100%;">
+    
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" align="center" style="background-color:#000000; width:100%; margin:0; padding:0;">
+      <tr>
+        <td align="center" valign="top" style="padding:0; background-color:#000000;">
           
-          <!-- Header -->
-          <tr>
-            <td style="padding:40px 40px 20px; border-bottom:1px solid rgba(255,255,255,0.1);">
+          <!-- Content Container -->
+          <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" align="center" style="max-width:600px; width:100%; background-color:#000000; margin:0 auto;">
+            
+            <!-- Header -->
+            <tr>
+              <td style="padding:40px 40px 20px; border-bottom:1px solid rgba(255,255,255,0.1);">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                 <tr>
                   <td style="font-family:'Inter', sans-serif; font-size:14px; font-weight:600; letter-spacing:0.3em; color:#FFFFFF; text-transform:uppercase;">
