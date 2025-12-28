@@ -268,7 +268,7 @@ export default function StableDetailPage() {
             targetHorses.forEach((horse: any) => {
               if (!horse) return;
 
-              if (slot.isBooked) {
+              if (slot.booking) {
                 if (!newTaken[today][horse.id]) newTaken[today][horse.id] = [];
                 newTaken[today][horse.id].push({ ...slot, startTime: slot.startTime });
               } else {
