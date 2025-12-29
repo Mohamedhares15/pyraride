@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Plus, MessageSquare, ArrowLeft } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "@/components/shared/Navbar";
 
 interface User {
     id: string;
@@ -258,8 +258,8 @@ export default function ChatPage() {
                                         return (
                                             <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                                                 <div className={`max-w-[70%] rounded-2xl px-4 py-2 ${isMe
-                                                        ? "bg-primary text-white rounded-br-none"
-                                                        : "bg-zinc-800 text-zinc-200 rounded-bl-none"
+                                                    ? "bg-primary text-white rounded-br-none"
+                                                    : "bg-zinc-800 text-zinc-200 rounded-bl-none"
                                                     }`}>
                                                     <p>{msg.content}</p>
                                                     <span className={`text-[10px] block mt-1 ${isMe ? "text-white/70" : "text-zinc-500"}`}>
