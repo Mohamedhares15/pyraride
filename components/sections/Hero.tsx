@@ -218,7 +218,7 @@ export default function Hero() {
                     aria-label="Select ride date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 pointer-events-none"
+                    className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
                     tabIndex={-1}
                   />
                 </div>
