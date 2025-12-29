@@ -11,13 +11,27 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
+import { motion } from "framer-motion";
+import {
+    MapPin, Calendar, Star, Users, Grid, Image as ImageIcon,
+    MessageSquare, Heart, Share2, Settings, UserPlus, UserCheck,
+    Camera, MoreHorizontal, Edit
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { useRouter } from "next/navigation";
 import CreatePostModal from "@/components/shared/CreatePostModal";
-import EditProfileModal from "@/components/shared/EditProfileModal";
+import EditProfileDialog from "@/components/users/EditProfileDialog";
+import FollowersList from "@/components/users/FollowersList";
 
 interface UserProfileData {
     id: string;
@@ -62,6 +76,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     const [error, setError] = useState("");
     const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
     const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+    const [isFollowersListOpen, setIsFollowersListOpen] = useState(false);
     const [isUploadingImage, setIsUploadingImage] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -365,7 +380,10 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                             <div className="text-3xl font-bold text-white mb-1 group-hover:text-primary transition-colors">{profile.stats.rides}</div>
                             <div className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Rides</div>
                         </Card>
-                        <Card className="bg-white/5 backdrop-blur-md border-white/5 p-5 text-center hover:bg-white/10 transition-all cursor-pointer group">
+                        <Card
+                            className="bg-white/5 backdrop-blur-md border-white/5 p-5 text-center hover:bg-white/10 transition-all cursor-pointer group"
+                            onClick={() => setIsFollowersListOpen(true)}
+                        >
                             <div className="text-3xl font-bold text-white mb-1 group-hover:text-primary transition-colors">{profile.stats.followers}</div>
                             <div className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Followers</div>
                         </Card>
@@ -501,11 +519,16 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 isOpen={isCreatePostOpen}
                 onClose={() => setIsCreatePostOpen(false)}
             />
-            <EditProfileModal
+            <EditProfileDialog
                 isOpen={isEditProfileOpen}
                 onClose={() => setIsEditProfileOpen(false)}
                 currentBio={profile.bio || ""}
                 userId={profile.id}
+            />
+            <FollowersList
+                userId={profile.id}
+                isOpen={isFollowersListOpen}
+                onClose={() => setIsFollowersListOpen(false)}
             />
         </div >
     );

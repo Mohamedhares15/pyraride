@@ -8,7 +8,7 @@ import {
   isValidPhoneNumber,
 } from "@/lib/auth-utils";
 
-const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 function sanitizeString(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
@@ -38,7 +38,7 @@ function getProfileImageDataUrl(
   const base64Payload = match[2];
   const approximateSize = (base64Payload.length * 3) / 4;
   if (approximateSize > MAX_IMAGE_SIZE_BYTES) {
-    return { dataUrl: "", error: "Profile image must be smaller than 2MB." };
+    return { dataUrl: "", error: "Profile image must be smaller than 10MB." };
   }
 
   return { dataUrl: trimmed };

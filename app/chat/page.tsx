@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Plus, MessageSquare, ArrowLeft } from "lucide-react";
 import Navbar from "@/components/shared/Navbar";
+import NewChatDialog from "@/components/chat/NewChatDialog";
 
 interface User {
     id: string;
@@ -155,6 +156,11 @@ function ChatContent() {
         return conversation.participants.find(p => p.id !== session?.user?.id) || conversation.participants[0];
     };
 
+    const handleConversationCreated = (conversation: Conversation) => {
+        setConversations(prev => [conversation, ...prev]);
+        setSelectedConversation(conversation);
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -172,9 +178,7 @@ function ChatContent() {
                 <div className={`w-full md:w-1/3 lg:w-1/4 flex flex-col gap-4 ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
                     <div className="flex items-center justify-between">
                         <h2 className="text-2xl font-bold font-display">Messages</h2>
-                        {/* <Button size="icon" variant="ghost" className="rounded-full hover:bg-white/10">
-              <Plus className="h-5 w-5" />
-            </Button> */}
+                        <NewChatDialog onConversationCreated={handleConversationCreated} />
                     </div>
 
                     <ScrollArea className="flex-1 -mx-4 px-4">

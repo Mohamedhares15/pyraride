@@ -77,6 +77,9 @@ export async function POST(req: NextRequest) {
         horseRating,
         comment: comment || "",
         photos: photos || [],
+        reviewMedias: {
+          create: photos?.map((url: string) => ({ url })) || [],
+        },
       },
       include: {
         rider: {
