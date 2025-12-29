@@ -8,14 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-interface EditProfileModalProps {
+interface EditProfileDialogProps {
     isOpen: boolean;
     onClose: () => void;
     currentBio: string;
     userId: string;
 }
 
-export default function EditProfileModal({ isOpen, onClose, currentBio, userId }: EditProfileModalProps) {
+export default function EditProfileDialog({ isOpen, onClose, currentBio, userId }: EditProfileDialogProps) {
     const router = useRouter();
     const [bio, setBio] = useState(currentBio || "");
     const [isLoading, setIsLoading] = useState(false);
