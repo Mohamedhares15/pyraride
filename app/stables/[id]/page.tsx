@@ -23,7 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import BookingModal from "@/components/shared/BookingModal";
 
-import ReviewsSection from "@/components/sections/ReviewsSection";
+import ReviewsSection, { Review } from "@/components/sections/ReviewsSection";
 import StableLocationMap from "@/components/maps/StableLocationMap";
 import DynamicAvailability from "@/components/availability/DynamicAvailability";
 import VideoMeetButton from "@/components/shared/VideoMeetButton";
@@ -34,18 +34,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-interface Review {
-  id: string;
-  stableRating: number;
-  horseRating: number;
-  comment: string;
-  createdAt: string;
-  rider: {
-    id: string;
-    fullName: string | null;
-    email: string;
-  };
-}
+
 
 interface HorseMediaItem {
   url: string;

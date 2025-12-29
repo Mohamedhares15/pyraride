@@ -7,13 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import ReviewCard from "./ReviewCard";
 import StarRating from "@/components/shared/StarRating";
 
-interface Review {
+export interface Review {
   id: string;
   stableRating: number;
   horseRating: number;
   comment: string;
   createdAt: string;
   rider: {
+    id?: string;
     fullName: string | null;
     email: string;
   };
