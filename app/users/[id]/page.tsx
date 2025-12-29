@@ -11,19 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-"use client";
-
-import { useState, useEffect, useRef } from "react";
-import { useSession } from "next-auth/react";
-import { motion } from "framer-motion";
-import {
-    MapPin, Calendar, Star, Users, Grid, Image as ImageIcon,
-    MessageSquare, Heart, Share2, Settings, UserPlus, UserCheck,
-    Camera, MoreHorizontal, Edit
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/shared/Navbar";
