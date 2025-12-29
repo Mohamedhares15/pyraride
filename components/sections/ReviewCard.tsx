@@ -17,6 +17,9 @@ interface ReviewCardProps {
       fullName: string | null;
       email: string;
     };
+    reviewMedias?: {
+      url: string;
+    }[];
   };
   index: number;
 }
@@ -68,7 +71,7 @@ export default function ReviewCard({ review, index }: ReviewCardProps) {
             <div className="flex items-center gap-2">
               <StarRating
                 rating={review.stableRating}
-                onRatingChange={() => {}} // Read-only
+                onRatingChange={() => { }} // Read-only
                 interactive={false}
               />
               <Badge variant="outline">{review.stableRating}/5</Badge>
@@ -81,7 +84,7 @@ export default function ReviewCard({ review, index }: ReviewCardProps) {
             <div className="flex items-center gap-2">
               <StarRating
                 rating={review.horseRating}
-                onRatingChange={() => {}} // Read-only
+                onRatingChange={() => { }} // Read-only
                 interactive={false}
               />
               <Badge variant="outline">{review.horseRating}/5</Badge>
@@ -95,6 +98,20 @@ export default function ReviewCard({ review, index }: ReviewCardProps) {
             <p className="text-sm leading-relaxed text-foreground">
               {review.comment}
             </p>
+          </div>
+        )}
+        {/* Review Images */}
+        {review.reviewMedias && review.reviewMedias.length > 0 && (
+          <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
+            {review.reviewMedias.map((media, idx) => (
+              <div key={idx} className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-border">
+                <img
+                  src={media.url}
+                  alt={`Review image ${idx + 1}`}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ))}
           </div>
         )}
       </Card>

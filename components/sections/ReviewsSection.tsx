@@ -17,6 +17,9 @@ interface Review {
     fullName: string | null;
     email: string;
   };
+  reviewMedias: {
+    url: string;
+  }[];
 }
 
 interface ReviewsSectionProps {
@@ -68,7 +71,7 @@ export default function ReviewsSection({
           <div className="mt-3">
             <StarRating
               rating={averageStableRating}
-              onRatingChange={() => {}}
+              onRatingChange={() => { }}
               interactive={false}
             />
           </div>
@@ -87,7 +90,7 @@ export default function ReviewsSection({
           <div className="mt-3">
             <StarRating
               rating={averageHorseRating}
-              onRatingChange={() => {}}
+              onRatingChange={() => { }}
               interactive={false}
             />
           </div>

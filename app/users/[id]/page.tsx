@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import {
@@ -38,6 +38,10 @@ interface UserProfileData {
         id: string;
         imageUrl: string;
         caption: string | null;
+        _count: { likes: number };
+        likes: { userId: string }[];
+        isLiked?: boolean; // Client-side state
+        likeCount?: number; // Client-side state
     }[];
     reviews: {
         id: string;
@@ -58,6 +62,43 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     const [error, setError] = useState("");
     const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
     const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 2 * 1024 * 1024) {
+            alert("Image must be smaller than 2MB");
+            return;
+        }
+
+        try {
+            setIsUploadingImage(true);
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64String = reader.result as string;
+
+                const response = await fetch("/api/profile", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ profileImageDataUrl: base64String }),
+                });
+
+                if (!response.ok) throw new Error("Failed to upload image");
+
+                const data = await response.json();
+                setProfile(prev => prev ? { ...prev, profileImageUrl: data.user.profileImageUrl } : null);
+            };
+            reader.readAsDataURL(file);
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            alert("Failed to upload image");
+        } finally {
+            setIsUploadingImage(false);
+        }
+    };
 
     useEffect(() => {
         fetchProfile();
@@ -72,7 +113,13 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 throw new Error("Failed to fetch profile");
             }
             const data = await response.json();
-            setProfile(data.user);
+            // Map initial state
+            const postsWithState = data.user.userPosts.map((post: any) => ({
+                ...post,
+                isLiked: post.likes.length > 0,
+                likeCount: post._count.likes
+            }));
+            setProfile({ ...data.user, userPosts: postsWithState });
         } catch (err) {
             console.error(err);
             setError("Failed to load profile");
@@ -80,6 +127,64 @@ export default function UserProfile({ params }: { params: { id: string } }) {
             setIsLoading(false);
         }
     }
+
+    const togglePostLike = async (postId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!session) {
+            router.push("/signin");
+            return;
+        }
+
+        if (!profile) return;
+
+        // Optimistic update
+        setProfile(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                userPosts: prev.userPosts.map(post => {
+                    if (post.id === postId) {
+                        const isLiked = !post.isLiked;
+                        return {
+                            ...post,
+                            isLiked,
+                            likeCount: (post.likeCount || 0) + (isLiked ? 1 : -1)
+                        };
+                    }
+                    return post;
+                })
+            };
+        });
+
+        try {
+            const response = await fetch(`/api/posts/${postId}/like`, {
+                method: "POST"
+            });
+
+            if (!response.ok) {
+                // Revert
+                setProfile(prev => {
+                    if (!prev) return null;
+                    return {
+                        ...prev,
+                        userPosts: prev.userPosts.map(post => {
+                            if (post.id === postId) {
+                                const isLiked = !post.isLiked;
+                                return {
+                                    ...post,
+                                    isLiked,
+                                    likeCount: (post.likeCount || 0) + (isLiked ? 1 : -1)
+                                };
+                            }
+                            return post;
+                        })
+                    };
+                });
+            }
+        } catch (error) {
+            console.error("Error toggling like:", error);
+        }
+    };
 
     const toggleFollow = async () => {
         if (!session) {
@@ -160,9 +265,26 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                                 </Avatar>
                             </div>
                             {session?.user?.id === profile.id && (
-                                <button className="absolute bottom-2 right-2 p-2.5 bg-primary rounded-full text-white shadow-lg hover:bg-primary/90 transition-all hover:scale-110">
-                                    <Camera className="h-4 w-4" />
-                                </button>
+                                <>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        className="hidden"
+                                        accept="image/png, image/jpeg, image/jpg, image/webp"
+                                        onChange={handleImageUpload}
+                                    />
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        disabled={isUploadingImage}
+                                        className="absolute bottom-2 right-2 p-2.5 bg-primary rounded-full text-white shadow-lg hover:bg-primary/90 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isUploadingImage ? (
+                                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                        ) : (
+                                            <Camera className="h-4 w-4" />
+                                        )}
+                                    </button>
+                                </>
                             )}
                         </div>
 
@@ -223,12 +345,18 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                                             </>
                                         )}
                                     </Button>
-                                    <Button variant="outline" size="icon" className="border-white/10 bg-white/5 hover:bg-white/10 hover:text-white">
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="border-white/10 bg-white/5 hover:bg-white/10 hover:text-white"
+                                        onClick={() => router.push(`/chat?userId=${profile.id}`)}
+                                    >
                                         <MessageSquare className="h-4 w-4" />
                                     </Button>
                                 </>
                             )}
                         </div>
+
                     </div>
 
                     {/* Stats */}
@@ -297,8 +425,12 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             />
                                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6 text-white backdrop-blur-sm">
-                                                <div className="flex items-center gap-2">
-                                                    <Heart className="h-8 w-8 fill-white drop-shadow-lg" />
+                                                <div
+                                                    className="flex items-center gap-2 cursor-pointer hover:scale-110 transition-transform"
+                                                    onClick={(e) => togglePostLike(post.id, e)}
+                                                >
+                                                    <Heart className={`h-8 w-8 drop-shadow-lg ${post.isLiked ? "fill-red-500 text-red-500" : "fill-white text-white"}`} />
+                                                    <span className="font-bold text-lg">{post.likeCount}</span>
                                                 </div>
                                             </div>
                                             {post.caption && (
@@ -359,9 +491,9 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                                 )}
                             </div>
                         </TabsContent>
-                    </Tabs>
-                </div>
-            </main>
+                    </Tabs >
+                </div >
+            </main >
             <Footer />
 
             {/* Modals */}
@@ -375,6 +507,6 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 currentBio={profile.bio || ""}
                 userId={profile.id}
             />
-        </div>
+        </div >
     );
 }

@@ -35,7 +35,14 @@ export async function GET(
           select: {
             id: true,
             imageUrl: true,
-            caption: true
+            caption: true,
+            _count: {
+              select: { likes: true }
+            },
+            likes: {
+              where: { userId: session?.user?.id || "0" }, // "0" to return empty if no session
+              select: { userId: true }
+            }
           }
         },
         reviews: {

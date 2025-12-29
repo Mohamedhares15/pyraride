@@ -70,6 +70,11 @@ export async function GET(
                 email: true,
               },
             },
+            reviewMedias: {
+              select: {
+                url: true,
+              },
+            },
           },
           orderBy: {
             createdAt: "desc",

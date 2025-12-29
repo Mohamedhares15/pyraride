@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth";
+import { sendNewFollowerEmail } from "@/lib/email";
 
 export async function POST(
   req: NextRequest,
@@ -48,6 +49,20 @@ export async function POST(
           followingId
         }
       });
+
+      // Send email notification
+      const followedUser = await prisma.user.findUnique({ where: { id: followingId } });
+      const followerUser = await prisma.user.findUnique({ where: { id: followerId } });
+
+      if (followedUser?.email && followerUser) {
+        await sendNewFollowerEmail({
+          followedEmail: followedUser.email,
+          followedName: followedUser.fullName || "Rider",
+          followerName: followerUser.fullName || "A Rider",
+          followerProfileUrl: `${process.env.NEXTAUTH_URL || "https://www.pyrarides.com"}/users/${followerId}`,
+        });
+      }
+
       return NextResponse.json({ isFollowing: true });
     }
 

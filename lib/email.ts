@@ -816,3 +816,46 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
     throw error;
   }
 }
+
+// ============================================================================
+// NEW FOLLOWER NOTIFICATION EMAIL
+// ============================================================================
+interface NewFollowerEmailData {
+  followedEmail: string;
+  followedName: string;
+  followerName: string;
+  followerProfileUrl: string;
+}
+
+function generateNewFollowerEmail(data: NewFollowerEmailData): string {
+  return generateEmailTemplate({
+    headline: "New Follower.",
+    subheadline: "Community Update",
+    bodyTitle: `${data.followerName} started following you`,
+    bodyText: `You have a new follower on PyraRide! ${data.followerName} is now following your adventures.`,
+    ctaText: "View Profile",
+    ctaUrl: data.followerProfileUrl,
+    footerNote: "Connect with more riders to share your experiences.",
+  });
+}
+
+export async function sendNewFollowerEmail(data: NewFollowerEmailData): Promise<boolean> {
+  try {
+    const transporter = createTransporter();
+    if (!transporter) return false;
+
+    const mailOptions = {
+      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      to: data.followedEmail,
+      subject: `👤 New Follower: ${data.followerName}`,
+      html: generateNewFollowerEmail(data),
+      text: `${data.followerName} started following you on PyraRide.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error("Error sending new follower email:", error);
+    return false;
+  }
+}

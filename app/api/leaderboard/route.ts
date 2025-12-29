@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
                     id: true,
                     fullName: true,
                     email: true,
+                    profileImageUrl: true,
                     rankPoints: true,
                     rank: {
                         select: {
@@ -214,7 +215,7 @@ export async function POST(req: NextRequest) {
 
         // Determine rider's new tier based on updated points
         const newRiderTier = ratingUpdate.riderTier;
-        
+
         // Get or create rider rank record
         let riderRank = await prisma.riderRank.findFirst({
             where: { name: newRiderTier },
