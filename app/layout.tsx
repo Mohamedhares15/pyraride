@@ -115,8 +115,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="light">
       <head>
-        {/* Viewport - Lock mobile to portrait orientation only */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=portrait" />
+        {/* Viewport - Lock mobile to portrait orientation only, cover notch */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=portrait, viewport-fit=cover" />
         {/* DNS Prefetch for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -138,8 +138,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="PyraRide" />
         <meta name="mobile-web-app-capable" content="yes" />
 
-        {/* Theme Color for browser UI */}
-        <meta name="theme-color" content="#D4A574" />
+        {/* Theme Color for browser UI - Set to Black to match app header */}
+        <meta name="theme-color" content="#000000" />
         <meta name="msapplication-TileColor" content="#000000" />
         <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
 

@@ -173,7 +173,7 @@ function ChatContent() {
         <div className="min-h-screen bg-black text-white flex flex-col">
             <Navbar />
 
-            <div className="flex-1 container mx-auto px-4 py-8 flex gap-6 h-[calc(100vh-80px)]">
+            <div className="container mx-auto px-4 pt-24 pb-4 flex gap-6 h-[100dvh]">
                 {/* Sidebar - Conversations List */}
                 <div className={`w-full md:w-1/3 lg:w-1/4 flex flex-col gap-4 ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
                     <div className="flex items-center justify-between">
