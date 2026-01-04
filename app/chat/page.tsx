@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useEffect, useRef, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense, useOptimistic, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Plus, MessageSquare, ArrowLeft } from "lucide-react";
+import { Send, MessageSquare, ArrowLeft, X } from "lucide-react";
 import Navbar from "@/components/shared/Navbar";
 import NewChatDialog from "@/components/chat/NewChatDialog";
+import MessageBubble from "@/components/chat/MessageBubble";
+import TypingIndicator from "@/components/chat/TypingIndicator";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 interface User {
     id: string;
@@ -23,6 +25,8 @@ interface Message {
     content: string;
     createdAt: string;
     sender: User;
+    status?: "SENT" | "DELIVERED" | "READ";
+    pending?: boolean;
 }
 
 interface Conversation {
@@ -43,9 +47,26 @@ function ChatContent() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [isLoading, setIsLoading] = useState(true);
-    const [isSending, setIsSending] = useState(false);
+    const [isTyping, setIsTyping] = useState(false); // Simulated typing state
+    const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+
+    // Optimistic UI for messages
+    const [optimisticMessages, addOptimisticMessage] = useOptimistic(
+        messages,
+        (state, newMessage: Message) => [...state, newMessage]
+    );
+    const [isPending, startTransition] = useTransition();
 
     const scrollRef = useRef<HTMLDivElement>(null);
+    const parentRef = useRef<HTMLDivElement>(null);
+
+    // Virtualizer for performance with large lists
+    const rowVirtualizer = useVirtualizer({
+        count: optimisticMessages.length,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 60, // Estimate row height
+        overscan: 5,
+    });
 
     useEffect(() => {
         fetchConversations();
@@ -54,10 +75,12 @@ function ChatContent() {
     useEffect(() => {
         if (selectedConversation) {
             fetchMessages(selectedConversation.id);
-            // Poll for new messages every 5 seconds
+            // Poll for new messages every 3 seconds (Real-time simulation)
             const interval = setInterval(() => {
-                fetchMessages(selectedConversation.id);
-            }, 5000);
+                fetchMessages(selectedConversation.id, true);
+                // Simulate typing indicator randomly for demo purposes
+                // setIsTyping(Math.random() > 0.9); 
+            }, 3000);
             return () => clearInterval(interval);
         }
     }, [selectedConversation]);
@@ -77,11 +100,12 @@ function ChatContent() {
         }
     }, [targetUserId, conversations]);
 
+    // Auto-scroll to bottom on new message
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollIntoView({ behavior: "smooth" });
+        if (rowVirtualizer.getTotalSize() > 0) {
+            rowVirtualizer.scrollToIndex(optimisticMessages.length - 1);
         }
-    }, [messages]);
+    }, [optimisticMessages.length]);
 
     const fetchConversations = async () => {
         try {
@@ -97,15 +121,27 @@ function ChatContent() {
         }
     };
 
-    const fetchMessages = async (conversationId: string) => {
+    const fetchMessages = async (conversationId: string, isPolling = false) => {
         try {
             const res = await fetch(`/api/chat/conversations/${conversationId}/messages`);
             if (res.ok) {
                 const data = await res.json();
                 setMessages(data.messages);
+
+                if (!isPolling && data.messages.length > 0) {
+                    markAsRead(conversationId);
+                }
             }
         } catch (error) {
             console.error("Error fetching messages:", error);
+        }
+    };
+
+    const markAsRead = async (conversationId: string) => {
+        try {
+            await fetch(`/api/chat/conversations/${conversationId}/read`, { method: "POST" });
+        } catch (error) {
+            console.error("Error marking read:", error);
         }
     };
 
@@ -129,26 +165,44 @@ function ChatContent() {
 
     const sendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim() || !selectedConversation) return;
+        if (!newMessage.trim() || !selectedConversation || !session?.user) return;
 
-        setIsSending(true);
+        const tempId = Math.random().toString(36).substring(7);
+        const user = session.user as any; // Cast to any to avoid type errors if image is missing from type
+
+        const optimisticMsg: Message = {
+            id: tempId,
+            content: newMessage,
+            createdAt: new Date().toISOString(),
+            sender: {
+                id: user.id,
+                fullName: user.name || "Me",
+                profileImageUrl: user.image || user.profileImageUrl || null
+            },
+            status: "SENT",
+            pending: true
+        };
+
+        // Optimistic update
+        startTransition(() => {
+            addOptimisticMessage(optimisticMsg);
+            setNewMessage("");
+            setReplyingTo(null); // Clear reply state
+        });
+
         try {
             const res = await fetch(`/api/chat/conversations/${selectedConversation.id}/messages`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content: newMessage }),
+                body: JSON.stringify({ content: optimisticMsg.content }),
             });
 
             if (res.ok) {
-                const data = await res.json();
-                setMessages(prev => [...prev, data.message]);
-                setNewMessage("");
-                fetchConversations(); // Update last message preview
+                fetchMessages(selectedConversation.id);
+                fetchConversations();
             }
         } catch (error) {
             console.error("Error sending message:", error);
-        } finally {
-            setIsSending(false);
         }
     };
 
@@ -231,7 +285,7 @@ function ChatContent() {
                     {selectedConversation ? (
                         <>
                             {/* Chat Header */}
-                            <div className="p-4 border-b border-white/5 flex items-center gap-4 bg-zinc-900/50 backdrop-blur-sm">
+                            <div className="p-4 border-b border-white/5 flex items-center gap-4 bg-zinc-900/50 backdrop-blur-sm z-10">
                                 <Button
                                     variant="ghost"
                                     size="icon"
@@ -254,31 +308,56 @@ function ChatContent() {
                                 </div>
                             </div>
 
-                            {/* Messages */}
-                            <ScrollArea className="flex-1 p-4">
-                                <div className="space-y-4">
-                                    {messages.map((msg, idx) => {
+                            {/* Messages with Virtualization */}
+                            <div className="flex-1 p-4 overflow-y-auto" ref={parentRef}>
+                                <div
+                                    style={{
+                                        height: `${rowVirtualizer.getTotalSize()}px`,
+                                        width: '100%',
+                                        position: 'relative',
+                                    }}
+                                >
+                                    {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                                        const msg = optimisticMessages[virtualRow.index];
                                         const isMe = msg.sender.id === session?.user?.id;
                                         return (
-                                            <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-                                                <div className={`max-w-[70%] rounded-2xl px-4 py-2 ${isMe
-                                                    ? "bg-primary text-white rounded-br-none"
-                                                    : "bg-zinc-800 text-zinc-200 rounded-bl-none"
-                                                    }`}>
-                                                    <p>{msg.content}</p>
-                                                    <span className={`text-[10px] block mt-1 ${isMe ? "text-white/70" : "text-zinc-500"}`}>
-                                                        {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                    </span>
-                                                </div>
+                                            <div
+                                                key={msg.id}
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 0,
+                                                    width: '100%',
+                                                    transform: `translateY(${virtualRow.start}px)`,
+                                                }}
+                                            >
+                                                <MessageBubble
+                                                    message={msg}
+                                                    isMe={isMe}
+                                                    onSwipeReply={setReplyingTo}
+                                                />
                                             </div>
                                         );
                                     })}
-                                    <div ref={scrollRef} />
                                 </div>
-                            </ScrollArea>
+                                {isTyping && <TypingIndicator />}
+                            </div>
+
+                            {/* Reply Banner */}
+                            {replyingTo && (
+                                <div className="px-4 py-2 bg-zinc-800/80 border-t border-white/5 flex justify-between items-center backdrop-blur-sm z-10">
+                                    <div className="flex flex-col text-sm border-l-2 border-primary pl-2">
+                                        <span className="text-primary font-semibold">{replyingTo.sender.fullName}</span>
+                                        <span className="text-zinc-400 truncate max-w-[200px]">{replyingTo.content}</span>
+                                    </div>
+                                    <Button variant="ghost" size="icon" onClick={() => setReplyingTo(null)}>
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            )}
 
                             {/* Input */}
-                            <div className="p-4 border-t border-white/5 bg-zinc-900/50 backdrop-blur-sm">
+                            <div className="p-4 border-t border-white/5 bg-zinc-900/50 backdrop-blur-sm z-10">
                                 <form onSubmit={sendMessage} className="flex gap-2">
                                     <Input
                                         value={newMessage}
@@ -286,7 +365,7 @@ function ChatContent() {
                                         placeholder="Type a message..."
                                         className="bg-zinc-800 border-white/10 focus-visible:ring-primary"
                                     />
-                                    <Button type="submit" disabled={isSending || !newMessage.trim()}>
+                                    <Button type="submit" disabled={!newMessage.trim()}>
                                         <Send className="h-4 w-4" />
                                     </Button>
                                 </form>

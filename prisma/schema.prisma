@@ -567,11 +567,19 @@ model Conversation {
   @@index([updatedAt])
 }
 
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+}
+
 model Message {
-  id             String   @id @default(uuid())
-  content        String   @db.Text
-  createdAt      DateTime @default(now())
-  read           Boolean  @default(false)
+  id             String        @id @default(uuid())
+  content        String        @db.Text
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  status         MessageStatus @default(SENT)
+  read           Boolean       @default(false) // Deprecated, kept for backward compatibility
   senderId       String
   conversationId String
 

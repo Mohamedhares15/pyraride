@@ -1,15 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth";
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(
-    req: NextRequest,
+    req: Request,
     { params }: { params: { id: string } }
 ) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
         if (!session?.user?.id) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return new NextResponse("Unauthorized", { status: 401 });
         }
 
         const conversationId = params.id;
@@ -17,11 +18,11 @@ export async function GET(
         // Verify participation
         const conversation = await prisma.conversation.findUnique({
             where: { id: conversationId },
-            include: { participants: { select: { id: true } } },
+            include: { participants: true },
         });
 
         if (!conversation || !conversation.participants.some(p => p.id === session.user.id)) {
-            return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+            return new NextResponse("Forbidden", { status: 403 });
         }
 
         const messages = await prisma.message.findMany({
@@ -41,36 +42,35 @@ export async function GET(
         return NextResponse.json({ messages });
     } catch (error) {
         console.error("Error fetching messages:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return new NextResponse("Internal Error", { status: 500 });
     }
 }
 
 export async function POST(
-    req: NextRequest,
+    req: Request,
     { params }: { params: { id: string } }
 ) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
         if (!session?.user?.id) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return new NextResponse("Unauthorized", { status: 401 });
         }
 
+        const { content } = await req.json();
         const conversationId = params.id;
-        const body = await req.json();
-        const { content } = body;
 
-        if (!content || typeof content !== "string") {
-            return NextResponse.json({ error: "Content required" }, { status: 400 });
+        if (!content) {
+            return new NextResponse("Missing content", { status: 400 });
         }
 
         // Verify participation
         const conversation = await prisma.conversation.findUnique({
             where: { id: conversationId },
-            include: { participants: { select: { id: true } } },
+            include: { participants: true },
         });
 
         if (!conversation || !conversation.participants.some(p => p.id === session.user.id)) {
-            return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+            return new NextResponse("Forbidden", { status: 403 });
         }
 
         const message = await prisma.message.create({
@@ -78,6 +78,7 @@ export async function POST(
                 content,
                 conversationId,
                 senderId: session.user.id,
+                status: "SENT", // Explicitly set status
             },
             include: {
                 sender: {
@@ -99,6 +100,6 @@ export async function POST(
         return NextResponse.json({ message });
     } catch (error) {
         console.error("Error sending message:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return new NextResponse("Internal Error", { status: 500 });
     }
 }
