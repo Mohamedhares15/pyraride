@@ -2,7 +2,7 @@ const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
 
-const inputPath = path.join(__dirname, 'public', 'logo-high-res.png');
+const inputPath = path.join(__dirname, 'public', 'logo-final.jpg');
 const outputDir = path.join(__dirname, 'public', 'icons');
 
 // Ensure output directory exists
@@ -16,21 +16,22 @@ async function generateIcons() {
     console.log('Generating PWA icons from:', inputPath);
 
     // Standard Icons (Square with background)
+    // Since input is JPG, we just resize it.
+    // We'll add a small padding to ensure it looks good in a square.
     for (const size of sizes) {
         const outputPath = path.join(outputDir, `icon-${size}x${size}.png`);
 
-        // Create a black background square
         await sharp({
             create: {
                 width: size,
                 height: size,
                 channels: 4,
-                background: { r: 0, g: 0, b: 0, alpha: 1 }
+                background: { r: 18, g: 18, b: 18, alpha: 1 } // #121212 background
             }
         })
             .composite([{
                 input: await sharp(inputPath)
-                    .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+                    .resize(size, size, { fit: 'cover' }) // Use cover to fill the square if it's a full image
                     .toBuffer()
             }])
             .png()
@@ -39,10 +40,10 @@ async function generateIcons() {
         console.log(`Generated: icon-${size}x${size}.png`);
     }
 
-    // Generate maskable icon (with 30% padding for safe area)
+    // Generate maskable icon (with 20% padding for safe area)
     // Maskable icons should be "safe" within the center 60% circle
     const maskableSize = 512;
-    const padding = Math.floor(maskableSize * 0.3); // 30% padding
+    const padding = Math.floor(maskableSize * 0.2); // 20% padding
     const innerSize = maskableSize - (padding * 2);
 
     await sharp({
@@ -50,30 +51,30 @@ async function generateIcons() {
             width: maskableSize,
             height: maskableSize,
             channels: 4,
-            background: { r: 0, g: 0, b: 0, alpha: 1 } // Black background
+            background: { r: 18, g: 18, b: 18, alpha: 1 } // #121212 background
         }
     })
         .composite([{
             input: await sharp(inputPath)
-                .resize(innerSize, innerSize, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+                .resize(innerSize, innerSize, { fit: 'contain', background: { r: 18, g: 18, b: 18, alpha: 1 } })
                 .toBuffer()
         }])
         .png()
         .toFile(path.join(outputDir, 'maskable-icon-512x512.png'));
     console.log('Generated: maskable-icon-512x512.png');
 
-    // Generate Apple touch icon (180x180) - No transparency allowed by Apple usually, black bg is good
+    // Generate Apple touch icon (180x180) - No transparency allowed by Apple usually
     await sharp({
         create: {
             width: 180,
             height: 180,
             channels: 4,
-            background: { r: 0, g: 0, b: 0, alpha: 1 }
+            background: { r: 18, g: 18, b: 18, alpha: 1 }
         }
     })
         .composite([{
             input: await sharp(inputPath)
-                .resize(180, 180, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+                .resize(180, 180, { fit: 'cover' })
                 .toBuffer()
         }])
         .png()
