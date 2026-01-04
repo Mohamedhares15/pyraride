@@ -132,6 +132,23 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.png" />
         <link rel="manifest" href="/manifest.json" />
 
+        {/* Apple PWA Meta Tags */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="PyraRide" />
+        <meta name="mobile-web-app-capable" content="yes" />
+
+        {/* Theme Color for browser UI */}
+        <meta name="theme-color" content="#D4A574" />
+        <meta name="msapplication-TileColor" content="#000000" />
+        <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+
+        {/* Apple Touch Icons for different devices */}
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-192x192.png" />
+
         {/* Structured Data - Organization */}
         <script
           type="application/ld+json"
