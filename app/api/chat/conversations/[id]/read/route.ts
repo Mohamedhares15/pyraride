@@ -26,17 +26,16 @@ export async function POST(
         }
 
         // Mark all messages from other participants as READ
-        // We update messages where senderId != currentUserId and status != READ
+        // We update messages where senderId != currentUserId and read = false
         await prisma.message.updateMany({
             where: {
                 conversationId,
                 senderId: { not: session.user.id },
-                status: { not: "READ" },
+                read: false,
             },
             data: {
-                status: "READ",
-                read: true, // Legacy support
-                updatedAt: new Date(),
+                read: true,
+                // updatedAt: new Date(), // updatedAt is auto-updated
             },
         });
 

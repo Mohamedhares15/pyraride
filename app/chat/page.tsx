@@ -207,7 +207,6 @@ function ChatContent() {
     };
 
     const getOtherParticipant = (conversation: Conversation) => {
-        if (!conversation.participants || conversation.participants.length === 0) return { id: "unknown", fullName: "Unknown", profileImageUrl: null };
         return conversation.participants.find(p => p.id !== session?.user?.id) || conversation.participants[0];
     };
 
@@ -228,7 +227,7 @@ function ChatContent() {
         <div className="min-h-screen bg-black text-white flex flex-col">
             <Navbar />
 
-            <div className="container mx-auto px-4 pt-24 pb-4 flex gap-6 h-[100dvh]">
+            <div className="container mx-auto px-4 pt-[calc(6rem+env(safe-area-inset-top))] pb-4 flex gap-6 h-[100dvh]">
                 {/* Sidebar - Conversations List */}
                 <div className={`w-full md:w-1/3 lg:w-1/4 flex flex-col gap-4 ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
                     <div className="flex items-center justify-between">
@@ -241,10 +240,8 @@ function ChatContent() {
                             {conversations.length > 0 ? (
                                 conversations.map(conversation => {
                                     const otherUser = getOtherParticipant(conversation);
-                                    const lastMessage = conversation.messages?.[0];
+                                    const lastMessage = conversation.messages[0];
                                     const isSelected = selectedConversation?.id === conversation.id;
-
-                                    if (!otherUser) return null;
 
                                     return (
                                         <div
@@ -360,7 +357,7 @@ function ChatContent() {
                             )}
 
                             {/* Input */}
-                            <div className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-white/5 bg-zinc-900/50 backdrop-blur-sm z-10">
+                            <div className="p-4 border-t border-white/5 bg-zinc-900/50 backdrop-blur-sm z-10">
                                 <form onSubmit={sendMessage} className="flex gap-2">
                                     <Input
                                         value={newMessage}

@@ -78,7 +78,6 @@ export async function POST(
                 content,
                 conversationId,
                 senderId: session.user.id,
-                status: "SENT", // Explicitly set status
             },
             include: {
                 sender: {
