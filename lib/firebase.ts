@@ -20,7 +20,7 @@ export const requestNotificationPermission = async () => {
         const permission = await Notification.requestPermission();
         if (permission === "granted") {
             const token = await getToken(messaging, {
-                vapidKey: "BMwL-..." // You might need a VAPID key from Firebase Console -> Cloud Messaging -> Web Push certificates
+                vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
             });
             // Note: If no VAPID key is provided, it uses the default one. 
             // However, it's best practice to generate one in Firebase Console.
