@@ -175,10 +175,21 @@ export default function StableDetailPage() {
     endTime?: string;
   } | undefined>(undefined);
 
+  const [userRankPoints, setUserRankPoints] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetch(`/api/users/${session.user.id}/profile`)
+        .then(res => res.json())
+        .then(data => {
+          if (data?.rankPoints) setUserRankPoints(data.rankPoints);
+        })
+        .catch(err => console.error("Failed to fetch user rank", err));
+    }
+  }, [session?.user?.id]);
+
   const handleSlotClick = (horseId: string, timeStr: string, isTomorrow?: boolean) => {
-    // Convert "10:00 AM" to "10:00" (24h format if needed, but input type=time expects HH:mm)
-    // The Badge displays formatted time like "10:00 AM"
-    // We need to parse it back to HH:mm for the input
+    // 1. Lead Time Validation
     const date = new Date(); // Today
     if (isTomorrow) {
       date.setDate(date.getDate() + 1);
@@ -195,6 +206,50 @@ export default function StableDetailPage() {
 
       if (ampm === "PM" && hours < 12) hours += 12;
       if (ampm === "AM" && hours === 12) hours = 0;
+    }
+
+    const bookingDateTime = new Date(date);
+    bookingDateTime.setHours(hours, minutes, 0, 0);
+
+    const now = new Date();
+    const leadTimeHours = stable?.minLeadTimeHours || 8;
+    const minBookingTime = new Date(now.getTime() + leadTimeHours * 60 * 60 * 1000);
+
+    if (bookingDateTime < minBookingTime) {
+      const { toast } = require("sonner");
+      toast.error("Booking time too soon", {
+        description: `This stable requires at least ${leadTimeHours} hours notice. Earliest available: ${minBookingTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+        duration: 4000,
+      });
+      return;
+    }
+
+    // 2. Skill Level Validation
+    const horse = stable?.horses.find(h => h.id === horseId);
+    if (horse && userRankPoints !== null) {
+      const getRiderTier = (points: number) => {
+        if (points >= 1701) return "ADVANCED";
+        if (points >= 1301) return "INTERMEDIATE";
+        return "BEGINNER";
+      };
+
+      const riderTier = getRiderTier(userRankPoints);
+      const horseLevel = horse.adminTier ? horse.adminTier.toUpperCase() : "BEGINNER";
+
+      const canBook = (
+        (riderTier === "ADVANCED") ||
+        (riderTier === "INTERMEDIATE" && horseLevel !== "ADVANCED") ||
+        (riderTier === "BEGINNER" && horseLevel === "BEGINNER")
+      );
+
+      if (!canBook) {
+        const { toast } = require("sonner");
+        toast.error("Skill Level Mismatch", {
+          description: `You are a ${riderTier} rider, but this horse requires ${horseLevel} skills. Please choose another horse.`,
+          duration: 4000,
+        });
+        return;
+      }
     }
 
     const startTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
