@@ -88,10 +88,10 @@ export async function GET(
             const start = new Date(Date.UTC(y, m, d, hour, 0, 0));
             const end = new Date(Date.UTC(y, m, d, hour + 1, 0, 0));
 
-            // Check if slot already exists (e.g. booked)
+            // Check if slot already exists (e.g. booked) - Fuzzy match (1 minute tolerance)
             const exists = existingSlots.some(
               s => s.horseId === horse.id &&
-                new Date(s.startTime).getTime() === start.getTime()
+                Math.abs(new Date(s.startTime).getTime() - start.getTime()) < 60000
             );
 
             if (!exists) {
