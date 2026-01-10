@@ -440,7 +440,7 @@ export default function StableDetailPage() {
                 if (!newAvailable[dateStr][horse.id]) newAvailable[dateStr][horse.id] = [];
                 newAvailable[dateStr][horse.id].push(time);
               } else {
-                // blocked_session or blocked_lead_time
+                // blocked_session, blocked_lead_time, or blocked_rest
                 if (!newBlocked[dateStr][horse.id]) newBlocked[dateStr][horse.id] = [];
                 newBlocked[dateStr][horse.id].push(time);
               }

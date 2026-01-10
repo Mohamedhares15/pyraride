@@ -227,15 +227,39 @@ export async function GET(
       //   return { ...slot, status: 'blocked_lead_time' };
       // }
 
-      // 3. Check Welfare Rule (One booking per session)
+      // 3. Check Welfare Rule & Capacity
       if (slot.horseId) {
         const hour = new Date(slot.startTime).getHours();
         const isAm = hour < 12;
-        const horseStatus = horseBookings.get(slot.horseId);
 
-        if (horseStatus) {
-          if (isAm && horseStatus.am) return { ...slot, status: 'blocked_session' };
-          if (!isAm && horseStatus.pm) return { ...slot, status: 'blocked_session' };
+        // Fetch all bookings for this horse on this day
+        // We need to check specific times for the 1-hour gap rule
+        const horseBookingsList = bookings.filter(b => b.horseId === slot.horseId);
+
+        // Rule 1: Capacity (2 AM, 1 PM)
+        const amBookingsCount = horseBookingsList.filter(b => new Date(b.startTime).getHours() < 12).length;
+        const pmBookingsCount = horseBookingsList.filter(b => new Date(b.startTime).getHours() >= 12).length;
+
+        if (isAm && amBookingsCount >= 2) return { ...slot, status: 'blocked_session' };
+        if (!isAm && pmBookingsCount >= 1) return { ...slot, status: 'blocked_session' };
+
+        // Rule 2: 1-Hour Gap (Rest Period)
+        // If there is a booking at (T-1) or (T+1), this slot (T) might be affected.
+        // Actually, the rule is: "if i book the 7 am then 7 am and 8 am being grayed"
+        // This means if 7-8 is booked, then 8-9 is BLOCKED (rest).
+        // So we check if there is a booking at (currentSlotTime - 1 hour).
+
+        const slotTime = new Date(slot.startTime).getTime();
+        const oneHour = 60 * 60 * 1000;
+
+        const hasBookingBefore = horseBookingsList.some(b => {
+          const bookingTime = new Date(b.startTime).getTime();
+          // Check if booking is exactly 1 hour before this slot
+          return Math.abs(slotTime - bookingTime - oneHour) < 1000; // tolerance
+        });
+
+        if (hasBookingBefore) {
+          return { ...slot, status: 'blocked_rest' };
         }
       }
 

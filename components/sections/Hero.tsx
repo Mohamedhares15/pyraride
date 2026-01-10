@@ -200,9 +200,14 @@ export default function Hero() {
                     onClick={() => {
                       const input = document.getElementById('hero-date-input') as HTMLInputElement;
                       if (input) {
-                        try {
-                          input.showPicker();
-                        } catch (e) {
+                        input.focus();
+                        if ('showPicker' in HTMLInputElement.prototype) {
+                          try {
+                            input.showPicker();
+                          } catch (e) {
+                            input.click();
+                          }
+                        } else {
                           input.click();
                         }
                       }
