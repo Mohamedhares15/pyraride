@@ -1,25 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import dynamic from "next/dynamic";
-import L from "leaflet";
-
-// Import Leaflet CSS
-if (typeof window !== "undefined") {
-  require("leaflet/dist/leaflet.css");
-  
-  // Fix default marker icon issue in Next.js
-  delete (L.Icon.Default.prototype as any)._getIconUrl;
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl:
-      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-    iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-    shadowUrl:
-      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-  });
-}
 
 // Dynamically import Leaflet components (client-side only)
 const MapContainer = dynamic(
@@ -46,25 +30,47 @@ interface LocationMapProps {
   stableAddress?: string;
 }
 
-// Create custom icon for stable
-const createIcon = () => {
-  return new L.Icon({
-    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
-    iconRetinaUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
-    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  });
-};
-
 export default function LocationMap({
   stableLat,
   stableLng,
   stableName,
   stableAddress,
 }: LocationMapProps) {
+  const [isMounted, setIsMounted] = useState(false);
+  const [customIcon, setCustomIcon] = useState<any>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+
+    // Dynamically import Leaflet on client side only
+    import("leaflet").then((L) => {
+      // Fix default marker icon issue
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+        iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+      });
+
+      // Create custom red icon
+      const icon = new L.Icon({
+        iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+        iconRetinaUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+      });
+      setCustomIcon(icon);
+
+      // Import CSS
+      require("leaflet/dist/leaflet.css");
+    });
+  }, []);
+
+  if (!isMounted) return null;
+
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center gap-2">
@@ -99,17 +105,19 @@ export default function LocationMap({
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            
+
             {/* Stable Marker (Red) */}
-            <Marker position={[stableLat, stableLng]} icon={createIcon()}>
-              <Popup>
-                <div>
-                  <strong>{stableName}</strong>
-                  <br />
-                  {stableAddress || stableName}
-                </div>
-              </Popup>
-            </Marker>
+            {customIcon && (
+              <Marker position={[stableLat, stableLng]} icon={customIcon}>
+                <Popup>
+                  <div>
+                    <strong>{stableName}</strong>
+                    <br />
+                    {stableAddress || stableName}
+                  </div>
+                </Popup>
+              </Marker>
+            )}
           </MapContainer>
         </div>
       </Card>
