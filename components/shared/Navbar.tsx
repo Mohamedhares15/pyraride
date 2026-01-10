@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import { User, LogOut } from "lucide-react";
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -101,6 +102,7 @@ export default function Navbar() {
         onMouseEnter={() => setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
       >
+        <NotificationBell />
         <button
           className="flex items-center gap-3 focus:outline-none group/btn py-2"
           onClick={() => setIsOpen(!isOpen)}
