@@ -293,22 +293,27 @@ export default function StableDetailPage() {
 
         // Check if user has a booking
         if (bookingRes && bookingRes.ok) {
-          const bookings = await bookingRes.json();
-          // Check for any active booking (confirmed or completed recently)
-          const hasActiveBooking = bookings.some((b: any) =>
-            b.status === 'confirmed' ||
-            (b.status === 'completed' && new Date(b.endTime).getTime() > Date.now() - 24 * 60 * 60 * 1000)
-          );
+          const bookingData = await bookingRes.json();
+          // Handle both array and object response formats
+          const bookings = Array.isArray(bookingData) ? bookingData : (bookingData.bookings || []);
 
-          if (hasActiveBooking) {
-            setHasBookingWithStable(true);
-            // Find the next upcoming booking date
-            const upcoming = bookings
-              .filter((b: any) => new Date(b.startTime) > new Date())
-              .sort((a: any, b: any) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())[0];
+          if (Array.isArray(bookings)) {
+            // Check for any active booking (confirmed or completed recently)
+            const hasActiveBooking = bookings.some((b: any) =>
+              b.status === 'confirmed' ||
+              (b.status === 'completed' && new Date(b.endTime).getTime() > Date.now() - 24 * 60 * 60 * 1000)
+            );
 
-            if (upcoming) {
-              setUserBookingDate(new Date(upcoming.startTime).toLocaleDateString());
+            if (hasActiveBooking) {
+              setHasBookingWithStable(true);
+              // Find the next upcoming booking date
+              const upcoming = bookings
+                .filter((b: any) => new Date(b.startTime) > new Date())
+                .sort((a: any, b: any) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())[0];
+
+              if (upcoming) {
+                setUserBookingDate(new Date(upcoming.startTime).toLocaleDateString());
+              }
             }
           }
         }
