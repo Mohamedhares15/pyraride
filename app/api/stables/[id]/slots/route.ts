@@ -52,17 +52,17 @@ export async function GET(
       },
     });
 
-    // Re-check count after deletion
-    const existingSlotsCount = await prisma.availabilitySlot.count({
+    // Fetch existing (booked) slots to avoid duplicates
+    const existingSlots = await prisma.availabilitySlot.findMany({
       where: {
         stableId: params.id,
         date: queryDate,
       },
     });
 
-    // Only auto-generate if ZERO slots exist (or we just cleared them all)
-    if (existingSlotsCount === 0 && horses.length > 0) {
-      console.log(`[GET /api/stables/${params.id}/slots] Generating fresh slots for ${dateStr}...`);
+    // Always attempt to generate slots, but filter out existing ones
+    if (horses.length > 0) {
+      // console.log(`[GET /api/stables/${params.id}/slots] Checking/Generating slots for ${dateStr}...`);
 
       const newSlots = [];
       // Egypt is UTC+2. We generate slots in UTC to match Egypt time.
@@ -88,15 +88,21 @@ export async function GET(
             const start = new Date(Date.UTC(y, m, d, hour, 0, 0));
             const end = new Date(Date.UTC(y, m, d, hour + 1, 0, 0));
 
-            newSlots.push({
-              stableId: params.id,
-              horseId: horse.id,
-              date: targetDate, // Keep date as local/server date reference, or maybe UTC? 
-              // Prisma @db.Date usually ignores time, but let's be consistent.
-              // Actually, if we save `date` field, it should match the query date.
-              startTime: start,
-              endTime: end,
-            });
+            // Check if slot already exists (e.g. booked)
+            const exists = existingSlots.some(
+              s => s.horseId === horse.id &&
+                new Date(s.startTime).getTime() === start.getTime()
+            );
+
+            if (!exists) {
+              newSlots.push({
+                stableId: params.id,
+                horseId: horse.id,
+                date: targetDate,
+                startTime: start,
+                endTime: end,
+              });
+            }
           }
         }
       }
@@ -105,7 +111,7 @@ export async function GET(
         await prisma.availabilitySlot.createMany({
           data: newSlots,
         });
-        console.log(`[GET /api/stables/${params.id}/slots] Auto-generated ${newSlots.length} slots`);
+        console.log(`[GET /api/stables/${params.id}/slots] Auto-generated ${newSlots.length} missing slots`);
       }
     }
 

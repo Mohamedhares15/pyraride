@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import StableCard from "./StableCard";
 import { Loader2, Star } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 
@@ -47,6 +48,9 @@ interface StableListProps {
 }
 
 export default function StableList({ results, mode, isLoading }: StableListProps) {
+  const searchParams = useSearchParams();
+  const dateParam = searchParams.get("date");
+
   if (isLoading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
@@ -113,7 +117,10 @@ export default function StableList({ results, mode, isLoading }: StableListProps
               <Card className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="grid gap-0 md:grid-cols-3">
                   {/* Horse Image - Clickable to Stable Page */}
-                  <Link href={`/stables/${item.stableId}#horse-${item.id}`} className="md:col-span-1 relative h-64 md:h-auto group overflow-hidden">
+                  <Link
+                    href={`/stables/${item.stableId}${dateParam ? `?date=${dateParam}` : ''}#horse-${item.id}`}
+                    className="md:col-span-1 relative h-64 md:h-auto group overflow-hidden"
+                  >
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20">
                       {heroImage && heroImage !== "/hero-bg.webp" ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -144,7 +151,10 @@ export default function StableList({ results, mode, isLoading }: StableListProps
                     <div>
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <Link href={`/stables/${item.stableId}#horse-${item.id}`} className="hover:underline">
+                          <Link
+                            href={`/stables/${item.stableId}${dateParam ? `?date=${dateParam}` : ''}#horse-${item.id}`}
+                            className="hover:underline"
+                          >
                             <h3 className="font-display text-2xl font-bold text-foreground">
                               {item.name}
                             </h3>
@@ -166,16 +176,16 @@ export default function StableList({ results, mode, isLoading }: StableListProps
                       {(item as any).skillLevel && (
                         <div className="mb-3">
                           <span className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wide ${(item as any).skillLevel?.toLowerCase() === 'beginner'
-                              ? 'bg-green-500/20 text-green-600 border border-green-500/30'
-                              : (item as any).skillLevel?.toLowerCase() === 'intermediate'
-                                ? 'bg-amber-500/20 text-amber-600 border border-amber-500/30'
-                                : 'bg-red-500/20 text-red-600 border border-red-500/30'
+                            ? 'bg-green-500/20 text-green-600 border border-green-500/30'
+                            : (item as any).skillLevel?.toLowerCase() === 'intermediate'
+                              ? 'bg-amber-500/20 text-amber-600 border border-amber-500/30'
+                              : 'bg-red-500/20 text-red-600 border border-red-500/30'
                             }`}>
                             <span className={`w-2 h-2 rounded-full ${(item as any).skillLevel?.toLowerCase() === 'beginner'
-                                ? 'bg-green-500'
-                                : (item as any).skillLevel?.toLowerCase() === 'intermediate'
-                                  ? 'bg-amber-500'
-                                  : 'bg-red-500'
+                              ? 'bg-green-500'
+                              : (item as any).skillLevel?.toLowerCase() === 'intermediate'
+                                ? 'bg-amber-500'
+                                : 'bg-red-500'
                               }`} />
                             {(item as any).skillLevel} Level
                           </span>
@@ -256,6 +266,7 @@ export default function StableList({ results, mode, isLoading }: StableListProps
               totalReviews: item.totalReviews ?? 0,
             }}
             index={index}
+            href={`/stables/${item.id}${dateParam ? `?date=${dateParam}` : ''}`}
           />
         );
       })}
