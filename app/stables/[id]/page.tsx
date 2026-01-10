@@ -398,7 +398,7 @@ export default function StableDetailPage() {
     const fetchSlots = async () => {
       try {
         const dateStr = selectedDate.toISOString().split("T")[0];
-        const slotsRes = await fetch(`/api/stables/${id}/slots?date=${dateStr}`, { cache: 'no-store' });
+        const slotsRes = await fetch(`/api/stables/${id}/slots?date=${dateStr}`);
 
         if (slotsRes.ok) {
           const slotsData = await slotsRes.json();
