@@ -52,8 +52,11 @@ export async function GET(
       console.log(`[GET /api/stables/${params.id}/slots] No slots found for ${dateStr}, auto-generating for next 7 days...`);
 
       const newSlots = [];
-      const amHours = [7, 8, 9, 10, 11, 12];
-      const pmHours = [14, 15, 16]; // 2, 3, 4 PM
+      // Egypt is UTC+2. We generate slots in UTC to match Egypt time.
+      // Morning: 7, 8, 9, 10, 11, 12 Egypt -> 5, 6, 7, 8, 9, 10 UTC
+      // Afternoon: 2, 3, 4 PM (14, 15, 16) Egypt -> 12, 13, 14 UTC
+      const amHours = [5, 6, 7, 8, 9, 10];
+      const pmHours = [12, 13, 14];
       const desiredHours = [...amHours, ...pmHours];
 
       // Loop for 7 days
@@ -61,18 +64,23 @@ export async function GET(
         const targetDate = new Date(queryDate);
         targetDate.setDate(targetDate.getDate() + i);
 
+        // Extract YMD from targetDate to build UTC date
+        const y = targetDate.getFullYear();
+        const m = targetDate.getMonth();
+        const d = targetDate.getDate();
+
         for (const horse of horses) {
           for (const hour of desiredHours) {
-            const start = new Date(targetDate);
-            start.setHours(hour, 0, 0, 0);
-
-            const end = new Date(targetDate);
-            end.setHours(hour + 1, 0, 0, 0);
+            // Create UTC date objects
+            const start = new Date(Date.UTC(y, m, d, hour, 0, 0));
+            const end = new Date(Date.UTC(y, m, d, hour + 1, 0, 0));
 
             newSlots.push({
               stableId: params.id,
               horseId: horse.id,
-              date: targetDate,
+              date: targetDate, // Keep date as local/server date reference, or maybe UTC? 
+              // Prisma @db.Date usually ignores time, but let's be consistent.
+              // Actually, if we save `date` field, it should match the query date.
               startTime: start,
               endTime: end,
             });
