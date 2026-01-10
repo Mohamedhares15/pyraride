@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter, usePathname } from "next/navigation";
+import { useParams, useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -123,14 +123,15 @@ function parseTimeString(timeStr: string, baseDate: Date): Date {
   return result;
 }
 
-// Helper: Group slots by day and time period with lead time filtering
 function groupSlotsByDayAndPeriod(
   availableSlots: string[],
   leadTimeHours: number,
-  currentDate: Date = new Date(),
+  currentDate: Date,
   allowShift: boolean = true
 ): DayGroupedSlots {
-  const safeBookingTime = new Date(currentDate.getTime() + leadTimeHours * 60 * 60 * 1000);
+  // We need to compare against the ACTUAL current time for lead time check
+  const now = new Date();
+  const safeBookingTime = new Date(now.getTime() + leadTimeHours * 60 * 60 * 1000);
 
   const today: GroupedSlots = { morning: [], afternoon: [], evening: [] };
   const tomorrow: GroupedSlots = { morning: [], afternoon: [], evening: [] };
@@ -155,8 +156,18 @@ function groupSlotsByDayAndPeriod(
 export default function StableDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const pathname = usePathname();
   const id = params.id as string;
+
+  // Initialize date from URL or default to today
+  const getInitialDate = () => {
+    const dateParam = searchParams.get('date');
+    if (dateParam) return new Date(dateParam);
+    return new Date();
+  };
+
+  const [selectedDate, setSelectedDate] = useState<Date>(getInitialDate);
 
   const [stable, setStable] = useState<Stable | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -219,7 +230,7 @@ export default function StableDetailPage() {
 
   const handleSlotClick = (horseId: string, timeStr: string, isTomorrow?: boolean) => {
     // 1. Lead Time Validation
-    const date = new Date(); // Today
+    const date = new Date(selectedDate); // Use selected date
     if (isTomorrow) {
       date.setDate(date.getDate() + 1);
     }
@@ -286,16 +297,12 @@ export default function StableDetailPage() {
   useEffect(() => {
     async function fetchStable() {
       try {
-        // Use local date string to avoid UTC shifts
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const today = `${year}-${month}-${day}`;
+        // Use selected date string
+        const dateStr = selectedDate.toISOString().split("T")[0];
 
         const [stableRes, slotsRes, bookingRes] = await Promise.all([
           fetch(`/api/stables/${id}`),
-          fetch(`/api/stables/${id}/slots?date=${today}`),
+          fetch(`/api/stables/${id}/slots?date=${dateStr}`),
           session?.user?.id ? fetch(`/api/bookings?stableId=${id}&userId=${session.user.id}&status=confirmed`) : Promise.resolve(null)
         ]);
 
@@ -336,13 +343,13 @@ export default function StableDetailPage() {
         if (slotsRes.ok) {
           const slotsData = await slotsRes.json();
           // Process slots into available/taken maps
-          const newAvailable: Record<string, Record<string, string[]>> = { [today]: {} };
-          const newTaken: Record<string, Record<string, any[]>> = { [today]: {} };
+          const newAvailable: Record<string, Record<string, string[]>> = { [dateStr]: {} };
+          const newTaken: Record<string, Record<string, any[]>> = { [dateStr]: {} };
 
           // Initialize for all horses
           stableData.horses.forEach((horse: any) => {
-            newAvailable[today][horse.id] = [];
-            newTaken[today][horse.id] = [];
+            newAvailable[dateStr][horse.id] = [];
+            newTaken[dateStr][horse.id] = [];
           });
 
           slotsData.forEach((slot: any) => {
@@ -361,11 +368,11 @@ export default function StableDetailPage() {
               if (!horse) return;
 
               if (slot.booking) {
-                if (!newTaken[today][horse.id]) newTaken[today][horse.id] = [];
-                newTaken[today][horse.id].push({ ...slot, startTime: slot.startTime });
+                if (!newTaken[dateStr][horse.id]) newTaken[dateStr][horse.id] = [];
+                newTaken[dateStr][horse.id].push({ ...slot, startTime: slot.startTime });
               } else {
-                if (!newAvailable[today][horse.id]) newAvailable[today][horse.id] = [];
-                newAvailable[today][horse.id].push(time);
+                if (!newAvailable[dateStr][horse.id]) newAvailable[dateStr][horse.id] = [];
+                newAvailable[dateStr][horse.id].push(time);
               }
             });
           });
@@ -382,7 +389,7 @@ export default function StableDetailPage() {
     }
 
     fetchStable();
-  }, [id, session]);
+  }, [id, session, selectedDate]);
 
   // Refresh slots every 15 seconds (more frequent updates)
   useEffect(() => {
@@ -390,21 +397,21 @@ export default function StableDetailPage() {
 
     const fetchSlots = async () => {
       try {
-        const today = new Date().toISOString().split("T")[0];
-        const slotsRes = await fetch(`/api/stables/${id}/slots?date=${today}`);
+        const dateStr = selectedDate.toISOString().split("T")[0];
+        const slotsRes = await fetch(`/api/stables/${id}/slots?date=${dateStr}`);
 
         if (slotsRes.ok) {
           const slotsData = await slotsRes.json();
           // Process slots into available/taken/blocked maps
-          const newAvailable: Record<string, Record<string, string[]>> = { [today]: {} };
-          const newTaken: Record<string, Record<string, any[]>> = { [today]: {} };
-          const newBlocked: Record<string, Record<string, string[]>> = { [today]: {} };
+          const newAvailable: Record<string, Record<string, string[]>> = { [dateStr]: {} };
+          const newTaken: Record<string, Record<string, any[]>> = { [dateStr]: {} };
+          const newBlocked: Record<string, Record<string, string[]>> = { [dateStr]: {} };
 
           // Initialize for all horses
           stable?.horses.forEach(horse => {
-            newAvailable[today][horse.id] = [];
-            newTaken[today][horse.id] = [];
-            newBlocked[today][horse.id] = [];
+            newAvailable[dateStr][horse.id] = [];
+            newTaken[dateStr][horse.id] = [];
+            newBlocked[dateStr][horse.id] = [];
           });
 
           slotsData.forEach((slot: any) => {
@@ -427,24 +434,21 @@ export default function StableDetailPage() {
 
               // Handle new statuses
               if (slot.status === 'booked') {
-                if (!newTaken[today][horse.id]) newTaken[today][horse.id] = [];
-                newTaken[today][horse.id].push({ ...slot, startTime: slot.startTime });
+                if (!newTaken[dateStr][horse.id]) newTaken[dateStr][horse.id] = [];
+                newTaken[dateStr][horse.id].push({ ...slot, startTime: slot.startTime });
               } else if (slot.status === 'available') {
-                if (!newAvailable[today][horse.id]) newAvailable[today][horse.id] = [];
-                newAvailable[today][horse.id].push(time);
+                if (!newAvailable[dateStr][horse.id]) newAvailable[dateStr][horse.id] = [];
+                newAvailable[dateStr][horse.id].push(time);
               } else {
                 // blocked_session or blocked_lead_time
-                if (!newBlocked[today][horse.id]) newBlocked[today][horse.id] = [];
-                newBlocked[today][horse.id].push(time);
+                if (!newBlocked[dateStr][horse.id]) newBlocked[dateStr][horse.id] = [];
+                newBlocked[dateStr][horse.id].push(time);
               }
             });
           });
 
           setAvailableSlots(newAvailable);
           setTakenSlots(newTaken);
-          // We need to add a state for blocked slots or merge them into taken slots with a flag
-          // For now, let's merge them into taken slots but with a special flag so UI can render them differently
-          // Actually, let's add a new state for blocked slots
           setBlockedSlots(newBlocked);
         }
       } catch (err) {
@@ -452,11 +456,10 @@ export default function StableDetailPage() {
       }
     };
 
-    fetchSlots(); // Fetch immediately
     const interval = setInterval(fetchSlots, 15000); // Refresh every 15 seconds
 
     return () => clearInterval(interval);
-  }, [id, stable]);
+  }, [id, stable, selectedDate]);
 
   useEffect(() => {
     if (isLoading || !stable) return;
@@ -481,16 +484,17 @@ export default function StableDetailPage() {
   useEffect(() => {
     if (!stable) return;
 
-    const today = new Date().toISOString().split("T")[0];
+    const dateStr = selectedDate.toISOString().split("T")[0];
     const leadTimeHours = stable.minLeadTimeHours || 8;
-    const currentDate = new Date();
+    // Use selectedDate for grouping context
+    const currentDate = new Date(selectedDate);
 
     const newGroupedSlots: Record<string, DayGroupedSlots> = {};
     const newGroupedBlockedSlots: Record<string, DayGroupedSlots> = {};
 
     stable.horses.forEach(horse => {
-      const availableTimes = availableSlots[today]?.[horse.id] || [];
-      const blockedTimes = blockedSlots[today]?.[horse.id] || [];
+      const availableTimes = availableSlots[dateStr]?.[horse.id] || [];
+      const blockedTimes = blockedSlots[dateStr]?.[horse.id] || [];
 
       // Available slots: Allow shifting to tomorrow if missed lead time
       newGroupedSlots[horse.id] = groupSlotsByDayAndPeriod(
@@ -511,7 +515,7 @@ export default function StableDetailPage() {
 
     setGroupedSlots(newGroupedSlots);
     setGroupedBlockedSlots(newGroupedBlockedSlots);
-  }, [availableSlots, blockedSlots, stable]);
+  }, [availableSlots, blockedSlots, stable, selectedDate]);
 
   const openPortfolio = (horseName: string, items: HorseMediaItem[], startIndex = 0) => {
     if (!items || items.length === 0) return;
@@ -792,9 +796,9 @@ export default function StableDetailPage() {
               {stable.horses.length > 0 ? (
                 <div className="space-y-6">
                   {stable.horses.map((horse) => {
-                    const today = new Date().toISOString().split("T")[0];
-                    const horseSlots = takenSlots[today]?.[horse.id] || [];
-                    const availableTimes = availableSlots[today]?.[horse.id] || [];
+                    const dateStr = selectedDate.toISOString().split("T")[0];
+                    const horseSlots = takenSlots[dateStr]?.[horse.id] || [];
+                    const availableTimes = availableSlots[dateStr]?.[horse.id] || [];
 
                     const takenTimes = horseSlots.map((slot: any) =>
                       new Date(slot.startTime).toLocaleTimeString("en-US", {
@@ -861,7 +865,7 @@ export default function StableDetailPage() {
                               </div>
                             )}
                             <span className="absolute bottom-4 right-4 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white shadow-lg transition-opacity group-hover:opacity-100">
-                              View portfolio
+                              View Photos
                             </span>
                           </button>
 
@@ -900,13 +904,57 @@ export default function StableDetailPage() {
 
                             {/* Next Available Rides */}
                             <div className="mt-6 border-t pt-4">
-                              <h4 className="mb-3 text-sm font-semibold">Next Available Rides</h4>
+                              <div className="flex items-center justify-between mb-3">
+                                <h4 className="text-sm font-semibold">Available Rides</h4>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={() => {
+                                      const prevDate = new Date(selectedDate);
+                                      prevDate.setDate(prevDate.getDate() - 1);
+                                      // Prevent going before today
+                                      const today = new Date();
+                                      today.setHours(0, 0, 0, 0);
+                                      if (prevDate >= today) {
+                                        setSelectedDate(prevDate);
+                                      }
+                                    }}
+                                    disabled={(() => {
+                                      const prevDate = new Date(selectedDate);
+                                      prevDate.setDate(prevDate.getDate() - 1);
+                                      const today = new Date();
+                                      today.setHours(0, 0, 0, 0);
+                                      return prevDate < today;
+                                    })()}
+                                  >
+                                    <ChevronLeft className="h-4 w-4" />
+                                  </Button>
+                                  <span className="text-xs font-medium min-w-[80px] text-center">
+                                    {selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                  </span>
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={() => {
+                                      const nextDate = new Date(selectedDate);
+                                      nextDate.setDate(nextDate.getDate() + 1);
+                                      setSelectedDate(nextDate);
+                                    }}
+                                  >
+                                    <ChevronRight className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
                               <DynamicAvailability
                                 grouped={groupedSlots[horse.id]}
                                 blocked={groupedBlockedSlots[horse.id]}
                                 horseId={horse.id}
                                 onSlotClick={handleSlotClick}
                                 isLocked={isHorseLocked(horse)}
+                                selectedDate={selectedDate}
                               />
                             </div>
                           </div>

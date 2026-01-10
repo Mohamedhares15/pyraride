@@ -15,13 +15,6 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
         status: "approved",
       },
       include: {
-        reviews: {
-          select: {
-            stableRating: true,
-            horseRating: true,
-            comment: true,
-          },
-        },
         _count: {
           select: {
             reviews: true,
@@ -42,11 +35,13 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       };
     }
 
-    // Calculate average rating
-    const avgRating =
-      stable.reviews.length > 0
-        ? stable.reviews.reduce((sum, r) => sum + r.stableRating, 0) / stable.reviews.length
-        : 0;
+    // Calculate average rating efficiently
+    const ratingAgg = await prisma.review.aggregate({
+      where: { stableId: stable.id },
+      _avg: { stableRating: true },
+    });
+
+    const avgRating = ratingAgg._avg.stableRating || 0;
 
     const location = stable.location === "Giza" ? "Giza Plateau" : "Saqqara Desert";
     const title = `${stable.name} - Horse Riding in ${location} | Book on PyraRide`;

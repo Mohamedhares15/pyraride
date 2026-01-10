@@ -23,6 +23,7 @@ interface DynamicAvailabilityProps {
     horseId: string;
     onSlotClick: (horseId: string, time: string, isTomorrow?: boolean) => void;
     isLocked?: boolean;
+    selectedDate?: Date;
 }
 
 export default function DynamicAvailability({ grouped, blocked, horseId, onSlotClick, isLocked }: DynamicAvailabilityProps) {
@@ -134,6 +135,14 @@ export default function DynamicAvailability({ grouped, blocked, horseId, onSlotC
         }
     };
 
+    const formatDate = (date: Date) => {
+        return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    };
+
+    const todayDate = selectedDate ? new Date(selectedDate) : new Date();
+    const tomorrowDate = new Date(todayDate);
+    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+
     return (
         <div className="relative">
             {isLocked && (
@@ -148,16 +157,16 @@ export default function DynamicAvailability({ grouped, blocked, horseId, onSlotC
                 {/* Today's Slots */}
                 {hasToday && (
                     <div className="mb-4">
-                        {renderPeriod("Today: Morning", "🌅", todaySlots.morning, blocked?.today.morning, false)}
-                        {renderPeriod("Today: Afternoon", "☀", todaySlots.afternoon, blocked?.today.afternoon, false)}
+                        {renderPeriod(`${formatDate(todayDate)}: Morning`, "🌅", todaySlots.morning, blocked?.today.morning, false)}
+                        {renderPeriod(`${formatDate(todayDate)}: Afternoon`, "☀", todaySlots.afternoon, blocked?.today.afternoon, false)}
                     </div>
                 )}
 
                 {/* Tomorrow's Slots */}
                 {hasTomorrow && (
                     <div className="mb-4">
-                        {renderPeriod("Tomorrow: Morning", "🌅", tomorrowSlots.morning, blocked?.tomorrow.morning, true)}
-                        {renderPeriod("Tomorrow: Afternoon", "☀", tomorrowSlots.afternoon, blocked?.tomorrow.afternoon, true)}
+                        {renderPeriod(`${formatDate(tomorrowDate)}: Morning`, "🌅", tomorrowSlots.morning, blocked?.tomorrow.morning, true)}
+                        {renderPeriod(`${formatDate(tomorrowDate)}: Afternoon`, "☀", tomorrowSlots.afternoon, blocked?.tomorrow.afternoon, true)}
                     </div>
                 )}
 
