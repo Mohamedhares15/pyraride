@@ -26,7 +26,7 @@ interface DynamicAvailabilityProps {
     selectedDate?: Date;
 }
 
-export default function DynamicAvailability({ grouped, blocked, horseId, onSlotClick, isLocked }: DynamicAvailabilityProps) {
+export default function DynamicAvailability({ grouped, blocked, horseId, onSlotClick, isLocked, selectedDate }: DynamicAvailabilityProps) {
     // SSR Safety: Early return with defensive checks
     if (!grouped || typeof grouped !== 'object') {
         return <p className="text-xs text-muted-foreground">No available slots</p>;
