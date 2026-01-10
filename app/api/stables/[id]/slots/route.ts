@@ -132,21 +132,21 @@ export async function GET(
     // Track booked sessions per horse
     const horseBookings = new Map<string, { am: boolean; pm: boolean }>();
 
-    // ROBUSTNESS FIX: Explicitly fetch bookings for this date to ensure we catch ALL bookings
-    // even if they don't have a linked slot or if the slot fetching is weird.
+    // Fetch ACTUAL bookings for this date directly from Booking table
+    // This is more robust than relying on availabilitySlot.booking linkage
     const startOfDay = new Date(queryDate);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(queryDate);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const bookingsForDate = await prisma.booking.findMany({
+    const bookings = await prisma.booking.findMany({
       where: {
         stableId: params.id,
         startTime: {
           gte: startOfDay,
           lte: endOfDay
         },
-        status: { in: ['confirmed', 'pending'] }
+        status: { not: 'cancelled' }
       },
       select: {
         horseId: true,
@@ -154,10 +154,8 @@ export async function GET(
       }
     });
 
-    // Populate horseBookings from ACTUAL bookings
-    bookingsForDate.forEach(booking => {
-      if (!booking.horseId) return;
-
+    // Populate horseBookings map from actual bookings
+    bookings.forEach(booking => {
       const hour = new Date(booking.startTime).getHours();
       const isAm = hour < 12;
 
@@ -168,6 +166,22 @@ export async function GET(
       horseBookings.set(booking.horseId, current);
     });
 
+    // Also use slot.booking as a fallback/supplement
+    slots.forEach(slot => {
+      if (!slot.horseId) return;
+
+      if (slot.booking && slot.booking.status !== 'cancelled') {
+        const hour = new Date(slot.startTime).getHours();
+        const isAm = hour < 12;
+
+        const current = horseBookings.get(slot.horseId) || { am: false, pm: false };
+        if (isAm) current.am = true;
+        else current.pm = true;
+
+        horseBookings.set(slot.horseId, current);
+      }
+    });
+
     // Second pass: Process slots and assign status
     const processedSlots = slots.map(slot => {
       // If booking is cancelled, treat as available (remove booking object)
@@ -175,14 +189,8 @@ export async function GET(
         slot.booking = null;
       }
 
-      // 1. Check if already booked (using slot.booking OR our robust booking check)
-      // We check if this specific slot time matches any booking
-      const isSlotBooked = slot.booking || bookingsForDate.some(b =>
-        b.horseId === slot.horseId &&
-        new Date(b.startTime).getTime() === new Date(slot.startTime).getTime()
-      );
-
-      if (isSlotBooked) {
+      // 1. Check if already booked
+      if (slot.booking) {
         return { ...slot, status: 'booked' };
       }
 
