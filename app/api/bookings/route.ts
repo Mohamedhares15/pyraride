@@ -314,74 +314,89 @@ export async function POST(req: NextRequest) {
     });
 
     // Send email notifications to stable owners AND admins
-    const [owners, admins] = await Promise.all([
-      prisma.user.findMany({
-        where: {
-          stableId: stableId,
-          role: "stable_owner",
-        },
-        select: { email: true }
-      }),
-      prisma.user.findMany({
-        where: {
-          role: "admin",
-        },
-        select: { email: true }
-      })
-    ]);
+    // Send email notifications to stable owners AND admins
+    try {
+      const [owners, admins] = await Promise.all([
+        prisma.user.findMany({
+          where: {
+            stableId: stableId,
+            role: "stable_owner",
+          },
+          select: { email: true }
+        }),
+        prisma.user.findMany({
+          where: {
+            role: "admin",
+          },
+          select: { email: true }
+        })
+      ]);
 
-    const allRecipients = [...owners, ...admins];
+      const allRecipients = [...owners, ...admins];
 
-    if (allRecipients.length > 0) {
-      const { sendOwnerBookingNotification } = await import("@/lib/email");
+      if (allRecipients.length > 0) {
+        const { sendOwnerBookingNotification } = await import("@/lib/email");
 
-      // Send notifications for each booking in the group
-      for (const booking of createdBookings) {
-        await Promise.all(allRecipients.map(recipient =>
-          sendOwnerBookingNotification({
-            ownerEmail: recipient.email,
-            riderName: booking.rider.fullName || "Guest Rider",
-            riderEmail: booking.rider.email,
-            riderPhone: booking.rider.phoneNumber || undefined,
-            horseName: booking.horse.name,
-            horseImage: booking.horse.imageUrls?.[0] || undefined,
-            date: booking.startTime.toISOString(),
-            startTime: new Date(booking.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-            endTime: new Date(booking.endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-            totalPrice: Number(booking.totalPrice),
-            bookingId: booking.id,
-          })
-        ));
+        // Send notifications for each booking in the group
+        for (const booking of createdBookings) {
+          await Promise.all(allRecipients.map(recipient =>
+            sendOwnerBookingNotification({
+              ownerEmail: recipient.email,
+              riderName: booking.rider.fullName || "Guest Rider",
+              riderEmail: booking.rider.email,
+              riderPhone: booking.rider.phoneNumber || undefined,
+              horseName: booking.horse.name,
+              horseImage: booking.horse.imageUrls?.[0] || undefined,
+              date: booking.startTime.toISOString(),
+              startTime: new Date(booking.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+              endTime: new Date(booking.endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+              totalPrice: Number(booking.totalPrice),
+              bookingId: booking.id,
+            })
+          ));
+        }
       }
-    }
 
-    // Send Push Notifications (Stable Owner & Admins)
-    // We need to fetch push tokens for these users
-    const recipientsWithTokens = await prisma.user.findMany({
-      where: {
-        OR: [
-          { email: { in: owners.map(o => o.email) } }, // Owners by email
-          { role: "admin" } // Admins
-        ],
-        pushToken: { not: null }
-      },
-      select: { pushToken: true, role: true }
-    });
+      // Send Push Notifications (Stable Owner & Admins)
+      // We need to fetch push tokens for these users
+      // Note: We reuse the owners/admins list fetched above for email to find tokens
+      const recipientsWithTokens = await prisma.user.findMany({
+        where: {
+          OR: [
+            { email: { in: owners.map(o => o.email) } }, // Owners by email
+            { role: "admin" } // Admins
+          ],
+          pushToken: { not: null }
+        },
+        select: { pushToken: true, role: true }
+      });
 
-    const { sendPushNotification } = await import("@/lib/firebase-admin");
+      console.log(`[Booking] Found ${recipientsWithTokens.length} recipients with push tokens.`);
 
-    for (const recipient of recipientsWithTokens) {
-      if (recipient.pushToken) {
-        await sendPushNotification(
-          recipient.pushToken,
-          "New Booking Received! 🐎",
-          `You have a new booking for ${bookings.length} horse(s). Check your dashboard.`,
-          {
-            type: "booking",
-            url: recipient.role === "admin" ? "/dashboard/admin" : "/dashboard/stable"
+      const { sendPushNotification } = await import("@/lib/firebase-admin");
+
+      for (const recipient of recipientsWithTokens) {
+        if (recipient.pushToken) {
+          console.log(`[Booking] Sending notification to user (Role: ${recipient.role})`);
+          try {
+            await sendPushNotification(
+              recipient.pushToken,
+              "New Booking Received! 🐎",
+              `You have a new booking for ${bookings.length} horse(s). Check your dashboard.`,
+              {
+                type: "booking",
+                url: recipient.role === "admin" ? "/dashboard/admin" : "/dashboard/stable"
+              }
+            );
+          } catch (pushError) {
+            console.error(`[Booking] Failed to send push to ${recipient.role}:`, pushError);
           }
-        );
+        }
       }
+
+    } catch (notificationError) {
+      console.error("[Booking] Error sending notifications:", notificationError);
+      // Don't fail the request if notifications fail
     }
 
     return NextResponse.json({
