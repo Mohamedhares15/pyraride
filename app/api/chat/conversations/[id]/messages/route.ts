@@ -96,6 +96,36 @@ export async function POST(
             data: { updatedAt: new Date() },
         });
 
+        // Send Push Notification to other participants
+        const otherParticipants = conversation.participants.filter(p => p.id !== session.user.id);
+
+        // Import dynamically to avoid circular deps or server/client issues if any
+        const { sendPushNotification } = await import("@/lib/firebase-admin");
+
+        for (const participant of otherParticipants) {
+            // We need to fetch the user's pushToken. 
+            // Since 'participants' in conversation include might not have pushToken if not selected,
+            // we should fetch it or update the include above.
+            // Let's fetch it specifically to be safe and get the latest.
+            const recipient = await prisma.user.findUnique({
+                where: { id: participant.id },
+                select: { pushToken: true }
+            });
+
+            if (recipient?.pushToken) {
+                await sendPushNotification(
+                    recipient.pushToken,
+                    session.user.name || "New Message",
+                    content.substring(0, 100), // Truncate body
+                    {
+                        type: "chat",
+                        conversationId,
+                        senderId: session.user.id
+                    }
+                );
+            }
+        }
+
         return NextResponse.json({ message });
     } catch (error) {
         console.error("Error sending message:", error);
