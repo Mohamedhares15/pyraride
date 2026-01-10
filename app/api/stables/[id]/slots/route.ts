@@ -52,7 +52,7 @@ export async function GET(
       console.log(`[GET /api/stables/${params.id}/slots] No slots found for ${dateStr}, auto-generating for next 7 days...`);
 
       const newSlots = [];
-      const amHours = [7, 8, 9, 10];
+      const amHours = [7, 8, 9, 10, 11, 12];
       const pmHours = [14, 15, 16]; // 2, 3, 4 PM
       const desiredHours = [...amHours, ...pmHours];
 

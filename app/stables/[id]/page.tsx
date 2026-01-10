@@ -465,8 +465,11 @@ export default function StableDetailPage() {
             if (ampm === "PM" && h < 12) h += 12;
             if (ampm === "AM" && h === 12) h = 0;
 
+            // Custom logic: 12 PM (12:00) should be Morning as per user request
+            let period = getTimePeriod(h);
+            if (h === 12) period = 'morning'; // Force 12 PM to morning
+
             // Only process morning and afternoon
-            const period = getTimePeriod(h);
             if (period !== 'evening') {
               grouped[period].push(t);
             }
@@ -795,36 +798,37 @@ export default function StableDetailPage() {
 
                     return (
                       <Card key={horse.id} className="overflow-hidden">
-                        <div
-                          className="relative h-64 w-full cursor-pointer group"
-                          onClick={() => openPortfolio(horse.name, horse.media)}
-                        >
+                        <div className="relative h-64 w-full">
                           <Image
                             src={horse.imageUrls[0] || "/horse-placeholder.jpg"}
                             alt={horse.name}
                             fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            className="object-cover"
                           />
-                          {/* Overlay hint on hover */}
-                          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <span className="text-white font-medium bg-black/50 px-3 py-1 rounded-full text-sm">View Photos</span>
+                          <div className="absolute bottom-4 right-4">
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              className="bg-black/70 text-white hover:bg-black/80"
+                              onClick={() => openPortfolio(horse.name, horse.media)}
+                            >
+                              View portfolio
+                            </Button>
                           </div>
                         </div>
 
                         <div className="p-6">
                           <div className="mb-4 flex items-start justify-between">
                             <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <h3 className="font-semibold text-2xl">{horse.name}</h3>
-                                <Badge className={`${(horse.adminTier === 'Advanced' || horse.skillLevel === 'ADVANCED') ? 'bg-red-500 hover:bg-red-600' :
-                                  (horse.adminTier === 'Intermediate' || horse.skillLevel === 'INTERMEDIATE') ? 'bg-yellow-500 hover:bg-yellow-600' :
-                                    'bg-green-500 hover:bg-green-600'
-                                  } text-white border-0`}>
-                                  {horse.adminTier || horse.skillLevel || 'Beginner'}
-                                </Badge>
-                              </div>
+                              <h3 className="font-display text-2xl font-bold">{horse.name}</h3>
                               <p className="text-muted-foreground">{horse.description}</p>
                             </div>
+                            <Badge
+                              variant={horse.skillLevel === "BEGINNER" ? "default" : "secondary"}
+                              className={horse.skillLevel === "BEGINNER" ? "bg-green-500 hover:bg-green-600" : ""}
+                            >
+                              {horse.skillLevel || "All Levels"}
+                            </Badge>
                           </div>
 
                           <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
