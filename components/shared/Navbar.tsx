@@ -102,7 +102,10 @@ export default function Navbar() {
         onMouseEnter={() => setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
       >
-        <NotificationBell />
+        {/* Only show notification bell in dashboard */}
+        {typeof window !== 'undefined' && window.location.pathname.includes('/dashboard') && (
+          <NotificationBell />
+        )}
         <button
           className="flex items-center gap-3 focus:outline-none group/btn py-2"
           onClick={() => setIsOpen(!isOpen)}

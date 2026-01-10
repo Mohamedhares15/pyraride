@@ -278,9 +278,10 @@ export default function StableDetailPage() {
         const day = String(now.getDate()).padStart(2, '0');
         const today = `${year}-${month}-${day}`;
 
-        const [stableRes, slotsRes] = await Promise.all([
+        const [stableRes, slotsRes, bookingRes] = await Promise.all([
           fetch(`/api/stables/${id}`),
           fetch(`/api/stables/${id}/slots?date=${today}`),
+          session?.user?.id ? fetch(`/api/bookings?stableId=${id}&userId=${session.user.id}&status=confirmed`) : Promise.resolve(null)
         ]);
 
         if (!stableRes.ok) {
@@ -289,6 +290,28 @@ export default function StableDetailPage() {
 
         const stableData = await stableRes.json();
         setStable(stableData);
+
+        // Check if user has a booking
+        if (bookingRes && bookingRes.ok) {
+          const bookings = await bookingRes.json();
+          // Check for any active booking (confirmed or completed recently)
+          const hasActiveBooking = bookings.some((b: any) =>
+            b.status === 'confirmed' ||
+            (b.status === 'completed' && new Date(b.endTime).getTime() > Date.now() - 24 * 60 * 60 * 1000)
+          );
+
+          if (hasActiveBooking) {
+            setHasBookingWithStable(true);
+            // Find the next upcoming booking date
+            const upcoming = bookings
+              .filter((b: any) => new Date(b.startTime) > new Date())
+              .sort((a: any, b: any) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())[0];
+
+            if (upcoming) {
+              setUserBookingDate(new Date(upcoming.startTime).toLocaleDateString());
+            }
+          }
+        }
 
         if (slotsRes.ok) {
           const slotsData = await slotsRes.json();
