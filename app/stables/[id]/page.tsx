@@ -460,7 +460,7 @@ export default function StableDetailPage() {
     return () => {
       // No interval to clear anymore
     };
-  }, [fetchSlots]);
+  }, [id, stable, selectedDate]);
 
   useEffect(() => {
     if (isLoading || !stable) return;
