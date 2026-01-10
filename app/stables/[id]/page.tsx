@@ -126,7 +126,8 @@ function parseTimeString(timeStr: string, baseDate: Date): Date {
 function groupSlotsByDayAndPeriod(
   availableSlots: string[],
   leadTimeHours: number,
-  currentDate: Date = new Date()
+  currentDate: Date = new Date(),
+  allowShift: boolean = true
 ): DayGroupedSlots {
   const safeBookingTime = new Date(currentDate.getTime() + leadTimeHours * 60 * 60 * 1000);
 
@@ -137,7 +138,7 @@ function groupSlotsByDayAndPeriod(
     const slotDateTime = parseTimeString(timeStr, currentDate);
     const period = getTimePeriod(slotDateTime.getHours());
 
-    if (slotDateTime < safeBookingTime) {
+    if (allowShift && slotDateTime < safeBookingTime) {
       // Slot is within lead time window, push to tomorrow
       tomorrow[period].push(timeStr);
     } else {
@@ -488,16 +489,20 @@ export default function StableDetailPage() {
       const availableTimes = availableSlots[today]?.[horse.id] || [];
       const blockedTimes = blockedSlots[today]?.[horse.id] || [];
 
+      // Available slots: Allow shifting to tomorrow if missed lead time
       newGroupedSlots[horse.id] = groupSlotsByDayAndPeriod(
         availableTimes,
         leadTimeHours,
-        currentDate
+        currentDate,
+        true // allowShift
       );
 
+      // Blocked slots: NEVER shift to tomorrow. They are blocked for today.
       newGroupedBlockedSlots[horse.id] = groupSlotsByDayAndPeriod(
         blockedTimes,
         leadTimeHours,
-        currentDate
+        currentDate,
+        false // allowShift
       );
     });
 
