@@ -29,6 +29,11 @@ export async function POST(req: NextRequest) {
     // Validate dates
     const start = new Date(startTime);
     const end = new Date(endTime);
+
+    // Normalize times to ensure they match slot generation (zero seconds/milliseconds)
+    start.setSeconds(0, 0);
+    end.setSeconds(0, 0);
+
     const now = new Date();
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
@@ -170,146 +175,146 @@ export async function POST(req: NextRequest) {
       },
     });
 
-  });
 
-  // CRITICAL FIX: Link the booking to the availability slot
-  // We use a robust find-or-create approach to handle potential race conditions or time precision issues
 
-  // 1. Try to find the slot (allow +/- 1 minute tolerance)
-  const oneMinute = 60 * 1000;
-  const minStart = new Date(start.getTime() - oneMinute);
-  const maxStart = new Date(start.getTime() + oneMinute);
+    // CRITICAL FIX: Link the booking to the availability slot
+    // We use a robust find-or-create approach to handle potential race conditions or time precision issues
 
-  const existingSlot = await prisma.availabilitySlot.findFirst({
-    where: {
-      stableId,
-      horseId,
-      startTime: {
-        gte: minStart,
-        lte: maxStart,
-      },
-    },
-  });
+    // 1. Try to find the slot (allow +/- 1 minute tolerance)
+    const oneMinute = 60 * 1000;
+    const minStart = new Date(start.getTime() - oneMinute);
+    const maxStart = new Date(start.getTime() + oneMinute);
 
-  if (existingSlot) {
-    // Update existing slot
-    await prisma.availabilitySlot.update({
-      where: { id: existingSlot.id },
-      data: {
-        isBooked: true,
-        bookingId: booking.id,
-      },
-    });
-    console.log(`[Checkout] Linked booking ${booking.id} to existing slot ${existingSlot.id}`);
-  } else {
-    // Create new slot if missing (e.g. race condition deleted it)
-    // Derive date (YYYY-MM-DD) from start time
-    // Note: This assumes start time is correct for the slot
-    const slotDate = new Date(start);
-    slotDate.setHours(0, 0, 0, 0); // Normalize to midnight for @db.Date if needed, though Prisma handles Date objects for @db.Date
-
-    await prisma.availabilitySlot.create({
-      data: {
+    const existingSlot = await prisma.availabilitySlot.findFirst({
+      where: {
         stableId,
         horseId,
-        date: slotDate,
-        startTime: start,
-        endTime: end,
-        isBooked: true,
-        bookingId: booking.id,
-      },
-    });
-    console.log(`[Checkout] Created new booked slot for booking ${booking.id} (slot was missing)`);
-  }
-
-  // Send confirmation email
-  if (booking.rider.email) {
-    try {
-      const stableLocationData = stableLocation
-        ? JSON.parse(booking.cancellationReason || "{}")?.stableLocation
-        : null;
-
-      await sendBookingConfirmationEmail({
-        bookingId: booking.id,
-        riderName: booking.rider.fullName || "Valued Customer",
-        riderEmail: booking.rider.email,
-        stableName: booking.stable.name,
-        stableAddress: stableLocationData?.address || booking.stable.address || booking.stable.name,
-        horseName: booking.horse.name,
-        date: new Date(startTime).toISOString(),
-        startTime: new Date(startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: false }),
-        endTime: new Date(endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: false }),
-        totalPrice: parseFloat(totalPrice.toString()),
-        riders: riders || 1,
-      });
-    } catch (emailError) {
-      console.error("Failed to send confirmation email:", emailError);
-      // Don't fail the booking if email fails
-    }
-  }
-
-  // Check if Stripe is configured
-  if (!process.env.STRIPE_SECRET_KEY || !stripe || typeof stripe.checkout === 'undefined') {
-    // Stripe not configured - return booking confirmation directly (for development/testing)
-    // In production, use Paymob or another payment gateway for Egypt
-    return NextResponse.json({
-      checkoutUrl: null,
-      bookingId: booking.id,
-      success: true,
-      message: "Booking created successfully. Payment will be processed on-site or via Paymob.",
-    }, { status: 200 });
-  }
-
-  // Create Stripe checkout session
-  try {
-    const checkoutSession = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: `Horse Riding at ${booking.stable.name}`,
-              description: `Riding ${booking.horse.name} on ${new Date(startTime).toLocaleDateString()}`,
-            },
-            unit_amount: Math.round(parseFloat(totalPrice.toString()) * 100), // Convert to cents
-          },
-          quantity: 1,
+        startTime: {
+          gte: minStart,
+          lte: maxStart,
         },
-      ],
-      mode: "payment",
-      success_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/payment/success?bookingId=${booking.id}`,
-      cancel_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/payment/cancel?bookingId=${booking.id}`,
-      metadata: {
-        bookingId: booking.id,
-        riderId: session.user.id,
       },
     });
 
-    return NextResponse.json({
-      checkoutUrl: checkoutSession.url,
-      sessionId: checkoutSession.id
-    });
-  } catch (stripeError: any) {
-    console.error("Stripe API error:", stripeError);
-    // If Stripe fails, still return the booking but with a message
-    return NextResponse.json({
-      checkoutUrl: null,
-      bookingId: booking.id,
-      success: true,
-      message: "Booking created successfully. Payment will be processed on-site.",
-      error: stripeError.message || "Stripe payment unavailable, booking confirmed directly",
-    }, { status: 200 });
+    if (existingSlot) {
+      // Update existing slot
+      await prisma.availabilitySlot.update({
+        where: { id: existingSlot.id },
+        data: {
+          isBooked: true,
+          bookingId: booking.id,
+        },
+      });
+      console.log(`[Checkout] Linked booking ${booking.id} to existing slot ${existingSlot.id}`);
+    } else {
+      // Create new slot if missing (e.g. race condition deleted it)
+      // Derive date (YYYY-MM-DD) from start time
+      // Note: This assumes start time is correct for the slot
+      const slotDate = new Date(start);
+      slotDate.setHours(0, 0, 0, 0); // Normalize to midnight for @db.Date if needed, though Prisma handles Date objects for @db.Date
+
+      await prisma.availabilitySlot.create({
+        data: {
+          stableId,
+          horseId,
+          date: slotDate,
+          startTime: start,
+          endTime: end,
+          isBooked: true,
+          bookingId: booking.id,
+        },
+      });
+      console.log(`[Checkout] Created new booked slot for booking ${booking.id} (slot was missing)`);
+    }
+
+    // Send confirmation email
+    if (booking.rider.email) {
+      try {
+        const stableLocationData = stableLocation
+          ? JSON.parse(booking.cancellationReason || "{}")?.stableLocation
+          : null;
+
+        await sendBookingConfirmationEmail({
+          bookingId: booking.id,
+          riderName: booking.rider.fullName || "Valued Customer",
+          riderEmail: booking.rider.email,
+          stableName: booking.stable.name,
+          stableAddress: stableLocationData?.address || booking.stable.address || booking.stable.name,
+          horseName: booking.horse.name,
+          date: new Date(startTime).toISOString(),
+          startTime: new Date(startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: false }),
+          endTime: new Date(endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: false }),
+          totalPrice: parseFloat(totalPrice.toString()),
+          riders: riders || 1,
+        });
+      } catch (emailError) {
+        console.error("Failed to send confirmation email:", emailError);
+        // Don't fail the booking if email fails
+      }
+    }
+
+    // Check if Stripe is configured
+    if (!process.env.STRIPE_SECRET_KEY || !stripe || typeof stripe.checkout === 'undefined') {
+      // Stripe not configured - return booking confirmation directly (for development/testing)
+      // In production, use Paymob or another payment gateway for Egypt
+      return NextResponse.json({
+        checkoutUrl: null,
+        bookingId: booking.id,
+        success: true,
+        message: "Booking created successfully. Payment will be processed on-site or via Paymob.",
+      }, { status: 200 });
+    }
+
+    // Create Stripe checkout session
+    try {
+      const checkoutSession = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: `Horse Riding at ${booking.stable.name}`,
+                description: `Riding ${booking.horse.name} on ${new Date(startTime).toLocaleDateString()}`,
+              },
+              unit_amount: Math.round(parseFloat(totalPrice.toString()) * 100), // Convert to cents
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/payment/success?bookingId=${booking.id}`,
+        cancel_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/payment/cancel?bookingId=${booking.id}`,
+        metadata: {
+          bookingId: booking.id,
+          riderId: session.user.id,
+        },
+      });
+
+      return NextResponse.json({
+        checkoutUrl: checkoutSession.url,
+        sessionId: checkoutSession.id
+      });
+    } catch (stripeError: any) {
+      console.error("Stripe API error:", stripeError);
+      // If Stripe fails, still return the booking but with a message
+      return NextResponse.json({
+        checkoutUrl: null,
+        bookingId: booking.id,
+        success: true,
+        message: "Booking created successfully. Payment will be processed on-site.",
+        error: stripeError.message || "Stripe payment unavailable, booking confirmed directly",
+      }, { status: 200 });
+    }
+  } catch (error: any) {
+    console.error("Error creating checkout session:", error);
+    return NextResponse.json(
+      {
+        error: error.message || "Failed to create checkout session",
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
+      { status: 500 }
+    );
   }
-} catch (error: any) {
-  console.error("Error creating checkout session:", error);
-  return NextResponse.json(
-    {
-      error: error.message || "Failed to create checkout session",
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    },
-    { status: 500 }
-  );
-}
 }
 
