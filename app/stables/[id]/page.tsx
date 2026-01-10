@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   ChevronLeft,
   ChevronRight,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -347,6 +348,7 @@ export default function StableDetailPage() {
             const time = new Date(slot.startTime).toLocaleTimeString("en-US", {
               hour: "numeric",
               minute: "2-digit",
+              hour12: true
             });
 
             // If horseId is null, it applies to ALL horses
@@ -893,10 +895,6 @@ export default function StableDetailPage() {
                                   ))}
                                 </div>
                               </div>
-                              <div className="flex items-center justify-between text-sm">
-                                <span className="text-muted-foreground">Price:</span>
-                                <span className="font-bold text-primary text-lg">{horsePriceLabel}</span>
-                              </div>
                             </div>
 
                             {/* Next Available Rides */}
@@ -1129,181 +1127,122 @@ export default function StableDetailPage() {
                 onClick={closePortfolio}
                 style={{
                   display: 'flex',
-                  width: '56px',
-                  height: '56px',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  width: '40px',
+                  height: '40px',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
                   color: 'white',
-                  border: '0.5px solid rgba(255, 255, 255, 0.3)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
                   cursor: 'pointer',
-                  zIndex: 1001,
-                  backdropFilter: 'blur(30px) saturate(180%) brightness(1.2)',
-                  WebkitBackdropFilter: 'blur(30px) saturate(180%) brightness(1.2)',
-                  transform: 'translateZ(0)',
-                  WebkitTransform: 'translateZ(0)',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                  transition: 'all 0.2s ease',
                 }}
-                aria-label="Close"
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.05) translateZ(0)';
-                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.25) 100%)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1) translateZ(0)';
-                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%)';
-                }}
+                className="hover:bg-black/40 hover:scale-105 active:scale-95"
               >
-                <ArrowLeft className="h-7 w-7 stroke-[2.5]" style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3))' }} />
+                <X className="h-5 w-5" />
               </button>
-              <div
-                style={{
-                  color: 'white',
-                  fontSize: '15px',
-                  fontWeight: '600',
-                  letterSpacing: '0.3px',
-                  background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.35) 0%, rgba(184, 134, 11, 0.25) 100%)',
-                  padding: '10px 20px',
-                  borderRadius: '999px',
-                  backdropFilter: 'blur(30px) saturate(180%) brightness(1.1)',
-                  WebkitBackdropFilter: 'blur(30px) saturate(180%) brightness(1.1)',
-                  border: '0.5px solid rgba(255, 255, 255, 0.25)',
-                  boxShadow: '0 4px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
-                  textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                  transform: 'translateZ(0)',
-                  WebkitTransform: 'translateZ(0)',
-                }}
-              >
-                {portfolioViewer.index + 1} / {portfolioViewer.items.length}
+
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-white/90 drop-shadow-md">
+                  {portfolioViewer.index + 1} / {portfolioViewer.items.length}
+                </span>
               </div>
+
+              <div style={{ width: '40px' }} /> {/* Spacer for balance */}
             </div>
 
-            {/* Main Image - Crystal Clear & Centered */}
+            {/* Main Content Area - Centered & Responsive */}
             <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingTop: '80px',
-                paddingBottom: '120px',
-                paddingLeft: '16px',
-                paddingRight: '16px',
+              className="flex h-full w-full items-center justify-center p-4 md:p-8"
+              onClick={(e) => {
+                // Close if clicking outside image
+                if (e.target === e.currentTarget) closePortfolio();
               }}
             >
-              {portfolioViewer.items[portfolioViewer.index]?.type === "video" ? (
-                <video
-                  key={portfolioViewer.items[portfolioViewer.index]?.url}
-                  controls
-                  className="max-h-full max-w-full object-contain rounded-2xl shadow-2xl"
+              <AnimatePresence mode="wait" custom={portfolioViewer.index}>
+                <motion.div
+                  key={portfolioViewer.index}
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 30,
+                    mass: 0.8
+                  }}
+                  className="relative max-h-[85vh] max-w-[95vw] overflow-hidden rounded-2xl shadow-2xl md:max-w-5xl"
                   style={{
-                    filter: 'contrast(1.05) brightness(1.02)',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
                   }}
                 >
-                  <source src={portfolioViewer.items[portfolioViewer.index]?.url} />
-                  Your browser does not support the video tag.
-                </video>
-              ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={portfolioViewer.items[portfolioViewer.index]?.url}
-                  src={portfolioViewer.items[portfolioViewer.index]?.url || "/hero-bg.webp"}
-                  alt={`${portfolioViewer.horseName} - Photo ${portfolioViewer.index + 1} of ${portfolioViewer.items.length} from ${stable.name} horse riding stable in ${stable.location}, Egypt`}
-                  className="max-h-full max-w-full object-contain"
-                  style={{
-                    filter: 'contrast(1.08) brightness(1.03) saturate(1.1)',
-                    borderRadius: '20px',
-                    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(255, 255, 255, 0.1)',
-                    transform: 'translateZ(0)',
-                    WebkitTransform: 'translateZ(0)',
-                  }}
-                  draggable={false}
-                />
-              )}
+                  {portfolioViewer.items[portfolioViewer.index].type === "video" ? (
+                    <div className="relative aspect-video w-full min-w-[300px] md:min-w-[600px] bg-black">
+                      <video
+                        src={portfolioViewer.items[portfolioViewer.index].url}
+                        controls
+                        autoPlay
+                        className="h-full w-full object-contain"
+                        style={{ maxHeight: '80vh' }}
+                      />
+                    </div>
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={portfolioViewer.items[portfolioViewer.index].url}
+                      alt={`${portfolioViewer.horseName} - Image ${portfolioViewer.index + 1}`}
+                      className="h-auto w-full object-contain"
+                      style={{
+                        maxHeight: '80vh',
+                        maxWidth: '100%',
+                        display: 'block'
+                      }}
+                      draggable={false}
+                    />
+                  )}
+
+                  {/* Caption Overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 pt-12">
+                    <h3 className="text-xl font-bold text-white drop-shadow-lg">
+                      {portfolioViewer.horseName}
+                    </h3>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
             </div>
 
-            {/* Navigation Arrows - Apple Liquid Glass with Desert Warmth */}
+            {/* Navigation Buttons - Desktop */}
             {portfolioViewer.items.length > 1 && (
               <>
                 <button
-                  type="button"
-                  onClick={showPreviousMedia}
-                  style={{
-                    position: 'absolute',
-                    left: '16px',
-                    top: '50%',
-                    transform: 'translateY(-50%) translateZ(0)',
-                    WebkitTransform: 'translateY(-50%) translateZ(0)',
-                    display: 'flex',
-                    width: '56px',
-                    height: '56px',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(218, 165, 32, 0.15) 100%)',
-                    color: 'white',
-                    border: '0.5px solid rgba(255, 255, 255, 0.3)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
-                    cursor: 'pointer',
-                    zIndex: 100,
-                    backdropFilter: 'blur(30px) saturate(180%) brightness(1.2)',
-                    WebkitBackdropFilter: 'blur(30px) saturate(180%) brightness(1.2)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPortfolioViewer(prev => {
+                      if (!prev) return null;
+                      const newIndex = prev.index === 0 ? prev.items.length - 1 : prev.index - 1;
+                      return { ...prev, index: newIndex };
+                    });
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(218, 165, 32, 0.25) 100%)';
-                    e.currentTarget.style.transform = 'translateY(-50%) translateZ(0) scale(1.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(218, 165, 32, 0.15) 100%)';
-                    e.currentTarget.style.transform = 'translateY(-50%) translateZ(0) scale(1)';
-                  }}
-                  aria-label="Previous"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white transition-all hover:bg-black/40 hover:scale-110 active:scale-95 z-50"
                 >
-                  <ChevronLeft className="h-7 w-7" style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))' }} />
+                  <ChevronLeft className="h-6 w-6" />
                 </button>
+
                 <button
-                  type="button"
-                  onClick={showNextMedia}
-                  style={{
-                    position: 'absolute',
-                    right: '16px',
-                    top: '50%',
-                    transform: 'translateY(-50%) translateZ(0)',
-                    WebkitTransform: 'translateY(-50%) translateZ(0)',
-                    display: 'flex',
-                    width: '56px',
-                    height: '56px',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(218, 165, 32, 0.15) 100%)',
-                    color: 'white',
-                    border: '0.5px solid rgba(255, 255, 255, 0.3)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
-                    cursor: 'pointer',
-                    zIndex: 100,
-                    backdropFilter: 'blur(30px) saturate(180%) brightness(1.2)',
-                    WebkitBackdropFilter: 'blur(30px) saturate(180%) brightness(1.2)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPortfolioViewer(prev => {
+                      if (!prev) return null;
+                      const newIndex = prev.index === prev.items.length - 1 ? 0 : prev.index + 1;
+                      return { ...prev, index: newIndex };
+                    });
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(218, 165, 32, 0.25) 100%)';
-                    e.currentTarget.style.transform = 'translateY(-50%) translateZ(0) scale(1.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(218, 165, 32, 0.15) 100%)';
-                    e.currentTarget.style.transform = 'translateY(-50%) translateZ(0) scale(1)';
-                  }}
-                  aria-label="Next"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white transition-all hover:bg-black/40 hover:scale-110 active:scale-95 z-50"
                 >
-                  <ChevronRight className="h-7 w-7" style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2))' }} />
+                  <ChevronRight className="h-6 w-6" />
                 </button>
               </>
             )}
@@ -1311,56 +1250,44 @@ export default function StableDetailPage() {
             {/* Thumbnail Strip - Apple Liquid Glass with Golden Warmth */}
             {portfolioViewer.items.length > 1 && (
               <div
+                className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-3 rounded-2xl flex gap-3 overflow-x-auto max-w-[90vw] scrollbar-hide z-50"
                 style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  background: 'linear-gradient(180deg, rgba(218, 165, 32, 0.18) 0%, rgba(184, 134, 11, 0.15) 50%, rgba(139, 69, 19, 0.12) 100%)',
-                  borderTop: '0.5px solid rgba(255, 255, 255, 0.25)',
-                  padding: '16px',
-                  paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
-                  boxShadow: '0 -8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                  zIndex: 50,
-                  backdropFilter: 'blur(40px) saturate(180%) brightness(1.15)',
-                  WebkitBackdropFilter: 'blur(40px) saturate(180%) brightness(1.15)',
-                  transform: 'translateZ(0)',
-                  WebkitTransform: 'translateZ(0)',
+                  background: 'rgba(20, 20, 20, 0.4)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
                 }}
               >
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-center">
-                  {portfolioViewer.items.map((item, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setPortfolioViewer(prev => prev ? { ...prev, index: idx } : null)}
-                      className={`flex-shrink-0 h-16 w-16 rounded-xl overflow-hidden border-2 transition-all ${idx === portfolioViewer.index
-                        ? "border-white scale-110 shadow-lg shadow-white/25"
-                        : "border-white/40 opacity-70 hover:opacity-100 hover:scale-105"
-                        }`}
-                    >
-                      {item.type === "video" ? (
-                        <div className="h-full w-full bg-gray-800/50 backdrop-blur-sm flex items-center justify-center">
-                          <span className="text-white text-sm">▶</span>
-                        </div>
-                      ) : (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={item.url}
-                          alt={`${portfolioViewer.horseName} - Thumbnail ${idx + 1} of ${portfolioViewer.items.length} from ${stable.name} portfolio`}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      )}
-                    </button>
-                  ))}
-                </div>
+                {portfolioViewer.items.map((item, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setPortfolioViewer(prev => prev ? { ...prev, index: idx } : null)}
+                    className={`flex-shrink-0 h-16 w-16 rounded-xl overflow-hidden border-2 transition-all ${idx === portfolioViewer.index
+                      ? "border-white scale-110 shadow-lg shadow-white/25"
+                      : "border-white/40 opacity-70 hover:opacity-100 hover:scale-105"
+                      }`}
+                  >
+                    {item.type === "video" ? (
+                      <div className="h-full w-full bg-gray-800/50 backdrop-blur-sm flex items-center justify-center">
+                        <span className="text-white text-sm">▶</span>
+                      </div>
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={item.url}
+                        alt={`${portfolioViewer.horseName} - Thumbnail ${idx + 1} of ${portfolioViewer.items.length} from ${stable.name} portfolio`}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    )}
+                  </button>
+                ))}
               </div>
             )}
           </div>
         </>
       )}
-
     </div>
   );
 }
-

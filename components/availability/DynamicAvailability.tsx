@@ -26,69 +26,112 @@ interface DynamicAvailabilityProps {
 }
 
 export default function DynamicAvailability({ grouped, blocked, horseId, onSlotClick, isLocked }: DynamicAvailabilityProps) {
-    if (!grouped) {
+    // SSR Safety: Early return with defensive checks
+    if (!grouped || typeof grouped !== 'object') {
         return <p className="text-xs text-muted-foreground">No available slots</p>;
     }
 
-    const todaySlots = grouped.today;
-    const tomorrowSlots = grouped.tomorrow;
+    // Defensive null checks for nested properties
+    const todaySlots = grouped.today || { morning: [], afternoon: [], evening: [] };
+    const tomorrowSlots = grouped.tomorrow || { morning: [], afternoon: [], evening: [] };
 
-    // Check if we have any slots at all (available or blocked)
-    const hasToday = (
-        todaySlots.morning.length + todaySlots.afternoon.length + todaySlots.evening.length +
-        (blocked?.today.morning.length || 0) + (blocked?.today.afternoon.length || 0) + (blocked?.today.evening.length || 0)
-    ) > 0;
+    // Safe array length checks
+    const getTodayCount = () => {
+        try {
+            return (
+                (todaySlots.morning?.length || 0) +
+                (todaySlots.afternoon?.length || 0) +
+                (todaySlots.evening?.length || 0) +
+                (blocked?.today?.morning?.length || 0) +
+                (blocked?.today?.afternoon?.length || 0) +
+                (blocked?.today?.evening?.length || 0)
+            );
+        } catch {
+            return 0;
+        }
+    };
 
-    const hasTomorrow = (
-        tomorrowSlots.morning.length + tomorrowSlots.afternoon.length + tomorrowSlots.evening.length +
-        (blocked?.tomorrow.morning.length || 0) + (blocked?.tomorrow.afternoon.length || 0) + (blocked?.tomorrow.evening.length || 0)
-    ) > 0;
+    const getTomorrowCount = () => {
+        try {
+            return (
+                (tomorrowSlots.morning?.length || 0) +
+                (tomorrowSlots.afternoon?.length || 0) +
+                (tomorrowSlots.evening?.length || 0) +
+                (blocked?.tomorrow?.morning?.length || 0) +
+                (blocked?.tomorrow?.afternoon?.length || 0) +
+                (blocked?.tomorrow?.evening?.length || 0)
+            );
+        } catch {
+            return 0;
+        }
+    };
+
+    const hasToday = getTodayCount() > 0;
+    const hasTomorrow = getTomorrowCount() > 0;
 
     if (!hasToday && !hasTomorrow) {
         return <p className="text-xs text-muted-foreground">No available slots</p>;
     }
 
-    const renderPeriod = (title: string, emoji: string, times: string[], blockedTimes: string[] = [], isTomorrow: boolean) => {
+    const renderPeriod = (title: string, emoji: string, times: string[] = [], blockedTimes: string[] = [], isTomorrow: boolean) => {
+        // Additional safety checks
+        if (!Array.isArray(times)) times = [];
+        if (!Array.isArray(blockedTimes)) blockedTimes = [];
+
         if (times.length === 0 && blockedTimes.length === 0) return null;
 
-        // Combine and sort times
-        const allTimes = [...times.map(t => ({ time: t, blocked: false })), ...blockedTimes.map(t => ({ time: t, blocked: true }))];
-        allTimes.sort((a, b) => {
-            const dateA = new Date(`2000/01/01 ${a.time}`);
-            const dateB = new Date(`2000/01/01 ${b.time}`);
-            return dateA.getTime() - dateB.getTime();
-        });
+        try {
+            // Combine and sort times with error handling
+            const allTimes = [
+                ...times.map(t => ({ time: String(t), blocked: false })),
+                ...blockedTimes.map(t => ({ time: String(t), blocked: true }))
+            ];
 
-        return (
-            <div className="mb-3">
-                <div className="flex items-center gap-1 mb-2">
-                    <span className="text-xs">{emoji}</span>
-                    <span className="text-xs text-muted-foreground">{title}</span>
+            allTimes.sort((a, b) => {
+                try {
+                    const dateA = new Date(`2000/01/01 ${a.time}`);
+                    const dateB = new Date(`2000/01/01 ${b.time}`);
+                    return dateA.getTime() - dateB.getTime();
+                } catch {
+                    return 0; // Keep original order if parsing fails
+                }
+            });
+
+            return (
+                <div className="mb-3">
+                    <div className="flex items-center gap-1 mb-2">
+                        <span className="text-xs">{emoji}</span>
+                        <span className="text-xs text-muted-foreground">{title}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {allTimes.map(({ time, blocked }) => (
+                            <Button
+                                key={time}
+                                variant="outline"
+                                size="sm"
+                                disabled={blocked || isLocked}
+                                className={`h-6 text-xs px-2 ${blocked
+                                    ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                                    : "bg-green-500/10 text-green-700 border-green-500/30 hover:bg-green-500/20 hover:text-green-800"
+                                    }`}
+                                onClick={(e) => {
+                                    if (!blocked && !isLocked && onSlotClick) {
+                                        e.stopPropagation();
+                                        onSlotClick(horseId, time, isTomorrow);
+                                    }
+                                }}
+                            >
+                                {time}
+                            </Button>
+                        ))}
+                    </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                    {allTimes.map(({ time, blocked }) => (
-                        <Button
-                            key={time}
-                            variant="outline"
-                            size="sm"
-                            disabled={blocked || isLocked}
-                            className={`h-6 text-xs px-2 ${blocked
-                                ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                                : "bg-green-500/10 text-green-700 border-green-500/30 hover:bg-green-500/20 hover:text-green-800"
-                                }`}
-                            onClick={(e) => {
-                                if (!blocked && !isLocked) {
-                                    e.stopPropagation();
-                                    onSlotClick(horseId, time, isTomorrow);
-                                }
-                            }}
-                        >
-                            {time}
-                        </Button>
-                    ))}
-                </div>
-            </div>
-        );
+            );
+        } catch (error) {
+            // Graceful degradation if rendering fails
+            console.error('Error rendering period:', error);
+            return null;
+        }
     };
 
     return (
