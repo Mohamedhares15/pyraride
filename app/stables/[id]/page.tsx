@@ -939,13 +939,13 @@ export default function StableDetailPage() {
 
       {/* Booking Modal */}
       <BookingModal
-        isOpen={isBookingModalOpen}
-        onClose={() => setIsBookingModalOpen(false)}
+        open={isBookingModalOpen}
+        onOpenChange={setIsBookingModalOpen}
         stableId={stable.id}
         stableName={stable.name}
+        horses={stable.horses}
         preselectedHorseId={bookingSelection?.horseId}
-        preselectedDate={bookingSelection?.date ? new Date(bookingSelection.date) : undefined}
-        preselectedTime={bookingSelection?.startTime}
+        initialSelection={bookingSelection}
       />
 
       {/* Portfolio Viewer Overlay */}
