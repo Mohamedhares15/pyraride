@@ -90,13 +90,93 @@ export default function Navbar() {
         <li>
           <Link href="/dashboard">Dashboard</Link>
         </li>
+      )}
+    </>
+  );
+
+  const desktopAuthSection =
+    status === "authenticated" ? (
+      <li
+        className="relative group"
+        onMouseEnter={() => setIsOpen(true)}
+        onMouseLeave={() => setIsOpen(false)}
+      >
+        <button
+          className="flex items-center gap-3 focus:outline-none group/btn py-2"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <div className="relative h-9 w-9 overflow-hidden rounded-full border border-white/20 group-hover/btn:border-[rgb(218,165,32)]/50 transition-colors duration-300 shadow-lg shadow-black/20">
+            {userImage && !imageError ? (
+              <Image
+                src={userImage}
+                alt="Profile"
+                fill
+                className="object-cover"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-800 to-black text-xs font-bold text-white group-hover/btn:text-[rgb(218,165,32)] transition-colors">
+                {initials}
+              </div>
+            )}
+          </div>
+          <span className="text-sm font-medium text-white/90 group-hover/btn:text-white transition-colors">{displayName}</span>
+        </button>
+
+        <AnimatePresence>
+          {isOpen && (
+            <div className="absolute right-0 top-full pt-2 w-56 origin-top-right z-50">
+              <motion.div
+                initial={{ opacity: 0, y: -5, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -5, scale: 0.98 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                className="rounded-xl bg-[#121212]/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden ring-1 ring-black/5"
+              >
+                <div className="p-1">
+                  <Link
+                    href={`/users/${session?.user?.id}`}
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-lg transition-all duration-200 group"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <div className="p-1.5 rounded-md bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
+                      <User className="h-4 w-4" />
+                    </div>
+                    My Profile
+                  </Link>
+
+                  <div className="my-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      signOut();
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/80 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200 group"
+                  >
+                    <div className="p-1.5 rounded-md bg-white/5 text-white/60 group-hover:text-red-400 group-hover:bg-red-500/10 transition-colors">
+                      <LogOut className="h-4 w-4" />
+                    </div>
+                    Sign Out
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+      </li>
+    ) : (
+      <>
+        <li>
+          <Link href="/signin">
+            <Button variant="ghost">Sign In</Button>
           </Link>
-        </li >
-    <li>
-      <Link href="/signup">
-        <Button>Get Started</Button>
-      </Link>
-    </li>
+        </li>
+        <li>
+          <Link href="/signup">
+            <Button>Get Started</Button>
+          </Link>
+        </li>
       </>
     );
 
