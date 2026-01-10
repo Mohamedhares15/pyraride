@@ -490,14 +490,14 @@ export default function StableDetailPage() {
 
       newGroupedSlots[horse.id] = groupSlotsByDayAndPeriod(
         availableTimes,
-        currentDate,
-        leadTimeHours
+        leadTimeHours,
+        currentDate
       );
 
       newGroupedBlockedSlots[horse.id] = groupSlotsByDayAndPeriod(
         blockedTimes,
-        currentDate,
-        leadTimeHours
+        leadTimeHours,
+        currentDate
       );
     });
 
