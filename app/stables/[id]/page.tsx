@@ -140,9 +140,9 @@ function groupSlotsByDayAndPeriod(
     const period = getTimePeriod(slotDateTime.getHours());
 
     if (allowShift && slotDateTime < safeBookingTime) {
-      // Slot is within lead time window.
-      // User request: Hide these slots completely. Do not shift to tomorrow.
-      // Do nothing.
+      // Slot is within lead time window, push to tomorrow
+      // This ensures users see these slots as available for the next day instead of grayed out for today.
+      tomorrow[period].push(timeStr);
     } else {
       // Slot is safe to book today
       today[period].push(timeStr);
