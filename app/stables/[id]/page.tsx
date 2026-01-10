@@ -473,6 +473,38 @@ export default function StableDetailPage() {
     });
   }, [isLoading, stable]);
 
+  // Group slots by horse for DynamicAvailability component
+  useEffect(() => {
+    if (!stable) return;
+
+    const today = new Date().toISOString().split("T")[0];
+    const leadTimeHours = stable.minLeadTimeHours || 8;
+    const currentDate = new Date();
+
+    const newGroupedSlots: Record<string, DayGroupedSlots> = {};
+    const newGroupedBlockedSlots: Record<string, DayGroupedSlots> = {};
+
+    stable.horses.forEach(horse => {
+      const availableTimes = availableSlots[today]?.[horse.id] || [];
+      const blockedTimes = blockedSlots[today]?.[horse.id] || [];
+
+      newGroupedSlots[horse.id] = groupSlotsByDayAndPeriod(
+        availableTimes,
+        currentDate,
+        leadTimeHours
+      );
+
+      newGroupedBlockedSlots[horse.id] = groupSlotsByDayAndPeriod(
+        blockedTimes,
+        currentDate,
+        leadTimeHours
+      );
+    });
+
+    setGroupedSlots(newGroupedSlots);
+    setGroupedBlockedSlots(newGroupedBlockedSlots);
+  }, [availableSlots, blockedSlots, stable]);
+
   const openPortfolio = (horseName: string, items: HorseMediaItem[], startIndex = 0) => {
     if (!items || items.length === 0) return;
 
