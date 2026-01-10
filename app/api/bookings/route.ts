@@ -445,6 +445,12 @@ export async function GET(req: NextRequest) {
     } else {
       // Default: Get bookings for the current rider
       where.riderId = session.user.id;
+
+      // If stableId is provided in query params, filter by it
+      const stableId = searchParams.get("stableId");
+      if (stableId) {
+        where.stableId = stableId;
+      }
     }
 
     // Filter by status if provided
