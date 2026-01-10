@@ -455,10 +455,12 @@ export default function StableDetailPage() {
       }
     };
 
-    const interval = setInterval(fetchSlots, 15000); // Refresh every 15 seconds
-
-    return () => clearInterval(interval);
-  }, [id, stable, selectedDate]);
+    fetchSlots();
+    // Cleanup function to prevent memory leaks
+    return () => {
+      // No interval to clear anymore
+    };
+  }, [fetchSlots]);
 
   useEffect(() => {
     if (isLoading || !stable) return;
