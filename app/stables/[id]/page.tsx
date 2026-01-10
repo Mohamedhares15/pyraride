@@ -798,8 +798,9 @@ export default function StableDetailPage() {
 
                     return (
                       <Card key={horse.id} className="overflow-hidden">
-                        <div
-                          className="relative h-64 w-full cursor-pointer group"
+                        <button
+                          type="button"
+                          className="group relative h-64 w-full overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                           onClick={() => openPortfolio(horse.name, horse.media)}
                         >
                           <Image
@@ -808,11 +809,10 @@ export default function StableDetailPage() {
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                           />
-                          {/* Overlay hint on hover */}
-                          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <span className="text-white font-medium bg-black/50 px-3 py-1 rounded-full text-sm">View Photos</span>
-                          </div>
-                        </div>
+                          <span className="absolute bottom-4 right-4 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white shadow-lg transition-opacity group-hover:opacity-100">
+                            View Photos
+                          </span>
+                        </button>
 
                         <div className="p-6">
                           <div className="mb-4 flex items-start justify-between">
