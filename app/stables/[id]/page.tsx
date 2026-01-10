@@ -27,7 +27,6 @@ import BookingModal from "@/components/shared/BookingModal";
 import ReviewsSection, { Review } from "@/components/sections/ReviewsSection";
 import StableLocationMap from "@/components/maps/StableLocationMap";
 import DynamicAvailability from "@/components/availability/DynamicAvailability";
-import VideoMeetButton from "@/components/shared/VideoMeetButton";
 import {
   Dialog,
   DialogContent,
