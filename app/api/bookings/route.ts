@@ -339,7 +339,7 @@ export async function POST(req: NextRequest) {
 
         // Send notifications for each booking in the group
         for (const booking of createdBookings) {
-          await Promise.all(allRecipients.map(recipient =>
+          const emailPromises = allRecipients.map(recipient =>
             sendOwnerBookingNotification({
               ownerEmail: recipient.email,
               riderName: booking.rider.fullName || "Guest Rider",
@@ -353,7 +353,18 @@ export async function POST(req: NextRequest) {
               totalPrice: Number(booking.totalPrice),
               bookingId: booking.id,
             })
-          ));
+          );
+
+          const results = await Promise.allSettled(emailPromises);
+
+          // Log results
+          results.forEach((result, index) => {
+            if (result.status === 'rejected') {
+              console.error(`[Booking] Failed to send email to ${allRecipients[index].email}:`, result.reason);
+            } else {
+              console.log(`[Booking] Email sent successfully to ${allRecipients[index].email}`);
+            }
+          });
         }
       }
 

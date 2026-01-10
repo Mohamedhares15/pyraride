@@ -129,9 +129,17 @@ export async function GET(
       },
     });
 
-    // 2. Horse Welfare Logic
-    // Filter out available slots if the horse already has a booking in the same session (AM/PM)
-    // AM: < 12:00, PM: >= 12:00
+    // 2. Horse Welfare & Lead Time Logic
+    // Instead of filtering out slots, we will mark them with a status.
+    // Statuses: 'available', 'booked', 'blocked_session', 'blocked_lead_time'
+
+    // Fetch stable lead time (default 24h if not set)
+    const stable = await prisma.stable.findUnique({
+      where: { id: params.id },
+      select: { minLeadTimeHours: true } // in hours
+    });
+    const leadTimeHours = stable?.minLeadTimeHours || 24;
+    const minBookingTime = new Date(Date.now() + leadTimeHours * 60 * 60 * 1000);
 
     // Track booked sessions per horse
     const horseBookings = new Map<string, { am: boolean; pm: boolean }>();
@@ -153,39 +161,41 @@ export async function GET(
       }
     });
 
-    // Second pass: Filter slots
-    const filteredSlots = slots.filter(slot => {
-      if (!slot.horseId) return true; // Keep slots without horseId (stable-wide?)
-
-      // Always keep booked slots (so they show as booked) - UNLESS they are cancelled
-      if (slot.booking && slot.booking.status !== 'cancelled') {
-        return true;
-      }
-
-      const hour = new Date(slot.startTime).getHours();
-      const isAm = hour < 12;
-      const horseStatus = horseBookings.get(slot.horseId);
-
-      // If horse has no bookings, keep slot
-      if (!horseStatus) return true;
-
-      // If slot is AM and horse already has AM booking, hide this available slot
-      if (isAm && horseStatus.am) return false;
-
-      // If slot is PM and horse already has PM booking, hide this available slot
-      if (!isAm && horseStatus.pm) return false;
-
-      return true;
-    }).map(slot => {
-      // If booking is cancelled, remove it from the response so frontend sees it as available
+    // Second pass: Process slots and assign status
+    const processedSlots = slots.map(slot => {
+      // If booking is cancelled, treat as available (remove booking object)
       if (slot.booking && slot.booking.status === 'cancelled') {
-        return { ...slot, booking: null };
+        slot.booking = null;
       }
-      return slot;
+
+      // 1. Check if already booked
+      if (slot.booking) {
+        return { ...slot, status: 'booked' };
+      }
+
+      // 2. Check Lead Time
+      if (new Date(slot.startTime) < minBookingTime) {
+        return { ...slot, status: 'blocked_lead_time' };
+      }
+
+      // 3. Check Welfare Rule (One booking per session)
+      if (slot.horseId) {
+        const hour = new Date(slot.startTime).getHours();
+        const isAm = hour < 12;
+        const horseStatus = horseBookings.get(slot.horseId);
+
+        if (horseStatus) {
+          if (isAm && horseStatus.am) return { ...slot, status: 'blocked_session' };
+          if (!isAm && horseStatus.pm) return { ...slot, status: 'blocked_session' };
+        }
+      }
+
+      // Default: Available
+      return { ...slot, status: 'available' };
     });
 
-    console.log(`[GET /api/stables/${params.id}/slots] Found ${slots.length} slots, returning ${filteredSlots.length} after welfare filtering`);
-    return NextResponse.json(filteredSlots);
+    console.log(`[GET /api/stables/${params.id}/slots] Processed ${processedSlots.length} slots with strict statuses`);
+    return NextResponse.json(processedSlots);
   } catch (error) {
     console.error("Error fetching availability slots:", error);
     return new NextResponse("Internal Error", { status: 500 });

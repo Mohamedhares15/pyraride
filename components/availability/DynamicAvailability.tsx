@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -18,26 +19,45 @@ interface DayGroupedSlots {
 
 interface DynamicAvailabilityProps {
     grouped: DayGroupedSlots | null | undefined;
+    blocked?: DayGroupedSlots | null | undefined;
     horseId: string;
     onSlotClick: (horseId: string, time: string, isTomorrow?: boolean) => void;
+    isLocked?: boolean;
 }
 
-export default function DynamicAvailability({ grouped, horseId, onSlotClick }: DynamicAvailabilityProps) {
+export default function DynamicAvailability({ grouped, blocked, horseId, onSlotClick, isLocked }: DynamicAvailabilityProps) {
     if (!grouped) {
         return <p className="text-xs text-muted-foreground">No available slots</p>;
     }
 
     const todaySlots = grouped.today;
     const tomorrowSlots = grouped.tomorrow;
-    const hasToday = todaySlots.morning.length + todaySlots.afternoon.length + todaySlots.evening.length > 0;
-    const hasTomorrow = tomorrowSlots.morning.length + tomorrowSlots.afternoon.length + tomorrowSlots.evening.length > 0;
+
+    // Check if we have any slots at all (available or blocked)
+    const hasToday = (
+        todaySlots.morning.length + todaySlots.afternoon.length + todaySlots.evening.length +
+        (blocked?.today.morning.length || 0) + (blocked?.today.afternoon.length || 0) + (blocked?.today.evening.length || 0)
+    ) > 0;
+
+    const hasTomorrow = (
+        tomorrowSlots.morning.length + tomorrowSlots.afternoon.length + tomorrowSlots.evening.length +
+        (blocked?.tomorrow.morning.length || 0) + (blocked?.tomorrow.afternoon.length || 0) + (blocked?.tomorrow.evening.length || 0)
+    ) > 0;
 
     if (!hasToday && !hasTomorrow) {
         return <p className="text-xs text-muted-foreground">No available slots</p>;
     }
 
-    const renderPeriod = (title: string, emoji: string, times: string[], isTomorrow: boolean) => {
-        if (times.length === 0) return null;
+    const renderPeriod = (title: string, emoji: string, times: string[], blockedTimes: string[] = [], isTomorrow: boolean) => {
+        if (times.length === 0 && blockedTimes.length === 0) return null;
+
+        // Combine and sort times
+        const allTimes = [...times.map(t => ({ time: t, blocked: false })), ...blockedTimes.map(t => ({ time: t, blocked: true }))];
+        allTimes.sort((a, b) => {
+            const dateA = new Date(`2000/01/01 ${a.time}`);
+            const dateB = new Date(`2000/01/01 ${b.time}`);
+            return dateA.getTime() - dateB.getTime();
+        });
 
         return (
             <div className="mb-3">
@@ -46,15 +66,21 @@ export default function DynamicAvailability({ grouped, horseId, onSlotClick }: D
                     <span className="text-xs text-muted-foreground">{title}</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    {times.map(time => (
+                    {allTimes.map(({ time, blocked }) => (
                         <Button
                             key={time}
                             variant="outline"
                             size="sm"
-                            className="h-6 bg-green-500/10 text-green-700 border-green-500/30 hover:bg-green-500/20 hover:text-green-800 text-xs px-2"
+                            disabled={blocked || isLocked}
+                            className={`h-6 text-xs px-2 ${blocked
+                                ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                                : "bg-green-500/10 text-green-700 border-green-500/30 hover:bg-green-500/20 hover:text-green-800"
+                                }`}
                             onClick={(e) => {
-                                e.stopPropagation();
-                                onSlotClick(horseId, time, isTomorrow);
+                                if (!blocked && !isLocked) {
+                                    e.stopPropagation();
+                                    onSlotClick(horseId, time, isTomorrow);
+                                }
                             }}
                         >
                             {time}
@@ -66,29 +92,39 @@ export default function DynamicAvailability({ grouped, horseId, onSlotClick }: D
     };
 
     return (
-        <>
-            {/* Today's Slots */}
-            {hasToday && (
-                <div className="mb-4">
-                    {renderPeriod("Today: Morning", "🌅", todaySlots.morning, false)}
-                    {renderPeriod("Today: Afternoon", "☀", todaySlots.afternoon, false)}
-                    {renderPeriod("Today: Evening", "🌙", todaySlots.evening, false)}
+        <div className="relative">
+            {isLocked && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-[2px] rounded-md">
+                    <div className="bg-background/90 px-3 py-2 rounded shadow-sm border text-xs font-medium text-muted-foreground text-center">
+                        You still didn&apos;t open this horse level
+                    </div>
                 </div>
             )}
 
-            {/* Tomorrow's Slots */}
-            {hasTomorrow && (
-                <div className="mb-4">
-                    {renderPeriod("Tomorrow: Morning", "🌅", tomorrowSlots.morning, true)}
-                    {renderPeriod("Tomorrow: Afternoon", "☀", tomorrowSlots.afternoon, true)}
-                    {renderPeriod("Tomorrow: Evening", "🌙", tomorrowSlots.evening, true)}
-                </div>
-            )}
+            <div className={isLocked ? "opacity-50 pointer-events-none select-none filter blur-[1px]" : ""}>
+                {/* Today's Slots */}
+                {hasToday && (
+                    <div className="mb-4">
+                        {renderPeriod("Today: Morning", "🌅", todaySlots.morning, blocked?.today.morning, false)}
+                        {renderPeriod("Today: Afternoon", "☀", todaySlots.afternoon, blocked?.today.afternoon, false)}
+                        {renderPeriod("Today: Evening", "🌙", todaySlots.evening, blocked?.today.evening, false)}
+                    </div>
+                )}
 
-            <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3" />
-                <span>Updated every 30 seconds</span>
+                {/* Tomorrow's Slots */}
+                {hasTomorrow && (
+                    <div className="mb-4">
+                        {renderPeriod("Tomorrow: Morning", "🌅", tomorrowSlots.morning, blocked?.tomorrow.morning, true)}
+                        {renderPeriod("Tomorrow: Afternoon", "☀", tomorrowSlots.afternoon, blocked?.tomorrow.afternoon, true)}
+                        {renderPeriod("Tomorrow: Evening", "🌙", tomorrowSlots.evening, blocked?.tomorrow.evening, true)}
+                    </div>
+                )}
+
+                <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    <span>Updated every 30 seconds</span>
+                </div>
             </div>
-        </>
+        </div>
     );
 }

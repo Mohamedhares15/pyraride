@@ -162,9 +162,13 @@ export default function StableDetailPage() {
 
   const [availableSlots, setAvailableSlots] = useState<Record<string, Record<string, string[]>>>({});
   const [takenSlots, setTakenSlots] = useState<Record<string, Record<string, any[]>>>({});
+  const [blockedSlots, setBlockedSlots] = useState<Record<string, Record<string, string[]>>>({});
+
   const [groupedSlots, setGroupedSlots] = useState<Record<string, DayGroupedSlots>>({});
+  const [groupedBlockedSlots, setGroupedBlockedSlots] = useState<Record<string, DayGroupedSlots>>({});
+
   const [portfolioViewer, setPortfolioViewer] = useState<PortfolioViewerState | null>(null);
-  const [showAllSlots, setShowAllSlots] = useState<Record<string, boolean>>({});
+
   const { data: session } = useSession();
   const [hasBookingWithStable, setHasBookingWithStable] = useState(false);
   const [userBookingDate, setUserBookingDate] = useState<string | null>(null);
@@ -187,6 +191,28 @@ export default function StableDetailPage() {
         .catch(err => console.error("Failed to fetch user rank", err));
     }
   }, [session?.user?.id]);
+
+  const getRiderTier = (points: number) => {
+    if (points >= 1701) return "ADVANCED";
+    if (points >= 1301) return "INTERMEDIATE";
+    return "BEGINNER";
+  };
+
+  const isHorseLocked = (horse: Horse) => {
+    if (userRankPoints === null) return false; // Assume unlocked if rank not loaded yet? Or locked? Let's assume unlocked or handle gracefully.
+    // Actually, if rank is not loaded, maybe we shouldn't lock yet.
+
+    const riderTier = getRiderTier(userRankPoints);
+    const horseLevel = horse.adminTier ? horse.adminTier.toUpperCase() : "BEGINNER";
+
+    const canBook = (
+      (riderTier === "ADVANCED") ||
+      (riderTier === "INTERMEDIATE" && horseLevel !== "ADVANCED") ||
+      (riderTier === "BEGINNER" && horseLevel === "BEGINNER")
+    );
+
+    return !canBook;
+  };
 
   const handleSlotClick = (horseId: string, timeStr: string, isTomorrow?: boolean) => {
     // 1. Lead Time Validation
@@ -226,30 +252,16 @@ export default function StableDetailPage() {
 
     // 2. Skill Level Validation
     const horse = stable?.horses.find(h => h.id === horseId);
-    if (horse && userRankPoints !== null) {
-      const getRiderTier = (points: number) => {
-        if (points >= 1701) return "ADVANCED";
-        if (points >= 1301) return "INTERMEDIATE";
-        return "BEGINNER";
-      };
-
-      const riderTier = getRiderTier(userRankPoints);
+    if (horse && isHorseLocked(horse)) {
+      const riderTier = getRiderTier(userRankPoints || 0);
       const horseLevel = horse.adminTier ? horse.adminTier.toUpperCase() : "BEGINNER";
 
-      const canBook = (
-        (riderTier === "ADVANCED") ||
-        (riderTier === "INTERMEDIATE" && horseLevel !== "ADVANCED") ||
-        (riderTier === "BEGINNER" && horseLevel === "BEGINNER")
-      );
-
-      if (!canBook) {
-        const { toast } = require("sonner");
-        toast.error("Skill Level Mismatch", {
-          description: `You are a ${riderTier} rider, but this horse requires ${horseLevel} skills. Please choose another horse.`,
-          duration: 4000,
-        });
-        return;
-      }
+      const { toast } = require("sonner");
+      toast.error("Skill Level Mismatch", {
+        description: `You are a ${riderTier} rider, but this horse requires ${horseLevel} skills. Please choose another horse.`,
+        duration: 4000,
+      });
+      return;
     }
 
     const startTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
@@ -356,65 +368,18 @@ export default function StableDetailPage() {
 
           setAvailableSlots(newAvailable);
           setTakenSlots(newTaken);
-
-          // Group slots by day and time period for each horse
-          const newGrouped: Record<string, DayGroupedSlots> = {};
-          const leadTimeHours = stableData.minLeadTimeHours || 8;
-
-          stableData.horses.forEach((horse: any) => {
-            const horseSlots = newAvailable[today][horse.id] || [];
-            newGrouped[horse.id] = groupSlotsByDayAndPeriod(
-              horseSlots,
-              leadTimeHours,
-              new Date()
-            );
-          });
-
-          setGroupedSlots(newGrouped);
         }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load stable");
+      } catch (error) {
+        console.error("Error fetching stable:", error);
+        setError("Failed to load stable details");
       } finally {
         setIsLoading(false);
       }
     }
 
-    if (id) {
-      fetchStable();
-    }
-  }, [id]);
+    fetchStable();
+  }, [id, session]);
 
-  // Check if user has a booking with this stable (for video chat access)
-  useEffect(() => {
-    async function checkUserBooking() {
-      if (!session?.user?.id || !id) return;
-
-      try {
-        const res = await fetch(`/api/bookings?stableId=${id}&status=confirmed,pending`);
-        if (res.ok) {
-          const bookings = await res.json();
-          const futureBookings = bookings.filter((b: any) => new Date(b.startTime) > new Date());
-          if (futureBookings.length > 0) {
-            setHasBookingWithStable(true);
-            const nextBooking = futureBookings[0];
-            setUserBookingDate(new Date(nextBooking.startTime).toLocaleDateString('en-US', {
-              weekday: 'long',
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit'
-            }));
-          }
-        }
-      } catch (error) {
-        console.error("Error checking bookings:", error);
-      }
-    }
-
-    checkUserBooking();
-  }, [session?.user?.id, id]);
-
-  // Refresh slots every 15 seconds (more frequent updates)
   // Refresh slots every 15 seconds (more frequent updates)
   useEffect(() => {
     if (!id) return;
@@ -426,14 +391,16 @@ export default function StableDetailPage() {
 
         if (slotsRes.ok) {
           const slotsData = await slotsRes.json();
-          // Process slots into available/taken maps
+          // Process slots into available/taken/blocked maps
           const newAvailable: Record<string, Record<string, string[]>> = { [today]: {} };
           const newTaken: Record<string, Record<string, any[]>> = { [today]: {} };
+          const newBlocked: Record<string, Record<string, string[]>> = { [today]: {} };
 
           // Initialize for all horses
           stable?.horses.forEach(horse => {
             newAvailable[today][horse.id] = [];
             newTaken[today][horse.id] = [];
+            newBlocked[today][horse.id] = [];
           });
 
           slotsData.forEach((slot: any) => {
@@ -454,18 +421,27 @@ export default function StableDetailPage() {
             targetHorses.forEach(horse => {
               if (!horse) return;
 
-              if (slot.isBooked) {
+              // Handle new statuses
+              if (slot.status === 'booked') {
                 if (!newTaken[today][horse.id]) newTaken[today][horse.id] = [];
                 newTaken[today][horse.id].push({ ...slot, startTime: slot.startTime });
-              } else {
+              } else if (slot.status === 'available') {
                 if (!newAvailable[today][horse.id]) newAvailable[today][horse.id] = [];
                 newAvailable[today][horse.id].push(time);
+              } else {
+                // blocked_session or blocked_lead_time
+                if (!newBlocked[today][horse.id]) newBlocked[today][horse.id] = [];
+                newBlocked[today][horse.id].push(time);
               }
             });
           });
 
           setAvailableSlots(newAvailable);
           setTakenSlots(newTaken);
+          // We need to add a state for blocked slots or merge them into taken slots with a flag
+          // For now, let's merge them into taken slots but with a special flag so UI can render them differently
+          // Actually, let's add a new state for blocked slots
+          setBlockedSlots(newBlocked);
         }
       } catch (err) {
         console.error("Error refreshing slots:", err);
@@ -702,15 +678,7 @@ export default function StableDetailPage() {
           </div>
 
           {/* Video Chat Button */}
-          <div className="mt-6">
-            <VideoMeetButton
-              stableId={stable.id}
-              stableName={stable.name}
-              ownerName={stable.owner?.fullName || "Stable Guide"}
-              hasBooking={hasBookingWithStable}
-              bookingDate={userBookingDate || undefined}
-            />
-          </div>
+          {/* Video Chat Button Removed as per request */}
         </motion.div>
 
         <div className="grid gap-8 md:grid-cols-3 items-start max-w-full">
@@ -899,8 +867,10 @@ export default function StableDetailPage() {
                               <h4 className="mb-3 text-sm font-semibold">Next Available Rides</h4>
                               <DynamicAvailability
                                 grouped={groupedSlots[horse.id]}
+                                blocked={groupedBlockedSlots[horse.id]}
                                 horseId={horse.id}
                                 onSlotClick={handleSlotClick}
+                                isLocked={isHorseLocked(horse)}
                               />
                             </div>
                           </div>
