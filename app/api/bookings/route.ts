@@ -418,8 +418,26 @@ export async function POST(req: NextRequest) {
     }, { status: 201 });
   } catch (error) {
     console.error("Error creating booking:", error);
+
+    // Check for known validation errors and return 400
+    const errorMessage = error instanceof Error ? error.message : "Failed to create booking";
+
+    if (
+      errorMessage.includes("welfare limit reached") ||
+      errorMessage.includes("already booked") ||
+      errorMessage.includes("Skill level mismatch") ||
+      errorMessage.includes("does not belong to this stable") ||
+      errorMessage.includes("Rider not found") ||
+      errorMessage.includes("Horse not found")
+    ) {
+      return NextResponse.json(
+        { error: errorMessage },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to create booking" },
+      { error: errorMessage },
       { status: 500 }
     );
   }
