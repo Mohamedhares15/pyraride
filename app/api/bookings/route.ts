@@ -455,7 +455,12 @@ export async function GET(req: NextRequest) {
 
     // Filter by status if provided
     if (statusFilter) {
-      where.status = statusFilter;
+      if (statusFilter.includes(',')) {
+        const statuses = statusFilter.split(',').map(s => s.trim()) as any[];
+        where.status = { in: statuses };
+      } else {
+        where.status = statusFilter as any;
+      }
     }
 
     // Get bookings
