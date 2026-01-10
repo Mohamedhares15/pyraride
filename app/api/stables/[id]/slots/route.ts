@@ -259,11 +259,13 @@ export async function GET(
         });
 
         if (hasBookingBefore) {
+          console.log(`[Welfare] Blocking slot ${slot.startTime} for horse ${slot.horseId} due to rest gap (booking before)`);
           return { ...slot, status: 'blocked_rest' };
         }
       }
 
       // Default: Available
+      // console.log(`[Welfare] Slot ${slot.startTime} for horse ${slot.horseId} is available`);
       return { ...slot, status: 'available' };
     });
 
