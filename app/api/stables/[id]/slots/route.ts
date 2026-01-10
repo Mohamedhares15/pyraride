@@ -234,35 +234,16 @@ export async function GET(
         const isAm = hour < 12;
 
         // Fetch all bookings for this horse on this day
-        // We need to check specific times for the 1-hour gap rule
         const horseBookingsList = bookings.filter(b => b.horseId === slot.horseId);
 
-        // Rule 1: Capacity (2 AM, 1 PM)
+        // Session Capacity Rules:
+        // - Maximum 2 bookings in AM (morning)
+        // - Maximum 1 booking in PM (afternoon)
         const amBookingsCount = horseBookingsList.filter(b => new Date(b.startTime).getHours() < 12).length;
         const pmBookingsCount = horseBookingsList.filter(b => new Date(b.startTime).getHours() >= 12).length;
 
         if (isAm && amBookingsCount >= 2) return { ...slot, status: 'blocked_session' };
         if (!isAm && pmBookingsCount >= 1) return { ...slot, status: 'blocked_session' };
-
-        // Rule 2: 1-Hour Gap (Rest Period)
-        // If there is a booking at (T-1) or (T+1), this slot (T) might be affected.
-        // Actually, the rule is: "if i book the 7 am then 7 am and 8 am being grayed"
-        // This means if 7-8 is booked, then 8-9 is BLOCKED (rest).
-        // So we check if there is a booking at (currentSlotTime - 1 hour).
-
-        const slotTime = new Date(slot.startTime).getTime();
-        const oneHour = 60 * 60 * 1000;
-
-        const hasBookingBefore = horseBookingsList.some(b => {
-          const bookingTime = new Date(b.startTime).getTime();
-          // Check if booking is exactly 1 hour before this slot
-          return Math.abs(slotTime - bookingTime - oneHour) < 1000; // tolerance
-        });
-
-        if (hasBookingBefore) {
-          console.log(`[Welfare] Blocking slot ${slot.startTime} for horse ${slot.horseId} due to rest gap (booking before)`);
-          return { ...slot, status: 'blocked_rest' };
-        }
       }
 
       // Default: Available
@@ -291,16 +272,7 @@ export async function GET(
     const uniqueSlots = Array.from(uniqueSlotsMap.values());
 
     console.log(`[GET /api/stables/${params.id}/slots] Returning ${uniqueSlots.length} unique slots (from ${processedSlots.length} total)`);
-
-    return NextResponse.json(uniqueSlots, {
-      headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
-        'CDN-Cache-Control': 'no-store',
-        'Vercel-CDN-Cache-Control': 'no-store',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-      }
-    });
+    return NextResponse.json(uniqueSlots);
   } catch (error) {
     console.error("Error fetching availability slots:", error);
     return new NextResponse("Internal Error", { status: 500 });
