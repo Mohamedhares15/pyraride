@@ -944,7 +944,6 @@ export default function StableDetailPage() {
         stableId={stable.id}
         stableName={stable.name}
         horses={stable.horses}
-        preselectedHorseId={bookingSelection?.horseId}
         initialSelection={bookingSelection}
       />
 
