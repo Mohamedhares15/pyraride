@@ -378,7 +378,7 @@ export async function POST(req: NextRequest) {
           title: "New Booking Received! 🐎",
           message: `You have a new booking for ${bookings.length} horse(s). Check your dashboard.`,
           data: {
-            bookingId: results[0].id, // Link to first booking
+            bookingId: createdBookings[0].id, // Link to first booking
             url: user.role === "admin" ? "/dashboard/admin" : "/dashboard/stable"
           }
         }));
