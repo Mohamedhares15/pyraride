@@ -38,7 +38,21 @@ export async function GET(
       where: { stableId: params.id, isActive: true },
     });
 
-    // Check if ANY slots exist for this date (for any horse)
+    // 1. Automatic Slot Generation & Cleanup
+    // To ensure users see the correct updated hours (2, 3, 4 PM), we need to clear out old unbooked slots
+    // that might have been generated with the wrong hours.
+
+    // Delete UNBOOKED slots for this date/stable to force regeneration with new hours
+    // This acts as a self-healing mechanism for the slot hours update.
+    await prisma.availabilitySlot.deleteMany({
+      where: {
+        stableId: params.id,
+        date: queryDate,
+        bookingId: null, // Only delete unbooked slots
+      },
+    });
+
+    // Re-check count after deletion
     const existingSlotsCount = await prisma.availabilitySlot.count({
       where: {
         stableId: params.id,
@@ -46,10 +60,9 @@ export async function GET(
       },
     });
 
-    // Only auto-generate if ZERO slots exist for this date
-    // ENHANCEMENT: Generate for the next 7 days to ensure booking flow works smoothly
+    // Only auto-generate if ZERO slots exist (or we just cleared them all)
     if (existingSlotsCount === 0 && horses.length > 0) {
-      console.log(`[GET /api/stables/${params.id}/slots] No slots found for ${dateStr}, auto-generating for next 7 days...`);
+      console.log(`[GET /api/stables/${params.id}/slots] Generating fresh slots for ${dateStr}...`);
 
       const newSlots = [];
       // Egypt is UTC+2. We generate slots in UTC to match Egypt time.
