@@ -232,7 +232,7 @@ export async function POST(req: NextRequest) {
         const sessionEnd = new Date(start);
         sessionEnd.setHours(isAmBooking ? 12 : 23, 59, 59, 999);
 
-        const existingSessionBooking = await tx.booking.findFirst({
+        const existingSessionBookings = await tx.booking.findMany({
           where: {
             horseId,
             status: { in: ["confirmed", "pending"] },
@@ -243,8 +243,10 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        if (existingSessionBooking) {
-          throw new Error(`Horse ${horse.name} welfare limit reached. Only one ride per session allowed.`);
+        // Welfare rules: 2 AM bookings max, 1 PM booking max
+        const maxAllowed = isAmBooking ? 2 : 1;
+        if (existingSessionBookings.length >= maxAllowed) {
+          throw new Error(`Horse ${horse.name} welfare limit reached. Maximum ${maxAllowed} ride(s) per session allowed.`);
         }
 
         // Calculate price
