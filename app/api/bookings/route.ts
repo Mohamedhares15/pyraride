@@ -474,6 +474,8 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    console.log(`[GET /api/bookings] Fetching bookings with filter:`, JSON.stringify(where));
+
     // Get bookings
     const bookings = await prisma.booking.findMany({
       where,

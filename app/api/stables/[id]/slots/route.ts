@@ -194,8 +194,28 @@ export async function GET(
       return { ...slot, status: 'available' };
     });
 
-    console.log(`[GET /api/stables/${params.id}/slots] Processed ${processedSlots.length} slots with strict statuses`);
-    return NextResponse.json(processedSlots);
+    // Deduplicate processedSlots to ensure unique horseId + startTime
+    const uniqueSlotsMap = new Map<string, typeof processedSlots[0]>();
+
+    processedSlots.forEach(slot => {
+      if (!slot.horseId) return;
+      const key = `${slot.horseId}-${new Date(slot.startTime).toISOString()}`;
+
+      // If duplicate exists, prefer the one that is NOT available (i.e. booked or blocked)
+      if (uniqueSlotsMap.has(key)) {
+        const existing = uniqueSlotsMap.get(key)!;
+        if (existing.status === 'available' && slot.status !== 'available') {
+          uniqueSlotsMap.set(key, slot);
+        }
+      } else {
+        uniqueSlotsMap.set(key, slot);
+      }
+    });
+
+    const uniqueSlots = Array.from(uniqueSlotsMap.values());
+
+    console.log(`[GET /api/stables/${params.id}/slots] Returning ${uniqueSlots.length} unique slots (from ${processedSlots.length} total)`);
+    return NextResponse.json(uniqueSlots);
   } catch (error) {
     console.error("Error fetching availability slots:", error);
     return new NextResponse("Internal Error", { status: 500 });
