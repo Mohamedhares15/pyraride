@@ -464,30 +464,28 @@ export default function StableDetailPage() {
             const ampm = timeParts[3].toUpperCase();
             if (ampm === "PM" && h < 12) h += 12;
             if (ampm === "AM" && h === 12) h = 0;
-            grouped[getTimePeriod(h)].push(t);
+
+            // Only process morning and afternoon
+            const period = getTimePeriod(h);
+            if (period !== 'evening') {
+              grouped[period].push(t);
+            }
           }
         });
         return grouped;
       };
 
       // Filter Today's slots for lead time
-      // If a slot is today but < lead time, we DO NOT shift it to tomorrow anymore
-      // because we have fetched actual tomorrow slots. We just hide it or mark it blocked.
-      // Actually, user might want to see it as blocked.
-      // But for now, let's just filter it out from "Available" list.
+      // User request: "remove the all slots that is grayed by lead time only keep the grayed by booking"
+      // So we filter them out from available, but DO NOT add them to blocked.
 
       const validTodayAvailable = todayAvailable.filter(timeStr => {
         const slotDate = parseTimeString(timeStr, todayDate);
         return slotDate >= minBookingTime;
       });
 
-      // We can add the filtered-out slots to blocked list if we want to show them as gray
-      const leadTimeBlocked = todayAvailable.filter(timeStr => {
-        const slotDate = parseTimeString(timeStr, todayDate);
-        return slotDate < minBookingTime;
-      });
-
-      const finalTodayBlocked = [...todayBlocked, ...leadTimeBlocked];
+      // We do NOT add leadTimeBlocked to finalTodayBlocked anymore
+      const finalTodayBlocked = [...todayBlocked];
 
       newGroupedSlots[horse.id] = {
         today: categorize(validTodayAvailable),
@@ -816,15 +814,17 @@ export default function StableDetailPage() {
                         <div className="p-6">
                           <div className="mb-4 flex items-start justify-between">
                             <div>
-                              <h3 className="font-display text-2xl font-bold">{horse.name}</h3>
+                              <div className="flex items-center justify-between mb-2">
+                                <h3 className="font-semibold text-2xl">{horse.name}</h3>
+                                <Badge className={`${(horse.adminTier === 'Advanced' || horse.skillLevel === 'ADVANCED') ? 'bg-red-500 hover:bg-red-600' :
+                                  (horse.adminTier === 'Intermediate' || horse.skillLevel === 'INTERMEDIATE') ? 'bg-yellow-500 hover:bg-yellow-600' :
+                                    'bg-green-500 hover:bg-green-600'
+                                  } text-white border-0`}>
+                                  {horse.adminTier || horse.skillLevel || 'Beginner'}
+                                </Badge>
+                              </div>
                               <p className="text-muted-foreground">{horse.description}</p>
                             </div>
-                            <Badge
-                              variant={horse.skillLevel === "BEGINNER" ? "default" : "secondary"}
-                              className={horse.skillLevel === "BEGINNER" ? "bg-green-500 hover:bg-green-600" : ""}
-                            >
-                              {horse.skillLevel || "All Levels"}
-                            </Badge>
                           </div>
 
                           <div className="mb-6 grid grid-cols-2 gap-4 text-sm">

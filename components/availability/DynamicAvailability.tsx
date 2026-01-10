@@ -150,7 +150,6 @@ export default function DynamicAvailability({ grouped, blocked, horseId, onSlotC
                     <div className="mb-4">
                         {renderPeriod("Today: Morning", "🌅", todaySlots.morning, blocked?.today.morning, false)}
                         {renderPeriod("Today: Afternoon", "☀", todaySlots.afternoon, blocked?.today.afternoon, false)}
-                        {renderPeriod("Today: Evening", "🌙", todaySlots.evening, blocked?.today.evening, false)}
                     </div>
                 )}
 
@@ -159,7 +158,6 @@ export default function DynamicAvailability({ grouped, blocked, horseId, onSlotC
                     <div className="mb-4">
                         {renderPeriod("Tomorrow: Morning", "🌅", tomorrowSlots.morning, blocked?.tomorrow.morning, true)}
                         {renderPeriod("Tomorrow: Afternoon", "☀", tomorrowSlots.afternoon, blocked?.tomorrow.afternoon, true)}
-                        {renderPeriod("Tomorrow: Evening", "🌙", tomorrowSlots.evening, blocked?.tomorrow.evening, true)}
                     </div>
                 )}
 
