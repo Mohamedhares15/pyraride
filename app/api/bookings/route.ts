@@ -357,41 +357,34 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Send Push Notifications (Stable Owner & Admins)
-      // We need to fetch push tokens for these users
-      // Note: We reuse the owners/admins list fetched above for email to find tokens
-      const recipientsWithTokens = await prisma.user.findMany({
+      // Send Universal Notifications (In-App + Push)
+      // We fetch all relevant users (owners + admins) to create in-app notifications for them
+      const notificationRecipients = await prisma.user.findMany({
         where: {
           OR: [
-            { email: { in: owners.map(o => o.email) } }, // Owners by email
-            { role: "admin" } // Admins
-          ],
-          pushToken: { not: null }
+            { stableId: stableId, role: "stable_owner" },
+            { role: "admin" }
+          ]
         },
-        select: { pushToken: true, role: true }
+        select: { id: true, role: true }
       });
 
-      console.log(`[Booking] Found ${recipientsWithTokens.length} recipients with push tokens.`);
+      if (notificationRecipients.length > 0) {
+        const { createBulkNotifications } = await import("@/lib/notifications");
 
-      const { sendPushNotification } = await import("@/lib/firebase-admin");
-
-      for (const recipient of recipientsWithTokens) {
-        if (recipient.pushToken) {
-          console.log(`[Booking] Sending notification to user (Role: ${recipient.role})`);
-          try {
-            await sendPushNotification(
-              recipient.pushToken,
-              "New Booking Received! 🐎",
-              `You have a new booking for ${bookings.length} horse(s). Check your dashboard.`,
-              {
-                type: "booking",
-                url: recipient.role === "admin" ? "/dashboard/admin" : "/dashboard/stable"
-              }
-            );
-          } catch (pushError) {
-            console.error(`[Booking] Failed to send push to ${recipient.role}:`, pushError);
+        const notifications = notificationRecipients.map(user => ({
+          userId: user.id,
+          type: "booking_new",
+          title: "New Booking Received! 🐎",
+          message: `You have a new booking for ${bookings.length} horse(s). Check your dashboard.`,
+          data: {
+            bookingId: results[0].id, // Link to first booking
+            url: user.role === "admin" ? "/dashboard/admin" : "/dashboard/stable"
           }
-        }
+        }));
+
+        await createBulkNotifications(notifications);
+        console.log(`[Booking] Created ${notifications.length} universal notifications`);
       }
 
     } catch (notificationError) {

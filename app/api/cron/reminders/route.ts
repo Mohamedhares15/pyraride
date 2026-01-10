@@ -1,71 +1,71 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { sendPushNotification } from "@/lib/firebase-admin";
+import { createBulkNotifications } from "@/lib/notifications";
 
+// This endpoint should be called by a Cron Job (e.g., Vercel Cron) once every hour
 export async function GET(req: Request) {
     try {
-        // Check for bookings starting in the next 4 hours (e.g., between 3.5 and 4.5 hours from now)
-        // Actually, let's say exactly 4 hours ahead.
-        // We'll look for bookings where startTime is between now+4h and now+4h+15m
-        // This assumes the cron runs every 15 minutes.
+        // 1. Find completed bookings from ~24 hours ago that haven't been reviewed
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const twentyFiveHoursAgo = new Date(Date.now() - 25 * 60 * 60 * 1000);
 
-        const now = new Date();
-        const fourHoursFromNow = new Date(now.getTime() + 4 * 60 * 60 * 1000);
-        const fourHoursFifteenFromNow = new Date(now.getTime() + 4.25 * 60 * 60 * 1000);
-
-        const bookings = await prisma.booking.findMany({
+        const bookingsToReview = await prisma.booking.findMany({
             where: {
-                startTime: {
-                    gte: fourHoursFromNow,
-                    lt: fourHoursFifteenFromNow,
+                status: "completed",
+                endTime: {
+                    gte: twentyFiveHoursAgo,
+                    lte: twentyFourHoursAgo,
                 },
-                status: "confirmed",
-                reminderSent: false,
+                review: null, // No review yet
             },
             include: {
                 rider: true,
                 stable: {
-                    include: {
-                        owner: true,
-                    }
+                    include: { owner: true }
                 },
-                horse: true,
-            },
+                horse: true
+            }
         });
 
-        console.log(`Found ${bookings.length} bookings for reminders.`);
+        if (bookingsToReview.length > 0) {
+            const notifications = [];
 
-        for (const booking of bookings) {
-            // Notify Rider
-            if (booking.rider.pushToken) {
-                await sendPushNotification(
-                    booking.rider.pushToken,
-                    "Upcoming Ride Reminder 🐴",
-                    `Your ride with ${booking.horse.name} at ${booking.stable.name} starts in 4 hours!`,
-                    { type: "reminder", bookingId: booking.id }
-                );
+            for (const booking of bookingsToReview) {
+                // Notify Rider
+                notifications.push({
+                    userId: booking.riderId,
+                    type: "review_reminder",
+                    title: "How was your ride? 🐴",
+                    message: `We hope you enjoyed your ride with ${booking.horse.name}! Please leave a review.`,
+                    data: {
+                        url: `/bookings/${booking.id}/review`
+                    }
+                });
+
+                // Notify Stable Owner (Optional: "Follow up with rider")
+                if (booking.stable.owner) {
+                    notifications.push({
+                        userId: booking.stable.owner.id,
+                        type: "review_reminder_owner",
+                        title: "Ride Completed 🏁",
+                        message: `${booking.rider.fullName || "A rider"} completed their ride yesterday. Check if they left a review!`,
+                        data: {
+                            url: `/dashboard/stable/bookings/${booking.id}`
+                        }
+                    });
+                }
             }
 
-            // Notify Stable Owner
-            if (booking.stable.owner.pushToken) {
-                await sendPushNotification(
-                    booking.stable.owner.pushToken,
-                    "Upcoming Booking Reminder 📅",
-                    `You have a booking for ${booking.horse.name} with ${booking.rider.fullName} in 4 hours.`,
-                    { type: "reminder", bookingId: booking.id }
-                );
-            }
-
-            // Mark reminder as sent
-            await prisma.booking.update({
-                where: { id: booking.id },
-                data: { reminderSent: true },
-            });
+            await createBulkNotifications(notifications);
+            console.log(`[Cron] Sent ${notifications.length} review reminders`);
         }
 
-        return NextResponse.json({ success: true, processed: bookings.length });
+        return NextResponse.json({
+            success: true,
+            processed: bookingsToReview.length
+        });
     } catch (error) {
-        console.error("Error sending reminders:", error);
+        console.error("[Cron] Error processing review reminders:", error);
         return new NextResponse("Internal Error", { status: 500 });
     }
 }
