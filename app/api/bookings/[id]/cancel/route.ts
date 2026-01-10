@@ -104,6 +104,15 @@ export async function POST(
       },
     });
 
+    // Free up the availability slot
+    await prisma.availabilitySlot.updateMany({
+      where: { bookingId: params.id },
+      data: {
+        isBooked: false,
+        bookingId: null,
+      },
+    });
+
     // Format times for email
     const startTimeStr = new Date(booking.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
     const endTimeStr = new Date(booking.endTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });

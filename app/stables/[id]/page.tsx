@@ -963,42 +963,7 @@ export default function StableDetailPage() {
               </div>
             </Card>
 
-            {/* Book Now */}
-            <Card className="border-primary/50 bg-primary/5 p-6">
-              <h3 className="mb-4 font-display text-xl font-bold">
-                Book Your Ride
-              </h3>
-              <p className="mb-6 text-sm text-muted-foreground">
-                Experience the pyramids with our trusted horses. Book now and secure your spot!
-              </p>
-              {session && session.user.role === "rider" ? (
-                <Button
-                  className="w-full"
-                  size="lg"
-                  onClick={() => {
-                    // Redirect to booking page - user can select horse and time there
-                    router.push(`/booking?stableId=${stable.id}`);
-                  }}
-                >
-                  Book Now
-                </Button>
-              ) : (
-                <div className="space-y-3">
-                  <Link href={`/signin?callbackUrl=${encodeURIComponent(pathname)}`} className="w-full">
-                    <Button
-                      className="w-full"
-                      size="lg"
-                      variant="outline"
-                    >
-                      Sign In to Book
-                    </Button>
-                  </Link>
-                  <p className="text-xs text-muted-foreground text-center">
-                    Only riders can create bookings
-                  </p>
-                </div>
-              )}
-            </Card>
+            {/* Book Now - REMOVED per user request */}
 
             {/* Stats */}
             <Card className="p-6">
@@ -1170,10 +1135,8 @@ export default function StableDetailPage() {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
                   transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 30,
-                    mass: 0.8
+                    duration: 0.2,
+                    ease: "easeInOut"
                   }}
                   className="relative max-h-[85vh] max-w-[95vw] overflow-hidden rounded-2xl shadow-2xl md:max-w-5xl"
                   style={{
