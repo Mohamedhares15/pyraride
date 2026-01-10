@@ -436,17 +436,12 @@ export default function StableDetailPage() {
               if (slot.status === 'booked') {
                 if (!newTaken[dateStr][horse.id]) newTaken[dateStr][horse.id] = [];
                 newTaken[dateStr][horse.id].push({ ...slot, startTime: slot.startTime });
-
-                // Also add to blocked so it shows up as grayed out
-                if (!newBlocked[dateStr][horse.id]) newBlocked[dateStr][horse.id] = [];
-                newBlocked[dateStr][horse.id].push(time);
               } else if (slot.status === 'available') {
                 if (!newAvailable[dateStr][horse.id]) newAvailable[dateStr][horse.id] = [];
                 newAvailable[dateStr][horse.id].push(time);
               } else {
                 // blocked_session, blocked_lead_time, or blocked_rest
-                if (!newBlocked[dateStr][horse.id]) newBlocked[dateStr][horse.id] = [];
-                newBlocked[dateStr][horse.id].push(time);
+                // Do not add to newBlocked, so they will be hidden from the UI
               }
             });
           });
