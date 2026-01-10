@@ -175,6 +175,26 @@ export default function RiderDashboard() {
                 Browse Stables
               </Button>
             </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                try {
+                  const res = await fetch("/api/test-notification", { method: "POST" });
+                  if (res.ok) {
+                    alert("Notification sent! Check your device.");
+                  } else {
+                    const err = await res.json();
+                    alert(`Failed to send: ${err.error || "Unknown error"}`);
+                  }
+                } catch (e) {
+                  alert("Error sending notification");
+                }
+              }}
+              className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white ml-auto"
+            >
+              Test Notification 🔔
+            </Button>
           </div>
           <h1 className="mb-2 font-display text-4xl font-bold tracking-tight text-white">
             My Bookings

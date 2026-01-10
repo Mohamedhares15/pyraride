@@ -9,6 +9,7 @@ import OrientationLock from "@/components/shared/OrientationLock";
 import CinematicWrapper from "@/components/CinematicWrapper";
 import { GoogleAnalytics, Plausible } from "@/components/shared/Analytics";
 import NotificationProvider from "@/components/providers/NotificationProvider";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -421,6 +422,7 @@ export default function RootLayout({
               <CookieConsent />
               <GoogleAnalytics trackingId={process.env.NEXT_PUBLIC_GA_ID} />
               <Plausible domain="www.pyrarides.com" />
+              <SpeedInsights />
             </CinematicWrapper>
           </NotificationProvider>
         </AuthProvider>

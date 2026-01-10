@@ -29,7 +29,12 @@ export async function GET(
 
     console.log(`[GET /api/stables/${params.id}/slots] Query date string: ${dateStr}, Created Date object: ${queryDate.toISOString()}`);
 
-    // 1. Automatic Slot Generation
+    // 1. Automatic Slot Generation - DISABLED
+    // We want to allow users to delete slots permanently.
+    // If we auto-generate them here, they will reappear immediately after deletion.
+    // Users should use the "Bulk Create" feature to generate slots.
+
+    /*
     // Fetch all active horses
     const horses = await prisma.horse.findMany({
       where: { stableId: params.id, isActive: true },
@@ -93,6 +98,7 @@ export async function GET(
       });
       console.log(`[GET /api/stables/${params.id}/slots] Auto-generated ${newSlots.length} missing slots`);
     }
+    */
 
     const slots = await prisma.availabilitySlot.findMany({
       where: {
