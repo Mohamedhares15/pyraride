@@ -29,76 +29,64 @@ export async function GET(
 
     console.log(`[GET /api/stables/${params.id}/slots] Query date string: ${dateStr}, Created Date object: ${queryDate.toISOString()}`);
 
-    // 1. Automatic Slot Generation - DISABLED
-    // We want to allow users to delete slots permanently.
-    // If we auto-generate them here, they will reappear immediately after deletion.
-    // Users should use the "Bulk Create" feature to generate slots.
+    // 1. Automatic Slot Generation
+    // We auto-generate slots if NONE exist for this date to ensure availability shows up.
+    // This respects the stable's operating hours (default 7-10 AM, 2-4 PM Egypt time).
 
-    /*
     // Fetch all active horses
     const horses = await prisma.horse.findMany({
       where: { stableId: params.id, isActive: true },
     });
 
-    // Fetch all existing slots for this date to avoid duplicates
-    const existingSlots = await prisma.availabilitySlot.findMany({
+    // Check if ANY slots exist for this date (for any horse)
+    const existingSlotsCount = await prisma.availabilitySlot.count({
       where: {
         stableId: params.id,
         date: queryDate,
       },
-      select: {
-        horseId: true,
-        startTime: true,
-      },
     });
 
-    // Create a set of existing slots (horseId + hour) for quick lookup
-    const existingSlotKeys = new Set(
-      existingSlots.map((slot) => {
-        const hour = slot.startTime.getUTCHours();
-        return `${slot.horseId}-${hour}`;
-      })
-    );
+    // Only auto-generate if ZERO slots exist for this date
+    if (existingSlotsCount === 0 && horses.length > 0) {
+      console.log(`[GET /api/stables/${params.id}/slots] No slots found for ${dateStr}, auto-generating...`);
 
-    const newSlots = [];
+      const newSlots = [];
 
-    // Desired slots in UTC (assuming Egypt is UTC+2)
-    // Sunrise: 7, 8, 9, 10 AM Egypt -> 5, 6, 7, 8 AM UTC
-    const amHours = [5, 6, 7, 8];
-    // Sunset: 2, 3, 4 PM Egypt -> 12, 13, 14 PM UTC
-    const pmHours = [12, 13, 14];
+      // Desired slots in Local Time (Egypt is UTC+2 usually, but we store as UTC)
+      // We want 7, 8, 9, 10 AM and 2, 3, 4 PM Local Time.
+      // We will create Date objects in local time then let Prisma handle UTC conversion
+      const amHours = [7, 8, 9, 10];
+      const pmHours = [14, 15, 16]; // 2, 3, 4 PM
 
-    const desiredHours = [...amHours, ...pmHours];
+      const desiredHours = [...amHours, ...pmHours];
 
-    for (const horse of horses) {
-      for (const hour of desiredHours) {
-        // Check if slot already exists
-        if (existingSlotKeys.has(`${horse.id}-${hour}`)) {
-          continue;
+      for (const horse of horses) {
+        for (const hour of desiredHours) {
+          // Create start time
+          const start = new Date(queryDate);
+          start.setHours(hour, 0, 0, 0);
+
+          // Create end time (1 hour duration)
+          const end = new Date(queryDate);
+          end.setHours(hour + 1, 0, 0, 0);
+
+          newSlots.push({
+            stableId: params.id,
+            horseId: horse.id,
+            date: queryDate,
+            startTime: start,
+            endTime: end,
+          });
         }
+      }
 
-        const start = new Date(queryDate);
-        start.setUTCHours(hour, 0, 0, 0);
-        const end = new Date(queryDate);
-        end.setUTCHours(hour + 1, 0, 0, 0);
-
-        newSlots.push({
-          stableId: params.id,
-          horseId: horse.id,
-          date: queryDate,
-          startTime: start,
-          endTime: end,
+      if (newSlots.length > 0) {
+        await prisma.availabilitySlot.createMany({
+          data: newSlots,
         });
+        console.log(`[GET /api/stables/${params.id}/slots] Auto-generated ${newSlots.length} slots`);
       }
     }
-
-    if (newSlots.length > 0) {
-      await prisma.availabilitySlot.createMany({
-        data: newSlots,
-      });
-      console.log(`[GET /api/stables/${params.id}/slots] Auto-generated ${newSlots.length} missing slots`);
-    }
-    */
 
     const slots = await prisma.availabilitySlot.findMany({
       where: {
