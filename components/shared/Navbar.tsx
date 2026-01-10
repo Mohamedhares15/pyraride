@@ -6,6 +6,7 @@ import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
+import { User, LogOut } from "lucide-react";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -96,8 +97,13 @@ export default function Navbar() {
   const desktopAuthSection =
     status === "authenticated" ? (
       <li className="relative group">
-        <button className="flex items-center gap-2 focus:outline-none">
-          <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/20">
+        <button
+          className="flex items-center gap-3 focus:outline-none group/btn"
+          onClick={() => setIsOpen(!isOpen)} // Toggle dropdown on click for mobile/desktop consistency or use hover
+          onMouseEnter={() => setIsOpen(true)}
+          onMouseLeave={() => setIsOpen(false)}
+        >
+          <div className="relative h-9 w-9 overflow-hidden rounded-full border border-white/20 group-hover/btn:border-[rgb(218,165,32)]/50 transition-colors duration-300 shadow-lg shadow-black/20">
             {userImage && !imageError ? (
               <Image
                 src={userImage}
@@ -107,27 +113,51 @@ export default function Navbar() {
                 onError={() => setImageError(true)}
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-primary text-xs font-bold text-primary-foreground">
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-800 to-black text-xs font-bold text-white group-hover/btn:text-[rgb(218,165,32)] transition-colors">
                 {initials}
               </div>
             )}
           </div>
-          <span className="text-sm font-medium">{displayName}</span>
+          <span className="text-sm font-medium text-white/90 group-hover/btn:text-white transition-colors">{displayName}</span>
         </button>
-        {/* Dropdown Menu */}
-        <div className="absolute right-0 top-full mt-2 w-48 origin-top-right rounded-md bg-background py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-          <Link
-            href={`/users/${session?.user?.id}`}
-            className="block px-4 py-2 text-sm text-foreground hover:bg-muted"
+
+        {/* Premium Dropdown Menu */}
+        <div
+          className="absolute right-0 top-full mt-4 w-56 origin-top-right"
+          onMouseEnter={() => setIsOpen(true)}
+          onMouseLeave={() => setIsOpen(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className={`rounded-xl bg-[#121212]/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden ring-1 ring-black/5 ${!isOpen ? 'hidden' : 'block'}`}
           >
-            Profile
-          </Link>
-          <button
-            onClick={() => signOut()}
-            className="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
-          >
-            Sign Out
-          </button>
+            <div className="p-1">
+              <Link
+                href={`/users/${session?.user?.id}`}
+                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-lg transition-all duration-200 group"
+              >
+                <div className="p-1.5 rounded-md bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
+                  <User className="h-4 w-4" />
+                </div>
+                My Profile
+              </Link>
+
+              <div className="my-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+              <button
+                onClick={() => signOut()}
+                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/80 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200 group"
+              >
+                <div className="p-1.5 rounded-md bg-white/5 text-white/60 group-hover:text-red-400 group-hover:bg-red-500/10 transition-colors">
+                  <LogOut className="h-4 w-4" />
+                </div>
+                Sign Out
+              </button>
+            </div>
+          </motion.div>
         </div>
       </li>
     ) : (

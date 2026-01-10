@@ -36,7 +36,8 @@ export async function POST(req: Request) {
                     type: "video_call",
                     stableId,
                     riderId: session.user.id,
-                    riderName: session.user.name
+                    riderName: session.user.name,
+                    url: `/stable/${stableId}?action=join-call`
                 }
             );
         }

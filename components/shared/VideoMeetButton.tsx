@@ -34,6 +34,18 @@ export default function VideoMeetButton({
     const roomName = `pyraride-${stableId.slice(0, 8)}-${session?.user?.id?.slice(0, 6) || 'guest'}`;
     const jitsiUrl = `https://meet.jit.si/${roomName}#config.prejoinPageEnabled=false&config.startWithAudioMuted=false&config.startWithVideoMuted=false&interfaceConfig.SHOW_JITSI_WATERMARK=false`;
 
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("action") === "join-call") {
+                setIsOpen(true);
+                setCallState("ready");
+                setOwnerOnline(true);
+                toast.success("Incoming call detected!");
+            }
+        }
+    }, []);
+
     const handleRequestCall = async () => {
         if (!hasBooking) {
             toast.error("You must have a booking to video call this stable");

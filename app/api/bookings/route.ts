@@ -355,6 +355,35 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Send Push Notifications (Stable Owner & Admins)
+    // We need to fetch push tokens for these users
+    const recipientsWithTokens = await prisma.user.findMany({
+      where: {
+        OR: [
+          { email: { in: owners.map(o => o.email) } }, // Owners by email
+          { role: "admin" } // Admins
+        ],
+        pushToken: { not: null }
+      },
+      select: { pushToken: true, role: true }
+    });
+
+    const { sendPushNotification } = await import("@/lib/firebase-admin");
+
+    for (const recipient of recipientsWithTokens) {
+      if (recipient.pushToken) {
+        await sendPushNotification(
+          recipient.pushToken,
+          "New Booking Received! 🐎",
+          `You have a new booking for ${bookings.length} horse(s). Check your dashboard.`,
+          {
+            type: "booking",
+            url: recipient.role === "admin" ? "/dashboard/admin" : "/dashboard/stable"
+          }
+        );
+      }
+    }
+
     return NextResponse.json({
       bookings: createdBookings,
       debug: {
