@@ -207,7 +207,7 @@ function ChatContent() {
     };
 
     const getOtherParticipant = (conversation: Conversation) => {
-        return conversation.participants.find(p => p.id !== session?.user?.id) || conversation.participants[0];
+        return conversation.participants?.find(p => p.id !== session?.user?.id) || conversation.participants?.[0];
     };
 
     const handleConversationCreated = (conversation: Conversation) => {
@@ -240,8 +240,10 @@ function ChatContent() {
                             {conversations.length > 0 ? (
                                 conversations.map(conversation => {
                                     const otherUser = getOtherParticipant(conversation);
-                                    const lastMessage = conversation.messages[0];
+                                    const lastMessage = conversation.messages?.[0];
                                     const isSelected = selectedConversation?.id === conversation.id;
+
+                                    if (!otherUser) return null; // Skip invalid conversations
 
                                     return (
                                         <div

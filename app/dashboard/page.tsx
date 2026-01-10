@@ -19,13 +19,15 @@ export default function DashboardPage() {
 
     // Redirect based on role
     const role = session.user.role;
-    
+
     if (role === "rider") {
       router.push("/dashboard/rider");
     } else if (role === "stable_owner") {
       router.push("/dashboard/stable");
     } else if (role === "admin") {
       router.push("/dashboard/analytics");
+    } else if (role === "cx_media") {
+      router.push("/dashboard/cx-media");
     } else {
       // Default fallback
       router.push("/dashboard/rider");
