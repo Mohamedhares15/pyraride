@@ -101,11 +101,11 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://plausible.io",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://plausible.io https://www.gstatic.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "img-src 'self' data: https: blob: images.unsplash.com images.pexels.com lh3.googleusercontent.com",
-              "connect-src 'self' https://api.paymob.com https://www.google-analytics.com https://*.vercel.app https://*.tile.openstreetmap.org https://cdnjs.cloudflare.com https://raw.githubusercontent.com https://*.googleusercontent.com",
+              "connect-src 'self' https://api.paymob.com https://www.google-analytics.com https://*.vercel.app https://*.tile.openstreetmap.org https://cdnjs.cloudflare.com https://raw.githubusercontent.com https://*.googleusercontent.com https://plausible.io https://firebaseinstallations.googleapis.com https://fcmregistrations.googleapis.com",
               "frame-src 'self' https://accept.paymob.com https://www.google.com",
               "media-src 'self' https://videos.pexels.com",
               "base-uri 'self'",
