@@ -820,283 +820,260 @@ export default function StableDetailPage() {
                           <div className="mb-4 flex items-start justify-between">
                             <div>
                               <h3 className="font-display text-2xl font-bold">{horse.name}</h3>
-                              <p className="text-muted-foreground">{horse.description}</p>
-                            </div>
-                            <Badge
-                              variant={horse.skillLevel === "BEGINNER" ? "default" : "secondary"}
-                              className={horse.skillLevel === "BEGINNER" ? "bg-green-500 hover:bg-green-600" : ""}
-                            >
-                              {horse.skillLevel || "All Levels"}
-                            </Badge>
-                          </div>
+                              <div className="mb-6">
+                                <p className="text-muted-foreground">{horse.description}</p>
+                              </div>
 
-                          <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <p className="text-muted-foreground">Age:</p>
-                              <p className="font-medium">{horse.age} years</p>
-                            </div>
-                            <div>
-                              <p className="text-muted-foreground">Skills:</p>
-                              <div className="flex flex-wrap gap-2">
-                                {horse.skills?.map((skill) => (
-                                  <Badge key={skill} variant="outline" className="text-xs">
-                                    {skill}
-                                  </Badge>
-                                ))}
+                              <div className="border-t pt-4">
+                                <h4 className="mb-3 font-semibold">Next Available Rides</h4>
+                                <DynamicAvailability
+                                  grouped={groupedSlots[horse.id]}
+                                  blocked={groupedBlockedSlots[horse.id]}
+                                  horseId={horse.id}
+                                  onSlotClick={handleSlotClick}
+                                  isLocked={isHorseLocked(horse)}
+                                />
                               </div>
                             </div>
-                          </div>
-
-                          <div className="border-t pt-4">
-                            <h4 className="mb-3 font-semibold">Next Available Rides</h4>
-                            <DynamicAvailability
-                              grouped={groupedSlots[horse.id]}
-                              blocked={groupedBlockedSlots[horse.id]}
-                              horseId={horse.id}
-                              onSlotClick={handleSlotClick}
-                              isLocked={isHorseLocked(horse)}
-                            />
-                          </div>
-                        </div>
-                      </Card>
-                    );
+                          </Card>
+                          );
                   })}
-                </div>
-              ) : (
-                <p className="text-muted-foreground">No horses available at this stable.</p>
+                        </div>
+                        ) : (
+                        <p className="text-muted-foreground">No horses available at this stable.</p>
               )}
-            </div>
+                      </div>
 
-            {/* Reviews */}
-            <div id="reviews">
-              <h2 className="mb-6 font-display text-2xl font-bold">Customer Reviews</h2>
-              <ReviewsSection
-                reviews={stable.reviews}
-                averageStableRating={stable.rating}
-                averageHorseRating={
-                  stable.reviews.reduce((acc, r) => acc + r.horseRating, 0) /
-                  (stable.reviews.length || 1)
-                }
-                totalReviews={stable.totalReviews}
-              />
-            </div>
+            {/* Reviews */ }
+                    <div id="reviews">
+                      <h2 className="mb-6 font-display text-2xl font-bold">Customer Reviews</h2>
+                      <ReviewsSection
+                        reviews={stable.reviews}
+                        averageStableRating={stable.rating}
+                        averageHorseRating={
+                          stable.reviews.reduce((acc, r) => acc + r.horseRating, 0) /
+                          (stable.reviews.length || 1)
+                        }
+                        totalReviews={stable.totalReviews}
+                      />
+                    </div>
           </div>
 
           {/* Sidebar */}
-          <div className="sticky top-24 space-y-6">
-            <Card className="p-6">
-              <h3 className="mb-4 font-display text-xl font-bold">Book a Ride</h3>
-              <p className="mb-6 text-sm text-muted-foreground">
-                Select a horse and time slot to book your riding experience.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                    <Clock className="h-4 w-4 text-primary" />
+              <div className="sticky top-24 space-y-6">
+                <Card className="p-6">
+                  <h3 className="mb-4 font-display text-xl font-bold">Book a Ride</h3>
+                  <p className="mb-6 text-sm text-muted-foreground">
+                    Select a horse and time slot to book your riding experience.
+                  </p>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 text-sm">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                        <Clock className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Instant Confirmation</p>
+                        <p className="text-muted-foreground">Book instantly, no waiting</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                        <ShieldCheckIcon className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Secure Payment</p>
+                        <p className="text-muted-foreground">100% secure checkout</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                        <ThumbsUpIcon className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Best Price Guarantee</p>
+                        <p className="text-muted-foreground">We match any price</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">Instant Confirmation</p>
-                    <p className="text-muted-foreground">Book instantly, no waiting</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                    <ShieldCheckIcon className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Secure Payment</p>
-                    <p className="text-muted-foreground">100% secure checkout</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                    <ThumbsUpIcon className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Best Price Guarantee</p>
-                    <p className="text-muted-foreground">We match any price</p>
-                  </div>
-                </div>
-              </div>
-            </Card>
+                </Card>
 
-            {/* Contact Card */}
-            <Card className="p-6">
-              <h3 className="mb-4 font-semibold">Need Help?</h3>
-              <p className="mb-4 text-sm text-muted-foreground">
-                Have questions about this stable or need a custom package?
-              </p>
-              <Button variant="outline" className="w-full gap-2" asChild>
-                <a href="mailto:support@pyraride.com">
-                  <Mail className="h-4 w-4" />
-                  Contact Support
-                </a>
-              </Button>
-            </Card>
-          </div>
-        </div>
-      </div>
-
-      {/* Booking Modal */}
-      <BookingModal
-        open={isBookingModalOpen}
-        onOpenChange={setIsBookingModalOpen}
-        stableId={stable.id}
-        stableName={stable.name}
-        horses={stable.horses}
-        initialSelection={bookingSelection}
-      />
-
-      {/* Portfolio Viewer Overlay */}
-      <AnimatePresence>
-        {portfolioViewer && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm"
-            onClick={closePortfolio}
-          >
-            {/* Close Button */}
-            <button
-              onClick={closePortfolio}
-              className="absolute right-4 top-4 z-50 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 md:right-8 md:top-8"
-            >
-              <X className="h-6 w-6" />
-            </button>
-
-            {/* Content Container */}
-            <div
-              className="relative h-full w-full max-w-7xl px-4 py-12 md:px-12 md:py-8"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex h-full flex-col items-center justify-center">
-                {/* Main Media */}
-                <div className="relative aspect-video w-full max-h-[80vh] overflow-hidden rounded-lg bg-black shadow-2xl ring-1 ring-white/10">
-                  {portfolioViewer.items[portfolioViewer.index].type === 'video' ? (
-                    <video
-                      src={portfolioViewer.items[portfolioViewer.index].url}
-                      controls
-                      autoPlay
-                      className="h-full w-full object-contain"
-                    />
-                  ) : (
-                    <Image
-                      src={portfolioViewer.items[portfolioViewer.index].url}
-                      alt={`${portfolioViewer.horseName} portfolio item ${portfolioViewer.index + 1}`}
-                      fill
-                      className="object-contain"
-                      priority
-                    />
-                  )}
-
-                  {/* Navigation Arrows */}
-                  {portfolioViewer.items.length > 1 && (
-                    <>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          showPreviousMedia();
-                        }}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white backdrop-blur-sm transition-all hover:bg-black/70 hover:scale-110 md:left-8"
-                      >
-                        <ChevronLeft className="h-8 w-8" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          showNextMedia();
-                        }}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white backdrop-blur-sm transition-all hover:bg-black/70 hover:scale-110 md:right-8"
-                      >
-                        <ChevronRight className="h-8 w-8" />
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                {/* Thumbnails */}
-                {portfolioViewer.items.length > 1 && (
-                  <div className="mt-6 flex w-full max-w-4xl gap-2 overflow-x-auto px-4 pb-2 scrollbar-hide">
-                    {portfolioViewer.items.map((item, idx) => (
-                      <button
-                        key={idx}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPortfolioViewer({ ...portfolioViewer, index: idx });
-                        }}
-                        className={`relative h-16 w-24 flex-shrink-0 overflow-hidden rounded-md transition-all ${idx === portfolioViewer.index
-                          ? 'ring-2 ring-primary ring-offset-2 ring-offset-black'
-                          : 'opacity-50 hover:opacity-100'
-                          }`}
-                      >
-                        {item.type === 'video' ? (
-                          <div className="flex h-full w-full items-center justify-center bg-gray-800">
-                            <span className="text-xs text-white">Video</span>
-                          </div>
-                        ) : (
-                          <Image
-                            src={item.url}
-                            alt={`Thumbnail ${idx + 1}`}
-                            fill
-                            className="object-cover"
-                          />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {/* Counter */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-1 text-sm text-white backdrop-blur-sm md:bottom-8">
-                  {portfolioViewer.index + 1} / {portfolioViewer.items.length}
-                </div>
+                {/* Contact Card */}
+                <Card className="p-6">
+                  <h3 className="mb-4 font-semibold">Need Help?</h3>
+                  <p className="mb-4 text-sm text-muted-foreground">
+                    Have questions about this stable or need a custom package?
+                  </p>
+                  <Button variant="outline" className="w-full gap-2" asChild>
+                    <a href="mailto:support@pyraride.com">
+                      <Mail className="h-4 w-4" />
+                      Contact Support
+                    </a>
+                  </Button>
+                </Card>
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
+          </div>
+
+          {/* Booking Modal */}
+          <BookingModal
+            open={isBookingModalOpen}
+            onOpenChange={setIsBookingModalOpen}
+            stableId={stable.id}
+            stableName={stable.name}
+            horses={stable.horses}
+            initialSelection={bookingSelection}
+          />
+
+          {/* Portfolio Viewer Overlay */}
+          <AnimatePresence>
+            {portfolioViewer && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm"
+                onClick={closePortfolio}
+              >
+                {/* Close Button */}
+                <button
+                  onClick={closePortfolio}
+                  className="absolute right-4 top-4 z-50 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 md:right-8 md:top-8"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+
+                {/* Content Container */}
+                <div
+                  className="relative h-full w-full max-w-7xl px-4 py-12 md:px-12 md:py-8"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex h-full flex-col items-center justify-center">
+                    {/* Main Media */}
+                    <div className="relative aspect-video w-full max-h-[80vh] overflow-hidden rounded-lg bg-black shadow-2xl ring-1 ring-white/10">
+                      {portfolioViewer.items[portfolioViewer.index].type === 'video' ? (
+                        <video
+                          src={portfolioViewer.items[portfolioViewer.index].url}
+                          controls
+                          autoPlay
+                          className="h-full w-full object-contain"
+                        />
+                      ) : (
+                        <Image
+                          src={portfolioViewer.items[portfolioViewer.index].url}
+                          alt={`${portfolioViewer.horseName} portfolio item ${portfolioViewer.index + 1}`}
+                          fill
+                          className="object-contain"
+                          priority
+                        />
+                      )}
+
+                      {/* Navigation Arrows */}
+                      {portfolioViewer.items.length > 1 && (
+                        <>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              showPreviousMedia();
+                            }}
+                            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white backdrop-blur-sm transition-all hover:bg-black/70 hover:scale-110 md:left-8"
+                          >
+                            <ChevronLeft className="h-8 w-8" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              showNextMedia();
+                            }}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white backdrop-blur-sm transition-all hover:bg-black/70 hover:scale-110 md:right-8"
+                          >
+                            <ChevronRight className="h-8 w-8" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Thumbnails */}
+                    {portfolioViewer.items.length > 1 && (
+                      <div className="mt-6 flex w-full max-w-4xl gap-2 overflow-x-auto px-4 pb-2 scrollbar-hide">
+                        {portfolioViewer.items.map((item, idx) => (
+                          <button
+                            key={idx}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPortfolioViewer({ ...portfolioViewer, index: idx });
+                            }}
+                            className={`relative h-16 w-24 flex-shrink-0 overflow-hidden rounded-md transition-all ${idx === portfolioViewer.index
+                              ? 'ring-2 ring-primary ring-offset-2 ring-offset-black'
+                              : 'opacity-50 hover:opacity-100'
+                              }`}
+                          >
+                            {item.type === 'video' ? (
+                              <div className="flex h-full w-full items-center justify-center bg-gray-800">
+                                <span className="text-xs text-white">Video</span>
+                              </div>
+                            ) : (
+                              <Image
+                                src={item.url}
+                                alt={`Thumbnail ${idx + 1}`}
+                                fill
+                                className="object-cover"
+                              />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Counter */}
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-1 text-sm text-white backdrop-blur-sm md:bottom-8">
+                      {portfolioViewer.index + 1} / {portfolioViewer.items.length}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        );
 }
 
-function ShieldCheckIcon(props: any) {
+        function ShieldCheckIcon(props: any) {
   return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
-  )
+        <svg
+          {...props}
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+        )
 }
 
 
-function ThumbsUpIcon(props: any) {
+        function ThumbsUpIcon(props: any) {
   return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M7 10v12" />
-      <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
-    </svg>
-  )
+        <svg
+          {...props}
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M7 10v12" />
+          <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
+        </svg>
+        )
 }
