@@ -948,110 +948,135 @@ export default function StableDetailPage() {
       {/* Portfolio Viewer Overlay */}
       <AnimatePresence>
         {portfolioViewer && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm"
-            onClick={closePortfolio}
-          >
-            {/* Close Button */}
-            <button
-              onClick={closePortfolio}
-              className="absolute right-4 top-4 z-50 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 md:right-8 md:top-8"
-            >
-              <X className="h-6 w-6" />
-            </button>
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            {/* Backdrop with heavy blur */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setPortfolioViewer(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-3xl"
+            />
 
-            {/* Content Container */}
-            <div
-              className="relative h-full w-full max-w-7xl px-4 py-12 md:px-12 md:py-8"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex h-full flex-col items-center justify-center">
-                {/* Main Media */}
-                <div className="relative aspect-video w-full max-h-[80vh] overflow-hidden rounded-lg bg-black shadow-2xl ring-1 ring-white/10">
+            {/* Main Content Container */}
+            <div className="relative z-10 w-full h-full flex flex-col items-center justify-center p-4">
+              {/* Close Button */}
+              <button
+                onClick={() => setPortfolioViewer(null)}
+                className="absolute top-6 right-6 z-50 p-2 rounded-full bg-black/20 text-white/70 hover:text-white hover:bg-black/40 transition-all"
+              >
+                <X className="h-8 w-8" />
+              </button>
+
+              {/* Main Image/Video Area */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={portfolioViewer.index}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.05 }}
+                  transition={{ duration: 0.2 }}
+                  className="relative max-h-[85vh] max-w-[95vw] aspect-[4/5] md:aspect-video rounded-lg overflow-hidden shadow-2xl"
+                >
                   {portfolioViewer.items[portfolioViewer.index].type === 'video' ? (
                     <video
                       src={portfolioViewer.items[portfolioViewer.index].url}
+                      className="w-full h-full object-contain bg-black/20"
                       controls
                       autoPlay
-                      className="h-full w-full object-contain"
+                      playsInline
                     />
                   ) : (
-                    <Image
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
                       src={portfolioViewer.items[portfolioViewer.index].url}
-                      alt={`${portfolioViewer.horseName} portfolio item ${portfolioViewer.index + 1}`}
-                      fill
-                      className="object-contain"
-                      priority
+                      alt={`${portfolioViewer.horseName} - Portfolio item ${portfolioViewer.index + 1}`}
+                      className="w-full h-full object-contain"
                     />
                   )}
 
-                  {/* Navigation Arrows */}
-                  {portfolioViewer.items.length > 1 && (
-                    <>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          showPreviousMedia();
-                        }}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white backdrop-blur-sm transition-all hover:bg-black/70 hover:scale-110 md:left-8"
-                      >
-                        <ChevronLeft className="h-8 w-8" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          showNextMedia();
-                        }}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white backdrop-blur-sm transition-all hover:bg-black/70 hover:scale-110 md:right-8"
-                      >
-                        <ChevronRight className="h-8 w-8" />
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                {/* Thumbnails */}
-                {portfolioViewer.items.length > 1 && (
-                  <div className="mt-6 flex w-full max-w-4xl gap-2 overflow-x-auto px-4 pb-2 scrollbar-hide">
-                    {portfolioViewer.items.map((item, idx) => (
-                      <button
-                        key={idx}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPortfolioViewer({ ...portfolioViewer, index: idx });
-                        }}
-                        className={`relative h-16 w-24 flex-shrink-0 overflow-hidden rounded-md transition-all ${idx === portfolioViewer.index
-                          ? 'ring-2 ring-primary ring-offset-2 ring-offset-black'
-                          : 'opacity-50 hover:opacity-100'
-                          }`}
-                      >
-                        {item.type === 'video' ? (
-                          <div className="flex h-full w-full items-center justify-center bg-gray-800">
-                            <span className="text-xs text-white">Video</span>
-                          </div>
-                        ) : (
-                          <Image
-                            src={item.url}
-                            alt={`Thumbnail ${idx + 1}`}
-                            fill
-                            className="object-cover"
-                          />
-                        )}
-                      </button>
-                    ))}
+                  {/* Caption/Counter Overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-12">
+                    <h3 className="text-white text-xl font-display font-bold text-center drop-shadow-lg">
+                      {portfolioViewer.horseName}
+                    </h3>
                   </div>
-                )}
-
-                {/* Counter */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-1 text-sm text-white backdrop-blur-sm md:bottom-8">
-                  {portfolioViewer.index + 1} / {portfolioViewer.items.length}
-                </div>
-              </div>
+                </motion.div>
+              </AnimatePresence>
             </div>
-          </motion.div>
+
+            {/* Navigation Buttons - Desktop */}
+            {portfolioViewer.items.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPortfolioViewer(prev => {
+                      if (!prev) return null;
+                      const newIndex = prev.index === 0 ? prev.items.length - 1 : prev.index - 1;
+                      return { ...prev, index: newIndex };
+                    });
+                  }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white transition-all hover:bg-black/40 hover:scale-110 active:scale-95 z-50"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPortfolioViewer(prev => {
+                      if (!prev) return null;
+                      const newIndex = prev.index === prev.items.length - 1 ? 0 : prev.index + 1;
+                      return { ...prev, index: newIndex };
+                    });
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white transition-all hover:bg-black/40 hover:scale-110 active:scale-95 z-50"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+              </>
+            )}
+
+            {/* Thumbnail Strip - Apple Liquid Glass with Golden Warmth */}
+            {portfolioViewer.items.length > 1 && (
+              <div
+                className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-3 rounded-2xl flex gap-3 overflow-x-auto max-w-[90vw] scrollbar-hide z-50"
+                style={{
+                  background: 'rgba(20, 20, 20, 0.4)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+                }}
+              >
+                {portfolioViewer.items.map((item, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setPortfolioViewer(prev => prev ? { ...prev, index: idx } : null)}
+                    className={`flex-shrink-0 h-16 w-16 rounded-xl overflow-hidden border-2 transition-all ${idx === portfolioViewer.index
+                      ? "border-white scale-110 shadow-lg shadow-white/25"
+                      : "border-white/40 opacity-70 hover:opacity-100 hover:scale-105"
+                      }`}
+                  >
+                    {item.type === "video" ? (
+                      <div className="h-full w-full bg-gray-800/50 backdrop-blur-sm flex items-center justify-center">
+                        <span className="text-white text-sm">▶</span>
+                      </div>
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={item.url}
+                        alt={`${portfolioViewer.horseName} - Thumbnail ${idx + 1} of ${portfolioViewer.items.length} from ${stable.name} portfolio`}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </AnimatePresence>
     </div>
