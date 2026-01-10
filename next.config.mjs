@@ -201,6 +201,14 @@ const withPWA = withPWAInit({
           },
         },
       },
+      // Slots API - NEVER cache (always fresh data)
+      {
+        urlPattern: ({ url }) => url.pathname.includes('/api/stables/') && url.pathname.includes('/slots'),
+        handler: "NetworkOnly",
+        options: {
+          networkTimeoutSeconds: 10,
+        },
+      },
       {
         urlPattern: /^https:\/\/api\..*$/i,
         handler: "NetworkFirst",
