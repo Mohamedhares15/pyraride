@@ -68,8 +68,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Get commission rate from stable (default to 0.15 if not set)
-    const commissionRate = stable.commissionRate 
-      ? Number(stable.commissionRate) 
+    const commissionRate = stable.commissionRate
+      ? Number(stable.commissionRate)
       : 0.15; // Default 15%
 
     // Check if horse exists and is active
@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
       const conflictStart = new Date(overlappingBookings.startTime).toLocaleString();
       const conflictEnd = new Date(overlappingBookings.endTime).toLocaleString();
       return NextResponse.json(
-        { 
+        {
           error: "This horse is already booked for the selected time",
           details: `Conflicting booking: ${conflictStart} - ${conflictEnd}. Please choose a different time.`
         },
@@ -130,25 +130,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-        // Store stable location as JSON in cancellationReason field temporarily
-        const bookingMeta = stableLocation
-          ? JSON.stringify({ stableLocation })
-          : null;
+    // Store stable location as JSON in cancellationReason field temporarily
+    const bookingMeta = stableLocation
+      ? JSON.stringify({ stableLocation })
+      : null;
 
-        // Create booking first (in pending payment status)
-        const booking = await prisma.booking.create({
-          data: {
-            riderId: session.user.id,
-            stableId,
-            horseId,
-            startTime,
-            endTime,
-            totalPrice: parseFloat(totalPrice.toString()),
-            commission: parseFloat(totalPrice.toString()) * commissionRate,
-            status: "confirmed",
-            stripePaymentId: null, // Will be updated after payment
-            cancellationReason: bookingMeta, // Temporarily store stable location here
-          },
+    // Create booking first (in pending payment status)
+    const booking = await prisma.booking.create({
+      data: {
+        riderId: session.user.id,
+        stableId,
+        horseId,
+        startTime,
+        endTime,
+        totalPrice: parseFloat(totalPrice.toString()),
+        commission: parseFloat(totalPrice.toString()) * commissionRate,
+        status: "confirmed",
+        stripePaymentId: null, // Will be updated after payment
+        cancellationReason: bookingMeta, // Temporarily store stable location here
+      },
       include: {
         rider: {
           select: {
@@ -167,6 +167,20 @@ export async function POST(req: NextRequest) {
             name: true,
           },
         },
+      },
+    });
+
+    // CRITICAL FIX: Link the booking to the availability slot
+    // This prevents the slot from being deleted by the regeneration logic and ensures it shows as booked
+    await prisma.availabilitySlot.updateMany({
+      where: {
+        stableId,
+        horseId,
+        startTime: start, // Match the exact start time
+      },
+      data: {
+        isBooked: true,
+        bookingId: booking.id,
       },
     });
 
@@ -200,7 +214,7 @@ export async function POST(req: NextRequest) {
     if (!process.env.STRIPE_SECRET_KEY || !stripe || typeof stripe.checkout === 'undefined') {
       // Stripe not configured - return booking confirmation directly (for development/testing)
       // In production, use Paymob or another payment gateway for Egypt
-      return NextResponse.json({ 
+      return NextResponse.json({
         checkoutUrl: null,
         bookingId: booking.id,
         success: true,
@@ -234,14 +248,14 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      return NextResponse.json({ 
+      return NextResponse.json({
         checkoutUrl: checkoutSession.url,
-        sessionId: checkoutSession.id 
+        sessionId: checkoutSession.id
       });
     } catch (stripeError: any) {
       console.error("Stripe API error:", stripeError);
       // If Stripe fails, still return the booking but with a message
-      return NextResponse.json({ 
+      return NextResponse.json({
         checkoutUrl: null,
         bookingId: booking.id,
         success: true,
@@ -252,7 +266,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error("Error creating checkout session:", error);
     return NextResponse.json(
-      { 
+      {
         error: error.message || "Failed to create checkout session",
         details: process.env.NODE_ENV === 'development' ? error.stack : undefined
       },
