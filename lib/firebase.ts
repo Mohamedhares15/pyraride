@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 const firebaseConfig = {
@@ -11,35 +11,73 @@ const firebaseConfig = {
     measurementId: "G-SBZW627YEX"
 };
 
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase only if not already initialized
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 const messaging = typeof window !== "undefined" ? getMessaging(app) : null;
 
 export const requestNotificationPermission = async () => {
-    if (!messaging) return null;
+    if (!messaging) {
+        console.log('[Firebase] Messaging not available (SSR)');
+        return null;
+    }
+
     try {
-        const permission = await Notification.requestPermission();
-        if (permission === "granted") {
-            const token = await getToken(messaging, {
-                vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
-            });
-            // Note: If no VAPID key is provided, it uses the default one. 
-            // However, it's best practice to generate one in Firebase Console.
-            // For now, we'll try without it or use a placeholder if needed.
-            // Actually, getToken requires a vapidKey usually.
-            // Let's try to get it without first, or use the one from the project if available.
-            // If this fails, the user needs to generate a Key Pair in Firebase Console.
+        // Check if permission is already granted
+        if (Notification.permission === "granted") {
+            console.log('[Firebase] Notification permission already granted');
+        } else if (Notification.permission === "default") {
+            console.log('[Firebase] Requesting notification permission...');
+            const permission = await Notification.requestPermission();
+            if (permission !== "granted") {
+                console.log('[Firebase] Notification permission denied');
+                return null;
+            }
+        } else {
+            console.log('[Firebase] Notification permission denied (blocked)');
+            return null;
+        }
+
+        // Register custom service worker
+        console.log('[Firebase] Registering custom service worker...');
+        const registration = await navigator.serviceWorker.register('/custom-sw.js', {
+            scope: '/'
+        });
+
+        await navigator.serviceWorker.ready;
+        console.log('[Firebase] Service worker registered and ready');
+
+        // Get FCM token
+        console.log('[Firebase] Getting FCM token...');
+        const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+
+        const tokenConfig: any = {
+            serviceWorkerRegistration: registration
+        };
+
+        if (vapidKey) {
+            tokenConfig.vapidKey = vapidKey;
+        }
+
+        const token = await getToken(messaging, tokenConfig);
+
+        if (token) {
+            console.log('[Firebase] FCM Token obtained:', token.substring(0, 20) + '...');
             return token;
+        } else {
+            console.log('[Firebase] No FCM token available');
+            return null;
         }
     } catch (error) {
-        console.error("Error getting permission:", error);
+        console.error("[Firebase] Error getting permission:", error);
+        return null;
     }
-    return null;
 };
 
 export const onMessageListener = () =>
     new Promise((resolve) => {
         if (messaging) {
             onMessage(messaging, (payload) => {
+                console.log('[Firebase] Foreground message received:', payload);
                 resolve(payload);
             });
         }
