@@ -100,8 +100,9 @@ interface DayGroupedSlots {
 
 // Helper: Determine time period from hour (24h format)
 function getTimePeriod(hour: number): TimePeriod {
-  if (hour >= 6 && hour < 12) return 'morning';
-  if (hour >= 12 && hour < 18) return 'afternoon';
+  // User request: 12 PM should be Morning
+  if (hour >= 6 && hour <= 12) return 'morning';
+  if (hour > 12 && hour < 18) return 'afternoon';
   return 'evening';
 }
 
@@ -120,6 +121,35 @@ function parseTimeString(timeStr: string, baseDate: Date): Date {
   const result = new Date(baseDate);
   result.setHours(hours, minutes, 0, 0);
   return result;
+}
+
+// Helper: Group slots by day and time period with lead time filtering
+function groupSlotsByDayAndPeriod(
+  availableSlots: string[],
+  leadTimeHours: number,
+  currentDate: Date = new Date(),
+  allowShift: boolean = true
+): DayGroupedSlots {
+  const safeBookingTime = new Date(currentDate.getTime() + leadTimeHours * 60 * 60 * 1000);
+
+  const today: GroupedSlots = { morning: [], afternoon: [], evening: [] };
+  const tomorrow: GroupedSlots = { morning: [], afternoon: [], evening: [] };
+
+  availableSlots.forEach(timeStr => {
+    const slotDateTime = parseTimeString(timeStr, currentDate);
+    const period = getTimePeriod(slotDateTime.getHours());
+
+    if (allowShift && slotDateTime < safeBookingTime) {
+      // Slot is within lead time window.
+      // User request: Hide these slots completely. Do not shift to tomorrow.
+      // Do nothing.
+    } else {
+      // Slot is safe to book today
+      today[period].push(timeStr);
+    }
+  });
+
+  return { today, tomorrow };
 }
 
 export default function StableDetailPage() {
@@ -172,24 +202,19 @@ export default function StableDetailPage() {
   };
 
   const isHorseLocked = (horse: Horse) => {
-    // If user is not logged in or rank not loaded, assume unlocked or handle as needed.
-    // However, user reported "BEGINNER rider cannot book ADVANCED horse".
-    // If points are null, we might want to default to 0 (Beginner).
-    const points = userRankPoints ?? 0;
+    if (userRankPoints === null) return false; // Assume unlocked if rank not loaded yet? Or locked? Let's assume unlocked or handle gracefully.
+    // Actually, if rank is not loaded, maybe we shouldn't lock yet.
 
-    const riderTier = getRiderTier(points);
+    const riderTier = getRiderTier(userRankPoints);
     const horseLevel = horse.adminTier ? horse.adminTier.toUpperCase() : "BEGINNER";
 
-    // Logic:
-    // ADVANCED rider can ride anything.
-    // INTERMEDIATE rider can ride INTERMEDIATE and BEGINNER.
-    // BEGINNER rider can ONLY ride BEGINNER.
+    const canBook = (
+      (riderTier === "ADVANCED") ||
+      (riderTier === "INTERMEDIATE" && horseLevel !== "ADVANCED") ||
+      (riderTier === "BEGINNER" && horseLevel === "BEGINNER")
+    );
 
-    if (riderTier === "ADVANCED") return false; // Unlocked
-    if (riderTier === "INTERMEDIATE" && horseLevel !== "ADVANCED") return false; // Unlocked
-    if (riderTier === "BEGINNER" && horseLevel === "BEGINNER") return false; // Unlocked
-
-    return true; // Locked
+    return !canBook;
   };
 
   const handleSlotClick = (horseId: string, timeStr: string, isTomorrow?: boolean) => {
@@ -268,8 +293,9 @@ export default function StableDetailPage() {
         const day = String(now.getDate()).padStart(2, '0');
         const today = `${year}-${month}-${day}`;
 
-        const [stableRes, bookingRes] = await Promise.all([
+        const [stableRes, slotsRes, bookingRes] = await Promise.all([
           fetch(`/api/stables/${id}`),
+          fetch(`/api/stables/${id}/slots?date=${today}`),
           session?.user?.id ? fetch(`/api/bookings?stableId=${id}&userId=${session.user.id}&status=confirmed`) : Promise.resolve(null)
         ]);
 
@@ -306,6 +332,47 @@ export default function StableDetailPage() {
             }
           }
         }
+
+        if (slotsRes.ok) {
+          const slotsData = await slotsRes.json();
+          // Process slots into available/taken maps
+          const newAvailable: Record<string, Record<string, string[]>> = { [today]: {} };
+          const newTaken: Record<string, Record<string, any[]>> = { [today]: {} };
+
+          // Initialize for all horses
+          stableData.horses.forEach((horse: any) => {
+            newAvailable[today][horse.id] = [];
+            newTaken[today][horse.id] = [];
+          });
+
+          slotsData.forEach((slot: any) => {
+            const time = new Date(slot.startTime).toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true
+            });
+
+            // If horseId is null, it applies to ALL horses
+            const targetHorses = slot.horseId
+              ? [stableData.horses.find((h: any) => h.id === slot.horseId)].filter(Boolean)
+              : stableData.horses || [];
+
+            targetHorses.forEach((horse: any) => {
+              if (!horse) return;
+
+              if (slot.booking) {
+                if (!newTaken[today][horse.id]) newTaken[today][horse.id] = [];
+                newTaken[today][horse.id].push({ ...slot, startTime: slot.startTime });
+              } else {
+                if (!newAvailable[today][horse.id]) newAvailable[today][horse.id] = [];
+                newAvailable[today][horse.id].push(time);
+              }
+            });
+          });
+
+          setAvailableSlots(newAvailable);
+          setTakenSlots(newTaken);
+        }
       } catch (error) {
         console.error("Error fetching stable:", error);
         setError("Failed to load stable details");
@@ -323,43 +390,34 @@ export default function StableDetailPage() {
 
     const fetchSlots = async () => {
       try {
-        const todayDate = new Date();
-        const tomorrowDate = new Date(todayDate);
-        tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+        const today = new Date().toISOString().split("T")[0];
+        const slotsRes = await fetch(`/api/stables/${id}/slots?date=${today}`);
 
-        const today = todayDate.toISOString().split("T")[0];
-        const tomorrow = tomorrowDate.toISOString().split("T")[0];
+        if (slotsRes.ok) {
+          const slotsData = await slotsRes.json();
+          // Process slots into available/taken/blocked maps
+          const newAvailable: Record<string, Record<string, string[]>> = { [today]: {} };
+          const newTaken: Record<string, Record<string, any[]>> = { [today]: {} };
+          const newBlocked: Record<string, Record<string, string[]>> = { [today]: {} };
 
-        // Fetch BOTH days
-        const [todayRes, tomorrowRes] = await Promise.all([
-          fetch(`/api/stables/${id}/slots?date=${today}`),
-          fetch(`/api/stables/${id}/slots?date=${tomorrow}`)
-        ]);
-
-        const todayData = todayRes.ok ? await todayRes.json() : [];
-        const tomorrowData = tomorrowRes.ok ? await tomorrowRes.json() : [];
-
-        // Combine data processing
-        const processSlotsForDate = (slotsData: any[], dateStr: string) => {
-          const available: Record<string, string[]> = {};
-          const taken: Record<string, any[]> = {};
-          const blocked: Record<string, string[]> = {};
-
-          // Initialize
+          // Initialize for all horses
           stable?.horses.forEach(horse => {
-            available[horse.id] = [];
-            taken[horse.id] = [];
-            blocked[horse.id] = [];
+            newAvailable[today][horse.id] = [];
+            newTaken[today][horse.id] = [];
+            newBlocked[today][horse.id] = [];
           });
 
           slotsData.forEach((slot: any) => {
+            // Parse the slot time and display in local time, ensuring consistency
             const slotDate = new Date(slot.startTime);
+            // Use getHours/getMinutes to get local time components directly
             const hours = slotDate.getHours();
             const minutes = slotDate.getMinutes();
             const ampm = hours >= 12 ? 'PM' : 'AM';
             const displayHours = hours % 12 || 12;
             const time = `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
 
+            // If horseId is null, it applies to ALL horses
             const targetHorses = slot.horseId
               ? [stable?.horses.find(h => h.id === slot.horseId)].filter(Boolean)
               : stable?.horses || [];
@@ -367,38 +425,28 @@ export default function StableDetailPage() {
             targetHorses.forEach(horse => {
               if (!horse) return;
 
+              // Handle new statuses
               if (slot.status === 'booked') {
-                if (!taken[horse.id]) taken[horse.id] = [];
-                taken[horse.id].push({ ...slot, startTime: slot.startTime });
+                if (!newTaken[today][horse.id]) newTaken[today][horse.id] = [];
+                newTaken[today][horse.id].push({ ...slot, startTime: slot.startTime });
               } else if (slot.status === 'available') {
-                if (!available[horse.id]) available[horse.id] = [];
-                available[horse.id].push(time);
+                if (!newAvailable[today][horse.id]) newAvailable[today][horse.id] = [];
+                newAvailable[today][horse.id].push(time);
               } else {
                 // blocked_session or blocked_lead_time
-                if (!blocked[horse.id]) blocked[horse.id] = [];
-                blocked[horse.id].push(time);
+                if (!newBlocked[today][horse.id]) newBlocked[today][horse.id] = [];
+                newBlocked[today][horse.id].push(time);
               }
             });
           });
-          return { available, taken, blocked };
-        };
 
-        const todayProcessed = processSlotsForDate(todayData, today);
-        const tomorrowProcessed = processSlotsForDate(tomorrowData, tomorrow);
-
-        setAvailableSlots({
-          [today]: todayProcessed.available,
-          [tomorrow]: tomorrowProcessed.available
-        });
-        setTakenSlots({
-          [today]: todayProcessed.taken,
-          [tomorrow]: tomorrowProcessed.taken
-        });
-        setBlockedSlots({
-          [today]: todayProcessed.blocked,
-          [tomorrow]: tomorrowProcessed.blocked
-        });
-
+          setAvailableSlots(newAvailable);
+          setTakenSlots(newTaken);
+          // We need to add a state for blocked slots or merge them into taken slots with a flag
+          // For now, let's merge them into taken slots but with a special flag so UI can render them differently
+          // Actually, let's add a new state for blocked slots
+          setBlockedSlots(newBlocked);
+        }
       } catch (err) {
         console.error("Error refreshing slots:", err);
       }
@@ -433,72 +481,32 @@ export default function StableDetailPage() {
   useEffect(() => {
     if (!stable) return;
 
-    const todayDate = new Date();
-    const tomorrowDate = new Date(todayDate);
-    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-
-    const today = todayDate.toISOString().split("T")[0];
-    const tomorrow = tomorrowDate.toISOString().split("T")[0];
-
+    const today = new Date().toISOString().split("T")[0];
     const leadTimeHours = stable.minLeadTimeHours || 8;
-    const minBookingTime = new Date(todayDate.getTime() + leadTimeHours * 60 * 60 * 1000);
+    const currentDate = new Date();
 
     const newGroupedSlots: Record<string, DayGroupedSlots> = {};
     const newGroupedBlockedSlots: Record<string, DayGroupedSlots> = {};
 
     stable.horses.forEach(horse => {
-      // Get raw available times
-      const todayAvailable = availableSlots[today]?.[horse.id] || [];
-      const tomorrowAvailable = availableSlots[tomorrow]?.[horse.id] || [];
+      const availableTimes = availableSlots[today]?.[horse.id] || [];
+      const blockedTimes = blockedSlots[today]?.[horse.id] || [];
 
-      const todayBlocked = blockedSlots[today]?.[horse.id] || [];
-      const tomorrowBlocked = blockedSlots[tomorrow]?.[horse.id] || [];
+      // Available slots: Allow shifting to tomorrow if missed lead time
+      newGroupedSlots[horse.id] = groupSlotsByDayAndPeriod(
+        availableTimes,
+        leadTimeHours,
+        currentDate,
+        true // allowShift
+      );
 
-      // Helper to categorize times
-      const categorize = (times: string[]) => {
-        const grouped: GroupedSlots = { morning: [], afternoon: [], evening: [] };
-        times.forEach(t => {
-          const timeParts = t.match(/(\d+):(\d+)\s*(AM|PM)/i);
-          if (timeParts) {
-            let h = parseInt(timeParts[1]);
-            const ampm = timeParts[3].toUpperCase();
-            if (ampm === "PM" && h < 12) h += 12;
-            if (ampm === "AM" && h === 12) h = 0;
-
-            // Custom logic: 12 PM (12:00) should be Morning as per user request
-            let period = getTimePeriod(h);
-            if (h === 12) period = 'morning'; // Force 12 PM to morning
-
-            // Only process morning and afternoon
-            if (period !== 'evening') {
-              grouped[period].push(t);
-            }
-          }
-        });
-        return grouped;
-      };
-
-      // Filter Today's slots for lead time
-      // User request: "remove the all slots that is grayed by lead time only keep the grayed by booking"
-      // So we filter them out from available, but DO NOT add them to blocked.
-
-      const validTodayAvailable = todayAvailable.filter(timeStr => {
-        const slotDate = parseTimeString(timeStr, todayDate);
-        return slotDate >= minBookingTime;
-      });
-
-      // We do NOT add leadTimeBlocked to finalTodayBlocked anymore
-      const finalTodayBlocked = [...todayBlocked];
-
-      newGroupedSlots[horse.id] = {
-        today: categorize(validTodayAvailable),
-        tomorrow: categorize(tomorrowAvailable)
-      };
-
-      newGroupedBlockedSlots[horse.id] = {
-        today: categorize(finalTodayBlocked),
-        tomorrow: categorize(tomorrowBlocked)
-      };
+      // Blocked slots: NEVER shift to tomorrow. They are blocked for today.
+      newGroupedBlockedSlots[horse.id] = groupSlotsByDayAndPeriod(
+        blockedTimes,
+        leadTimeHours,
+        currentDate,
+        false // allowShift
+      );
     });
 
     setGroupedSlots(newGroupedSlots);
@@ -792,68 +800,115 @@ export default function StableDetailPage() {
                       new Date(slot.startTime).toLocaleTimeString("en-US", {
                         hour: "numeric",
                         minute: "2-digit",
-                        hour12: true
                       })
                     );
 
+                    const horsePriceLabel =
+                      horse.pricePerHour !== null && horse.pricePerHour !== undefined
+                        ? `EGP ${Number(horse.pricePerHour).toFixed(0)}/hour`
+                        : "Contact for pricing";
+                    const horseAge =
+                      horse.age !== null && horse.age !== undefined
+                        ? `${horse.age} years`
+                        : "Not specified";
+                    const horseSkills =
+                      horse.skills && horse.skills.length > 0
+                        ? horse.skills
+                        : ["Beginner Friendly", "Tour Guide", "Desert Expert"];
+                    const portfolioItems = horse.media?.filter(
+                      (item) => typeof item?.url === "string"
+                    ) ?? [];
+                    const galleryItems =
+                      portfolioItems.length > 0
+                        ? portfolioItems
+                        : horse.imageUrls.slice(1).map((url) => ({
+                          type: "image" as const,
+                          url,
+                        }));
+                    const heroImage =
+                      portfolioItems.find((item) => item.type === "image")?.url ||
+                      horse.imageUrls[0];
+                    const modalItems =
+                      heroImage && galleryItems.every((item) => item.url !== heroImage)
+                        ? [{ type: "image" as const, url: heroImage }, ...galleryItems]
+                        : galleryItems;
+
                     return (
-                      <Card key={horse.id} className="overflow-hidden">
-                        <button
-                          type="button"
-                          className="group relative h-64 w-full overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                          onClick={() => openPortfolio(horse.name, horse.media)}
-                        >
-                          <Image
-                            src={horse.imageUrls[0] || "/horse-placeholder.jpg"}
-                            alt={horse.name}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                          />
-                          <span className="absolute bottom-4 right-4 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white shadow-lg transition-opacity group-hover:opacity-100">
-                            View Photos
-                          </span>
-                        </button>
+                      <Card key={horse.id} id={`horse-${horse.id}`} className="overflow-hidden">
+                        <div className="grid gap-0 md:grid-cols-2">
+                          {/* Horse Image */}
+                          <button
+                            type="button"
+                            className="group relative h-64 w-full overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary md:h-auto"
+                            onClick={() => openPortfolio(horse.name, modalItems, 0)}
+                            aria-label={`Open ${horse.name} portfolio`}
+                          >
+                            {heroImage ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={heroImage}
+                                alt={`${horse.name} - Horse available for riding at ${stable.name} in ${stable.location}, Egypt. ${horse.description ? horse.description.substring(0, 80) : 'Professional horse with excellent training.'}`}
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                draggable={false}
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="text-center">
+                                  <div className="mx-auto mb-2 text-5xl">🐴</div>
+                                  <p className="text-sm text-muted-foreground">{horse.name}</p>
+                                </div>
+                              </div>
+                            )}
+                            <span className="absolute bottom-4 right-4 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white shadow-lg transition-opacity group-hover:opacity-100">
+                              View portfolio
+                            </span>
+                          </button>
 
-                        <div className="p-6">
-                          <div className="mb-4 flex items-start justify-between">
-                            <div>
-                              <h3 className="font-display text-2xl font-bold">{horse.name}</h3>
-                              <p className="text-muted-foreground">{horse.description}</p>
+                          {/* Horse Info */}
+                          <div className="p-6">
+                            <div className="mb-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <h3 className="font-semibold text-2xl">{horse.name}</h3>
+                                <Badge className={`${(horse.adminTier === 'Advanced') ? 'bg-red-500 hover:bg-red-600' :
+                                  (horse.adminTier === 'Intermediate') ? 'bg-yellow-500 hover:bg-yellow-600' :
+                                    'bg-green-500 hover:bg-green-600'
+                                  } text-white border-0`}>
+                                  {horse.adminTier || 'Beginner'}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground mb-4">{horse.description}</p>
                             </div>
-                            <Badge
-                              variant={horse.skillLevel === "BEGINNER" ? "default" : "secondary"}
-                              className={horse.skillLevel === "BEGINNER" ? "bg-green-500 hover:bg-green-600" : ""}
-                            >
-                              {horse.skillLevel || "All Levels"}
-                            </Badge>
-                          </div>
 
-                          <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <p className="text-muted-foreground">Age:</p>
-                              <p className="font-medium">{horse.age} years</p>
-                            </div>
-                            <div>
-                              <p className="text-muted-foreground">Skills:</p>
-                              <div className="flex flex-wrap gap-2">
-                                {horse.skills?.map((skill) => (
-                                  <Badge key={skill} variant="outline" className="text-xs">
-                                    {skill}
-                                  </Badge>
-                                ))}
+                            {/* Horse Details Footer */}
+                            <div className="space-y-3 border-t pt-4">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Age:</span>
+                                <span className="font-medium">{horseAge}</span>
+                              </div>
+                              <div className="flex items-start justify-between text-sm">
+                                <span className="text-muted-foreground">Skills:</span>
+                                <div className="flex flex-wrap gap-1 justify-end">
+                                  {horseSkills.map((skill, idx) => (
+                                    <Badge key={idx} variant="outline" className="text-xs">
+                                      {skill}
+                                    </Badge>
+                                  ))}
+                                </div>
                               </div>
                             </div>
-                          </div>
 
-                          <div className="border-t pt-4">
-                            <h4 className="mb-3 font-semibold">Next Available Rides</h4>
-                            <DynamicAvailability
-                              grouped={groupedSlots[horse.id]}
-                              blocked={groupedBlockedSlots[horse.id]}
-                              horseId={horse.id}
-                              onSlotClick={handleSlotClick}
-                              isLocked={isHorseLocked(horse)}
-                            />
+                            {/* Next Available Rides */}
+                            <div className="mt-6 border-t pt-4">
+                              <h4 className="mb-3 text-sm font-semibold">Next Available Rides</h4>
+                              <DynamicAvailability
+                                grouped={groupedSlots[horse.id]}
+                                blocked={groupedBlockedSlots[horse.id]}
+                                horseId={horse.id}
+                                onSlotClick={handleSlotClick}
+                                isLocked={isHorseLocked(horse)}
+                              />
+                            </div>
                           </div>
                         </div>
                       </Card>
@@ -861,19 +916,28 @@ export default function StableDetailPage() {
                   })}
                 </div>
               ) : (
-                <p className="text-muted-foreground">No horses available at this stable.</p>
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">No horses listed yet.</p>
+                </Card>
               )}
             </div>
 
             {/* Reviews */}
-            <div id="reviews">
+            <div>
               <h2 className="mb-6 font-display text-2xl font-bold">Customer Reviews</h2>
               <ReviewsSection
                 reviews={stable.reviews}
-                averageStableRating={stable.rating}
+                averageStableRating={
+                  stable.reviews.length > 0
+                    ? stable.reviews.reduce((sum, r) => sum + r.stableRating, 0) /
+                    stable.reviews.length
+                    : 0
+                }
                 averageHorseRating={
-                  stable.reviews.reduce((acc, r) => acc + r.horseRating, 0) /
-                  (stable.reviews.length || 1)
+                  stable.reviews.length > 0
+                    ? stable.reviews.reduce((sum, r) => sum + r.horseRating, 0) /
+                    stable.reviews.length
+                    : 0
                 }
                 totalReviews={stable.totalReviews}
               />
@@ -881,123 +945,269 @@ export default function StableDetailPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="sticky top-24 space-y-6">
+          <div className="space-y-6 w-full min-w-0">
+            {/* Owner Info */}
             <Card className="p-6">
-              <h3 className="mb-4 font-display text-xl font-bold">Book a Ride</h3>
-              <p className="mb-6 text-sm text-muted-foreground">
-                Select a horse and time slot to book your riding experience.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                    <Clock className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Instant Confirmation</p>
-                    <p className="text-muted-foreground">Book instantly, no waiting</p>
-                  </div>
+              <h3 className="mb-4 font-semibold">Stable Owner</h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <User className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-sm">
+                    {stable.owner.fullName || stable.owner.email}
+                  </span>
                 </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                    <ShieldCheckIcon className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Secure Payment</p>
-                    <p className="text-muted-foreground">100% secure checkout</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                    <ThumbsUpIcon className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Best Price Guarantee</p>
-                    <p className="text-muted-foreground">We match any price</p>
-                  </div>
+                <div className="flex items-center gap-3">
+                  <Mail className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-sm">{stable.owner.email}</span>
                 </div>
               </div>
             </Card>
 
-            {/* Contact Card */}
-            <Card className="p-6">
-              <h3 className="mb-4 font-semibold">Need Help?</h3>
-              <p className="mb-4 text-sm text-muted-foreground">
-                Have questions about this stable or need a custom package?
+            {/* Book Now */}
+            <Card className="border-primary/50 bg-primary/5 p-6">
+              <h3 className="mb-4 font-display text-xl font-bold">
+                Book Your Ride
+              </h3>
+              <p className="mb-6 text-sm text-muted-foreground">
+                Experience the pyramids with our trusted horses. Book now and secure your spot!
               </p>
-              <Button variant="outline" className="w-full gap-2" asChild>
-                <a href="mailto:support@pyraride.com">
-                  <Mail className="h-4 w-4" />
-                  Contact Support
-                </a>
-              </Button>
+              {session && session.user.role === "rider" ? (
+                <Button
+                  className="w-full"
+                  size="lg"
+                  onClick={() => {
+                    // Redirect to booking page - user can select horse and time there
+                    router.push(`/booking?stableId=${stable.id}`);
+                  }}
+                >
+                  Book Now
+                </Button>
+              ) : (
+                <div className="space-y-3">
+                  <Link href={`/signin?callbackUrl=${encodeURIComponent(pathname)}`} className="w-full">
+                    <Button
+                      className="w-full"
+                      size="lg"
+                      variant="outline"
+                    >
+                      Sign In to Book
+                    </Button>
+                  </Link>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Only riders can create bookings
+                  </p>
+                </div>
+              )}
+            </Card>
+
+            {/* Stats */}
+            <Card className="p-6">
+              <h3 className="mb-4 font-semibold">Statistics</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Total Bookings</span>
+                  <span className="font-medium">{stable.totalBookings}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Total Reviews</span>
+                  <span className="font-medium">{stable.totalReviews}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Average Rating</span>
+                  <span className="font-medium">{stable.rating.toFixed(1)}</span>
+                </div>
+              </div>
             </Card>
           </div>
         </div>
       </div>
 
       {/* Booking Modal */}
-      <BookingModal
-        open={isBookingModalOpen}
-        onOpenChange={setIsBookingModalOpen}
-        stableId={stable.id}
-        stableName={stable.name}
-        horses={stable.horses}
-        initialSelection={bookingSelection}
-      />
+      {stable && (
+        <BookingModal
+          open={isBookingModalOpen}
+          onOpenChange={(open) => {
+            setIsBookingModalOpen(open);
+            if (!open) setBookingSelection(undefined);
+          }}
+          stableId={stable.id}
+          stableName={stable.name}
+          horses={stable.horses}
+          initialSelection={bookingSelection}
+        />
+      )}
 
-      {/* Portfolio Viewer Overlay */}
-      <AnimatePresence>
-        {portfolioViewer && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            {/* Backdrop with heavy blur */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setPortfolioViewer(null)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-3xl"
-            />
+      {/* Fullscreen Portfolio Viewer - Apple Liquid Glass Effect */}
+      {portfolioViewer && (
+        <>
+          {/* Layer 1: Base Blur - Creates the frosted glass foundation */}
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100dvh',
+              maxHeight: '100vh',
+              zIndex: 9996,
+              backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              overflow: 'hidden',
+              transform: 'translateZ(0)',
+              WebkitTransform: 'translateZ(0)',
+            }}
+          />
 
-            {/* Main Content Container */}
-            <div className="relative z-10 w-full h-full flex flex-col items-center justify-center p-4">
-              {/* Close Button */}
+          {/* Layer 2: Color Tint - Warm golden overlay for desert/pyramid soul */}
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100dvh',
+              maxHeight: '100vh',
+              zIndex: 9997,
+              background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.08) 0%, rgba(184, 134, 11, 0.06) 50%, rgba(139, 69, 19, 0.04) 100%)',
+              overflow: 'hidden',
+              transform: 'translateZ(0)',
+              WebkitTransform: 'translateZ(0)',
+            }}
+          />
+
+          {/* Layer 3: Vibrancy & Luminosity - Apple's signature glow */}
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100dvh',
+              maxHeight: '100vh',
+              zIndex: 9998,
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'brightness(1.15) contrast(1.05)',
+              WebkitBackdropFilter: 'brightness(1.15) contrast(1.05)',
+              mixBlendMode: 'overlay',
+              overflow: 'hidden',
+              transform: 'translateZ(0)',
+              WebkitTransform: 'translateZ(0)',
+            }}
+          />
+
+          {/* Content Layer - Mobile viewport fix */}
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100dvh', // Dynamic viewport height for mobile
+              maxHeight: '100vh', // Fallback for older browsers
+              zIndex: 9999,
+              overflow: 'hidden',
+              transform: 'translateZ(0)', // Force hardware acceleration
+              WebkitTransform: 'translateZ(0)',
+            }}
+          >
+            {/* Header with Liquid Glass Effect - Clean Design */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '16px',
+                zIndex: 1000,
+              }}
+            >
               <button
-                onClick={() => setPortfolioViewer(null)}
-                className="absolute top-6 right-6 z-50 p-2 rounded-full bg-black/20 text-white/70 hover:text-white hover:bg-black/40 transition-all"
+                onClick={closePortfolio}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: 'white',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                className="hover:bg-black/40 hover:scale-105 active:scale-95"
               >
-                <X className="h-8 w-8" />
+                <X className="h-5 w-5" />
               </button>
 
-              {/* Main Image/Video Area */}
-              <AnimatePresence mode="wait">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-white/90 drop-shadow-md">
+                  {portfolioViewer.index + 1} / {portfolioViewer.items.length}
+                </span>
+              </div>
+
+              <div style={{ width: '40px' }} /> {/* Spacer for balance */}
+            </div>
+
+            {/* Main Content Area - Centered & Responsive */}
+            <div
+              className="flex h-full w-full items-center justify-center p-4 md:p-8"
+              onClick={(e) => {
+                // Close if clicking outside image
+                if (e.target === e.currentTarget) closePortfolio();
+              }}
+            >
+              <AnimatePresence mode="wait" custom={portfolioViewer.index}>
                 <motion.div
                   key={portfolioViewer.index}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.05 }}
-                  transition={{ duration: 0.2 }}
-                  className="relative max-h-[85vh] max-w-[95vw] aspect-[4/5] md:aspect-video rounded-lg overflow-hidden shadow-2xl"
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 30,
+                    mass: 0.8
+                  }}
+                  className="relative max-h-[85vh] max-w-[95vw] overflow-hidden rounded-2xl shadow-2xl md:max-w-5xl"
+                  style={{
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                  }}
                 >
-                  {portfolioViewer.items[portfolioViewer.index].type === 'video' ? (
-                    <video
-                      src={portfolioViewer.items[portfolioViewer.index].url}
-                      className="w-full h-full object-contain bg-black/20"
-                      controls
-                      autoPlay
-                      playsInline
-                    />
+                  {portfolioViewer.items[portfolioViewer.index].type === "video" ? (
+                    <div className="relative aspect-video w-full min-w-[300px] md:min-w-[600px] bg-black">
+                      <video
+                        src={portfolioViewer.items[portfolioViewer.index].url}
+                        controls
+                        autoPlay
+                        className="h-full w-full object-contain"
+                        style={{ maxHeight: '80vh' }}
+                      />
+                    </div>
                   ) : (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={portfolioViewer.items[portfolioViewer.index].url}
-                      alt={`${portfolioViewer.horseName} - Portfolio item ${portfolioViewer.index + 1}`}
-                      className="w-full h-full object-contain"
+                      alt={`${portfolioViewer.horseName} - Image ${portfolioViewer.index + 1}`}
+                      className="h-auto w-full object-contain"
+                      style={{
+                        maxHeight: '80vh',
+                        maxWidth: '100%',
+                        display: 'block'
+                      }}
+                      draggable={false}
                     />
                   )}
 
-                  {/* Caption/Counter Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-12">
-                    <h3 className="text-white text-xl font-display font-bold text-center drop-shadow-lg">
+                  {/* Caption Overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 pt-12">
+                    <h3 className="text-xl font-bold text-white drop-shadow-lg">
                       {portfolioViewer.horseName}
                     </h3>
                   </div>
@@ -1077,49 +1287,8 @@ export default function StableDetailPage() {
               </div>
             )}
           </div>
-        )}
-      </AnimatePresence>
+        </>
+      )}
     </div>
   );
-}
-
-function ShieldCheckIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
-  )
-}
-
-
-function ThumbsUpIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M7 10v12" />
-      <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
-    </svg>
-  )
 }
