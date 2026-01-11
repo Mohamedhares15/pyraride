@@ -901,6 +901,15 @@ export default function StableDetailPage() {
                                   ))}
                                 </div>
                               </div>
+                              {/* Price Per Hour */}
+                              {horse.pricePerHour && (
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-muted-foreground">Price:</span>
+                                  <span className="font-semibold text-lg text-primary">
+                                    {horse.pricePerHour.toLocaleString()} EGP/hr
+                                  </span>
+                                </div>
+                              )}
                             </div>
 
                             {/* Next Available Rides */}
