@@ -85,7 +85,7 @@ export default function ManageHorsesPage() {
       // Get owner's stable
       const stableRes = await fetch("/api/stables?ownerOnly=true");
       const stableData = await stableRes.json();
-      
+
       if (stableData.stables && stableData.stables.length > 0) {
         const stableId = stableData.stables[0].id;
         const horsesRes = await fetch(`/api/horses?stableId=${stableId}`);
@@ -120,7 +120,7 @@ export default function ManageHorsesPage() {
       // Get owner's stable
       const stableRes = await fetch("/api/stables?ownerOnly=true");
       const stableData = await stableRes.json();
-      
+
       if (!stableData.stables || stableData.stables.length === 0) {
         alert("Please create a stable first");
         setIsSubmitting(false);
@@ -193,18 +193,18 @@ export default function ManageHorsesPage() {
       });
 
       const result = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(result.error || "Failed to create horse");
       }
 
       // Store horse name for success message
       const horseName = formData.name.trim();
-      
+
       // Reset form
-      setFormData({ 
-        name: "", 
-        description: "", 
+      setFormData({
+        name: "",
+        description: "",
         pricePerHour: "",
         age: "",
         skills: [],
@@ -215,10 +215,10 @@ export default function ManageHorsesPage() {
       setImageFile(null);
       setImagePreview("");
       setIsDialogOpen(false);
-      
+
       // Refresh horses list
       await fetchHorses();
-      
+
       // Show success notification
       setSuccessHorseName(horseName);
       setShowSuccess(true);
@@ -241,7 +241,7 @@ export default function ManageHorsesPage() {
       const res = await fetch(`/api/horses/${horse.id}`, {
         method: "DELETE",
       });
-      
+
       if (res.ok) {
         await fetchHorses();
         setDeletedHorseName(horse.name);
@@ -260,7 +260,7 @@ export default function ManageHorsesPage() {
   async function handleEditSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!editingHorse) return;
-    
+
     setIsSubmitting(true);
 
     try {
@@ -305,18 +305,18 @@ export default function ManageHorsesPage() {
       });
 
       const result = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(result.error || "Failed to update horse");
       }
 
       // Store horse name for success message
       const horseName = formData.name.trim();
-      
+
       // Reset form
-      setFormData({ 
-        name: "", 
-        description: "", 
+      setFormData({
+        name: "",
+        description: "",
         pricePerHour: "",
         age: "",
         skills: [],
@@ -328,10 +328,10 @@ export default function ManageHorsesPage() {
       setImagePreview("");
       setIsEditDialogOpen(false);
       setEditingHorse(null);
-      
+
       // Refresh horses list
       await fetchHorses();
-      
+
       // Show success notification
       setSuccessHorseName(horseName);
       setShowSuccess(true);
@@ -354,8 +354,8 @@ export default function ManageHorsesPage() {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Image size must be less than 5MB");
+    if (file.size > 20 * 1024 * 1024) {
+      alert("Image size must be less than 20MB");
       return;
     }
 
@@ -573,9 +573,9 @@ export default function ManageHorsesPage() {
             const confirmed = window.confirm("Are you sure you want to close? All entered data will be lost.");
             if (!confirmed) return;
           }
-          setFormData({ 
-            name: "", 
-            description: "", 
+          setFormData({
+            name: "",
+            description: "",
             pricePerHour: "",
             age: "",
             skills: [],
@@ -597,193 +597,193 @@ export default function ManageHorsesPage() {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
             <div className="space-y-6 overflow-y-auto px-6 py-4">
-            {/* Horse Name */}
-            <div>
-              <Label htmlFor="name">Horse Name *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-                placeholder="e.g., Desert Wind"
-              />
-            </div>
-
-            {/* Description */}
-            <div>
-              <Label htmlFor="description">Description *</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                required
-                rows={4}
-                placeholder="Describe the horse's temperament, experience, and special features..."
-              />
-            </div>
-
-            {/* Price & Age Row */}
-            <div className="grid grid-cols-2 gap-4">
+              {/* Horse Name */}
               <div>
-                <Label htmlFor="pricePerHour">Price Per Hour (EGP)</Label>
+                <Label htmlFor="name">Horse Name *</Label>
                 <Input
-                  id="pricePerHour"
-                  type="number"
-                  min="0"
-                  step="50"
-                  value={formData.pricePerHour}
-                  onChange={(e) => setFormData({ ...formData, pricePerHour: e.target.value })}
-                  placeholder="e.g., 500"
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                  placeholder="e.g., Desert Wind"
                 />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Optional - hourly rate for booking
-                </p>
               </div>
+
+              {/* Description */}
               <div>
-                <Label htmlFor="age">Age (Years)</Label>
-                <Input
-                  id="age"
-                  type="number"
-                  min="1"
-                  max="30"
-                  value={formData.age}
-                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                  placeholder="e.g., 8"
+                <Label htmlFor="description">Description *</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  required
+                  rows={4}
+                  placeholder="Describe the horse's temperament, experience, and special features..."
                 />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Optional - age in years
-                </p>
               </div>
-            </div>
 
-            {/* Skills */}
-            <div>
-              <Label htmlFor="skills">Skills (comma-separated)</Label>
-              <Input
-                id="skills"
-                value={formData.skills.join(", ")}
-                onChange={(e) => {
-                  const skills = e.target.value
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter((s) => s.length > 0);
-                  setFormData({ ...formData, skills });
-                }}
-                placeholder="e.g., Beginner-friendly, Calm, Well-trained"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                Separate multiple skills with commas
-              </p>
-            </div>
-
-            {/* Availability Status */}
-            <div>
-              <Label htmlFor="availabilityStatus">Availability Status *</Label>
-              <select
-                id="availabilityStatus"
-                value={formData.availabilityStatus}
-                onChange={(e) => setFormData({ ...formData, availabilityStatus: e.target.value as "available" | "injured" | "unavailable" })}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                <option value="available">Available for Riding</option>
-                <option value="injured">Injured - Not Available</option>
-                <option value="unavailable">Unavailable</option>
-              </select>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Set to "Injured" or "Unavailable" if the horse cannot be booked
-              </p>
-            </div>
-
-            {/* Google Drive URLs */}
-            <div>
-              <Label htmlFor="googleDriveUrls">
-                Google Drive Image URLs * (Recommended - Easiest Method)
-              </Label>
-              <Textarea
-                id="googleDriveUrls"
-                value={formData.googleDriveUrls}
-                onChange={(e) =>
-                  setFormData({ ...formData, googleDriveUrls: e.target.value })
-                }
-                rows={4}
-                placeholder="Paste Google Drive links here (one per line):&#10;https://drive.google.com/file/d/FILE_ID/view&#10;https://drive.google.com/file/d/FILE_ID/view"
-                className="font-mono text-sm"
-              />
-              <div className="mt-2 space-y-1">
-                <p className="text-xs text-muted-foreground">
-                  💡 <strong>How to get links:</strong> Right-click image in Google Drive → "Get link" → Set to "Anyone with the link" → Copy and paste here
-                </p>
-                {formData.googleDriveUrls.trim() && (
-                  <p className="text-xs text-green-600 dark:text-green-400 font-medium">
-                    ✓ {formData.googleDriveUrls.split('\n').filter(line => line.trim()).length} image(s) will be uploaded
+              {/* Price & Age Row */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="pricePerHour">Price Per Hour (EGP)</Label>
+                  <Input
+                    id="pricePerHour"
+                    type="number"
+                    min="0"
+                    step="50"
+                    value={formData.pricePerHour}
+                    onChange={(e) => setFormData({ ...formData, pricePerHour: e.target.value })}
+                    placeholder="e.g., 500"
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Optional - hourly rate for booking
                   </p>
-                )}
+                </div>
+                <div>
+                  <Label htmlFor="age">Age (Years)</Label>
+                  <Input
+                    id="age"
+                    type="number"
+                    min="1"
+                    max="30"
+                    value={formData.age}
+                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                    placeholder="e.g., 8"
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Optional - age in years
+                  </p>
+                </div>
               </div>
-            </div>
 
-            {/* OR Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">OR</span>
-              </div>
-            </div>
-
-            {/* File Upload */}
-            <div>
-              <Label htmlFor="image">Upload Photo File</Label>
-              <div className="mt-2">
-                <input
-                  type="file"
-                  id="image"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
+              {/* Skills */}
+              <div>
+                <Label htmlFor="skills">Skills (comma-separated)</Label>
+                <Input
+                  id="skills"
+                  value={formData.skills.join(", ")}
+                  onChange={(e) => {
+                    const skills = e.target.value
+                      .split(",")
+                      .map((s) => s.trim())
+                      .filter((s) => s.length > 0);
+                    setFormData({ ...formData, skills });
+                  }}
+                  placeholder="e.g., Beginner-friendly, Calm, Well-trained"
                 />
-                <label
-                  htmlFor="image"
-                  className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/30 p-6 hover:border-primary/50"
-                >
-                  {imagePreview ? (
-                    <div className="relative h-32 w-full">
-                      <Image
-                        src={imagePreview}
-                        alt="Preview"
-                        fill
-                        className="object-cover rounded-lg"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute right-2 top-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setImageFile(null);
-                          setImagePreview("");
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <>
-                      <Upload className="mb-2 h-8 w-8 text-primary" />
-                      <span className="text-sm text-muted-foreground">
-                        Click to upload photo
-                      </span>
-                      <span className="text-xs text-muted-foreground mt-1">
-                        Max 5MB, JPG/PNG
-                      </span>
-                    </>
-                  )}
-                </label>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Separate multiple skills with commas
+                </p>
               </div>
-            </div>
+
+              {/* Availability Status */}
+              <div>
+                <Label htmlFor="availabilityStatus">Availability Status *</Label>
+                <select
+                  id="availabilityStatus"
+                  value={formData.availabilityStatus}
+                  onChange={(e) => setFormData({ ...formData, availabilityStatus: e.target.value as "available" | "injured" | "unavailable" })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="available">Available for Riding</option>
+                  <option value="injured">Injured - Not Available</option>
+                  <option value="unavailable">Unavailable</option>
+                </select>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Set to "Injured" or "Unavailable" if the horse cannot be booked
+                </p>
+              </div>
+
+              {/* Google Drive URLs */}
+              <div>
+                <Label htmlFor="googleDriveUrls">
+                  Google Drive Image URLs * (Recommended - Easiest Method)
+                </Label>
+                <Textarea
+                  id="googleDriveUrls"
+                  value={formData.googleDriveUrls}
+                  onChange={(e) =>
+                    setFormData({ ...formData, googleDriveUrls: e.target.value })
+                  }
+                  rows={4}
+                  placeholder="Paste Google Drive links here (one per line):&#10;https://drive.google.com/file/d/FILE_ID/view&#10;https://drive.google.com/file/d/FILE_ID/view"
+                  className="font-mono text-sm"
+                />
+                <div className="mt-2 space-y-1">
+                  <p className="text-xs text-muted-foreground">
+                    💡 <strong>How to get links:</strong> Right-click image in Google Drive → "Get link" → Set to "Anyone with the link" → Copy and paste here
+                  </p>
+                  {formData.googleDriveUrls.trim() && (
+                    <p className="text-xs text-green-600 dark:text-green-400 font-medium">
+                      ✓ {formData.googleDriveUrls.split('\n').filter(line => line.trim()).length} image(s) will be uploaded
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* OR Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">OR</span>
+                </div>
+              </div>
+
+              {/* File Upload */}
+              <div>
+                <Label htmlFor="image">Upload Photo File</Label>
+                <div className="mt-2">
+                  <input
+                    type="file"
+                    id="image"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="image"
+                    className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/30 p-6 hover:border-primary/50"
+                  >
+                    {imagePreview ? (
+                      <div className="relative h-32 w-full">
+                        <Image
+                          src={imagePreview}
+                          alt="Preview"
+                          fill
+                          className="object-cover rounded-lg"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute right-2 top-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setImageFile(null);
+                            setImagePreview("");
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="mb-2 h-8 w-8 text-primary" />
+                        <span className="text-sm text-muted-foreground">
+                          Click to upload photo
+                        </span>
+                        <span className="text-xs text-muted-foreground mt-1">
+                          Max 20MB, JPG/PNG
+                        </span>
+                      </>
+                    )}
+                  </label>
+                </div>
+              </div>
             </div>
 
             <div className="flex justify-end gap-3 px-6 py-4 border-t bg-muted/30">
@@ -797,9 +797,9 @@ export default function ManageHorsesPage() {
                     const confirmed = window.confirm("Are you sure you want to cancel? All entered data will be lost.");
                     if (!confirmed) return;
                   }
-                  setFormData({ 
-                    name: "", 
-                    description: "", 
+                  setFormData({
+                    name: "",
+                    description: "",
                     pricePerHour: "",
                     age: "",
                     skills: [],
@@ -836,9 +836,9 @@ export default function ManageHorsesPage() {
       {/* Edit Horse Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
         if (!open && !isSubmitting) {
-          setFormData({ 
-            name: "", 
-            description: "", 
+          setFormData({
+            name: "",
+            description: "",
             pricePerHour: "",
             age: "",
             skills: [],
@@ -861,134 +861,134 @@ export default function ManageHorsesPage() {
           </DialogHeader>
           <form onSubmit={handleEditSubmit} className="flex flex-col flex-1 overflow-hidden">
             <div className="space-y-6 overflow-y-auto px-6 py-4">
-            {/* Horse Name */}
-            <div>
-              <Label htmlFor="edit-name">Horse Name *</Label>
-              <Input
-                id="edit-name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-                placeholder="e.g., Desert Wind"
-              />
-            </div>
-
-            {/* Description */}
-            <div>
-              <Label htmlFor="edit-description">Description *</Label>
-              <Textarea
-                id="edit-description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                required
-                rows={4}
-                placeholder="Describe the horse's temperament, experience, and special features..."
-              />
-            </div>
-
-            {/* Price & Age Row */}
-            <div className="grid grid-cols-2 gap-4">
+              {/* Horse Name */}
               <div>
-                <Label htmlFor="edit-pricePerHour">Price Per Hour (EGP)</Label>
+                <Label htmlFor="edit-name">Horse Name *</Label>
                 <Input
-                  id="edit-pricePerHour"
-                  type="number"
-                  min="0"
-                  step="50"
-                  value={formData.pricePerHour}
-                  onChange={(e) => setFormData({ ...formData, pricePerHour: e.target.value })}
-                  placeholder="e.g., 500"
+                  id="edit-name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                  placeholder="e.g., Desert Wind"
                 />
               </div>
+
+              {/* Description */}
               <div>
-                <Label htmlFor="edit-age">Age (Years)</Label>
-                <Input
-                  id="edit-age"
-                  type="number"
-                  min="1"
-                  max="30"
-                  value={formData.age}
-                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                  placeholder="e.g., 8"
+                <Label htmlFor="edit-description">Description *</Label>
+                <Textarea
+                  id="edit-description"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  required
+                  rows={4}
+                  placeholder="Describe the horse's temperament, experience, and special features..."
                 />
               </div>
-            </div>
 
-            {/* Skills */}
-            <div>
-              <Label htmlFor="edit-skills">Skills (comma-separated)</Label>
-              <Input
-                id="edit-skills"
-                value={Array.isArray(formData.skills) ? formData.skills.join(", ") : ""}
-                onChange={(e) => {
-                  const skills = e.target.value
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter((s) => s.length > 0);
-                  setFormData({ ...formData, skills });
-                }}
-                placeholder="e.g., Beginner-friendly, Calm, Well-trained"
-              />
-            </div>
-
-            {/* Availability Status */}
-            <div>
-              <Label htmlFor="edit-availabilityStatus">Availability Status *</Label>
-              <select
-                id="edit-availabilityStatus"
-                value={formData.availabilityStatus}
-                onChange={(e) => setFormData({ ...formData, availabilityStatus: e.target.value as "available" | "injured" | "unavailable" })}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                <option value="available">Available for Riding</option>
-                <option value="injured">Injured - Not Available</option>
-                <option value="unavailable">Unavailable</option>
-              </select>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Set to "Injured" or "Unavailable" if the horse cannot be booked
-              </p>
-            </div>
-
-            {/* Image Previews */}
-            {imagePreviews.length > 0 && (
-              <div>
-                <Label>Current Images</Label>
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                  {imagePreviews.map((url, idx) => (
-                    <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={url}
-                        alt={`Preview ${idx + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
+              {/* Price & Age Row */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit-pricePerHour">Price Per Hour (EGP)</Label>
+                  <Input
+                    id="edit-pricePerHour"
+                    type="number"
+                    min="0"
+                    step="50"
+                    value={formData.pricePerHour}
+                    onChange={(e) => setFormData({ ...formData, pricePerHour: e.target.value })}
+                    placeholder="e.g., 500"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-age">Age (Years)</Label>
+                  <Input
+                    id="edit-age"
+                    type="number"
+                    min="1"
+                    max="30"
+                    value={formData.age}
+                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                    placeholder="e.g., 8"
+                  />
                 </div>
               </div>
-            )}
 
-            {/* Google Drive URLs */}
-            <div>
-              <Label htmlFor="edit-googleDriveUrls">
-                Update Images (Google Drive URLs)
-              </Label>
-              <Textarea
-                id="edit-googleDriveUrls"
-                value={formData.googleDriveUrls}
-                onChange={(e) =>
-                  setFormData({ ...formData, googleDriveUrls: e.target.value })
-                }
-                rows={4}
-                placeholder="Paste new Google Drive links here (one per line)"
-                className="font-mono text-sm"
-              />
-              <p className="mt-2 text-xs text-muted-foreground">
-                💡 Leave empty to keep existing images, or paste new links to replace them
-              </p>
-            </div>
+              {/* Skills */}
+              <div>
+                <Label htmlFor="edit-skills">Skills (comma-separated)</Label>
+                <Input
+                  id="edit-skills"
+                  value={Array.isArray(formData.skills) ? formData.skills.join(", ") : ""}
+                  onChange={(e) => {
+                    const skills = e.target.value
+                      .split(",")
+                      .map((s) => s.trim())
+                      .filter((s) => s.length > 0);
+                    setFormData({ ...formData, skills });
+                  }}
+                  placeholder="e.g., Beginner-friendly, Calm, Well-trained"
+                />
+              </div>
+
+              {/* Availability Status */}
+              <div>
+                <Label htmlFor="edit-availabilityStatus">Availability Status *</Label>
+                <select
+                  id="edit-availabilityStatus"
+                  value={formData.availabilityStatus}
+                  onChange={(e) => setFormData({ ...formData, availabilityStatus: e.target.value as "available" | "injured" | "unavailable" })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="available">Available for Riding</option>
+                  <option value="injured">Injured - Not Available</option>
+                  <option value="unavailable">Unavailable</option>
+                </select>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Set to "Injured" or "Unavailable" if the horse cannot be booked
+                </p>
+              </div>
+
+              {/* Image Previews */}
+              {imagePreviews.length > 0 && (
+                <div>
+                  <Label>Current Images</Label>
+                  <div className="grid grid-cols-3 gap-2 mt-2">
+                    {imagePreviews.map((url, idx) => (
+                      <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={url}
+                          alt={`Preview ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Google Drive URLs */}
+              <div>
+                <Label htmlFor="edit-googleDriveUrls">
+                  Update Images (Google Drive URLs)
+                </Label>
+                <Textarea
+                  id="edit-googleDriveUrls"
+                  value={formData.googleDriveUrls}
+                  onChange={(e) =>
+                    setFormData({ ...formData, googleDriveUrls: e.target.value })
+                  }
+                  rows={4}
+                  placeholder="Paste new Google Drive links here (one per line)"
+                  className="font-mono text-sm"
+                />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  💡 Leave empty to keep existing images, or paste new links to replace them
+                </p>
+              </div>
             </div>
 
             <div className="flex justify-end gap-3 px-6 py-4 border-t bg-muted/30">
@@ -996,9 +996,9 @@ export default function ManageHorsesPage() {
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  setFormData({ 
-                    name: "", 
-                    description: "", 
+                  setFormData({
+                    name: "",
+                    description: "",
                     pricePerHour: "",
                     age: "",
                     skills: [],
