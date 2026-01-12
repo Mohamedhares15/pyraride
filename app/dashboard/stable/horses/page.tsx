@@ -832,8 +832,8 @@ export default function ManageHorsesPage() {
                     googleDriveUrls: "",
                     availabilityStatus: "available",
                   });
-                  setImageFile(null);
-                  setImagePreview("");
+                  setImageFiles([]);
+                  setImagePreviews([]);
                   setIsDialogOpen(false);
                 }}
                 disabled={isSubmitting}
@@ -871,8 +871,8 @@ export default function ManageHorsesPage() {
             googleDriveUrls: "",
             availabilityStatus: "available",
           });
-          setImageFile(null);
-          setImagePreview("");
+          setImageFiles([]);
+          setImagePreviews([]);
           setEditingHorse(null);
         }
         setIsEditDialogOpen(open);
@@ -1031,8 +1031,8 @@ export default function ManageHorsesPage() {
                     googleDriveUrls: "",
                     availabilityStatus: "available",
                   });
-                  setImageFile(null);
-                  setImagePreview("");
+                  setImageFiles([]);
+                  setImagePreviews([]);
                   setEditingHorse(null);
                   setIsEditDialogOpen(false);
                 }}
