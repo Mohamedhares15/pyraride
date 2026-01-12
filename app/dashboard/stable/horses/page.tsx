@@ -67,8 +67,7 @@ export default function ManageHorsesPage() {
     googleDriveUrls: "", // Temporary field for pasting multiple URLs
     availabilityStatus: "available" as "available" | "injured" | "unavailable",
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>("");
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   useEffect(() => {
@@ -136,10 +135,12 @@ export default function ManageHorsesPage() {
         imageUrls = [...imageUrls, ...urls];
       }
 
-      // Upload image file if provided
-      if (imageFile) {
-        const imageUrl = await handleImageUpload(imageFile);
-        imageUrls = [imageUrl, ...imageUrls];
+      // Upload image files if provided
+      if (imageFiles.length > 0) {
+        const uploadedUrls = await Promise.all(
+          imageFiles.map(file => handleImageUpload(file))
+        );
+        imageUrls = [...uploadedUrls, ...imageUrls];
       }
 
       // Validate at least one image
@@ -212,8 +213,8 @@ export default function ManageHorsesPage() {
         googleDriveUrls: "",
         availabilityStatus: "available",
       });
-      setImageFile(null);
-      setImagePreview("");
+      setImageFiles([]);
+      setImagePreviews([]);
       setIsDialogOpen(false);
 
       // Refresh horses list
@@ -272,10 +273,12 @@ export default function ManageHorsesPage() {
         imageUrls = [...convertedUrls];
       }
 
-      // Upload image file if provided
-      if (imageFile) {
-        const imageUrl = await handleImageUpload(imageFile);
-        imageUrls = [imageUrl, ...imageUrls];
+      // Upload image files if provided
+      if (imageFiles.length > 0) {
+        const uploadedUrls = await Promise.all(
+          imageFiles.map(file => handleImageUpload(file))
+        );
+        imageUrls = [...uploadedUrls, ...imageUrls];
       }
 
       // If no new images, keep existing ones
@@ -324,8 +327,8 @@ export default function ManageHorsesPage() {
         googleDriveUrls: "",
         availabilityStatus: "available",
       });
-      setImageFile(null);
-      setImagePreview("");
+      setImageFiles([]);
+      setImagePreviews([]);
       setIsEditDialogOpen(false);
       setEditingHorse(null);
 
@@ -346,25 +349,39 @@ export default function ManageHorsesPage() {
   }
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
-    if (!file.type.startsWith("image/")) {
-      alert("Please select an image file");
+    // Validate each file
+    const invalidFiles = files.filter(file => !file.type.startsWith("image/"));
+    if (invalidFiles.length > 0) {
+      alert(`${invalidFiles.length} file(s) are not images. Please select only image files.`);
       return;
     }
 
-    if (file.size > 20 * 1024 * 1024) {
-      alert("Image size must be less than 20MB");
+    const oversizedFiles = files.filter(file => file.size > 20 * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      alert(`${oversizedFiles.length} file(s) exceed 20MB. Each image must be less than 20MB.\n\nOversized files:\n${oversizedFiles.map(f => `• ${f.name} (${(f.size / 1024 / 1024).toFixed(1)}MB)`).join('\n')}`);
       return;
     }
 
-    setImageFile(file);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    setImageFiles(files);
+
+    // Generate previews for all files
+    const previews: string[] = [];
+    let loadedCount = 0;
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        previews.push(reader.result as string);
+        loadedCount++;
+        if (loadedCount === files.length) {
+          setImagePreviews(previews);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
   if (status === "loading" || isLoading) {
@@ -568,7 +585,7 @@ export default function ManageHorsesPage() {
       <Dialog open={isDialogOpen} onOpenChange={(open) => {
         if (!open && !isSubmitting) {
           // Confirm if user has entered data
-          const hasData = formData.name || formData.description || formData.googleDriveUrls || imagePreview;
+          const hasData = formData.name || formData.description || formData.googleDriveUrls || imagePreviews.length > 0;
           if (hasData) {
             const confirmed = window.confirm("Are you sure you want to close? All entered data will be lost.");
             if (!confirmed) return;
@@ -741,6 +758,7 @@ export default function ManageHorsesPage() {
                     type="file"
                     id="image"
                     accept="image/*"
+                    multiple
                     onChange={handleImageChange}
                     className="hidden"
                   />
@@ -748,36 +766,43 @@ export default function ManageHorsesPage() {
                     htmlFor="image"
                     className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary/30 p-6 hover:border-primary/50"
                   >
-                    {imagePreview ? (
-                      <div className="relative h-32 w-full">
-                        <Image
-                          src={imagePreview}
-                          alt="Preview"
-                          fill
-                          className="object-cover rounded-lg"
-                        />
+                    {imagePreviews.length > 0 ? (
+                      <div className="w-full">
+                        <div className="grid grid-cols-3 gap-2 mb-2">
+                          {imagePreviews.map((preview, idx) => (
+                            <div key={idx} className="relative h-24 w-full">
+                              <Image
+                                src={preview}
+                                alt={`Preview ${idx + 1}`}
+                                fill
+                                className="object-cover rounded-lg"
+                              />
+                            </div>
+                          ))}
+                        </div>
                         <Button
                           type="button"
-                          variant="destructive"
+                          variant="outline"
                           size="sm"
-                          className="absolute right-2 top-2"
+                          className="w-full"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setImageFile(null);
-                            setImagePreview("");
+                            setImageFiles([]);
+                            setImagePreviews([]);
                           }}
                         >
-                          <X className="h-4 w-4" />
+                          <X className="h-4 w-4 mr-2" />
+                          Remove All ({imagePreviews.length} photo{imagePreviews.length > 1 ? 's' : ''})
                         </Button>
                       </div>
                     ) : (
                       <>
                         <Upload className="mb-2 h-8 w-8 text-primary" />
                         <span className="text-sm text-muted-foreground">
-                          Click to upload photo
+                          Click to upload photos (multiple)
                         </span>
                         <span className="text-xs text-muted-foreground mt-1">
-                          Max 20MB, JPG/PNG
+                          Max 20MB per image, JPG/PNG
                         </span>
                       </>
                     )}
@@ -792,7 +817,7 @@ export default function ManageHorsesPage() {
                 variant="outline"
                 onClick={() => {
                   // Confirm if user has entered data
-                  const hasData = formData.name || formData.description || formData.googleDriveUrls || imagePreview;
+                  const hasData = formData.name || formData.description || formData.googleDriveUrls || imagePreviews.length > 0;
                   if (hasData) {
                     const confirmed = window.confirm("Are you sure you want to cancel? All entered data will be lost.");
                     if (!confirmed) return;
