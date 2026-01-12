@@ -19,7 +19,6 @@ export async function GET(req: NextRequest) {
     const horses = await prisma.horse.findMany({
       where: {
         stableId,
-        isActive: true,
       },
     });
 
@@ -36,7 +35,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession();
-    
+
     if (!session || session.user.role !== "stable_owner") {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -92,7 +91,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate image URLs are valid
-    const validImageUrls = imageUrls.filter((url: string) => 
+    const validImageUrls = imageUrls.filter((url: string) =>
       url && typeof url === "string" && (url.startsWith("http") || url.startsWith("/"))
     );
 
