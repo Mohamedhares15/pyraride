@@ -600,8 +600,8 @@ export default function ManageHorsesPage() {
             googleDriveUrls: "",
             availabilityStatus: "available",
           });
-          setImageFile(null);
-          setImagePreview("");
+          setImageFiles([]);
+          setImagePreviews([]);
         }
         setIsDialogOpen(open);
       }}>
