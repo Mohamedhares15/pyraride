@@ -119,14 +119,8 @@ export async function GET(req: NextRequest) {
 
     // If ownerOnly is true and user is logged in as stable owner, return only their stable
     if (ownerOnly && session?.user?.role === "stable_owner") {
-      // Fetch user to get stableId
-      const user = await prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { stableId: true },
-      });
-      if (user?.stableId) {
-        where.id = user.stableId;
-      }
+      // Filter stables owned by this user
+      where.ownerId = session.user.id;
     }
 
     // Filter by location

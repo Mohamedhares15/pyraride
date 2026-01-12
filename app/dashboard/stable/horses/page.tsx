@@ -82,17 +82,23 @@ export default function ManageHorsesPage() {
   async function fetchHorses() {
     try {
       // Get owner's stable
+      console.log('🔍 Fetching owner stable...');
       const stableRes = await fetch("/api/stables?ownerOnly=true");
       const stableData = await stableRes.json();
+      console.log('📦 Stable response:', stableData);
 
       if (stableData.stables && stableData.stables.length > 0) {
         const stableId = stableData.stables[0].id;
+        console.log('🏇 Fetching horses for stable:', stableId);
         const horsesRes = await fetch(`/api/horses?stableId=${stableId}`);
         const horsesData = await horsesRes.json();
+        console.log('🐴 Horses response:', horsesData);
         setHorses(horsesData.horses || []);
+      } else {
+        console.warn('⚠️ No stables found for owner');
       }
     } catch (err) {
-      console.error("Error fetching horses:", err);
+      console.error("❌ Error fetching horses:", err);
     } finally {
       setIsLoading(false);
     }
