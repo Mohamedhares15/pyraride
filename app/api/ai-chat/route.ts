@@ -222,7 +222,7 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
       `Current user: ${userName} (${userRole})`,
       userRole === "rider" ? `User has ${bookingsCount} booking(s)` : "",
       `Platform has ${stablesCount} verified stables available`,
-      `Current pricing: $${minPrice}-$${maxPrice}/hour (average: $${avgPrice}/hour) - USE THESE REAL PRICES`,
+      `Current pricing: EGP ${minPrice}-EGP ${maxPrice}/hour (average: EGP ${avgPrice}/hour) - USE THESE REAL PRICES`,
       "Key features: verified stables, professional guides, best price guarantee, instant booking, Stripe payments",
       "Primary locations: Giza Plateau (Great Pyramids area), Saqqara Desert (Step Pyramid area)",
       "Platform commission is 15% (not 20%)",
@@ -539,15 +539,15 @@ ${userRole === "rider" ? "ماذا تريد أن تفعل اليوم؟" : "كي�
 
         if (horsesInRange.length > 0) {
           const priceRangeText = minPrice !== null && maxPrice !== null
-            ? `$${minPrice}-$${maxPrice}`
+            ? `EGP ${minPrice}-EGP ${maxPrice}`
             : minPrice !== null
-              ? `above $${minPrice}`
-              : `under $${maxPrice}`;
+              ? `above EGP ${minPrice}`
+              : `under EGP ${maxPrice}`;
 
           const horseList = horsesInRange.slice(0, 5).map((horse: any) => {
             const price = horse.pricePerHour ? Number(horse.pricePerHour) : 50;
             const imageUrl = horse.media?.[0]?.url || (horse.imageUrls && horse.imageUrls.length > 0 ? horse.imageUrls[0] : null);
-            return `🐴 **${horse.name}** - ${horse.stable.name} (${horse.stable.location})\n   $${price}/hour${imageUrl ? " ✅" : ""}`;
+            return `🐴 **${horse.name}** - ${horse.stable.name} (${horse.stable.location})\n   EGP ${price}/hour${imageUrl ? " ✅" : ""}`;
           }).join("\n\n");
 
           response = `💰 **Found ${horsesInRange.length} horse(s) in your price range (${priceRangeText}/hour):**\n\n${horseList}${horsesInRange.length > 5 ? `\n\n...and ${horsesInRange.length - 5} more horses in this range!` : ""}\n\n✨ Would you like to book one? I can help you create a booking directly! Just tell me which horse and when you'd like to ride.`;
@@ -558,9 +558,9 @@ ${userRole === "rider" ? "ماذا تريد أن تفعل اليوم؟" : "كي�
             "View Stables": "/stables"
           };
         } else {
-          response = `💰 I couldn't find any horses in the price range ${minPrice !== null && maxPrice !== null ? `$${minPrice}-$${maxPrice}` : minPrice !== null ? `above $${minPrice}` : `under $${maxPrice}`}.\n\n**Available Price Range:**\n- Most horses: $40-100/hour\n- Premium horses: $100+/hour\n\nTry adjusting your price range, or let me show you all available horses!`;
+          response = `💰 I couldn't find any horses in the price range ${minPrice !== null && maxPrice !== null ? `EGP ${minPrice}-EGP ${maxPrice}` : minPrice !== null ? `above EGP ${minPrice}` : `under EGP ${maxPrice}`}.\n\n**Available Price Range:**\n- Most horses: EGP 400-1000/hour\n- Premium horses: EGP 1000+/hour\n\nTry adjusting your price range, or let me show you all available horses!`;
 
-          suggestions = ["Show all horses", "Show stables", "Find horses under $60"];
+          suggestions = ["Show all horses", "Show stables", "Find horses under EGP 600"];
           actions = { "Browse All Horses": "/stables?sort=price-asc" };
         }
       } else {
@@ -585,9 +585,9 @@ ${userRole === "rider" ? "ماذا تريد أن تفعل اليوم؟" : "كي�
         const maxPriceAvailable = prices.length > 0 ? Math.max(...prices) : 100;
         const avgPrice = prices.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 50;
 
-        response = `💰 **Pricing Information:**\n\n**Price Range:**\n- Starting from: **$${minPriceAvailable}/hour**\n- Average: **$${avgPrice}/hour**\n- Up to: **$${maxPriceAvailable}/hour**\n\n**Platform Fees:**\n- **15% commission** (platform fee)\n- You pay **85% to the stable owner**, 15% to platform\n- Full transparency - no hidden fees\n\n**Payment:**\n✅ Secure Stripe integration\n✅ Full payment required at booking\n✅ Instant confirmation\n\n**What's Included:**\n- Professional guide\n- Quality horse\n- Safety equipment\n- Unforgettable pyramid experience\n\n**Try asking me:**\n- "Show me horses under $60"\n- "Find horses between $50 and $80"\n- "Book a horse around $50/hour"`;
+        response = `💰 **Pricing Information:**\n\n**Price Range:**\n- Starting from: **EGP ${minPriceAvailable}/hour**\n- Average: **EGP ${avgPrice}/hour**\n- Up to: **EGP ${maxPriceAvailable}/hour**\n\n**Platform Fees:**\n- **15% commission** (platform fee)\n- You pay **85% to the stable owner**, 15% to platform\n- Full transparency - no hidden fees\n\n**Payment:**\n✅ Secure Stripe integration\n✅ Full payment required at booking\n✅ Instant confirmation\n\n**What's Included:**\n- Professional guide\n- Quality horse\n- Safety equipment\n- Unforgettable pyramid experience\n\n**Try asking me:**\n- "Show me horses under EGP 600"\n- "Find horses between EGP 500 and EGP 800"\n- "Book a horse around EGP 500/hour"`;
 
-        suggestions = ["Horses under $60", "Horses $50-$80", "Browse all"];
+        suggestions = ["Horses under EGP 600", "Horses EGP 500-800", "Browse all"];
         actions = { "Browse Horses": "/stables?sort=price-asc" };
       }
     }

@@ -109,7 +109,7 @@ const nextConfig = {
               "img-src 'self' data: https: blob: images.unsplash.com images.pexels.com lh3.googleusercontent.com",
               "connect-src 'self' https://api.paymob.com https://www.google-analytics.com https://*.vercel.app https://*.tile.openstreetmap.org https://cdnjs.cloudflare.com https://raw.githubusercontent.com https://*.googleusercontent.com https://plausible.io https://firebaseinstallations.googleapis.com https://fcmregistrations.googleapis.com https://fcm.googleapis.com",
               "frame-src 'self' https://accept.paymob.com https://www.google.com",
-              "media-src 'self' https://videos.pexels.com",
+              "media-src 'self' https://videos.pexels.com data:",
               "base-uri 'self'",
               "form-action 'self'",
               "frame-ancestors 'none'",
