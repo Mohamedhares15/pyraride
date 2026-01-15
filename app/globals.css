@@ -90,6 +90,39 @@
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-left: env(safe-area-inset-left, 0px);
     --safe-right: env(safe-area-inset-right, 0px);
+    
+    /* Shorthand Variables (Developer-Friendly) */
+    --sat: var(--safe-top);
+    --sab: var(--safe-bottom);
+    --sal: var(--safe-left);
+    --sar: var(--safe-right);
+    
+    /* Derived Spacing (Minimum + Safe Area) */
+    --spacing-top-safe: max(16px, var(--sat));
+    --spacing-bottom-safe: max(24px, var(--sab));
+    --spacing-left-safe: max(16px, var(--sal));
+    --spacing-right-safe: max(16px, var(--sar));
+    
+    /* Structural Dimensions for Symmetry */
+    --header-content-height: 64px;
+    --header-total-height: calc(var(--header-content-height) + var(--sat));
+    
+    /* Shorthand Variables (Developer-Friendly) */
+    --sat: var(--safe-top);
+    --sab: var(--safe-bottom);
+    --sal: var(--safe-left);
+    --sar: var(--safe-right);
+    
+    /* Derived Spacing (Minimum + Safe Area) */
+    --spacing-top-safe: max(16px, var(--sat));
+    --spacing-bottom-safe: max(24px, var(--sab));
+    --spacing-left-safe: max(16px, var(--sal));
+    --spacing-right-safe: max(16px, var(--sar));
+    
+    /* Structural Dimensions for Symmetry */
+    --header-content-height: 64px;
+    --header-total-height: calc(var(--header-content-height) + var(--sat));
+
 
     /* Brand Colors */
     --background: 252 251 248;

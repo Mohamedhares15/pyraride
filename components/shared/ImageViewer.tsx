@@ -280,11 +280,12 @@ export default function ImageViewer({
                     </>
                 )}
 
-                {/* EXACT COPY-PASTE FROM HORSE VIEWER - Thumbnail Strip - Apple Liquid Glass with Golden Warmth */}
+                {/* Thumbnail Strip with Safe Area Support */}
                 {images.length > 1 && (
                     <div
-                        className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-3 rounded-2xl flex gap-3 overflow-x-auto max-w-[90vw] scrollbar-hide z-50"
+                        className="absolute left-1/2 -translate-x-1/2 px-4 py-3 rounded-2xl flex gap-3 overflow-x-auto max-w-[90vw] scrollbar-hide z-50"
                         style={{
+                            bottom: 'max(24px, env(safe-area-inset-bottom))',
                             background: 'rgba(20, 20, 20, 0.4)',
                             backdropFilter: 'blur(20px) saturate(180%)',
                             WebkitBackdropFilter: 'blur(20px) saturate(180%)',
