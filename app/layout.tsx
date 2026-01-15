@@ -458,6 +458,6 @@ export default function RootLayout({
           defer
         />
       </body>
-    </html >
+    </html>
   );
 }
