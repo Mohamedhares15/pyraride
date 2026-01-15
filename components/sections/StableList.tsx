@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import StableCard from "./StableCard";
-import { Loader2, Star } from "lucide-react";
+import { Loader2, Star, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
@@ -176,71 +176,35 @@ export default function StableList({ results, mode, isLoading }: StableListProps
                         {(item as any).description || "A wonderful horse ready for your adventure."}
                       </p>
 
-                      {/* Skill Level Badge */}
-                      {(item as any).skillLevel && (
-                        <div className="mb-3">
-                          <span className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wide ${(item as any).skillLevel?.toLowerCase() === 'beginner'
-                            ? 'bg-green-500/20 text-green-600 border border-green-500/30'
-                            : (item as any).skillLevel?.toLowerCase() === 'intermediate'
-                              ? 'bg-amber-500/20 text-amber-600 border border-amber-500/30'
-                              : 'bg-red-500/20 text-red-600 border border-red-500/30'
+
+                      {/* Level Badge - Shows adminTier instead of skills */}
+                      {item.adminTier && (
+                        <div className="mb-4">
+                          <span className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wide ${item.adminTier === 'Advanced' ? 'bg-red-500 hover:bg-red-600 text-white border-0' :
+                              item.adminTier === 'Intermediate' ? 'bg-yellow-500 hover:bg-yellow-600 text-white border-0' :
+                                'bg-green-500 hover:bg-green-600 text-white border-0'
                             }`}>
-                            <span className={`w-2 h-2 rounded-full ${(item as any).skillLevel?.toLowerCase() === 'beginner'
-                              ? 'bg-green-500'
-                              : (item as any).skillLevel?.toLowerCase() === 'intermediate'
-                                ? 'bg-amber-500'
-                                : 'bg-red-500'
-                              }`} />
-                            {(item as any).skillLevel} Level
+                            <span className="w-2 h-2 rounded-full bg-white" />
+                            {item.adminTier} Level
                           </span>
                         </div>
                       )}
-
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {/* Skills tags */}
-                        {((item as any).skills || ["Beginner Friendly", "Tour Guide"]).slice(0, 3).map((skill: string, i: number) => (
-                          <span key={i} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
                     </div>
 
-                    {/* Next Available Rides */}
-                    <div>
-                      <h4 className="text-sm font-semibold mb-3">Next Available Rides</h4>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground w-20">Tomorrow Morning:</span>
-                          <div className="flex flex-wrap gap-2">
-                            {morningSlots.map((time) => (
-                              <Link
-                                key={time}
-                                href={`/booking?stableId=${item.stableId}&horseId=${item.id}&date=${tomorrowDateStr}&startTime=${time}&endTime=${(parseInt(time) + 1).toString().padStart(2, '0')}:00`}
-                              >
-                                <span className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3 py-1">
-                                  {time}
-                                </span>
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground w-20">Tomorrow Afternoon:</span>
-                          <div className="flex flex-wrap gap-2">
-                            {afternoonSlots.map((time) => (
-                              <Link
-                                key={time}
-                                href={`/booking?stableId=${item.stableId}&horseId=${item.id}&date=${tomorrowDateStr}&startTime=${time}&endTime=${(parseInt(time) + 1).toString().padStart(2, '0')}:00`}
-                              >
-                                <span className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3 py-1">
-                                  {time}
-                                </span>
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
+                    {/* View & Book Button - Takes user directly to stable page at this horse */}
+                    <div className="mt-4">
+                      <Link
+                        href={`/stables/${item.stableId}${dateParam ? `?date=${dateParam}` : ''}#horse-${item.id}`}
+                        className="w-full"
+                      >
+                        <button className="w-full inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                          View & Book This Horse
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </button>
+                      </Link>
+                      <p className="text-xs text-muted-foreground text-center mt-2">
+                        See real-time availability and book instantly
+                      </p>
                     </div>
                   </div>
                 </div>

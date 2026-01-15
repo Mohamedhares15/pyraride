@@ -42,6 +42,10 @@ interface HorseResult {
   imageUrls?: string[];
   media?: Array<{ url: string; type: string }>;
   distanceKm?: number;
+  adminTier?: string;
+  age?: number;
+  skills?: string[];
+  description?: string;
 }
 
 type SearchResult = StableResult | HorseResult;
@@ -106,6 +110,10 @@ export default function StablesClient() {
               stableName: item.stableName,
               stableLocation: item.stableLocation,
               distanceKm: item.distanceKm,
+              adminTier: item.adminTier,
+              age: item.age,
+              skills: item.skills,
+              description: item.description,
             } as HorseResult)
             : ({
               type: "stable",
