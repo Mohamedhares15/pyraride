@@ -56,7 +56,7 @@ export default function ImageViewer({
 
     return (
         <>
-            {/* EXACT COPY from horse viewer - Layer 1: Base Blur */}
+            {/* Layer 1: Base Blur - Creates the frosted glass foundation */}
             <div
                 style={{
                     position: 'fixed',
@@ -74,7 +74,7 @@ export default function ImageViewer({
                 }}
             />
 
-            {/* EXACT COPY from horse viewer - Layer 2: Color Tint - DARKER VERSION */}
+            {/* Layer 2: Color Tint - Warm golden overlay for desert/pyramid soul */}
             <div
                 style={{
                     position: 'fixed',
@@ -84,14 +84,14 @@ export default function ImageViewer({
                     height: '100dvh',
                     maxHeight: '100vh',
                     zIndex: 9997,
-                    background: 'linear-gradient(135deg, rgba(30, 30, 30, 0.12) 0%, rgba(20, 20, 20, 0.10) 50%, rgba(10, 10, 10, 0.08) 100%)',
+                    background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.08) 0%, rgba(184, 134, 11, 0.06) 50%, rgba(139, 69, 19, 0.04) 100%)',
                     overflow: 'hidden',
                     transform: 'translateZ(0)',
                     WebkitTransform: 'translateZ(0)',
                 }}
             />
 
-            {/* EXACT COPY from horse viewer - Layer 3: Vibrancy & Luminosity - DARKER */}
+            {/* Layer 3: Vibrancy & Luminosity - Apple's signature glow */}
             <div
                 style={{
                     position: 'fixed',
@@ -101,9 +101,9 @@ export default function ImageViewer({
                     height: '100dvh',
                     maxHeight: '100vh',
                     zIndex: 9998,
-                    backgroundColor: 'rgba(0, 0, 0, 0.12)',
-                    backdropFilter: 'brightness(1.05) contrast(1.05)',
-                    WebkitBackdropFilter: 'brightness(1.05) contrast(1.05)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    backdropFilter: 'brightness(1.15) contrast(1.05)',
+                    WebkitBackdropFilter: 'brightness(1.15) contrast(1.05)',
                     mixBlendMode: 'overlay',
                     overflow: 'hidden',
                     transform: 'translateZ(0)',
@@ -111,7 +111,7 @@ export default function ImageViewer({
                 }}
             />
 
-            {/* EXACT COPY from horse viewer - Content Layer */}
+            {/* Content Layer - Mobile viewport fix */}
             <div
                 style={{
                     position: 'fixed',
@@ -126,7 +126,7 @@ export default function ImageViewer({
                     WebkitTransform: 'translateZ(0)',
                 }}
             >
-                {/* EXACT COPY from horse viewer - Header with Liquid Glass Effect */}
+                {/* Header with Liquid Glass Effect - Clean Design */}
                 <div
                     style={{
                         position: 'absolute',
@@ -171,10 +171,11 @@ export default function ImageViewer({
                     <div style={{ width: '40px' }} /> {/* Spacer for balance */}
                 </div>
 
-                {/* EXACT COPY from horse viewer - Main Content Area */}
+                {/* Main Content Area - Centered & Responsive */}
                 <div
                     className="flex h-full w-full items-center justify-center p-4 md:p-8"
                     onClick={(e) => {
+                        // Close if clicking outside image
                         if (e.target === e.currentTarget) onClose();
                     }}
                 >
@@ -196,7 +197,7 @@ export default function ImageViewer({
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={images[currentIndex]}
-                                alt={`Review Image ${currentIndex + 1}`}
+                                alt={`Image ${currentIndex + 1}`}
                                 className="h-auto w-full object-contain"
                                 style={{
                                     maxHeight: '80vh',
@@ -209,7 +210,7 @@ export default function ImageViewer({
                     </AnimatePresence>
                 </div>
 
-                {/* EXACT COPY from horse viewer - Navigation Buttons */}
+                {/* Navigation Buttons - Desktop */}
                 {images.length > 1 && (
                     <>
                         <button
@@ -234,7 +235,7 @@ export default function ImageViewer({
                     </>
                 )}
 
-                {/* EXACT COPY from horse viewer - Thumbnail Strip */}
+                {/* Thumbnail Strip - Apple Liquid Glass with Golden Warmth */}
                 {images.length > 1 && (
                     <div
                         className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-3 rounded-2xl flex gap-3 overflow-x-auto max-w-[90vw] scrollbar-hide z-50"
