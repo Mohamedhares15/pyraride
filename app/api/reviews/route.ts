@@ -78,7 +78,9 @@ export async function POST(req: NextRequest) {
         comment: comment || "",
         photos: photos || [],
         reviewMedias: {
-          create: photos?.map((url: string) => ({ url })) || [],
+          create: photos
+            ?.filter((url: string) => url && url.startsWith('https://'))
+            ?.map((url: string) => ({ url })) || [],
         },
       },
       include: {
