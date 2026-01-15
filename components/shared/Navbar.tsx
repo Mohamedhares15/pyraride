@@ -230,7 +230,13 @@ export default function Navbar() {
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 pb-4 pt-[calc(1rem+env(safe-area-inset-top))] backdrop-blur-md bg-[#121212]/80 border-b border-white/10 text-white"
+        style={{
+          height: 'var(--header-total-height)',
+          paddingTop: 'var(--sat)',
+          paddingLeft: 'var(--spacing-left-safe)',
+          paddingRight: 'var(--spacing-right-safe)',
+        }}
+        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between backdrop-blur-md bg-[#121212]/80 border-b border-white/10 text-white"
       >
         <Link href="/" className="text-2xl font-bold font-display tracking-tight">
           PyraRide
