@@ -320,7 +320,7 @@ export default function BookingModal({
                     </p>
                     {horse.pricePerHour && (
                       <p className="mt-2 text-sm font-semibold text-primary">
-                        EGP ${horse.pricePerHour}/hour
+                        EGP {horse.pricePerHour}/hour
                       </p>
                     )}
                   </div>
@@ -421,12 +421,12 @@ export default function BookingModal({
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-primary" />
                   <span className="font-bold text-lg text-primary">
-                    EGP ${totalPrice.toFixed(2)}
+                    EGP {totalPrice.toFixed(2)}
                   </span>
                 </div>
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
-                EGP ${currentHorsePrice}/hour × {hours.toFixed(1)} hours
+                EGP {currentHorsePrice}/hour × {hours.toFixed(1)} hours
               </p>
             </motion.div>
           )}

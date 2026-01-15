@@ -181,8 +181,8 @@ export default function StableList({ results, mode, isLoading }: StableListProps
                       {item.adminTier && (
                         <div className="mb-4">
                           <span className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wide ${item.adminTier === 'Advanced' ? 'bg-red-500 hover:bg-red-600 text-white border-0' :
-                              item.adminTier === 'Intermediate' ? 'bg-yellow-500 hover:bg-yellow-600 text-white border-0' :
-                                'bg-green-500 hover:bg-green-600 text-white border-0'
+                            item.adminTier === 'Intermediate' ? 'bg-yellow-500 hover:bg-yellow-600 text-white border-0' :
+                              'bg-green-500 hover:bg-green-600 text-white border-0'
                             }`}>
                             <span className="w-2 h-2 rounded-full bg-white" />
                             {item.adminTier} Level
@@ -191,19 +191,23 @@ export default function StableList({ results, mode, isLoading }: StableListProps
                       )}
                     </div>
 
-                    {/* View & Book Button - Takes user directly to stable page at this horse */}
+
+                    {/* View & Book Button - Glassmorphism Style */}
                     <div className="mt-4">
                       <Link
                         href={`/stables/${item.stableId}${dateParam ? `?date=${dateParam}` : ''}#horse-${item.id}`}
-                        className="w-full"
+                        className="block w-full group"
                       >
-                        <button className="w-full inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
-                          View & Book This Horse
-                          <ArrowRight className="ml-2 h-4 w-4" />
+                        <button className="relative w-full overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-primary/90 to-primary backdrop-blur-md px-6 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:border-white/30">
+                          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                          <div className="relative flex items-center justify-center gap-2">
+                            <span>View & Book This Horse</span>
+                            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                          </div>
                         </button>
                       </Link>
-                      <p className="text-xs text-muted-foreground text-center mt-2">
-                        See real-time availability and book instantly
+                      <p className="text-xs text-muted-foreground text-center mt-2.5 font-medium">
+                        ✨ See real-time availability and book instantly
                       </p>
                     </div>
                   </div>

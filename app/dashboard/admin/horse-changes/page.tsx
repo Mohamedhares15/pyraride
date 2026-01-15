@@ -281,7 +281,7 @@ export default function HorseChangesPage() {
                               <Label className="text-xs text-primary/70">New Price per Hour</Label>
                               <p className="flex items-center gap-2 text-sm font-medium text-white">
                                 <DollarSign className="h-4 w-4 text-primary" />
-                                EGP ${Number(request.proposedPricePerHour).toFixed(2)}
+                                EGP {Number(request.proposedPricePerHour).toFixed(2)}
                               </p>
                             </div>
                           )}

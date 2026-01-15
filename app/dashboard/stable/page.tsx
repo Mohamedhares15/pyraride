@@ -277,7 +277,7 @@ export default function StableOwnerDashboard() {
                   <div>
                     <p className="text-sm text-muted-foreground">Total Earnings</p>
                     <p className="text-3xl font-bold">
-                      EGP ${stats.totalEarnings.toFixed(2)}
+                      EGP {stats.totalEarnings.toFixed(2)}
                     </p>
                   </div>
                   <TrendingUp className="h-12 w-12 text-secondary" />
@@ -365,7 +365,7 @@ export default function StableOwnerDashboard() {
                             <div className="flex items-center gap-2">
                               <DollarSign className="h-5 w-5 text-primary" />
                               <span className="text-xl font-bold">
-                                EGP ${(parseFloat(booking.totalPrice.toString()) - parseFloat(booking.commission.toString())).toFixed(2)}
+                                EGP {(parseFloat(booking.totalPrice.toString()) - parseFloat(booking.commission.toString())).toFixed(2)}
                               </span>
                             </div>
                             <p className="text-xs text-muted-foreground">
