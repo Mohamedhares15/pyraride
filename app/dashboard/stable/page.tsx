@@ -277,7 +277,7 @@ export default function StableOwnerDashboard() {
                   <div>
                     <p className="text-sm text-muted-foreground">Total Earnings</p>
                     <p className="text-3xl font-bold">
-                      EGP ${stats.totalEarpnings.toFixed(2)}
+                      EGP ${stats.totalEarnings.toFixed(2)}
                     </p>
                   </div>
                   <TrendingUp className="h-12 w-12 text-secondary" />
