@@ -213,7 +213,12 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
 
     const minPrice = prices.length > 0 ? Math.min(...prices) : 40;
     const maxPrice = prices.length > 0 ? Math.max(...prices) : 100;
-    const avgPrice = prices.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 50;
+
+    // Round average to nearest clean number (50 or 100)
+    const rawAvg = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 50;
+    const avgPrice = rawAvg >= 100
+      ? Math.round(rawAvg / 100) * 100  // Round to nearest 100 (800, 900, etc.)
+      : Math.round(rawAvg / 50) * 50;    // Round to nearest 50 (50, 100, etc.)
 
     const userName = session?.user?.name || session?.user?.email || "Guest";
     const userRole = session?.user?.role || "guest";
