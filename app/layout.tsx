@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import AuthProvider from "@/components/providers/AuthProvider";
 import ImageProtectionProvider from "@/components/providers/ImageProtectionProvider";
-import AIAgent from "@/components/shared/AIAgent";
+import { LazyAIAgent } from "@/components/shared/LazyAIAgent";
 import CookieConsent from "@/components/shared/CookieConsent";
 import Footer from "@/components/shared/Footer";
 import OrientationLock from "@/components/shared/OrientationLock";
-import CinematicWrapper from "@/components/CinematicWrapper";
-import { GoogleAnalytics, Plausible } from "@/components/shared/Analytics";
+import { OptimalCinematicWrapper } from "@/components/OptimalCinematicWrapper";
 import NotificationProvider from "@/components/providers/NotificationProvider";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import Script from "next/script";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -410,19 +410,45 @@ export default function RootLayout({
 
         <AuthProvider>
           <NotificationProvider>
-            <CinematicWrapper>
+            <OptimalCinematicWrapper>
               <ImageProtectionProvider />
               <OrientationLock />
               <main id="main-content" className="pb-0">{children}</main>
               <Footer />
-              <AIAgent />
+              <LazyAIAgent />
               <CookieConsent />
-              <GoogleAnalytics trackingId={process.env.NEXT_PUBLIC_GA_ID} />
-              <Plausible domain="www.pyrarides.com" />
               <SpeedInsights />
-            </CinematicWrapper>
+            </OptimalCinematicWrapper>
           </NotificationProvider>
         </AuthProvider>
+
+        {/* Google Analytics - Load after page is interactive */}
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
+                  page_path: window.location.pathname,
+                });
+              `}
+            </Script>
+          </>
+        )}
+
+        {/* Plausible Analytics - Load on idle */}
+        <Script
+          src="https://plausible.io/js/script.js"
+          data-domain="www.pyrarides.com"
+          strategy="lazyOnload"
+          defer
+        />
       </body>
     </html>
   );
