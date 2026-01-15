@@ -170,6 +170,7 @@ export async function GET(req: NextRequest) {
             age: true,
             skills: true,
             skillLevel: true,
+            adminTier: true,
             stable: {
               select: {
                 id: true,
@@ -333,6 +334,7 @@ export async function GET(req: NextRequest) {
           age: horse.age,
           skills: horse.skills,
           skillLevel: horse.skillLevel,
+          adminTier: horse.adminTier,
           description: horse.description,
         };
       });
@@ -421,6 +423,7 @@ export async function GET(req: NextRequest) {
                 description: horse.description,
                 skills: horse.skills,
                 skillLevel: horse.skillLevel,
+                adminTier: horse.adminTier,
                 age: horse.age,
               };
             })

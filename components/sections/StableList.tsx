@@ -41,6 +41,10 @@ interface StableListProps {
       reviewCount: number;
       totalBookings: number;
       distanceKm?: number;
+      adminTier?: string;
+      age?: number;
+      skills?: string[];
+      description?: string;
     }
   >;
   mode: StableMode;
