@@ -172,15 +172,27 @@ export default function RiderDashboard() {
               Manage your upcoming rides and view your history
             </p>
           </div>
-          <Button
-            asChild
-            variant="outline"
-            className="hidden border-white/10 bg-white/5 text-white hover:bg-white/10 md:inline-flex"
-          >
-            <Link href="/stables">
-              Book New Ride
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              asChild
+              variant="outline"
+              className="border-white/10 bg-white/5 text-white hover:bg-white/10"
+            >
+              <Link href="/">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Home
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="hidden border-white/10 bg-white/5 text-white hover:bg-white/10 md:inline-flex"
+            >
+              <Link href="/stables">
+                Book New Ride
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -227,8 +239,8 @@ export default function RiderDashboard() {
                   <div className="flex flex-col md:flex-row">
                     {/* Status Strip (Mobile) */}
                     <div className={`h-1.5 w-full md:h-auto md:w-1.5 ${booking.status === 'confirmed' ? 'bg-emerald-500' :
-                        booking.status === 'completed' ? 'bg-blue-500' :
-                          'bg-red-500'
+                      booking.status === 'completed' ? 'bg-blue-500' :
+                        'bg-red-500'
                       }`} />
 
                     <div className="flex flex-1 flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between">

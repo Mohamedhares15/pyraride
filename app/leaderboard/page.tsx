@@ -110,6 +110,13 @@ export default function LeaderboardPage() {
 
         <div className="relative mx-auto max-w-7xl px-4 md:px-8">
           <div className="flex flex-col items-center text-center">
+            {/* Back to Home Button - Top */}
+            <Link href="/" className="mb-6">
+              <Button variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10">
+                ← Back to Home
+              </Button>
+            </Link>
+
             <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 shadow-lg shadow-yellow-500/30">
               <Trophy className="h-10 w-10 text-yellow-900" />
             </div>
@@ -303,14 +310,7 @@ export default function LeaderboardPage() {
           </CardContent>
         </Card>
 
-        {/* Back Button */}
-        <div className="mt-8 flex justify-center">
-          <Link href="/">
-            <Button variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10">
-              Back to Home
-            </Button>
-          </Link>
-        </div>
+
       </div>
     </div>
   );
