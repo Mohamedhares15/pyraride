@@ -4,7 +4,12 @@
   "description": "Book your trusted, vetted ride at the Giza and Saqqara Pyramids. Egypt's #1 horse riding marketplace.",
   "start_url": "/",
   "scope": "/",
-  "display": "standalone",
+  "display": "fullscreen",
+  "display_override": [
+    "fullscreen",
+    "standalone",
+    "minimal-ui"
+  ],
   "background_color": "#121212",
   "theme_color": "#121212",
   "orientation": "portrait",
