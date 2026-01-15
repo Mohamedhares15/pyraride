@@ -149,17 +149,20 @@ export default function ImageViewer({
 
             {/* EXACT COPY-PASTE FROM HORSE VIEWER - Content Layer - Mobile viewport fix */}
             <div
-                className="fixed inset-0 overflow-hidden z-[9999]"
                 style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100dvh',
+                    maxHeight: '100vh',
+                    zIndex: 9999,
+                    overflow: 'hidden',
                     transform: 'translateZ(0)',
                     WebkitTransform: 'translateZ(0)',
-                    paddingTop: 'var(--safe-top)',
-                    paddingBottom: 'var(--safe-bottom)',
-                    paddingLeft: 'var(--safe-left)',
-                    paddingRight: 'var(--safe-right)',
                 }}
             >
-                {/* EXACT COPY-PASTE FROM HORSE VIEWER - Header with Liquid Glass Effect - Clean Design */}
+                {/* Header with Safe Area Support */}
                 <div
                     style={{
                         position: 'absolute',
@@ -170,6 +173,9 @@ export default function ImageViewer({
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '16px',
+                        paddingTop: 'max(16px, env(safe-area-inset-top))',
+                        paddingLeft: 'max(16px, env(safe-area-inset-left))',
+                        paddingRight: 'max(16px, env(safe-area-inset-right))',
                         zIndex: 1000,
                     }}
                 >
