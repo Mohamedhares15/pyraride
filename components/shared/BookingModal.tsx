@@ -303,8 +303,8 @@ export default function BookingModal({
                 <Card
                   key={horse.id}
                   className={`cursor-pointer transition-all ${selectedHorseId === horse.id
-                      ? "border-primary bg-primary/5 ring-2 ring-primary"
-                      : "hover:border-primary/50"
+                    ? "border-primary bg-primary/5 ring-2 ring-primary"
+                    : "hover:border-primary/50"
                     }`}
                   onClick={() => setSelectedHorseId(horse.id)}
                 >
@@ -320,7 +320,7 @@ export default function BookingModal({
                     </p>
                     {horse.pricePerHour && (
                       <p className="mt-2 text-sm font-semibold text-primary">
-                        ${horse.pricePerHour}/hour
+                        EGP ${horse.pricePerHour}/hour
                       </p>
                     )}
                   </div>

@@ -251,7 +251,7 @@ export default function HorseChangesPage() {
                             <Label className="text-xs text-white/50">Price per Hour</Label>
                             <p className="flex items-center gap-2 text-sm">
                               <DollarSign className="h-4 w-4 text-white/70" />
-                              {request.horse.pricePerHour ? `$${Number(request.horse.pricePerHour).toFixed(2)}` : "Not set"}
+                              {request.horse.pricePerHour ? `EGP ${Number(request.horse.pricePerHour).toFixed(2)}` : "Not set"}
                             </p>
                           </div>
                           <div>

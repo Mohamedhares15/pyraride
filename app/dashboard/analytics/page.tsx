@@ -798,7 +798,7 @@ export default function AnalyticsPage() {
                   };
                 })}
                 label="Revenue"
-                valueFormatter={(v) => `$${v.toFixed(2)}`}
+                valueFormatter={(v) => `EGP ${v.toFixed(2)}`}
                 color="hsl(var(--secondary))"
               />
             ) : (
