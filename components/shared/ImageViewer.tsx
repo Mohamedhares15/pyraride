@@ -96,11 +96,10 @@ export default function ImageViewer({
             <div
                 style={{
                     position: 'fixed',
-                    top: 0,
+                    top: 'calc(-1 * env(safe-area-inset-top, 0px))',
                     left: 0,
                     width: '100vw',
-                    height: '100dvh',
-                    maxHeight: '100vh',
+                    height: 'calc(100dvh + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px))',
                     zIndex: 9996,
                     backdropFilter: 'blur(40px) saturate(180%)',
                     WebkitBackdropFilter: 'blur(40px) saturate(180%)',
@@ -114,11 +113,10 @@ export default function ImageViewer({
             <div
                 style={{
                     position: 'fixed',
-                    top: 0,
+                    top: 'calc(-1 * env(safe-area-inset-top, 0px))',
                     left: 0,
                     width: '100vw',
-                    height: '100dvh',
-                    maxHeight: '100vh',
+                    height: 'calc(100dvh + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px))',
                     zIndex: 9997,
                     background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.08) 0%, rgba(184, 134, 11, 0.06) 50%, rgba(139, 69, 19, 0.04) 100%)',
                     overflow: 'hidden',
@@ -131,11 +129,10 @@ export default function ImageViewer({
             <div
                 style={{
                     position: 'fixed',
-                    top: 0,
+                    top: 'calc(-1 * env(safe-area-inset-top, 0px))',
                     left: 0,
                     width: '100vw',
-                    height: '100dvh',
-                    maxHeight: '100vh',
+                    height: 'calc(100dvh + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px))',
                     zIndex: 9998,
                     backgroundColor: 'rgba(255, 255, 255, 0.08)',
                     backdropFilter: 'brightness(1.15) contrast(1.05)',
