@@ -154,7 +154,7 @@ export default function AnalyticsPage() {
 
   if (!analytics && !isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95">
+      <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95 safe-area-black">
         <div className="border-b border-white/10 bg-black/60 py-12 backdrop-blur-lg">
           <div className="mx-auto max-w-7xl px-4 md:px-8">
             <div className="mb-4">

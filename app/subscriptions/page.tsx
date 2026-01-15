@@ -86,7 +86,7 @@ export default function SubscriptionsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
+        <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black safe-area-black text-white">
             {/* Hero Section */}
             <div className="relative overflow-hidden py-20 px-6">
                 <div className="absolute inset-0 bg-[url('/hero-bg.webp')] bg-cover bg-center opacity-20" />

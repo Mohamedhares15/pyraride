@@ -85,7 +85,7 @@ function SignUpContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black/90 via-black/95 to-black">
+    <div className="min-h-screen bg-gradient-to-b from-black/90 via-black/95 to-black safe-area-black">
       {/* Background Image with Overlay */}
       <div className="fixed inset-0 z-0">
         <div
