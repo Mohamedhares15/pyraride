@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import AuthProvider from "@/components/providers/AuthProvider";
 import ImageProtectionProvider from "@/components/providers/ImageProtectionProvider";
@@ -21,6 +21,18 @@ const poppins = Poppins({
   adjustFontFallback: true, // Adjust fallback font to match Poppins metrics
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#121212" },
+    { media: "(prefers-color-scheme: dark)", color: "#121212" },
+  ],
+};
+
 export const metadata: Metadata = {
   title: {
     default: "Book Horse Riding at Pyramids Egypt | PyraRide - #1 Marketplace",
@@ -34,7 +46,6 @@ export const metadata: Metadata = {
     "horse riding Giza",
     "book horse riding Egypt",
     "horse riding booking Egypt",
-    // Marketplace keywords
     "horse riding marketplace Egypt",
     "compare horse riding stables",
     "horse riding platform Egypt",
@@ -118,8 +129,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="light">
       <head>
-        {/* Viewport - Lock mobile to portrait orientation only, cover notch */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
         {/* DNS Prefetch for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -138,9 +147,6 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="PyraRide" />
         <meta name="mobile-web-app-capable" content="yes" />
 
-        {/* Theme Color for browser UI - Set to #121212 to match app header */}
-        <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
-        <meta name="theme-color" content="#121212" media="(prefers-color-scheme: light)" />
         <meta name="msapplication-TileColor" content="#000000" />
         <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
 
@@ -148,6 +154,8 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-167x167.png" />
+      </head>
         <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-192x192.png" />
 
         {/* Structured Data - Organization */}
@@ -451,6 +459,6 @@ export default function RootLayout({
           defer
         />
       </body>
-    </html>
+    </html >
   );
 }
