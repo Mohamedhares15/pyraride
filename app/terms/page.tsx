@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black/90 via-black/95 to-black">
+    <div className="min-h-screen bg-gradient-to-b from-black/90 via-black/95 to-black safe-area-black">
       <div className="mx-auto max-w-4xl px-4 py-16">
         <Breadcrumbs items={[{ label: "Terms & Conditions" }]} />
 

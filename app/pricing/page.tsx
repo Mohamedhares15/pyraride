@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black/90 via-black/95 to-black relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-black/90 via-black/95 to-black safe-area-black relative overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="fixed inset-0 z-0">
         <div

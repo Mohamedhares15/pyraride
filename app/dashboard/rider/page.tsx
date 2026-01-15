@@ -160,7 +160,7 @@ export default function RiderDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-primary/30">
+    <div className="min-h-screen bg-black safe-area-black text-white selection:bg-primary/30">
       {/* Header */}
       <div className="sticky top-0 z-40 border-b border-white/10 bg-black/50 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-6 md:px-8">

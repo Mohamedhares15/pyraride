@@ -35,7 +35,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black safe-area-black text-white">
       {/* Hero with Background */}
       <div className="relative h-[500px] w-full overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black z-10" />

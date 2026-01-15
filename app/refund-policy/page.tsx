@@ -7,7 +7,7 @@ import Breadcrumbs from "@/components/shared/Breadcrumbs";
 
 export default function RefundPolicyPage() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black safe-area-black text-white">
       {/* Hero Section */}
       <div className="relative h-[300px] w-full overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-black/90 z-10" />
