@@ -660,7 +660,7 @@ export default function StableDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Back Button */}
-      <div className="border-b border-border bg-card/50 py-4 backdrop-blur-lg">
+      <div className="border-b border-border bg-card/50 pb-4 pt-[calc(1rem+env(safe-area-inset-top))] backdrop-blur-lg">
         <div className="mx-auto max-w-5xl px-4 md:px-8">
           <Link href="/stables">
             <Button variant="ghost" size="sm" className="gap-2">

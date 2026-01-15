@@ -157,6 +157,8 @@ export default function ImageViewer({
                     overflow: 'hidden',
                     transform: 'translateZ(0)',
                     WebkitTransform: 'translateZ(0)',
+                    overscrollBehavior: 'none',
+                    touchAction: 'none',
                 }}
             >
                 {/* Header with Safe Area Support */}
@@ -170,7 +172,7 @@ export default function ImageViewer({
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '16px',
-                        paddingTop: 'calc(env(safe-area-inset-top) + 16px)',
+                        paddingTop: 'calc(env(safe-area-inset-top) + 24px)',
                         paddingLeft: 'max(16px, env(safe-area-inset-left))',
                         paddingRight: 'max(16px, env(safe-area-inset-right))',
                         zIndex: 1000,
