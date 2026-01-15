@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { CldUploadButton } from "next-cloudinary";
 import {
   Dialog,
   DialogContent,
@@ -40,8 +39,73 @@ export default function ReviewModal({
   const [comment, setComment] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Validate file count
+    if (photos.length + files.length > 5) {
+      setError("Maximum 5 photos allowed");
+      return;
+    }
+
+    setIsUploading(true);
+    setError(null);
+
+    try {
+      const uploadedUrls: string[] = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        // Validate file size (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          setError(`${file.name} is too large (max 10MB)`);
+          continue;
+        }
+
+        // Validate file type
+        if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic'].includes(file.type)) {
+          setError(`${file.name} is not a supported format`);
+          continue;
+        }
+
+        // Upload to Cloudinary
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'pyraride_reviews');
+        formData.append('cloud_name', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '');
+
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+          {
+            method: 'POST',
+            body: formData,
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const data = await response.json();
+        uploadedUrls.push(data.secure_url);
+      }
+
+      setPhotos([...photos, ...uploadedUrls]);
+    } catch (err) {
+      setError('Failed to upload images. Please try again.');
+      console.error('Upload error:', err);
+    } finally {
+      setIsUploading(false);
+      // Clear file input
+      e.target.value = '';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,6 +149,7 @@ export default function ReviewModal({
         setStableRating(0);
         setHorseRating(0);
         setComment("");
+        setPhotos([]);
         setShowSuccessToast(false);
       }, 2500);
     } catch (err) {
@@ -157,10 +222,11 @@ export default function ReviewModal({
             />
           </div>
 
-          {/* Photo Upload with Cloudinary */}
+          {/* Custom Glassmorphism Photo Upload */}
           <div className="space-y-3">
             <Label>Add Photos (Optional)</Label>
             <div className="flex flex-wrap gap-3">
+              {/* Preview uploaded images */}
               {photos.map((photo, index) => (
                 <div key={index} className="relative h-20 w-20 rounded-lg overflow-hidden border border-border group">
                   <img src={photo} alt="Review" className="h-full w-full object-cover" />
@@ -174,29 +240,30 @@ export default function ReviewModal({
                 </div>
               ))}
 
-              {/* Cloudinary Upload Button (max 5 photos) */}
+              {/* Custom Upload Button - Glassmorphism Style */}
               {photos.length < 5 && (
-                <CldUploadButton
-                  uploadPreset="pyraride_reviews"
-                  options={{
-                    maxFiles: 5 - photos.length,
-                    maxFileSize: 10000000, // 10MB
-                    clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp', 'heic'],
-                    sources: ['local'], // ONLY gallery/file selection (no camera, no drag-drop)
-                    multiple: true,
-                  }}
-                  onSuccess={(result: any) => {
-                    if (result?.info?.secure_url) {
-                      setPhotos([...photos, result.info.secure_url]);
-                    }
-                  }}
-                  className="h-20 w-20 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent/50 transition-colors"
-                >
-                  <Camera className="h-6 w-6 text-muted-foreground mb-1" />
-                  <span className="text-[10px] text-muted-foreground text-center px-1">
-                    {photos.length === 0 ? 'Add Photo' : 'Add More'}
-                  </span>
-                </CldUploadButton>
+                <label className="relative h-20 w-20 cursor-pointer group">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp,image/heic"
+                    multiple
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    disabled={isUploading}
+                  />
+                  <div className="h-full w-full flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm transition-all duration-300 hover:from-primary/10 hover:to-primary/20 hover:border-primary hover:scale-105">
+                    {isUploading ? (
+                      <Loader2 className="h-6 w-6 text-primary animate-spin" />
+                    ) : (
+                      <>
+                        <Camera className="h-6 w-6 text-muted-foreground mb-1 group-hover:text-primary transition-colors" />
+                        <span className="text-[10px] text-muted-foreground group-hover:text-primary transition-colors text-center px-1">
+                          {photos.length === 0 ? 'Add Photo' : 'Add More'}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </label>
               )}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -211,14 +278,14 @@ export default function ReviewModal({
               variant="outline"
               className="flex-1"
               onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isUploading}
             >
               Cancel
             </Button>
             <Button
               type="submit"
               className="flex-1"
-              disabled={isSubmitting || !stableRating || !horseRating}
+              disabled={isSubmitting || isUploading || !stableRating || !horseRating}
             >
               {isSubmitting ? (
                 <>
@@ -265,4 +332,3 @@ export default function ReviewModal({
     </Dialog>
   );
 }
-
