@@ -86,16 +86,23 @@
     /* ============================================= */
     /* Hardware Safe Area Insets - World-Class PWA */
     /* ============================================= */
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --safe-left: env(safe-area-inset-left, 0px);
-    --safe-right: env(safe-area-inset-right, 0px);
+    /* iOS 26 Safe Area Variables with Symmetrical Fallbacks */
+    --safe-top: env(safe-area-inset-top, 20px);
+    --safe-bottom: env(safe-area-inset-bottom, 20px);
+    --safe-left: env(safe-area-inset-left, 16px);
+    --safe-right: env(safe-area-inset-right, 16px);
 
     /* Shorthand Variables (Developer-Friendly) */
     --sat: var(--safe-top);
     --sab: var(--safe-bottom);
     --sal: var(--safe-left);
     --sar: var(--safe-right);
+
+    /* Semantic Layout Variables (For Headers, Footers, etc.) */
+    --header-logical-height: 64px;
+    --header-total-height: calc(64px + var(--sat));
+    --spacing-left-safe: max(16px, var(--sal));
+    --spacing-right-safe: max(16px, var(--sar));
 
     --muted-foreground: 133 133 133;
     --accent: 244 244 244;
@@ -122,6 +129,8 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    /* iOS 26 Liquid Fix - Prevents white flickering during transitions */
+    background-color: #000000;
   }
 
   /* Smooth scrolling */
@@ -710,7 +719,66 @@
   display: none;
 }
 
-/* Safe area padding for iOS */
+/* ============================================= */
+/* Safe Area Utility Classes - Production Ready */
+/* ============================================= */
+
+/* Top padding with safe area */
+.pt-safe {
+  padding-top: var(--sat);
+}
+
+/* Bottom padding with safe area */
 .pb-safe {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: var(--sab);
+}
+
+/* Left padding with safe area */
+.pl-safe {
+  padding-left: var(--sal);
+}
+
+/* Right padding with safe area */
+.pr-safe {
+  padding-right: var(--sar);
+}
+
+/* Full safe area padding */
+.p-safe {
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+  padding-left: var(--sal);
+  padding-right: var(--sar);
+}
+
+/* Horizontal safe padding only */
+.px-safe {
+  padding-left: var(--sal);
+  padding-right: var(--sar);
+}
+
+/* Vertical safe padding only */
+.py-safe {
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+}
+
+/* Bottom margin with safe area (for floating elements) */
+.mb-safe {
+  margin-bottom: var(--sab);
+}
+
+/* Full page height accounting for safe areas */
+.min-h-screen-safe {
+  min-height: calc(100vh - var(--sat) - var(--sab));
+}
+
+/* Bottom positioning with safe area protection */
+.bottom-safe {
+  bottom: calc(24px + var(--sab));
+}
+
+/* Booking card safe area protection */
+.booking-card-safe {
+  padding-bottom: calc(24px + var(--sab));
 }
