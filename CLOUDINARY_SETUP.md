@@ -1,97 +1,152 @@
-# Cloudinary Setup Guide
+# Next Cloudinary Setup - 5 Minute Guide
 
-## Step 1: Create Cloudinary Account (FREE)
+## Step 1: Create Upload Preset (REQUIRED!)
 
-1. Go to <https://cloudinary.com/users/register_free>
-2. Sign up with email
-3. Verify email
-4. Login to dashboard
+Cloudinary upload presets control upload settings and security.
 
-## Step 2: Get Your Credentials
+### 1.1 Go to Cloudinary Dashboard
 
-1. Go to Dashboard: <https://console.cloudinary.com/>
-2. Copy these values:
-   - **Cloud Name**: `dxxxxx` (visible on dashboard)
-   - **API Key**: `123456789012345`
-   - **API Secret**: `xxxxx-xxxxxxxxxxxxx`
+1. Login: <https://console.cloudinary.com/>
+2. Click Settings (⚙️) → Upload tab
+3. Scroll to "Upload presets"
+4. Click "Add upload preset"
 
-## Step 3: Add to Environment Variables
+### 1.2 Create Preset
 
-### Local Development (.env.local)
+**Preset Name:** `pyraride_reviews`
 
-```env
-CLOUDINARY_CLOUD_NAME=your_cloud_name_here
-CLOUDINARY_API_KEY=your_api_key_here
-CLOUDINARY_API_SECRET=your_api_secret_here
+**Settings:**
+
+```
+Signing Mode: Unsigned
+Folder: pyraride/reviews
+Format: Auto
+Quality: Auto (to reduce file size automatically)
+Max File Size: 10 MB
+Allowed Formats: jpg, jpeg, png, webp, heic
 ```
 
-### Vercel Production
+**Click "Save"**
 
-1. Go to: <https://vercel.com/your-team/pyraride/settings/environment-variables>
-2. Add three variables:
-   - `CLOUDINARY_CLOUD_NAME` = `your_cloud_name`
-   - `CLOUDINARY_API_KEY` = `your_api_key`
-   - `CLOUDINARY_API_SECRET` = `your_api_secret`
-3. Click "Save"
-4. Redeploy (or push new commit)
+## Step 2: Add Environment Variables
 
-## Step 4: Configure Cloudinary Settings (Optional but Recommended)
+Add to `.env.local`:
 
-### Enable Auto-Optimization
+```env
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name_here
+```
 
-1. Go to Settings → Upload
-2. Enable "Auto Tagging"
-3. Enable "Auto Categorization"
-4. Save
+**Where to find Cloud Name:**
 
-### Set Upload Presets
+- Dashboard homepage shows: `dxxxxxx`
+- Copy that value
 
-1. Go to Settings → Upload Presets
-2. Create preset "review_images":
-   - Folder: `pyraride/reviews`
-   - Format: Auto
-   - Quality: Auto
-   - Max dimensions: 1200x1200
-   - Allowed formats: jpg, png, webp, heic
-
-## What You Get (FREE Tier)
-
-✅ **25GB Storage** - ~50,000 images  
-✅ **25GB Bandwidth/month** - Plenty for startups  
-✅ **Global CDN** - Lightning fast worldwide  
-✅ **Auto Optimization** - WebP, quality, compression  
-✅ **Transformations** - Resize, crop, effects  
-✅ **Unlimited Transformations** - Even on free tier!  
-
-## Pricing After Free Tier
-
-- **Storage**: $0.10/GB/month (cheaper than Vercel!)
-- **Bandwidth**: $0.12/GB (cheaper than Vercel!)
-- **Transformations**: FREE (unlimited)
-
----
-
-## Quick Start
+## Step 3: Restart Dev Server
 
 ```bash
-# Already installed in package.json
-npm install cloudinary
-
-# Add env variables to .env.local
-# Then restart dev server
+# Stop current server (Ctrl+C)
 npm run dev
 ```
 
-## Test Upload
+## Step 4: Test Upload
 
-```bash
-# Use Postman or curl
-curl -X POST http://localhost:3000/api/reviews/upload-images \
-  -F "images=@test-image.jpg"
+1. Go to any completed booking
+2. Click "Leave Review"
+3. Click "Add Photo" button
+4. Upload an image
+5. Should see Cloudinary upload widget!
+
+---
+
+## Upload Preset Explanation
+
+**Why "Unsigned"?**
+
+- Allows client-side uploads
+- No API secrets in browser
+- Still secure (preset controls what's allowed)
+
+**Why "Auto" Format/Quality?**
+
+- Cloudinary optimizes automatically
+- Converts to WebP for modern browsers
+- Reduces file size by 50-80%
+
+**Folder Structure:**
+
+```
+pyraride/
+└── reviews/
+    ├── user123/
+    │   ├── 1234567890-abc.jpg
+    │   └── 1234567891-def.jpg
+    └── user456/
+        └── 1234567892-ghi.jpg
 ```
 
 ---
 
-## 🎉 Done
+## Vercel Deployment
 
-Once env variables are set, the upload system works automatically!
+Add environment variable in Vercel:
+
+1. Go to: <https://vercel.com/your-team/pyraride/settings/environment-variables>
+2. Add: `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
+3. Value: `your_cloud_name`
+4. Click "Save"
+5. Redeploy
+
+---
+
+## Troubleshooting
+
+### "Upload preset not found"
+
+- Check preset name is exactly: `pyraride_reviews`
+- Check it's set to "Unsigned"
+- Try refreshing Cloudinary dashboard
+
+### "Upload failed"
+
+- Check Cloud Name is correct
+- Check preset exists
+- Check file size < 10MB
+- Check file format is allowed
+
+### Widget doesn't open
+
+- Check console for errors
+- Verify `NEXT_PUBLIC_` prefix in env var
+- Restart dev server after adding env vars
+
+---
+
+## Features You Get FOR FREE
+
+✅ **Drag & Drop Upload** - Built-in widget  
+✅ **Camera Access** - Take photos directly  
+✅ **Multiple Upload** - Up to 5 at once  
+✅ **Progress Bars** - See upload status  
+✅ **Auto Optimization** - 50-80% smaller files  
+✅ **WebP Conversion** - Modern format  
+✅ **Global CDN** - Fast delivery worldwide  
+✅ **Error Handling** - Built-in validation  
+
+---
+
+## Cost (Same as before!)
+
+**FREE Tier:**
+
+- 25 GB storage
+- 25 GB bandwidth/month
+- ~50,000 images total
+
+**No changes to pricing - still 100% FREE for a long time!**
+
+---
+
+## Done! 🎉
+
+The upload button is already in the code.  
+Just add the environment variable and create the upload preset!

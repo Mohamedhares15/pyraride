@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { CldUploadButton } from "next-cloudinary";
 import {
   Dialog,
   DialogContent,
@@ -156,9 +157,9 @@ export default function ReviewModal({
             />
           </div>
 
-          {/* Photo Upload */}
+          {/* Photo Upload with Cloudinary */}
           <div className="space-y-3">
-            <Label>Add Photos</Label>
+            <Label>Add Photos (Optional)</Label>
             <div className="flex flex-wrap gap-3">
               {photos.map((photo, index) => (
                 <div key={index} className="relative h-20 w-20 rounded-lg overflow-hidden border border-border group">
@@ -172,23 +173,35 @@ export default function ReviewModal({
                   </button>
                 </div>
               ))}
-              <label className="h-20 w-20 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent/50 transition-colors">
-                <Camera className="h-6 w-6 text-muted-foreground mb-1" />
-                <span className="text-[10px] text-muted-foreground">Add Photo</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      // Simulate upload by creating a local object URL
-                      const url = URL.createObjectURL(e.target.files[0]);
-                      setPhotos([...photos, url]);
+
+              {/* Cloudinary Upload Button (max 5 photos) */}
+              {photos.length < 5 && (
+                <CldUploadButton
+                  uploadPreset="pyraride_reviews"
+                  options={{
+                    maxFiles: 5 - photos.length,
+                    maxFileSize: 10000000, // 10MB
+                    clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp', 'heic'],
+                    sources: ['local', 'camera'],
+                    multiple: true,
+                  }}
+                  onSuccess={(result: any) => {
+                    if (result?.info?.secure_url) {
+                      setPhotos([...photos, result.info.secure_url]);
                     }
                   }}
-                />
-              </label>
+                  className="h-20 w-20 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent/50 transition-colors"
+                >
+                  <Camera className="h-6 w-6 text-muted-foreground mb-1" />
+                  <span className="text-[10px] text-muted-foreground text-center px-1">
+                    {photos.length === 0 ? 'Add Photo' : 'Add More'}
+                  </span>
+                </CldUploadButton>
+              )}
             </div>
+            <p className="text-xs text-muted-foreground">
+              📸 Max 5 photos • Up to 10MB each • JPG, PNG, WebP supported
+            </p>
           </div>
 
           {/* Submit Buttons */}
