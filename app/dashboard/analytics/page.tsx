@@ -343,16 +343,16 @@ export default function AnalyticsPage() {
                   {isAdmin ? "Total Revenue" : "Net Earnings"}
                 </p>
                 <p className="text-3xl font-bold">
-                  ${((isAdmin ? analytics.overview.totalRevenue : analytics.overview.netEarnings) || 0).toFixed(2)}
+                  EGP ${((isAdmin ? analytics.overview.totalRevenue : analytics.overview.netEarnings) || 0).toFixed(2)}
                 </p>
                 {!isAdmin && analytics.overview.platformCommission && (
                   <p className="text-xs text-muted-foreground">
-                    Platform fee: ${parseFloat((analytics.overview.platformCommission || 0).toString()).toFixed(2)}
+                    Platform fee: EGP ${parseFloat((analytics.overview.platformCommission || 0).toString()).toFixed(2)}
                   </p>
                 )}
                 {isAdmin && analytics.overview.platformCommission !== undefined && (
                   <p className="text-xs text-green-600 font-semibold mt-1">
-                    Commission (15%): ${analytics.overview.platformCommission.toFixed(2)}
+                    Commission (15%): EGP ${analytics.overview.platformCommission.toFixed(2)}
                   </p>
                 )}
               </div>
@@ -423,7 +423,7 @@ export default function AnalyticsPage() {
                     <div>
                       <p className="text-sm text-muted-foreground">Average Order Value</p>
                       <p className="text-3xl font-bold">
-                        ${analytics.overview.aov.toFixed(2)}
+                        EGP ${analytics.overview.aov.toFixed(2)}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         Revenue per booking
@@ -439,7 +439,7 @@ export default function AnalyticsPage() {
                     <div>
                       <p className="text-sm text-muted-foreground">Customer Lifetime Value</p>
                       <p className="text-3xl font-bold">
-                        ${analytics.overview.clv.toFixed(2)}
+                        EGP ${analytics.overview.clv.toFixed(2)}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         Avg revenue per user
@@ -651,7 +651,7 @@ export default function AnalyticsPage() {
                           </td>
                           <td className="py-3 text-muted-foreground">{booking.stableName}</td>
                           <td className="py-3 text-right font-semibold text-green-600">
-                            ${booking.totalPrice.toFixed(2)}
+                            EGP ${booking.totalPrice.toFixed(2)}
                           </td>
                           <td className="py-3 text-center">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${booking.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-950/50 dark:text-green-400' :
@@ -717,7 +717,7 @@ export default function AnalyticsPage() {
                                         </div>
                                         <div className="flex items-center gap-4">
                                           <span className="text-muted-foreground">{b.date} {b.time}</span>
-                                          <span className="font-semibold text-green-600">${b.totalPrice.toFixed(2)}</span>
+                                          <span className="font-semibold text-green-600">EGP ${b.totalPrice.toFixed(2)}</span>
                                           <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${b.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-950/50 dark:text-green-400' :
                                             b.status === 'confirmed' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-400' :
                                               b.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-400' :

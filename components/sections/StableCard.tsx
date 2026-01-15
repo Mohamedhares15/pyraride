@@ -61,56 +61,56 @@ export default function StableCard({ stable, index, href }: StableCardProps) {
             )}
           </div>
 
-        {/* Content */}
-        <CardContent className="p-4 md:p-8">
-          <h3 className="font-semibold text-lg md:text-2xl text-foreground">{stable.name}</h3>
+          {/* Content */}
+          <CardContent className="p-4 md:p-8">
+            <h3 className="font-semibold text-lg md:text-2xl text-foreground">{stable.name}</h3>
 
-          <div className="flex items-center gap-2 text-xs md:text-sm text-foreground/70 mt-2">
-            <MapPin className="h-3 w-3 md:h-4 md:w-4" />
-            <span>{stable.location}</span>
-          </div>
-
-          {stable.pricePerHour !== undefined && (
-            <div className="mt-3 text-sm font-semibold text-primary">
-              EGP {stable.pricePerHour.toFixed(0)}/hour
+            <div className="flex items-center gap-2 text-xs md:text-sm text-foreground/70 mt-2">
+              <MapPin className="h-3 w-3 md:h-4 md:w-4" />
+              <span>{stable.location}</span>
             </div>
-          )}
 
-          {stable.description && (
-            <p className="mt-3 text-xs md:text-sm text-muted-foreground line-clamp-2">
-              {stable.description}
-            </p>
-          )}
+            {stable.pricePerHour !== undefined && (
+              <div className="mt-3 text-sm font-semibold text-primary">
+                EGP {stable.pricePerHour.toFixed(0)}/hour
+              </div>
+            )}
 
-          {(stable.totalReviews !== undefined && stable.totalReviews > 0) || stable.rating ? (
-            <div className="flex items-center gap-2 text-nile-blue mt-3 md:mt-4">
-              <Star className="h-3 w-3 md:h-4 md:w-4 fill-current" />
-              <span className="font-semibold text-sm md:text-base">
-                {stable.rating && stable.rating > 0 ? stable.rating.toFixed(1) : "0.0"}
-              </span>
-              <span className="text-xs md:text-sm text-foreground/70 ml-1">
-                ({stable.totalReviews || 0} {stable.totalReviews === 1 ? "Review" : "Reviews"})
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-muted-foreground mt-3 md:mt-4">
-              <Star className="h-3 w-3 md:h-4 md:w-4" />
-              <span className="text-xs md:text-sm">No reviews yet</span>
-            </div>
-          )}
+            {stable.description && (
+              <p className="mt-3 text-xs md:text-sm text-muted-foreground line-clamp-2">
+                {stable.description}
+              </p>
+            )}
 
-          {(stable.startingPrice !== undefined || stable.distanceKm !== undefined) && (
-            <div className="mt-3 flex flex-wrap gap-3 text-xs md:text-sm text-foreground/70">
-              {stable.startingPrice !== undefined && (
-                <span>From ${stable.startingPrice.toFixed(0)} / hour</span>
-              )}
-              {stable.distanceKm !== undefined && (
-                <span>{stable.distanceKm} km from central Giza</span>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            {(stable.totalReviews !== undefined && stable.totalReviews > 0) || stable.rating ? (
+              <div className="flex items-center gap-2 text-nile-blue mt-3 md:mt-4">
+                <Star className="h-3 w-3 md:h-4 md:w-4 fill-current" />
+                <span className="font-semibold text-sm md:text-base">
+                  {stable.rating && stable.rating > 0 ? stable.rating.toFixed(1) : "0.0"}
+                </span>
+                <span className="text-xs md:text-sm text-foreground/70 ml-1">
+                  ({stable.totalReviews || 0} {stable.totalReviews === 1 ? "Review" : "Reviews"})
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-muted-foreground mt-3 md:mt-4">
+                <Star className="h-3 w-3 md:h-4 md:w-4" />
+                <span className="text-xs md:text-sm">No reviews yet</span>
+              </div>
+            )}
+
+            {(stable.startingPrice !== undefined || stable.distanceKm !== undefined) && (
+              <div className="mt-3 flex flex-wrap gap-3 text-xs md:text-sm text-foreground/70">
+                {stable.startingPrice !== undefined && (
+                  <span>From EGP {stable.startingPrice.toFixed(0)} / hour</span>
+                )}
+                {stable.distanceKm !== undefined && (
+                  <span>{stable.distanceKm} km from central Giza</span>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </Link>
     </motion.div>
   );
