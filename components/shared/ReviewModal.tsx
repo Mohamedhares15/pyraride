@@ -182,7 +182,7 @@ export default function ReviewModal({
                     maxFiles: 5 - photos.length,
                     maxFileSize: 10000000, // 10MB
                     clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp', 'heic'],
-                    sources: ['local', 'camera'],
+                    sources: ['local'], // ONLY gallery/file selection (no camera, no drag-drop)
                     multiple: true,
                   }}
                   onSuccess={(result: any) => {
