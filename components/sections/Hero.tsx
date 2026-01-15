@@ -52,9 +52,9 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative h-[100dvh] min-h-[100vh] w-full overflow-hidden" aria-label="Hero section - Book your horse riding experience at the Giza and Saqqara Pyramids">
-      {/* Horse Riding with Pyramids Background */}
-      <div className="fixed inset-0 z-0" role="img" aria-label="Horse riding at the Giza Pyramids, Egypt">
+    <section className="safe-area-transparent relative h-[100dvh] min-h-[100vh] w-full overflow-hidden" aria-label="Hero section - Book your horse riding experience at the Giza and Saqqara Pyramids">
+      {/* Horse Riding with Pyramids Background - Extends into safe area */}
+      <div className="fixed z-0" style={{ top: 'calc(-1 * var(--sat))', left: 0, right: 0, bottom: 0 }} role="img" aria-label="Horse riding at the Giza Pyramids, Egypt">
         <div
           className="absolute inset-0 h-full w-full"
           style={{
@@ -62,6 +62,7 @@ export default function Hero() {
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
+            minHeight: "calc(100vh + var(--sat))",
           }}
         />
         {/* Dark gradient overlay for text */}

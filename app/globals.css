@@ -126,16 +126,17 @@
     @apply border-border;
   }
 
+  /* iOS 26 Safe Area - Fallback background */
+  html {
+    /* Black fallback for safety, but pages override with their own backgrounds */
+    background-color: #000000;
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    /* iOS 26 Liquid Fix - Prevents white flickering during transitions */
-    background-color: #000000;
-  }
-
-  /* Smooth scrolling */
-  html {
-    scroll-behavior: smooth;
+    /* Remove global background - let pages control safe area theming */
   }
 
   /* ------------------------------------------------------------- */
@@ -781,4 +782,40 @@
 /* Booking card safe area protection */
 .booking-card-safe {
   padding-bottom: calc(24px + var(--sab));
+}
+
+/* ============================================= */
+/* Per-Page Safe Area Background Utilities      */
+/* ============================================= */
+
+/* Black safe area (for dark pages) */
+.safe-area-black {
+  background-color: #000000;
+}
+
+/* White safe area (for light pages) */
+.safe-area-white {
+  background-color: #FCFBF8;
+  /* matches --background */
+}
+
+/* Transparent safe area (for glassmorphism/hero) */
+.safe-area-transparent {
+  background-color: transparent;
+}
+
+/* Gradient safe areas */
+.safe-area-gradient-dark {
+  background: linear-gradient(to bottom, #000000 0%, rgba(0, 0, 0, 0.95) 100%);
+}
+
+.safe-area-gradient-light {
+  background: linear-gradient(to bottom, #FCFBF8 0%, rgba(252, 251, 248, 0.95) 100%);
+}
+
+/* Full-page wrapper that extends background into safe area */
+.page-wrapper-safe {
+  min-height: 100vh;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
