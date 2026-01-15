@@ -56,7 +56,7 @@ export default function ImageViewer({
 
     return (
         <>
-            {/* Layer 1: Base Blur - Creates the frosted glass foundation - DARKER */}
+            {/* EXACT COPY from horse viewer - Layer 1: Base Blur */}
             <div
                 style={{
                     position: 'fixed',
@@ -74,7 +74,7 @@ export default function ImageViewer({
                 }}
             />
 
-            {/* Layer 2: Darker Color Tint - More darkness than horse viewer */}
+            {/* EXACT COPY from horse viewer - Layer 2: Color Tint - DARKER VERSION */}
             <div
                 style={{
                     position: 'fixed',
@@ -84,14 +84,14 @@ export default function ImageViewer({
                     height: '100dvh',
                     maxHeight: '100vh',
                     zIndex: 9997,
-                    background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.6) 100%)',
+                    background: 'linear-gradient(135deg, rgba(30, 30, 30, 0.12) 0%, rgba(20, 20, 20, 0.10) 50%, rgba(10, 10, 10, 0.08) 100%)',
                     overflow: 'hidden',
                     transform: 'translateZ(0)',
                     WebkitTransform: 'translateZ(0)',
                 }}
             />
 
-            {/* Layer 3: Slightly darker vibrancy */}
+            {/* EXACT COPY from horse viewer - Layer 3: Vibrancy & Luminosity - DARKER */}
             <div
                 style={{
                     position: 'fixed',
@@ -101,17 +101,17 @@ export default function ImageViewer({
                     height: '100dvh',
                     maxHeight: '100vh',
                     zIndex: 9998,
-                    backgroundColor: 'rgba(0, 0, 0, 0.15)',
-                    backdropFilter: 'brightness(0.9) contrast(1.05)',
-                    WebkitBackdropFilter: 'brightness(0.9) contrast(1.05)',
-                    mixBlendMode: 'multiply',
+                    backgroundColor: 'rgba(0, 0, 0, 0.12)',
+                    backdropFilter: 'brightness(1.05) contrast(1.05)',
+                    WebkitBackdropFilter: 'brightness(1.05) contrast(1.05)',
+                    mixBlendMode: 'overlay',
                     overflow: 'hidden',
                     transform: 'translateZ(0)',
                     WebkitTransform: 'translateZ(0)',
                 }}
             />
 
-            {/* Content Layer - Mobile viewport fix */}
+            {/* EXACT COPY from horse viewer - Content Layer */}
             <div
                 style={{
                     position: 'fixed',
@@ -126,7 +126,7 @@ export default function ImageViewer({
                     WebkitTransform: 'translateZ(0)',
                 }}
             >
-                {/* Header with Liquid Glass Effect */}
+                {/* EXACT COPY from horse viewer - Header with Liquid Glass Effect */}
                 <div
                     style={{
                         position: 'absolute',
@@ -149,7 +149,7 @@ export default function ImageViewer({
                             width: '40px',
                             height: '40px',
                             borderRadius: '50%',
-                            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                            backgroundColor: 'rgba(0, 0, 0, 0.2)',
                             backdropFilter: 'blur(10px)',
                             WebkitBackdropFilter: 'blur(10px)',
                             border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -157,7 +157,7 @@ export default function ImageViewer({
                             cursor: 'pointer',
                             transition: 'all 0.2s ease',
                         }}
-                        className="hover:bg-black/50 hover:scale-105 active:scale-95"
+                        className="hover:bg-black/40 hover:scale-105 active:scale-95"
                     >
                         <X className="h-5 w-5" />
                     </button>
@@ -171,14 +171,14 @@ export default function ImageViewer({
                     <div style={{ width: '40px' }} /> {/* Spacer for balance */}
                 </div>
 
-                {/* Main Content Area - Centered & Responsive */}
+                {/* EXACT COPY from horse viewer - Main Content Area */}
                 <div
                     className="flex h-full w-full items-center justify-center p-4 md:p-8"
                     onClick={(e) => {
                         if (e.target === e.currentTarget) onClose();
                     }}
                 >
-                    <AnimatePresence mode="wait">
+                    <AnimatePresence mode="wait" custom={currentIndex}>
                         <motion.div
                             key={currentIndex}
                             initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -193,16 +193,15 @@ export default function ImageViewer({
                                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
                             }}
                         >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={images[currentIndex]}
-                                alt={`Image ${currentIndex + 1}`}
+                                alt={`Review Image ${currentIndex + 1}`}
                                 className="h-auto w-full object-contain"
                                 style={{
                                     maxHeight: '80vh',
                                     maxWidth: '100%',
-                                    display: 'block',
-                                    userSelect: 'none',
-                                    WebkitUserSelect: 'none',
+                                    display: 'block'
                                 }}
                                 draggable={false}
                             />
@@ -210,7 +209,7 @@ export default function ImageViewer({
                     </AnimatePresence>
                 </div>
 
-                {/* Navigation Buttons - Desktop */}
+                {/* EXACT COPY from horse viewer - Navigation Buttons */}
                 {images.length > 1 && (
                     <>
                         <button
@@ -218,7 +217,7 @@ export default function ImageViewer({
                                 e.stopPropagation();
                                 goToPrevious();
                             }}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white transition-all hover:bg-black/50 hover:scale-110 active:scale-95 z-50"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white transition-all hover:bg-black/40 hover:scale-110 active:scale-95 z-50"
                         >
                             <ChevronLeft className="h-6 w-6" />
                         </button>
@@ -228,23 +227,23 @@ export default function ImageViewer({
                                 e.stopPropagation();
                                 goToNext();
                             }}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white transition-all hover:bg-black/50 hover:scale-110 active:scale-95 z-50"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white transition-all hover:bg-black/40 hover:scale-110 active:scale-95 z-50"
                         >
                             <ChevronRight className="h-6 w-6" />
                         </button>
                     </>
                 )}
 
-                {/* Thumbnail Strip - Apple Liquid Glass with Darker Theme */}
+                {/* EXACT COPY from horse viewer - Thumbnail Strip */}
                 {images.length > 1 && (
                     <div
                         className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-3 rounded-2xl flex gap-3 overflow-x-auto max-w-[90vw] scrollbar-hide z-50"
                         style={{
-                            background: 'rgba(10, 10, 10, 0.5)',
+                            background: 'rgba(20, 20, 20, 0.4)',
                             backdropFilter: 'blur(20px) saturate(180%)',
                             WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                             border: '1px solid rgba(255, 255, 255, 0.1)',
-                            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
+                            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
                         }}
                     >
                         {images.map((img, idx) => (
@@ -256,12 +255,12 @@ export default function ImageViewer({
                                         : "border-white/40 opacity-70 hover:opacity-100 hover:scale-105"
                                     }`}
                             >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={img}
                                     alt={`Thumbnail ${idx + 1}`}
                                     className="h-full w-full object-cover"
                                     loading="lazy"
-                                    style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
                                 />
                             </button>
                         ))}
