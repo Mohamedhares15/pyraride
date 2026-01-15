@@ -519,7 +519,7 @@ function BookingContent() {
   }
 
   return (
-    <div className="min-h-screen bg-black relative">
+    <div className="min-h-screen bg-black safe-area-black relative">
       {/* Background Image with Overlay */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div
