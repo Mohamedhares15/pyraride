@@ -809,6 +809,201 @@
   background: linear-gradient(to bottom, #000000 0%, rgba(0, 0, 0, 0.95) 100%);
 }
 
+/* Loading animation */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(to right,
+      transparent 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 100%);
+  background-size: 1000px 100%;
+}
+
+/* Performance optimizations */
+.will-change-transform {
+  will-change: transform;
+}
+
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.hero-dash-line {
+  display: block;
+  width: 100%;
+  border-top: 1px dashed rgba(255, 255, 255, 0.45);
+  height: 0;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: 0 0 0;
+    --ring: 0 0 0;
+  }
+}
+
+/* Print styles */
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+
+  pre,
+  blockquote {
+    border: 1px solid #999;
+    page-break-inside: avoid;
+  }
+
+  img {
+    page-break-inside: avoid;
+  }
+
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+}
+
+/* Hide scrollbar utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================= */
+/* Safe Area Utility Classes - Production Ready */
+/* ============================================= */
+
+/* Top padding with safe area */
+.pt-safe {
+  padding-top: var(--sat);
+}
+
+/* Bottom padding with safe area */
+.pb-safe {
+  padding-bottom: var(--sab);
+}
+
+/* Left padding with safe area */
+.pl-safe {
+  padding-left: var(--sal);
+}
+
+/* Right padding with safe area */
+.pr-safe {
+  padding-right: var(--sar);
+}
+
+/* Full safe area padding */
+.p-safe {
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+  padding-left: var(--sal);
+  padding-right: var(--sar);
+}
+
+/* Horizontal safe padding only */
+.px-safe {
+  padding-left: var(--sal);
+  padding-right: var(--sar);
+}
+
+/* Vertical safe padding only */
+.py-safe {
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+}
+
+/* Bottom margin with safe area (for floating elements) */
+.mb-safe {
+  margin-bottom: var(--sab);
+}
+
+/* Full page height accounting for safe areas */
+.min-h-screen-safe {
+  min-height: calc(100vh - var(--sat) - var(--sab));
+}
+
+/* Bottom positioning with safe area protection */
+.bottom-safe {
+  bottom: calc(24px + var(--sab));
+}
+
+/* Booking card safe area protection */
+.booking-card-safe {
+  padding-bottom: calc(24px + var(--sab));
+}
+
+/* ============================================= */
+/* Per-Page Safe Area Background Utilities      */
+/* ============================================= */
+
+/* Black safe area (for dark pages) */
+.safe-area-black {
+  background-color: #000000;
+}
+
+/* White safe area (for light pages) */
+.safe-area-white {
+  background-color: #FCFBF8;
+  /* matches --background */
+}
+
+/* Transparent safe area (for glassmorphism/hero) */
+.safe-area-transparent {
+  background-color: transparent;
+}
+
+/* Gradient safe areas */
+.safe-area-gradient-dark {
+  background: linear-gradient(to bottom, #000000 0%, rgba(0, 0, 0, 0.95) 100%);
+}
+
 .safe-area-gradient-light {
   background: linear-gradient(to bottom, #FCFBF8 0%, rgba(252, 251, 248, 0.95) 100%);
 }
@@ -818,4 +1013,9 @@
   min-height: 100vh;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Glassmorphism safe area (for modals/viewers with golden blur) */
+.safe-area-glassmorphism {
+  background: linear-gradient(135deg, rgba(218, 165, 32, 0.08) 0%, rgba(184, 134, 11, 0.06) 50%, rgba(139, 69, 19, 0.04) 100%);
 }
