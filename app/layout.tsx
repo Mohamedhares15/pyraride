@@ -156,9 +156,8 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-167x167.png" />
       </head>
-        <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-192x192.png" />
 
-        {/* Structured Data - Organization */}
+      <body className={`${poppins.variable} font-sans antialiased`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
