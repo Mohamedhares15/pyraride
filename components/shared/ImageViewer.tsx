@@ -149,17 +149,14 @@ export default function ImageViewer({
 
             {/* EXACT COPY-PASTE FROM HORSE VIEWER - Content Layer - Mobile viewport fix */}
             <div
+                className="fixed inset-0 overflow-hidden z-[9999]"
                 style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100vw',
-                    height: '100dvh', // Dynamic viewport height for mobile
-                    maxHeight: '100vh', // Fallback for older browsers
-                    zIndex: 9999,
-                    overflow: 'hidden',
-                    transform: 'translateZ(0)', // Force hardware acceleration
+                    transform: 'translateZ(0)',
                     WebkitTransform: 'translateZ(0)',
+                    paddingTop: 'var(--safe-top)',
+                    paddingBottom: 'var(--safe-bottom)',
+                    paddingLeft: 'var(--safe-left)',
+                    paddingRight: 'var(--safe-right)',
                 }}
             >
                 {/* EXACT COPY-PASTE FROM HORSE VIEWER - Header with Liquid Glass Effect - Clean Design */}
