@@ -186,7 +186,7 @@ export default function RiderDashboard() {
             <Button
               asChild
               variant="outline"
-              className="hidden border-white/10 bg-white/5 text-white hover:bg-white/10 md:inline-flex"
+              className="border-white/10 bg-white/5 text-white hover:bg-white/10"
             >
               <Link href="/stables">
                 Book New Ride
