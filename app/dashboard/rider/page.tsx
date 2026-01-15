@@ -172,7 +172,16 @@ export default function RiderDashboard() {
               Manage your upcoming rides and view your history
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2">
+            <Button
+              asChild
+              variant="outline"
+              className="border-white/10 bg-white/5 text-white hover:bg-white/10"
+            >
+              <Link href="/stables">
+                Book New Ride
+              </Link>
+            </Button>
             <Button
               asChild
               variant="outline"
@@ -181,15 +190,6 @@ export default function RiderDashboard() {
               <Link href="/">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Home
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="border-white/10 bg-white/5 text-white hover:bg-white/10"
-            >
-              <Link href="/stables">
-                Book New Ride
               </Link>
             </Button>
           </div>

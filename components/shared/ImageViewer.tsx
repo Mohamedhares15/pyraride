@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -44,17 +44,6 @@ export default function ImageViewer({
         return () => document.removeEventListener("keydown", handleKeyDown);
     }, [isOpen, images.length, onClose]);
 
-    useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "unset";
-        }
-        return () => {
-            document.body.style.overflow = "unset";
-        };
-    }, [isOpen]);
-
     const goToPrevious = () => {
         setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
     };
@@ -63,124 +52,222 @@ export default function ImageViewer({
         setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
     };
 
+    if (!isOpen) return null;
+
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-                    onClick={onClose}
+        <>
+            {/* Layer 1: Base Blur - Creates the frosted glass foundation - DARKER */}
+            <div
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100dvh',
+                    maxHeight: '100vh',
+                    zIndex: 9996,
+                    backdropFilter: 'blur(40px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                    overflow: 'hidden',
+                    transform: 'translateZ(0)',
+                    WebkitTransform: 'translateZ(0)',
+                }}
+            />
+
+            {/* Layer 2: Darker Color Tint - More darkness than horse viewer */}
+            <div
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100dvh',
+                    maxHeight: '100vh',
+                    zIndex: 9997,
+                    background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.6) 100%)',
+                    overflow: 'hidden',
+                    transform: 'translateZ(0)',
+                    WebkitTransform: 'translateZ(0)',
+                }}
+            />
+
+            {/* Layer 3: Slightly darker vibrancy */}
+            <div
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100dvh',
+                    maxHeight: '100vh',
+                    zIndex: 9998,
+                    backgroundColor: 'rgba(0, 0, 0, 0.15)',
+                    backdropFilter: 'brightness(0.9) contrast(1.05)',
+                    WebkitBackdropFilter: 'brightness(0.9) contrast(1.05)',
+                    mixBlendMode: 'multiply',
+                    overflow: 'hidden',
+                    transform: 'translateZ(0)',
+                    WebkitTransform: 'translateZ(0)',
+                }}
+            />
+
+            {/* Content Layer - Mobile viewport fix */}
+            <div
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100dvh',
+                    maxHeight: '100vh',
+                    zIndex: 9999,
+                    overflow: 'hidden',
+                    transform: 'translateZ(0)',
+                    WebkitTransform: 'translateZ(0)',
+                }}
+            >
+                {/* Header with Liquid Glass Effect */}
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '16px',
+                        zIndex: 1000,
+                    }}
                 >
-                    {/* Dark Glassmorphism Backdrop */}
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-2xl" />
-
-                    {/* Close Button */}
-                    <motion.button
-                        initial={{ scale: 0, rotate: -180 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        exit={{ scale: 0, rotate: 180 }}
-                        transition={{ delay: 0.1 }}
+                    <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/40 backdrop-blur-md text-white shadow-2xl transition-all duration-300 hover:scale-110 hover:border-white/40 hover:bg-black/60 hover:shadow-white/10"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                            backdropFilter: 'blur(10px)',
+                            WebkitBackdropFilter: 'blur(10px)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            color: 'white',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                        }}
+                        className="hover:bg-black/50 hover:scale-105 active:scale-95"
                     >
-                        <X className="h-6 w-6" />
-                    </motion.button>
+                        <X className="h-5 w-5" />
+                    </button>
 
-                    {/* Navigation Buttons */}
-                    {images.length > 1 && (
-                        <>
-                            <motion.button
-                                initial={{ x: -100, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                exit={{ x: -100, opacity: 0 }}
-                                transition={{ delay: 0.2 }}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    goToPrevious();
-                                }}
-                                className="absolute left-4 z-10 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/40 backdrop-blur-md text-white shadow-2xl transition-all duration-300 hover:scale-110 hover:border-white/40 hover:bg-black/60"
-                            >
-                                <ChevronLeft className="h-6 w-6" />
-                            </motion.button>
+                    <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-white/90 drop-shadow-md">
+                            {currentIndex + 1} / {images.length}
+                        </span>
+                    </div>
 
-                            <motion.button
-                                initial={{ x: 100, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                exit={{ x: 100, opacity: 0 }}
-                                transition={{ delay: 0.2 }}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    goToNext();
-                                }}
-                                className="absolute right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/40 backdrop-blur-md text-white shadow-2xl transition-all duration-300 hover:scale-110 hover:border-white/40 hover:bg-black/60"
-                            >
-                                <ChevronRight className="h-6 w-6" />
-                            </motion.button>
-                        </>
-                    )}
+                    <div style={{ width: '40px' }} /> {/* Spacer for balance */}
+                </div>
 
-                    {/* Image Container */}
-                    <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0.8, opacity: 0 }}
-                        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        onClick={(e) => e.stopPropagation()}
-                        className="relative max-h-[90vh] max-w-[90vw] overflow-hidden rounded-2xl border border-white/20 bg-black/40 backdrop-blur-md shadow-2xl"
-                    >
-                        <AnimatePresence mode="wait">
-                            <motion.img
-                                key={currentIndex}
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ duration: 0.3 }}
-                                src={images[currentIndex]}
-                                alt={`Image ${currentIndex + 1} of ${images.length}`}
-                                className="max-h-[90vh] max-w-full object-contain"
-                            />
-                        </AnimatePresence>
-
-                        {/* Image Counter */}
-                        {images.length > 1 && (
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-white/20 bg-black/60 backdrop-blur-md px-4 py-2 text-sm font-medium text-white shadow-xl">
-                                {currentIndex + 1} / {images.length}
-                            </div>
-                        )}
-                    </motion.div>
-
-                    {/* Thumbnail Strip */}
-                    {images.length > 1 && (
+                {/* Main Content Area - Centered & Responsive */}
+                <div
+                    className="flex h-full w-full items-center justify-center p-4 md:p-8"
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) onClose();
+                    }}
+                >
+                    <AnimatePresence mode="wait">
                         <motion.div
-                            initial={{ y: 100, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            exit={{ y: 100, opacity: 0 }}
-                            transition={{ delay: 0.3 }}
-                            className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2 rounded-2xl border border-white/20 bg-black/40 backdrop-blur-md p-2 shadow-2xl"
-                            onClick={(e) => e.stopPropagation()}
+                            key={currentIndex}
+                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                            transition={{
+                                duration: 0.2,
+                                ease: "easeInOut"
+                            }}
+                            className="relative max-h-[85vh] max-w-[95vw] overflow-hidden rounded-2xl shadow-2xl md:max-w-5xl"
+                            style={{
+                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                            }}
                         >
-                            {images.map((img, idx) => (
-                                <button
-                                    key={idx}
-                                    onClick={() => setCurrentIndex(idx)}
-                                    className={`h-16 w-16 overflow-hidden rounded-lg border-2 transition-all duration-300 ${idx === currentIndex
-                                            ? "border-white scale-110 shadow-xl"
-                                            : "border-white/20 opacity-60 hover:opacity-100 hover:border-white/60"
-                                        }`}
-                                >
-                                    <img
-                                        src={img}
-                                        alt={`Thumbnail ${idx + 1}`}
-                                        className="h-full w-full object-cover"
-                                    />
-                                </button>
-                            ))}
+                            <img
+                                src={images[currentIndex]}
+                                alt={`Image ${currentIndex + 1}`}
+                                className="h-auto w-full object-contain"
+                                style={{
+                                    maxHeight: '80vh',
+                                    maxWidth: '100%',
+                                    display: 'block',
+                                    userSelect: 'none',
+                                    WebkitUserSelect: 'none',
+                                }}
+                                draggable={false}
+                            />
                         </motion.div>
-                    )}
-                </motion.div>
-            )}
-        </AnimatePresence>
+                    </AnimatePresence>
+                </div>
+
+                {/* Navigation Buttons - Desktop */}
+                {images.length > 1 && (
+                    <>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                goToPrevious();
+                            }}
+                            className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white transition-all hover:bg-black/50 hover:scale-110 active:scale-95 z-50"
+                        >
+                            <ChevronLeft className="h-6 w-6" />
+                        </button>
+
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                goToNext();
+                            }}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white transition-all hover:bg-black/50 hover:scale-110 active:scale-95 z-50"
+                        >
+                            <ChevronRight className="h-6 w-6" />
+                        </button>
+                    </>
+                )}
+
+                {/* Thumbnail Strip - Apple Liquid Glass with Darker Theme */}
+                {images.length > 1 && (
+                    <div
+                        className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-3 rounded-2xl flex gap-3 overflow-x-auto max-w-[90vw] scrollbar-hide z-50"
+                        style={{
+                            background: 'rgba(10, 10, 10, 0.5)',
+                            backdropFilter: 'blur(20px) saturate(180%)',
+                            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
+                        }}
+                    >
+                        {images.map((img, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => setCurrentIndex(idx)}
+                                className={`flex-shrink-0 h-16 w-16 rounded-xl overflow-hidden border-2 transition-all ${idx === currentIndex
+                                        ? "border-white scale-110 shadow-lg shadow-white/25"
+                                        : "border-white/40 opacity-70 hover:opacity-100 hover:scale-105"
+                                    }`}
+                            >
+                                <img
+                                    src={img}
+                                    alt={`Thumbnail ${idx + 1}`}
+                                    className="h-full w-full object-cover"
+                                    loading="lazy"
+                                    style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+                                />
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </>
     );
 }
