@@ -44,19 +44,11 @@ export default function ImageViewer({
         return () => document.removeEventListener("keydown", handleKeyDown);
     }, [isOpen, images.length, onClose]);
 
-    const goToPrevious = () => {
-        setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
-    };
-
-    const goToNext = () => {
-        setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
-    };
-
     if (!isOpen) return null;
 
     return (
         <>
-            {/* Layer 1: Base Blur - Creates the frosted glass foundation */}
+            {/* EXACT COPY-PASTE FROM HORSE VIEWER - Layer 1: Base Blur - Creates the frosted glass foundation */}
             <div
                 style={{
                     position: 'fixed',
@@ -74,7 +66,7 @@ export default function ImageViewer({
                 }}
             />
 
-            {/* Layer 2: Color Tint - Warm golden overlay for desert/pyramid soul */}
+            {/* EXACT COPY-PASTE FROM HORSE VIEWER - Layer 2: Color Tint - Warm golden overlay for desert/pyramid soul */}
             <div
                 style={{
                     position: 'fixed',
@@ -91,7 +83,7 @@ export default function ImageViewer({
                 }}
             />
 
-            {/* Layer 3: Vibrancy & Luminosity - Apple's signature glow */}
+            {/* EXACT COPY-PASTE FROM HORSE VIEWER - Layer 3: Vibrancy & Luminosity - Apple's signature glow */}
             <div
                 style={{
                     position: 'fixed',
@@ -111,22 +103,22 @@ export default function ImageViewer({
                 }}
             />
 
-            {/* Content Layer - Mobile viewport fix */}
+            {/* EXACT COPY-PASTE FROM HORSE VIEWER - Content Layer - Mobile viewport fix */}
             <div
                 style={{
                     position: 'fixed',
                     top: 0,
                     left: 0,
                     width: '100vw',
-                    height: '100dvh',
-                    maxHeight: '100vh',
+                    height: '100dvh', // Dynamic viewport height for mobile
+                    maxHeight: '100vh', // Fallback for older browsers
                     zIndex: 9999,
                     overflow: 'hidden',
-                    transform: 'translateZ(0)',
+                    transform: 'translateZ(0)', // Force hardware acceleration
                     WebkitTransform: 'translateZ(0)',
                 }}
             >
-                {/* Header with Liquid Glass Effect - Clean Design */}
+                {/* EXACT COPY-PASTE FROM HORSE VIEWER - Header with Liquid Glass Effect - Clean Design */}
                 <div
                     style={{
                         position: 'absolute',
@@ -171,7 +163,7 @@ export default function ImageViewer({
                     <div style={{ width: '40px' }} /> {/* Spacer for balance */}
                 </div>
 
-                {/* Main Content Area - Centered & Responsive */}
+                {/* EXACT COPY-PASTE FROM HORSE VIEWER - Main Content Area - Centered & Responsive */}
                 <div
                     className="flex h-full w-full items-center justify-center p-4 md:p-8"
                     onClick={(e) => {
@@ -197,7 +189,7 @@ export default function ImageViewer({
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={images[currentIndex]}
-                                alt={`Image ${currentIndex + 1}`}
+                                alt={`Review Image ${currentIndex + 1}`}
                                 className="h-auto w-full object-contain"
                                 style={{
                                     maxHeight: '80vh',
@@ -210,13 +202,16 @@ export default function ImageViewer({
                     </AnimatePresence>
                 </div>
 
-                {/* Navigation Buttons - Desktop */}
+                {/* EXACT COPY-PASTE FROM HORSE VIEWER - Navigation Buttons - Desktop */}
                 {images.length > 1 && (
                     <>
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                goToPrevious();
+                                setCurrentIndex(prev => {
+                                    const newIndex = prev === 0 ? images.length - 1 : prev - 1;
+                                    return newIndex;
+                                });
                             }}
                             className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white transition-all hover:bg-black/40 hover:scale-110 active:scale-95 z-50"
                         >
@@ -226,7 +221,10 @@ export default function ImageViewer({
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                goToNext();
+                                setCurrentIndex(prev => {
+                                    const newIndex = prev === images.length - 1 ? 0 : prev + 1;
+                                    return newIndex;
+                                });
                             }}
                             className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white transition-all hover:bg-black/40 hover:scale-110 active:scale-95 z-50"
                         >
@@ -235,7 +233,7 @@ export default function ImageViewer({
                     </>
                 )}
 
-                {/* Thumbnail Strip - Apple Liquid Glass with Golden Warmth */}
+                {/* EXACT COPY-PASTE FROM HORSE VIEWER - Thumbnail Strip - Apple Liquid Glass with Golden Warmth */}
                 {images.length > 1 && (
                     <div
                         className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-3 rounded-2xl flex gap-3 overflow-x-auto max-w-[90vw] scrollbar-hide z-50"
@@ -252,8 +250,8 @@ export default function ImageViewer({
                                 key={idx}
                                 onClick={() => setCurrentIndex(idx)}
                                 className={`flex-shrink-0 h-16 w-16 rounded-xl overflow-hidden border-2 transition-all ${idx === currentIndex
-                                        ? "border-white scale-110 shadow-lg shadow-white/25"
-                                        : "border-white/40 opacity-70 hover:opacity-100 hover:scale-105"
+                                    ? "border-white scale-110 shadow-lg shadow-white/25"
+                                    : "border-white/40 opacity-70 hover:opacity-100 hover:scale-105"
                                     }`}
                             >
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
