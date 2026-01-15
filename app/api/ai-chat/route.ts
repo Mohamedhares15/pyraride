@@ -62,9 +62,10 @@ YOUR KNOWLEDGE BASE:
 - Analytics dashboard for stable owners
 
 **Pricing Structure:**
-- Standard rates: $50 per hour (varies by stable, typically $40-60/hour)
+- Prices vary by stable and horse (typically $40-100/hour for standard horses)
+- IMPORTANT: Always query real database for current pricing - DO NOT use hardcoded prices
 - Platform commission: 15% (not 20% - this is important!)
-- Riders pay: 85% to stable owner, 15% platform fee
+- Riders pay full amount; stable owners receive 85% (15% platform fee)
 - Full payment required at booking time
 - Transparent pricing with no hidden fees
 
@@ -82,12 +83,14 @@ YOUR KNOWLEDGE BASE:
 - Admin: Platform management and analytics
 
 **Important Routes:**
+- / - Homepage
 - /stables - Browse all stables
+- /stables/[id] - Stable detail page with horses and booking
 - /dashboard/rider - Rider dashboard (bookings, reviews)
 - /dashboard/stable - Stable owner dashboard
 - /dashboard/analytics - Analytics for owners/admins
-- /profile - User profile management
-- /signin - Sign in page
+- /users/[id] - User public profile  
+- /auth/signin - Sign in page
 - /faq - Frequently asked questions
 - /contact - Contact support
 
@@ -186,12 +189,31 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
   if (!groqClient) return null;
   try {
     // Fetch real-time context data for better responses
-    const [stablesCount, bookingsCount] = await Promise.all([
+    const [stablesCount, bookingsCount, pricingData] = await Promise.all([
       prisma.stable.count({ where: { status: "approved" } }).catch(() => 0),
       session?.user?.id
         ? prisma.booking.count({ where: { riderId: session.user.id } }).catch(() => 0)
         : Promise.resolve(0),
+      // Fetch real pricing data
+      prisma.horse.findMany({
+        where: {
+          isActive: true,
+          stable: { status: "approved" },
+          pricePerHour: { not: null },
+        },
+        select: { pricePerHour: true },
+        take: 100,
+      }).catch(() => []),
     ]);
+
+    // Calculate real pricing statistics
+    const prices = pricingData
+      .map((h: any) => h.pricePerHour ? Number(h.pricePerHour) : null)
+      .filter((p: any): p is number => p !== null);
+
+    const minPrice = prices.length > 0 ? Math.min(...prices) : 40;
+    const maxPrice = prices.length > 0 ? Math.max(...prices) : 100;
+    const avgPrice = prices.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 50;
 
     const userName = session?.user?.name || session?.user?.email || "Guest";
     const userRole = session?.user?.role || "guest";
@@ -200,11 +222,12 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
       `Current user: ${userName} (${userRole})`,
       userRole === "rider" ? `User has ${bookingsCount} booking(s)` : "",
       `Platform has ${stablesCount} verified stables available`,
+      `Current pricing: $${minPrice}-$${maxPrice}/hour (average: $${avgPrice}/hour) - USE THESE REAL PRICES`,
       "Key features: verified stables, professional guides, best price guarantee, instant booking, Stripe payments",
       "Primary locations: Giza Plateau (Great Pyramids area), Saqqara Desert (Step Pyramid area)",
-      "Pricing: $50/hour average, platform commission is 15% (not 20%)",
-      "Support: support@pyraride.com or visit /contact",
-      "Important: Always use current data when available, commission is 15%",
+      "Platform commission is 15% (not 20%)",
+      "Support: support@pyrarides.com or visit /contact",
+      "CRITICAL: Use real pricing data provided above, not examples. Query database for specific horse prices.",
     ].filter(Boolean).join(". ");
 
     // Build conversation messages with context
