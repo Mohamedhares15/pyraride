@@ -126,7 +126,7 @@ function ResetPasswordInner() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background safe-area-white">
       <div className="mx-auto flex min-h-screen max-w-md items-center justify-center px-4">
         <Card className="w-full shadow-xl">
           <CardContent>

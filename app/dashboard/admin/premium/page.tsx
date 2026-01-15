@@ -186,7 +186,7 @@ export default function PremiumAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background safe-area-white">
       <div className="border-b border-border/60 bg-card/40 py-10 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 sm:flex-row sm:items-center sm:justify-between">
           <div>

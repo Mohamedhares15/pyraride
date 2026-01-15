@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function StudiosPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background safe-area-white">
       {/* Hero with Background */}
       <div 
         className="relative h-[600px] overflow-hidden"

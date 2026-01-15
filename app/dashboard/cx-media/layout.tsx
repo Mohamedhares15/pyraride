@@ -31,7 +31,7 @@ export default function CXMediaLayout({
     ];
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background safe-area-white">
             {/* Mobile Header */}
             <div className="flex h-16 items-center justify-between border-b bg-card px-4 md:hidden">
                 <div className="font-bold">CX Dashboard</div>

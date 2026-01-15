@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 
 export default function PaymentCancelPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background safe-area-white">
       <div className="mx-auto flex max-w-2xl items-center justify-center px-4 py-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

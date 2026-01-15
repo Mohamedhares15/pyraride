@@ -260,7 +260,7 @@ export default function ManageStablePage() {
 
   if (!stable) {
     return (
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-background safe-area-white p-8">
         <Card className="mx-auto max-w-lg p-8 text-center">
           <h2 className="mb-4 text-2xl font-bold">No Stable Found</h2>
           <p className="mb-6 text-muted-foreground">
@@ -275,7 +275,7 @@ export default function ManageStablePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background safe-area-white">
       {/* Header */}
       <div className="border-b border-border bg-card/50 py-12 backdrop-blur-lg">
         <div className="mx-auto max-w-4xl px-4 md:px-8">
