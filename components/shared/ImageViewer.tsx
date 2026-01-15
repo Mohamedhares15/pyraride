@@ -170,7 +170,7 @@ export default function ImageViewer({
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '16px',
-                        paddingTop: 'max(16px, env(safe-area-inset-top))',
+                        paddingTop: 'calc(env(safe-area-inset-top) + 16px)',
                         paddingLeft: 'max(16px, env(safe-area-inset-left))',
                         paddingRight: 'max(16px, env(safe-area-inset-right))',
                         zIndex: 1000,

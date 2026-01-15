@@ -34,7 +34,7 @@ export default function InstantBookingPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
             {/* Header */}
-            <div className="border-b border-white/10 bg-black/50 backdrop-blur-xl sticky top-0 z-10">
+            <div className="border-b border-white/10 bg-black/50 backdrop-blur-xl sticky top-0 z-10 pt-[env(safe-area-inset-top)]">
                 <div className="container mx-auto px-4 py-4 flex items-center gap-4">
                     <Link href="/dashboard/admin/horses">
                         <Button variant="ghost" size="sm" className="text-white/60 hover:text-white">

@@ -161,7 +161,7 @@ export default function ReviewModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl [&>button]:top-[calc(1rem+env(safe-area-inset-top))]">
         <DialogHeader>
           <DialogTitle>Submit Your Review</DialogTitle>
           <DialogDescription>
