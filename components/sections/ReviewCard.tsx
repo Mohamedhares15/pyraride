@@ -5,6 +5,8 @@ import { User, Calendar } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import StarRating from "@/components/shared/StarRating";
+import ImageViewer from "@/components/shared/ImageViewer";
+import { useState } from "react";
 
 interface ReviewCardProps {
   review: {
@@ -25,6 +27,9 @@ interface ReviewCardProps {
 }
 
 export default function ReviewCard({ review, index }: ReviewCardProps) {
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -34,88 +39,116 @@ export default function ReviewCard({ review, index }: ReviewCardProps) {
     });
   };
 
+  const imageUrls = review.reviewMedias?.map((media) => media.url) || [];
+
+  const handleImageClick = (index: number) => {
+    setSelectedImageIndex(index);
+    setIsViewerOpen(true);
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
-    >
-      <Card className="p-6">
-        {/* Header */}
-        <div className="mb-4 flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <User className="h-6 w-6 text-primary" />
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.05 }}
+      >
+        <Card className="p-6">
+          {/* Header */}
+          <div className="mb-4 flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                <User className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h4 className="font-semibold">
+                  {review.rider.fullName || "Anonymous Rider"}
+                </h4>
+                <p className="text-xs text-muted-foreground">
+                  {formatDate(review.createdAt)}
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="font-semibold">
-                {review.rider.fullName || "Anonymous Rider"}
-              </h4>
-              <p className="text-xs text-muted-foreground">
-                {formatDate(review.createdAt)}
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span>{formatDate(review.createdAt)}</span>
+            </div>
+          </div>
+
+          {/* Ratings */}
+          <div className="mb-4 grid gap-3 md:grid-cols-2">
+            <div className="rounded-lg border border-border bg-card/50 p-3">
+              <p className="mb-2 text-xs font-medium text-muted-foreground">
+                Stable Rating
+              </p>
+              <div className="flex items-center gap-2">
+                <StarRating
+                  rating={review.stableRating}
+                  onRatingChange={() => { }} // Read-only
+                  interactive={false}
+                />
+                <Badge variant="outline">{review.stableRating}/5</Badge>
+              </div>
+            </div>
+            <div className="rounded-lg border border-border bg-card/50 p-3">
+              <p className="mb-2 text-xs font-medium text-muted-foreground">
+                Horse Rating
+              </p>
+              <div className="flex items-center gap-2">
+                <StarRating
+                  rating={review.horseRating}
+                  onRatingChange={() => { }} // Read-only
+                  interactive={false}
+                />
+                <Badge variant="outline">{review.horseRating}/5</Badge>
+              </div>
+            </div>
+          </div>
+
+          {/* Comment */}
+          {review.comment && (
+            <div className="rounded-lg bg-muted/30 p-4">
+              <p className="text-sm leading-relaxed text-foreground">
+                {review.comment}
               </p>
             </div>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>{formatDate(review.createdAt)}</span>
-          </div>
-        </div>
+          )}
 
-        {/* Ratings */}
-        <div className="mb-4 grid gap-3 md:grid-cols-2">
-          <div className="rounded-lg border border-border bg-card/50 p-3">
-            <p className="mb-2 text-xs font-medium text-muted-foreground">
-              Stable Rating
-            </p>
-            <div className="flex items-center gap-2">
-              <StarRating
-                rating={review.stableRating}
-                onRatingChange={() => { }} // Read-only
-                interactive={false}
-              />
-              <Badge variant="outline">{review.stableRating}/5</Badge>
+          {/* Review Images - Clickable with Glassmorphism Viewer */}
+          {review.reviewMedias && review.reviewMedias.length > 0 && (
+            <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
+              {review.reviewMedias.map((media, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleImageClick(idx)}
+                  className="group relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg border-2 border-border transition-all duration-300 hover:border-primary hover:scale-105 hover:shadow-lg cursor-pointer"
+                >
+                  <img
+                    src={media.url}
+                    alt={`Review image ${idx + 1}`}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/20" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <div className="rounded-full bg-black/60 backdrop-blur-sm px-3 py-1 text-xs font-medium text-white">
+                      View
+                    </div>
+                  </div>
+                </button>
+              ))}
             </div>
-          </div>
-          <div className="rounded-lg border border-border bg-card/50 p-3">
-            <p className="mb-2 text-xs font-medium text-muted-foreground">
-              Horse Rating
-            </p>
-            <div className="flex items-center gap-2">
-              <StarRating
-                rating={review.horseRating}
-                onRatingChange={() => { }} // Read-only
-                interactive={false}
-              />
-              <Badge variant="outline">{review.horseRating}/5</Badge>
-            </div>
-          </div>
-        </div>
+          )}
+        </Card>
+      </motion.div>
 
-        {/* Comment */}
-        {review.comment && (
-          <div className="rounded-lg bg-muted/30 p-4">
-            <p className="text-sm leading-relaxed text-foreground">
-              {review.comment}
-            </p>
-          </div>
-        )}
-        {/* Review Images */}
-        {review.reviewMedias && review.reviewMedias.length > 0 && (
-          <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
-            {review.reviewMedias.map((media, idx) => (
-              <div key={idx} className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-border">
-                <img
-                  src={media.url}
-                  alt={`Review image ${idx + 1}`}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
-    </motion.div>
+      {/* Glassmorphism Image Viewer */}
+      <ImageViewer
+        images={imageUrls}
+        initialIndex={selectedImageIndex}
+        isOpen={isViewerOpen}
+        onClose={() => setIsViewerOpen(false)}
+      />
+    </>
   );
 }
 

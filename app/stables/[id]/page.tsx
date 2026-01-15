@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -462,9 +462,13 @@ export default function StableDetailPage() {
     };
   }, [id, stable, selectedDate]);
 
+  // Scroll to horse hash anchor ONLY on initial load
+  const hasScrolledRef = useRef(false);
+
   useEffect(() => {
     if (isLoading || !stable) return;
     if (typeof window === "undefined") return;
+    if (hasScrolledRef.current) return; // Prevent re-scrolling
 
     const { hash } = window.location;
     if (!hash) return;
@@ -478,6 +482,7 @@ export default function StableDetailPage() {
       setTimeout(() => {
         element.classList.remove("ring-2", "ring-primary", "ring-offset-2");
       }, 2000);
+      hasScrolledRef.current = true; // Mark as scrolled
     });
   }, [isLoading, stable]);
 
