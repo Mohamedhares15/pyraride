@@ -12,6 +12,7 @@ import {
 import { useState, useEffect } from "react";
 import { CalendarDays } from "lucide-react";
 import Link from "next/link";
+import NextImage from "next/image";
 
 export default function Hero() {
   const getToday = () => {
@@ -54,19 +55,21 @@ export default function Hero() {
   return (
     <section className="safe-area-transparent relative h-[100dvh] min-h-[100vh] w-full overflow-hidden" aria-label="Hero section - Book your horse riding experience at the Giza and Saqqara Pyramids">
       {/* Horse Riding with Pyramids Background - Extends into safe area */}
+      {/* Horse Riding with Pyramids Background - Extends into safe area */}
       <div className="fixed z-0" style={{ top: 'calc(-1 * var(--sat))', left: 0, right: 0, bottom: 0 }} role="img" aria-label="Horse riding at the Giza Pyramids, Egypt">
-        <div
-          className="absolute inset-0 h-full w-full"
-          style={{
-            backgroundImage: "url(/hero-bg.webp)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            minHeight: "calc(100vh + var(--sat))",
-          }}
-        />
+        <div className="absolute inset-0 h-full w-full" style={{ minHeight: "calc(100vh + var(--sat))" }}>
+          <NextImage
+            src="/hero-bg.webp"
+            alt="Horse riding at the Giza Pyramids, Egypt"
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="100vw"
+            quality={85}
+          />
+        </div>
         {/* Dark gradient overlay for text */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70 z-10" />
       </div>
 
       {/* Glass effect overlay */}

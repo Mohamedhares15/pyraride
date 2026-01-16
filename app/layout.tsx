@@ -10,6 +10,7 @@ import { OptimalCinematicWrapper } from "@/components/OptimalCinematicWrapper";
 import NotificationProvider from "@/components/providers/NotificationProvider";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Script from "next/script";
+import { WebVitals } from "@/components/analytics/WebVitals";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -415,6 +416,7 @@ export default function RootLayout({
               <LazyAIAgent />
               <CookieConsent />
               <SpeedInsights />
+              <WebVitals />
             </OptimalCinematicWrapper>
           </NotificationProvider>
         </AuthProvider>
