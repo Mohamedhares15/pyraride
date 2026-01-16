@@ -13,7 +13,15 @@ const firebaseConfig = {
 
 // Initialize Firebase only if not already initialized
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
-const messaging = typeof window !== "undefined" ? getMessaging(app) : null;
+let messaging: any = null;
+
+if (typeof window !== "undefined") {
+    try {
+        messaging = getMessaging(app);
+    } catch (err) {
+        console.error("Firebase Messaging failed to initialize", err);
+    }
+}
 
 export const requestNotificationPermission = async () => {
     if (!messaging) {
