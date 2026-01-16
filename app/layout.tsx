@@ -118,6 +118,15 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#000000",
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -126,8 +135,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="light">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
-        <meta name="theme-color" content="#000000" />
         {/* DNS Prefetch for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
