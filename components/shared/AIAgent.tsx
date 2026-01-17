@@ -407,8 +407,8 @@ export default function AIAgent() {
           chatMessages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.isOwn ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${msg.isOwn
-                  ? "bg-gradient-to-r from-primary to-purple-600 text-white"
-                  : "bg-white/10 text-white"
+                ? "bg-gradient-to-r from-primary to-purple-600 text-white"
+                : "bg-white/10 text-white"
                 }`}>
                 <p className="text-sm">{msg.content}</p>
                 <div className="flex items-center justify-end gap-1 mt-1">
@@ -667,8 +667,8 @@ export default function AIAgent() {
                 <div className="flex flex-col gap-2 max-w-[80%]">
                   <div
                     className={`rounded-lg px-4 py-3 ${message.role === "user"
-                        ? "bg-gradient-to-r from-primary to-purple-600 text-white"
-                        : "bg-muted text-foreground border border-border"
+                      ? "bg-gradient-to-r from-primary to-purple-600 text-white"
+                      : "bg-muted text-foreground border border-border"
                       }`}
                   >
                     <p className="text-sm whitespace-pre-wrap leading-relaxed">
@@ -777,13 +777,13 @@ export default function AIAgent() {
 
   return (
     <>
-      {!isOpen && <div className="ai-launcher">{launcherButton}</div>}
+      {!isOpen && <div className="fixed z-[60] right-[clamp(12px,env(safe-area-inset-right)+12px,28px)] bottom-[clamp(36px,env(safe-area-inset-bottom)+28px,56px)] md:right-[clamp(16px,env(safe-area-inset-right)+12px,24px)] md:bottom-[clamp(24px,env(safe-area-inset-bottom)+24px,40px)]">{launcherButton}</div>}
       <AnimatePresence>
         {isOpen && (
           <>
             {isMobile && (
               <div
-                className="ai-chat__backdrop"
+                className="fixed inset-0 bg-black/50 z-[55]"
                 onClick={() => setIsOpen(false)}
                 aria-hidden="true"
               />
@@ -792,10 +792,10 @@ export default function AIAgent() {
               initial={{ opacity: 0, x: isMobile ? 0 : 400 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: isMobile ? 0 : 400 }}
-              className={`ai-chat ${isMobile ? "ai-chat--mobile" : "ai-chat--desktop"}`}
+              className={`fixed z-[60] ${isMobile ? "inset-0 flex justify-center items-end p-3" : "bottom-[clamp(24px,env(safe-area-inset-bottom)+20px,40px)] right-[clamp(20px,env(safe-area-inset-right)+20px,40px)] w-[400px]"}`}
             >
               <Card
-                className={`flex flex-col shadow-2xl border-primary/50 bg-gradient-to-b from-background to-primary/5 ${isMobile ? "ai-chat__panel--mobile" : "h-[650px] w-[420px]"
+                className={`flex flex-col shadow-2xl border-primary/50 bg-gradient-to-b from-background to-primary/5 ${isMobile ? "w-full h-[min(85vh,640px)] rounded-t-[24px] overflow-hidden" : "h-[650px] w-[420px]"
                   }`}
               >
                 {chatMode === "conversation" ? renderConversation() :

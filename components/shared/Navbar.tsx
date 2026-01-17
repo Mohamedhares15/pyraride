@@ -251,7 +251,7 @@ export default function Navbar() {
 
         <button
           type="button"
-          className="hamburger-menu md:hidden text-2xl"
+          className="md:hidden text-2xl bg-transparent border-none text-white cursor-pointer px-2.5 py-1.5"
           aria-label="Toggle navigation menu"
           aria-expanded={isOpen}
           aria-controls="mobile-nav"
@@ -262,14 +262,14 @@ export default function Navbar() {
       </motion.header>
 
       <div
-        className={`mobile-off-canvas-backdrop ${isOpen ? "is-open" : ""}`}
+        className={`fixed inset-0 bg-black/50 z-90 transition-opacity duration-300 ease-out ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
         onClick={closeMenu}
         aria-hidden="true"
       />
 
       <nav
         id="mobile-nav"
-        className={`mobile-off-canvas-menu ${isOpen ? "is-open" : ""}`}
+        className={`fixed top-0 right-0 w-[80%] max-w-[320px] h-full bg-[#111] pt-20 px-5 pb-5 shadow-[-5px_0_15px_rgba(0,0,0,0.5)] z-95 transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="p-6 flex flex-col h-full">
           <div className="flex justify-between items-center mb-8">
