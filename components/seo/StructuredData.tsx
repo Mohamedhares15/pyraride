@@ -41,14 +41,7 @@ export function LocalBusinessSchema() {
       "https://twitter.com/pyrarides",
       "https://tiktok.com/@pyrarides",
       "https://youtube.com/@pyrarides"
-    ],
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "reviewCount": "2500",
-      "bestRating": "5",
-      "worstRating": "1"
-    }
+    ]
   };
 
   return (
