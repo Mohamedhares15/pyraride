@@ -70,10 +70,6 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.pyrarides.com"),
   alternates: {
     canonical: "/",
-    languages: {
-      "en": "/en",
-      "ar": "/ar",
-    },
   },
   openGraph: {
     title: "PyraRide - Book Your Trusted Giza Horse Riding Experience",
