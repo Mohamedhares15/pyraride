@@ -63,7 +63,7 @@ export default function HomePage() {
             alt="Background pattern"
             fill
             className="object-cover object-center"
-            quality={60}
+            quality={50}
           />
         </div>
         <div className="absolute inset-0 bg-black/60" />
