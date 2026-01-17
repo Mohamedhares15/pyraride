@@ -65,7 +65,7 @@ export default function Hero() {
             priority
             className="object-cover object-center"
             sizes="100vw"
-            quality={60}
+            quality={85}
           />
         </div>
         {/* Dark gradient overlay for text */}

@@ -4,7 +4,7 @@ import ComingSoon from "@/components/shared/ComingSoon";
 import Link from "next/link";
 import { Instagram } from "lucide-react";
 import { FAQPageSchema } from "@/components/seo/StructuredData";
-import NextImage from "next/image";
+
 
 // TikTok Icon SVG Component
 function TikTokIcon({ className }: { className?: string }) {
@@ -57,15 +57,7 @@ export default function HomePage() {
       {/* FAQ Section - Matches dark hero theme */}
       <section className="relative z-20 -mt-0 w-full overflow-hidden bg-gradient-to-b from-black/80 via-black/90 to-black/95 py-16 md:py-24 pb-16 md:pb-24">
         {/* Subtle background pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <NextImage
-            src="/hero-bg.webp"
-            alt="Background pattern"
-            fill
-            className="object-cover object-center"
-            quality={50}
-          />
-        </div>
+        <div className="absolute inset-0 opacity-10" />
         <div className="absolute inset-0 bg-black/60" />
 
         {/* Content */}
