@@ -282,16 +282,104 @@ export default function Navbar() {
 
       <nav
         id="mobile-nav"
-        className={`fixed top-0 right-0 w-[80%] max-w-[320px] h-full bg-[#111] pt-20 px-5 pb-5 shadow-[-5px_0_15px_rgba(0,0,0,0.5)] z-[145] transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 w-[85%] max-w-[360px] h-full bg-[#0a0a0a] border-l border-white/10 pt-safe px-6 pb-safe shadow-[-10px_0_30px_rgba(0,0,0,0.8)] z-[145] transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
-        <div className="p-6 flex flex-col h-full">
-          <div className="flex justify-between items-center mb-8">
-            <span className="text-xl font-bold">Menu</span>
-            <button onClick={closeMenu} className="text-2xl">✕</button>
+        <div className="flex flex-col h-full">
+          <div className="flex justify-between items-center py-6 mb-2 border-b border-white/5">
+            <span className="text-2xl font-display font-bold text-white tracking-tight">Menu</span>
+            <button
+              onClick={closeMenu}
+              className="p-2 -mr-2 text-white/60 hover:text-white transition-colors rounded-full hover:bg-white/5"
+            >
+              <span className="text-2xl leading-none">✕</span>
+            </button>
           </div>
-          <ul className="space-y-2 text-lg text-left text-white">
-            {mobileMenuLinks}
-          </ul>
+
+          <div className="flex-1 overflow-y-auto py-4">
+            <ul className="space-y-1">
+              {/* Mobile Menu Items - World Class Styling */}
+              <li onClick={closeMenu}>
+                <Link href="/" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
+                  <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                  </div>
+                  <span className="font-medium text-lg">Home</span>
+                </Link>
+              </li>
+              <li onClick={closeMenu}>
+                <Link href="/stables" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
+                  <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /><circle cx="7" cy="17" r="2" /><circle cx="17" cy="17" r="2" /><path d="M5 17h8v-6H5v6Z" /></svg>
+                  </div>
+                  <span className="font-medium text-lg">Stables</span>
+                </Link>
+              </li>
+              <li onClick={closeMenu}>
+                <Link href="/gallery" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
+                  <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
+                  </div>
+                  <span className="font-medium text-lg">Gallery</span>
+                </Link>
+              </li>
+
+              <div className="my-4 h-px bg-white/10 mx-4" />
+
+              {session ? (
+                <>
+                  <li onClick={closeMenu}>
+                    <Link href="/dashboard" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
+                      <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></svg>
+                      </div>
+                      <span className="font-medium text-lg">Dashboard</span>
+                    </Link>
+                  </li>
+                  <li onClick={closeMenu}>
+                    <Link href={`/users/${session?.user?.id}`} className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
+                      <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
+                        <User className="h-5 w-5" />
+                      </div>
+                      <span className="font-medium text-lg">Profile</span>
+                    </Link>
+                  </li>
+                  <li onClick={() => { closeMenu(); signOut(); }}>
+                    <button className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-red-400 hover:bg-red-500/10 transition-all duration-200">
+                      <div className="p-2 rounded-lg bg-red-500/10 text-red-400 group-hover:bg-red-500/20 transition-colors">
+                        <LogOut className="h-5 w-5" />
+                      </div>
+                      <span className="font-medium text-lg">Sign Out</span>
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li onClick={closeMenu}>
+                    <Link href="/signin" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
+                      <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" x2="3" y1="12" y2="12" /></svg>
+                      </div>
+                      <span className="font-medium text-lg">Sign In</span>
+                    </Link>
+                  </li>
+                  <li onClick={closeMenu}>
+                    <Link href="/signup" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl bg-white text-black hover:bg-white/90 transition-all duration-200 mt-2">
+                      <div className="p-2 rounded-lg bg-black/5 text-black/60">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12h20" /><path d="m13 5 7 7-7 7" /></svg>
+                      </div>
+                      <span className="font-bold text-lg">Get Started</span>
+                    </Link>
+                  </li>
+                </>
+              )}
+            </ul>
+          </div>
+
+          <div className="py-6 border-t border-white/5 px-6">
+            <p className="text-xs text-white/30 text-center font-medium tracking-widest uppercase">
+              PyraRide &copy; {new Date().getFullYear()}
+            </p>
+          </div>
         </div>
       </nav>
     </>

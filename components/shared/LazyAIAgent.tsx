@@ -10,7 +10,13 @@ import { motion } from 'framer-motion'
 const AIAgent = dynamic(() => import('./AIAgent'), {
     ssr: false,
     loading: () => (
-        <div className="ai-launcher">
+        <div
+            className="ai-launcher fixed z-[200] md:right-6 md:bottom-8 right-4 bottom-4"
+            style={{
+                right: 'max(12px, calc(env(safe-area-inset-right) + 12px))',
+                bottom: 'max(36px, calc(env(safe-area-inset-bottom) + 28px))'
+            }}
+        >
             <Button
                 className="h-14 w-14 rounded-full bg-white/20 shadow-lg shadow-black/20 border border-white/50"
                 size="icon"
@@ -60,7 +66,13 @@ export function LazyAIAgent() {
     // Show trigger button before AI Agent is loaded
     if (!isLoaded) {
         return (
-            <div className="ai-launcher">
+            <div
+                className="ai-launcher fixed z-[200] md:right-6 md:bottom-8 right-4 bottom-4"
+                style={{
+                    right: 'max(12px, calc(env(safe-area-inset-right) + 12px))',
+                    bottom: 'max(36px, calc(env(safe-area-inset-bottom) + 28px))'
+                }}
+            >
                 <Button
                     onClick={handleInteraction}
                     onMouseEnter={handleInteraction}
