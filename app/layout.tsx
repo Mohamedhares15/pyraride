@@ -172,11 +172,11 @@ export default function RootLayout({
               <OrientationLock />
               <main id="main-content" className="pb-0">{children}</main>
               <Footer />
-              <LazyAIAgent />
-              <CookieConsent />
               <SpeedInsights />
               <WebVitals />
             </OptimalCinematicWrapper>
+            <LazyAIAgent />
+            <CookieConsent />
           </NotificationProvider>
         </AuthProvider>
 

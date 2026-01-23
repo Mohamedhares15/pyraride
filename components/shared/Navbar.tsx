@@ -187,37 +187,50 @@ export default function Navbar() {
 
   const mobileMenuLinks = (
     <>
+      {/* Mobile Menu Items - World Class Styling */}
       <li onClick={closeMenu}>
-        <Link href="/">Home</Link>
+        <Link href="/" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
+          Home
+        </Link>
       </li>
       <li onClick={closeMenu}>
-        <Link href="/stables">Stables</Link>
+        <Link href="/stables" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
+          Stables
+        </Link>
       </li>
       <li onClick={closeMenu}>
-        <Link href="/gallery">Gallery</Link>
+        <Link href="/gallery" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
+          Gallery
+        </Link>
       </li>
       {session ? (
         <>
           <li onClick={closeMenu}>
-            <Link href="/dashboard">Dashboard</Link>
+            <Link href="/dashboard" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
+              Dashboard
+            </Link>
           </li>
           <li onClick={closeMenu}>
-            <Link href={`/users/${session?.user?.id}`}>Profile</Link>
+            <Link href={`/users/${session?.user?.id}`} className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
+              Profile
+            </Link>
           </li>
           <li onClick={() => { closeMenu(); signOut(); }}>
-            <button>Sign Out</button>
+            <button className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium text-red-400 hover:bg-red-500/10 transition-colors">
+              Sign Out
+            </button>
           </li>
         </>
       ) : (
         <>
           <li onClick={closeMenu}>
-            <Link href="/signin">
-              <button>Sign In</button>
+            <Link href="/signin" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
+              Sign In
             </Link>
           </li>
           <li onClick={closeMenu}>
-            <Link href="/signup">
-              <button>Get Started</button>
+            <Link href="/signup" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
+              Get Started
             </Link>
           </li>
         </>
@@ -276,7 +289,7 @@ export default function Navbar() {
             <span className="text-xl font-bold">Menu</span>
             <button onClick={closeMenu} className="text-2xl">✕</button>
           </div>
-          <ul className="space-y-6 text-lg text-center text-white">
+          <ul className="space-y-2 text-lg text-left text-white">
             {mobileMenuLinks}
           </ul>
         </div>
