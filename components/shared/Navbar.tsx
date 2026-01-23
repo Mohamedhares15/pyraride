@@ -236,7 +236,7 @@ export default function Navbar() {
           paddingLeft: 'var(--spacing-left-safe)',
           paddingRight: 'var(--spacing-right-safe)',
         }}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between backdrop-blur-md bg-[#121212]/80 border-b border-white/10 text-white"
+        className="fixed top-0 left-0 right-0 z-[150] flex items-center justify-between backdrop-blur-md bg-[#121212]/90 border-b border-white/10 text-white"
       >
         <Link href="/" className="text-2xl font-bold font-display tracking-tight">
           PyraRide
@@ -262,14 +262,14 @@ export default function Navbar() {
       </motion.header>
 
       <div
-        className={`fixed inset-0 bg-black/50 z-90 transition-opacity duration-300 ease-out ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        className={`fixed inset-0 bg-black/50 z-[140] transition-opacity duration-300 ease-out ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
         onClick={closeMenu}
         aria-hidden="true"
       />
 
       <nav
         id="mobile-nav"
-        className={`fixed top-0 right-0 w-[80%] max-w-[320px] h-full bg-[#111] pt-20 px-5 pb-5 shadow-[-5px_0_15px_rgba(0,0,0,0.5)] z-95 transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 w-[80%] max-w-[320px] h-full bg-[#111] pt-20 px-5 pb-5 shadow-[-5px_0_15px_rgba(0,0,0,0.5)] z-[145] transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="p-6 flex flex-col h-full">
           <div className="flex justify-between items-center mb-8">

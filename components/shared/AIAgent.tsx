@@ -777,7 +777,17 @@ export default function AIAgent() {
 
   return (
     <>
-      {!isOpen && <div className="fixed z-[60] right-[clamp(12px,env(safe-area-inset-right)+12px,28px)] bottom-[clamp(36px,env(safe-area-inset-bottom)+28px,56px)] md:right-[clamp(16px,env(safe-area-inset-right)+12px,24px)] md:bottom-[clamp(24px,env(safe-area-inset-bottom)+24px,40px)]">{launcherButton}</div>}
+      {!isOpen && (
+        <div
+          className="fixed z-[60] md:right-6 md:bottom-8 right-4 bottom-4"
+          style={{
+            right: 'max(12px, calc(env(safe-area-inset-right) + 12px))',
+            bottom: 'max(36px, calc(env(safe-area-inset-bottom) + 28px))'
+          }}
+        >
+          {launcherButton}
+        </div>
+      )}
       <AnimatePresence>
         {isOpen && (
           <>
@@ -792,7 +802,11 @@ export default function AIAgent() {
               initial={{ opacity: 0, x: isMobile ? 0 : 400 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: isMobile ? 0 : 400 }}
-              className={`fixed z-[60] ${isMobile ? "inset-0 flex justify-center items-end p-3" : "bottom-[clamp(24px,env(safe-area-inset-bottom)+20px,40px)] right-[clamp(20px,env(safe-area-inset-right)+20px,40px)] w-[400px]"}`}
+              className={`fixed z-[60] ${isMobile ? "inset-0 flex justify-center items-end p-3" : "w-[400px]"}`}
+              style={!isMobile ? {
+                bottom: 'max(24px, calc(env(safe-area-inset-bottom) + 20px))',
+                right: 'max(20px, calc(env(safe-area-inset-right) + 20px))'
+              } : undefined}
             >
               <Card
                 className={`flex flex-col shadow-2xl border-primary/50 bg-gradient-to-b from-background to-primary/5 ${isMobile ? "w-full h-[min(85vh,640px)] rounded-t-[24px] overflow-hidden" : "h-[650px] w-[420px]"

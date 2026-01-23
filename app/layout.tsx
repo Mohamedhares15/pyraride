@@ -130,7 +130,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="light">
+    <html lang="en" dir="ltr" className="light">
       <head>
         {/* DNS Prefetch for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
