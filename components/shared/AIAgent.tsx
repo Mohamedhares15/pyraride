@@ -779,7 +779,7 @@ export default function AIAgent() {
     <>
       {!isOpen && (
         <div
-          className="fixed z-[60] md:right-6 md:bottom-8 right-4 bottom-4"
+          className="fixed z-[200] md:right-6 md:bottom-8 right-4 bottom-4"
           style={{
             right: 'max(12px, calc(env(safe-area-inset-right) + 12px))',
             bottom: 'max(36px, calc(env(safe-area-inset-bottom) + 28px))'
@@ -793,7 +793,7 @@ export default function AIAgent() {
           <>
             {isMobile && (
               <div
-                className="fixed inset-0 bg-black/50 z-[55]"
+                className="fixed inset-0 bg-black/50 z-[190]"
                 onClick={() => setIsOpen(false)}
                 aria-hidden="true"
               />
@@ -802,7 +802,7 @@ export default function AIAgent() {
               initial={{ opacity: 0, x: isMobile ? 0 : 400 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: isMobile ? 0 : 400 }}
-              className={`fixed z-[60] ${isMobile ? "inset-0 flex justify-center items-end p-3" : "w-[400px]"}`}
+              className={`fixed z-[200] ${isMobile ? "inset-0 flex justify-center items-end p-3" : "w-[400px]"}`}
               style={!isMobile ? {
                 bottom: 'max(24px, calc(env(safe-area-inset-bottom) + 20px))',
                 right: 'max(20px, calc(env(safe-area-inset-right) + 20px))'

@@ -276,7 +276,7 @@ export default function Navbar() {
             <span className="text-xl font-bold">Menu</span>
             <button onClick={closeMenu} className="text-2xl">✕</button>
           </div>
-          <ul className="space-y-6 text-lg text-center">
+          <ul className="space-y-6 text-lg text-center text-white">
             {mobileMenuLinks}
           </ul>
         </div>
