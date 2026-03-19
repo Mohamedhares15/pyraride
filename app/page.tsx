@@ -54,51 +54,67 @@ export default function HomePage() {
       <FAQPageSchema items={homepageFaq} />
       <Navbar />
       <Hero />
-      {/* FAQ Section - Matches dark hero theme */}
-      <section className="relative z-20 -mt-0 w-full overflow-hidden bg-gradient-to-b from-black/80 via-black/90 to-black/95 py-16 md:py-24 pb-16 md:pb-24">
-        {/* Subtle background pattern */}
-        <div className="absolute inset-0 opacity-10" />
-        <div className="absolute inset-0 bg-black/60" />
-
-        {/* Content */}
-        <div className="relative z-10 mx-auto max-w-5xl px-4">
-          <h2 className="mb-4 text-center font-display text-2xl font-bold tracking-tight text-white drop-shadow-lg md:text-3xl">
-            Frequently Asked Questions
-          </h2>
-          <p className="mx-auto mb-10 max-w-3xl text-center text-base text-white/90 drop-shadow md:text-lg font-medium">
-            <strong className="text-white">PyraRides is Egypt's first and only online marketplace</strong> for booking horse riding experiences at the Giza and Saqqara Pyramids. Unlike single-stable websites, we bring multiple verified stables into one platform, making it easy to compare prices, read reviews, and book instantly.
-          </p>
-          <div className="grid gap-6 md:grid-cols-2">
-            {homepageFaq.map((item) => (
-              <div
-                key={item.question}
-                className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-white/20 hover:bg-white/10 hover:shadow-xl"
-              >
-                <h3 className="mb-3 font-semibold text-white drop-shadow-md">{item.question}</h3>
-                <p className="text-sm leading-relaxed text-white/80 drop-shadow-sm">{item.answer}</p>
-              </div>
-            ))}
+      {/* Luxury CTA Section instead of FAQ */}
+      <section className="relative z-20 w-full overflow-hidden bg-gradient-to-b from-black/80 via-black/95 to-black py-24 md:py-32">
+        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+        
+        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-4 text-center">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="h-px w-10 bg-white/40" />
+            <span className="text-xs font-medium tracking-[0.2em] text-white/60 uppercase">
+              Begin Your Journey
+            </span>
+            <div className="h-px w-10 bg-white/40" />
           </div>
 
-          {/* Social Icons - Desktop and Mobile (under FAQ items) */}
-          <div className="flex items-center justify-center gap-6 mt-8 mb-8 md:mb-0">
+          <h2 className="mb-6 font-display text-4xl font-bold tracking-tight text-white drop-shadow-xl sm:text-5xl md:text-6xl">
+            Where Legends Are <br className="hidden sm:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/80 to-white/40">
+              Ridden, Not Told.
+            </span>
+          </h2>
+
+          <p className="mx-auto mb-10 max-w-2xl text-base text-white/70 drop-shadow md:text-xl">
+            Egypt’s highest-rated Arabian horses await. Compare trusted stables, browse premium experiences, and witness the Giza Plateau like pharaohs once did.
+          </p>
+
+          <Link
+            href="/stables"
+            className="group relative flex items-center justify-center overflow-hidden rounded-full bg-white px-10 py-5 text-base font-semibold text-black transition-all hover:scale-105 hover:shadow-2xl hover:shadow-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+          >
+            <span className="relative border-b border-transparent transition-colors group-hover:border-black/50">
+              Explore Our Stables
+            </span>
+            <svg
+              className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </Link>
+
+          {/* Social Icons */}
+          <div className="mt-16 flex items-center justify-center gap-8">
             <Link
               href="https://instagram.com/pyrarides"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white hover:text-white/80 transition-colors"
+              className="text-white/50 hover:text-white transition-colors hover:scale-110 duration-300"
               aria-label="Instagram"
             >
-              <Instagram className="h-8 w-8" />
+              <Instagram className="h-7 w-7" />
             </Link>
             <Link
               href="https://tiktok.com/@pyrarides"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white hover:text-white/80 transition-colors"
+              className="text-white/50 hover:text-white transition-colors hover:scale-110 duration-300"
               aria-label="TikTok"
             >
-              <TikTokIcon className="h-8 w-8" />
+              <TikTokIcon className="h-7 w-7" />
             </Link>
           </div>
         </div>

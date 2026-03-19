@@ -18,6 +18,7 @@ import {
     ChevronLeft,
     ChevronRight,
     X,
+    Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -196,6 +197,7 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
     } | undefined>(undefined);
 
     const [userRankPoints, setUserRankPoints] = useState<number | null>(null);
+    const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
     useEffect(() => {
         if (session?.user?.id) {
@@ -297,8 +299,10 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
 
     // Fetch slots and bookings only (Stable data passed as prop)
     useEffect(() => {
+        let isMounted = true;
         async function fetchSlotsAndBookings() {
             try {
+                setIsLoadingSlots(true);
                 const dateStr = selectedDate.toISOString().split("T")[0];
 
                 const [slotsRes, bookingRes] = await Promise.all([
@@ -364,15 +368,22 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                         });
                     });
 
-                    setAvailableSlots(newAvailable);
-                    setTakenSlots(newTaken);
+                    if (isMounted) {
+                        setAvailableSlots(newAvailable);
+                        setTakenSlots(newTaken);
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching slots:", error);
+            } finally {
+                if (isMounted) {
+                    setIsLoadingSlots(false);
+                }
             }
         }
 
         fetchSlotsAndBookings();
+        return () => { isMounted = false; };
     }, [id, session, selectedDate, initialStable]);
 
     // Refresh slots every 15 seconds
@@ -899,14 +910,24 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                                                                     </Button>
                                                                 </div>
                                                             </div>
-                                                            <DynamicAvailability
-                                                                grouped={groupedSlots[horse.id]}
-                                                                blocked={groupedBlockedSlots[horse.id]}
-                                                                horseId={horse.id}
-                                                                onSlotClick={handleSlotClick}
-                                                                isLocked={isHorseLocked(horse)}
-                                                                selectedDate={selectedDate}
-                                                            />
+                                                            <div className="min-h-[140px] relative">
+                                                                {isLoadingSlots ? (
+                                                                    <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-10 rounded-md">
+                                                                        <div className="flex flex-col items-center gap-2">
+                                                                            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                                                                            <span className="text-xs text-muted-foreground font-medium">Loading availability...</span>
+                                                                        </div>
+                                                                    </div>
+                                                                ) : null}
+                                                                <DynamicAvailability
+                                                                    grouped={groupedSlots[horse.id]}
+                                                                    blocked={groupedBlockedSlots[horse.id]}
+                                                                    horseId={horse.id}
+                                                                    onSlotClick={handleSlotClick}
+                                                                    isLocked={isHorseLocked(horse)}
+                                                                    selectedDate={selectedDate}
+                                                                />
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
