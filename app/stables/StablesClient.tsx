@@ -70,6 +70,8 @@ export default function StablesClient() {
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
   const [sort, setSort] = useState(searchParams.get("sort") || "recommended");
+  const [color, setColor] = useState(searchParams.get("color") || "all");
+  const [skills, setSkills] = useState<string[]>(searchParams.get("skills") ? searchParams.get("skills")!.split(",") : []);
 
   const fetchStables = useCallback(async () => {
     setIsLoading(true);
@@ -83,6 +85,8 @@ export default function StablesClient() {
       if (minPrice) params.append("minPrice", minPrice);
       if (maxPrice) params.append("maxPrice", maxPrice);
       if (sort && sort !== "recommended") params.append("sort", sort);
+      if (color && color !== "all") params.append("color", color);
+      if (skills && skills.length > 0) params.append("skills", skills.join(","));
 
       const response = await fetch(`/api/stables?${params.toString()}`);
 
@@ -136,7 +140,7 @@ export default function StablesClient() {
     } finally {
       setIsLoading(false);
     }
-  }, [search, location, minRating, minPrice, maxPrice, sort]);
+  }, [search, location, minRating, minPrice, maxPrice, sort, color, skills]);
 
   useEffect(() => {
     fetchStables();
@@ -190,6 +194,22 @@ export default function StablesClient() {
     updateUrl(params);
   };
 
+  const handleColorChange = (value: string) => {
+    setColor(value);
+    const params = new URLSearchParams(searchParams);
+    if (value && value !== "all") params.set("color", value);
+    else params.delete("color");
+    updateUrl(params);
+  };
+
+  const handleSkillsChange = (value: string[]) => {
+    setSkills(value);
+    const params = new URLSearchParams(searchParams);
+    if (value && value.length > 0) params.set("skills", value.join(","));
+    else params.delete("skills");
+    updateUrl(params);
+  };
+
   const handleClear = () => {
     setSearch("");
     setLocation("all");
@@ -197,6 +217,8 @@ export default function StablesClient() {
     setMinPrice("");
     setMaxPrice("");
     setSort("recommended");
+    setColor("all");
+    setSkills([]);
     router.replace("/stables", { scroll: false });
   };
 
@@ -248,11 +270,15 @@ export default function StablesClient() {
             minPrice={minPrice}
             maxPrice={maxPrice}
             sort={sort}
+            color={color}
+            skills={skills}
             onSearchChange={handleSearchChange}
             onLocationChange={handleLocationChange}
             onRatingChange={handleRatingChange}
             onPriceChange={handlePriceChange}
             onSortChange={handleSortChange}
+            onColorChange={handleColorChange}
+            onSkillsChange={handleSkillsChange}
             onClear={handleClear}
           />
 

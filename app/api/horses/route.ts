@@ -44,7 +44,10 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { stableId, name, description, imageUrls, pricePerHour, age, skills, availabilityStatus } = body;
+    const { stableId, name, description, imageUrls, pricePerHour, color, skills, availabilityStatus } = body;
+
+    const ALLOWED_COLORS = ["Adham", "Azra2", "Ashkar", "Ahmar", "Pure White", "Palomino", "Pinto"];
+    const ALLOWED_SKILLS = ["Adab", "Levade", "Impulsion", "Mettle", "Bolt", "Nerve", "Impeccable Manners", "Beginner Friendly"];
 
     // Verify the stable belongs to this owner
     const stable = await prisma.stable.findUnique({
@@ -113,15 +116,27 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Validate age if provided
-    if (age !== null && age !== undefined) {
-      const horseAge = parseInt(age.toString());
-      if (isNaN(horseAge) || horseAge < 1 || horseAge > 30) {
-        return NextResponse.json(
-          { error: "Age must be between 1 and 30 years" },
-          { status: 400 }
-        );
-      }
+    // Validate color if provided
+    if (color && !ALLOWED_COLORS.includes(color)) {
+      return NextResponse.json(
+        { error: `Invalid color. Allowed colors: ${ALLOWED_COLORS.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
+    // Validate skills strictly
+    if (!skills || !Array.isArray(skills) || skills.length < 1 || skills.length > 4) {
+      return NextResponse.json(
+        { error: "1 to 4 skills are required." },
+        { status: 400 }
+      );
+    }
+    const invalidSkills = skills.filter((s: string) => !ALLOWED_SKILLS.includes(s));
+    if (invalidSkills.length > 0) {
+      return NextResponse.json(
+        { error: `Invalid skills provided: ${invalidSkills.join(", ")}` },
+        { status: 400 }
+      );
     }
 
     // Create horse
@@ -131,8 +146,8 @@ export async function POST(req: NextRequest) {
         description: description.trim(),
         imageUrls: validImageUrls,
         pricePerHour: pricePerHour ? parseFloat(pricePerHour.toString()) : null,
-        age: age ? parseInt(age.toString()) : null,
-        skills: Array.isArray(skills) ? skills.map((s: string) => s.trim()).filter((s: string) => s.length > 0) : [],
+        color: color || null,
+        skills: skills,
         availabilityStatus: availabilityStatus || "available",
         stableId,
         isActive: true,

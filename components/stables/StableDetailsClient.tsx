@@ -49,7 +49,7 @@ interface Horse {
     imageUrls: string[];
     isActive: boolean;
     pricePerHour?: number | null;
-    age?: number | null;
+    color?: string | null;
     skills?: string[];
     skillLevel?: string;
     adminTier?: string | null;
@@ -473,6 +473,7 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
     // Group slots by horse for DynamicAvailability component
     useEffect(() => {
         if (!stable) return;
+        if (isLoadingSlots) return;
 
         const dateStr = selectedDate.toISOString().split("T")[0];
         const leadTimeHours = stable.minLeadTimeHours || 8;
@@ -721,25 +722,10 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                                     <li><strong>Instant booking confirmation</strong> - No waiting for responses</li>
                                     <li><strong>Verified stable</strong> with {stable.rating > 0 ? `${stable.rating.toFixed(1)}⭐` : 'excellent'} rating from {stable.totalReviews} {stable.totalReviews === 1 ? 'review' : 'reviews'}</li>
                                     <li><strong>Secure online payment</strong> with multiple payment options</li>
-                                    <li><strong>Best price guarantee</strong> - We'll match or beat any price</li>
                                     <li><strong>24/7 customer support</strong> to help with any questions</li>
                                     <li><strong>Compare with other stables</strong> before booking - only on PyraRides</li>
                                     <li><strong>Verified for safety</strong> - All PyraRides stables meet strict safety and quality standards</li>
                                 </ul>
-                            </div>
-
-                            <div>
-                                <h2 className="text-2xl font-bold mb-4">Location & Directions</h2>
-                                <p className="text-muted-foreground mb-2">
-                                    {stable.address ? `${stable.address}, ` : ''}<strong>{stable.location}</strong>, Egypt.
-                                    Easily accessible from Cairo city center, typically a 30-45 minute drive.
-                                    Free parking is available at most stables.
-                                </p>
-                                <p className="text-muted-foreground">
-                                    GPS coordinates and detailed Google Maps directions are provided in your booking confirmation email.
-                                    Most hotels in Cairo can arrange transportation, or you can use taxi/Uber services. Some stables
-                                    offer hotel pickup services for an additional fee.
-                                </p>
                             </div>
                         </Card>
 
@@ -764,10 +750,7 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                                             horse.pricePerHour !== null && horse.pricePerHour !== undefined
                                                 ? `EGP ${Number(horse.pricePerHour).toFixed(0)}/hour`
                                                 : "Contact for pricing";
-                                        const horseAge =
-                                            horse.age !== null && horse.age !== undefined
-                                                ? `${horse.age} years`
-                                                : "Not specified";
+                                        const horseColor = horse.color || "Unknown";
                                         const horseSkills =
                                             horse.skills && horse.skills.length > 0
                                                 ? horse.skills
@@ -840,8 +823,8 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                                                         {/* Horse Details Footer */}
                                                         <div className="space-y-3 border-t pt-4">
                                                             <div className="flex items-center justify-between text-sm">
-                                                                <span className="text-muted-foreground">Age:</span>
-                                                                <span className="font-medium">{horseAge}</span>
+                                                                <span className="text-muted-foreground">Color:</span>
+                                                                <span className="font-medium">{horseColor}</span>
                                                             </div>
                                                             <div className="flex items-start justify-between text-sm">
                                                                 <span className="text-muted-foreground">Skills:</span>

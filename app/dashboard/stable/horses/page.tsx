@@ -39,7 +39,7 @@ interface Horse {
   imageUrls: string[];
   isActive: boolean;
   pricePerHour?: number | null;
-  age?: number | null;
+  color?: string | null;
   skills?: string[];
   availabilityStatus?: "available" | "injured" | "unavailable";
 }
@@ -57,11 +57,15 @@ export default function ManageHorsesPage() {
   const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
   const [successHorseName, setSuccessHorseName] = useState("");
   const [deletedHorseName, setDeletedHorseName] = useState("");
+
+  const ALLOWED_COLORS = ["Adham", "Azra2", "Ashkar", "Ahmar", "Pure White", "Palomino", "Pinto"];
+  const ALLOWED_SKILLS = ["Adab", "Levade", "Impulsion", "Mettle", "Bolt", "Nerve", "Impeccable Manners", "Beginner Friendly"];
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     pricePerHour: "",
-    age: "",
+    color: "",
     skills: [] as string[],
     imageUrls: [] as string[],
     googleDriveUrls: "", // Temporary field for pasting multiple URLs
@@ -177,9 +181,9 @@ export default function ManageHorsesPage() {
         return;
       }
 
-      // Validate age if provided
-      if (formData.age && (parseInt(formData.age) < 1 || parseInt(formData.age) > 30)) {
-        alert("⚠️ Age must be between 1 and 30 years");
+      // Validate skills
+      if (formData.skills.length < 1 || formData.skills.length > 4) {
+        alert("⚠️ Please select between 1 and 4 skills.");
         setIsSubmitting(false);
         return;
       }
@@ -192,7 +196,7 @@ export default function ManageHorsesPage() {
           name: formData.name.trim(),
           description: formData.description.trim(),
           pricePerHour: formData.pricePerHour ? parseFloat(formData.pricePerHour) : null,
-          age: formData.age ? parseInt(formData.age) : null,
+          color: formData.color || null,
           skills: formData.skills,
           imageUrls,
           availabilityStatus: formData.availabilityStatus,
@@ -213,7 +217,7 @@ export default function ManageHorsesPage() {
         name: "",
         description: "",
         pricePerHour: "",
-        age: "",
+        color: "",
         skills: [],
         imageUrls: [],
         googleDriveUrls: "",
@@ -299,6 +303,13 @@ export default function ManageHorsesPage() {
         return;
       }
 
+      // Validate skills
+      if (formData.skills.length < 1 || formData.skills.length > 4) {
+        alert("⚠️ Please select between 1 and 4 skills.");
+        setIsSubmitting(false);
+        return;
+      }
+
       const response = await fetch(`/api/horses/${editingHorse.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -306,7 +317,7 @@ export default function ManageHorsesPage() {
           name: formData.name.trim(),
           description: formData.description.trim(),
           pricePerHour: formData.pricePerHour ? parseFloat(formData.pricePerHour) : null,
-          age: formData.age ? parseInt(formData.age) : null,
+          color: formData.color || null,
           skills: formData.skills,
           imageUrls,
           availabilityStatus: formData.availabilityStatus,
@@ -327,7 +338,7 @@ export default function ManageHorsesPage() {
         name: "",
         description: "",
         pricePerHour: "",
-        age: "",
+        color: "",
         skills: [],
         imageUrls: [],
         googleDriveUrls: "",
@@ -555,7 +566,7 @@ export default function ManageHorsesPage() {
                               name: horse.name,
                               description: horse.description,
                               pricePerHour: horse.pricePerHour?.toString() || "",
-                              age: horse.age?.toString() || "",
+                              color: horse.color || "",
                               skills: horse.skills || [],
                               imageUrls: [],
                               googleDriveUrls: horse.imageUrls.join("\n"),
@@ -647,7 +658,7 @@ export default function ManageHorsesPage() {
                 />
               </div>
 
-              {/* Price & Age Row */}
+              {/* Price & Color Row */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="pricePerHour">Price Per Hour (EGP)</Label>
@@ -665,39 +676,56 @@ export default function ManageHorsesPage() {
                   </p>
                 </div>
                 <div>
-                  <Label htmlFor="age">Age (Years)</Label>
-                  <Input
-                    id="age"
-                    type="number"
-                    min="1"
-                    max="30"
-                    value={formData.age}
-                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                    placeholder="e.g., 8"
-                  />
+                  <Label htmlFor="color">Horse Color</Label>
+                  <select
+                    id="color"
+                    value={formData.color}
+                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <option value="">Select a color...</option>
+                    {ALLOWED_COLORS.map(color => (
+                      <option key={color} value={color}>{color}</option>
+                    ))}
+                  </select>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Optional - age in years
+                    Optional classification
                   </p>
                 </div>
               </div>
 
               {/* Skills */}
               <div>
-                <Label htmlFor="skills">Skills (comma-separated)</Label>
-                <Input
-                  id="skills"
-                  value={formData.skills.join(", ")}
-                  onChange={(e) => {
-                    const skills = e.target.value
-                      .split(",")
-                      .map((s) => s.trim())
-                      .filter((s) => s.length > 0);
-                    setFormData({ ...formData, skills });
-                  }}
-                  placeholder="e.g., Beginner-friendly, Calm, Well-trained"
-                />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Separate multiple skills with commas
+                <Label>Skills (Select 1 to 4)</Label>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  {ALLOWED_SKILLS.map(skill => (
+                    <div key={skill} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id={`skill-${skill}`}
+                        checked={formData.skills.includes(skill)}
+                        onChange={(e) => {
+                          const currentSkills = formData.skills;
+                          if (e.target.checked) {
+                            if (currentSkills.length < 4) {
+                              setFormData({ ...formData, skills: [...currentSkills, skill] });
+                            } else {
+                              alert("You can only select up to 4 skills.");
+                            }
+                          } else {
+                            setFormData({ ...formData, skills: currentSkills.filter(s => s !== skill) });
+                          }
+                        }}
+                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <label htmlFor={`skill-${skill}`} className="text-sm cursor-pointer select-none">
+                        {skill}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Highlight {formData.skills.length}/4 of the horse's best qualities.
                 </p>
               </div>
 
@@ -832,7 +860,7 @@ export default function ManageHorsesPage() {
                     name: "",
                     description: "",
                     pricePerHour: "",
-                    age: "",
+                    color: "",
                     skills: [],
                     imageUrls: [],
                     googleDriveUrls: "",
@@ -871,7 +899,7 @@ export default function ManageHorsesPage() {
             name: "",
             description: "",
             pricePerHour: "",
-            age: "",
+            color: "",
             skills: [],
             imageUrls: [],
             googleDriveUrls: "",
@@ -934,34 +962,54 @@ export default function ManageHorsesPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="edit-age">Age (Years)</Label>
-                  <Input
-                    id="edit-age"
-                    type="number"
-                    min="1"
-                    max="30"
-                    value={formData.age}
-                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                    placeholder="e.g., 8"
-                  />
+                  <Label htmlFor="edit-color">Horse Color</Label>
+                  <select
+                    id="edit-color"
+                    value={formData.color}
+                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <option value="">Select a color...</option>
+                    {ALLOWED_COLORS.map(color => (
+                      <option key={color} value={color}>{color}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
               {/* Skills */}
               <div>
-                <Label htmlFor="edit-skills">Skills (comma-separated)</Label>
-                <Input
-                  id="edit-skills"
-                  value={Array.isArray(formData.skills) ? formData.skills.join(", ") : ""}
-                  onChange={(e) => {
-                    const skills = e.target.value
-                      .split(",")
-                      .map((s) => s.trim())
-                      .filter((s) => s.length > 0);
-                    setFormData({ ...formData, skills });
-                  }}
-                  placeholder="e.g., Beginner-friendly, Calm, Well-trained"
-                />
+                <Label>Skills (Select 1 to 4)</Label>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  {ALLOWED_SKILLS.map(skill => (
+                    <div key={skill} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id={`edit-skill-${skill}`}
+                        checked={formData.skills.includes(skill)}
+                        onChange={(e) => {
+                          const currentSkills = formData.skills;
+                          if (e.target.checked) {
+                            if (currentSkills.length < 4) {
+                              setFormData({ ...formData, skills: [...currentSkills, skill] });
+                            } else {
+                              alert("You can only select up to 4 skills.");
+                            }
+                          } else {
+                            setFormData({ ...formData, skills: currentSkills.filter(s => s !== skill) });
+                          }
+                        }}
+                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <label htmlFor={`edit-skill-${skill}`} className="text-sm cursor-pointer select-none">
+                        {skill}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Highlight {formData.skills.length}/4 of the horse's best qualities.
+                </p>
               </div>
 
               {/* Availability Status */}
@@ -1031,7 +1079,7 @@ export default function ManageHorsesPage() {
                     name: "",
                     description: "",
                     pricePerHour: "",
-                    age: "",
+                    color: "",
                     skills: [],
                     imageUrls: [],
                     googleDriveUrls: "",

@@ -77,7 +77,10 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { name, description, imageUrls, pricePerHour, age, skills, availabilityStatus } = body;
+    const { name, description, imageUrls, pricePerHour, color, skills, availabilityStatus } = body;
+
+    const ALLOWED_COLORS = ["Adham", "Azra2", "Ashkar", "Ahmar", "Pure White", "Palomino", "Pinto"];
+    const ALLOWED_SKILLS = ["Adab", "Levade", "Impulsion", "Mettle", "Bolt", "Nerve", "Impeccable Manners", "Beginner Friendly"];
 
     // Validate required fields
     if (!name || !description) {
@@ -98,6 +101,29 @@ export async function PATCH(
           { status: 400 }
         );
       }
+    }
+
+    // Validate color if provided
+    if (color && !ALLOWED_COLORS.includes(color)) {
+      return NextResponse.json(
+        { error: `Invalid color. Allowed colors: ${ALLOWED_COLORS.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
+    // Validate skills strictly
+    if (!skills || !Array.isArray(skills) || skills.length < 1 || skills.length > 4) {
+      return NextResponse.json(
+        { error: "1 to 4 skills are required." },
+        { status: 400 }
+      );
+    }
+    const invalidSkills = skills.filter((s: string) => !ALLOWED_SKILLS.includes(s));
+    if (invalidSkills.length > 0) {
+      return NextResponse.json(
+        { error: `Invalid skills provided: ${invalidSkills.join(", ")}` },
+        { status: 400 }
+      );
     }
 
     // Check if price or description changed (these need admin approval)
@@ -140,8 +166,8 @@ export async function PATCH(
         where: { id: params.id },
         data: {
           name: name.trim(),
-          age: age ? parseInt(age.toString()) : null,
-          skills: Array.isArray(skills) ? skills.map((s: string) => s.trim()).filter((s: string) => s.length > 0) : [],
+          color: color || null,
+          skills: skills,
           availabilityStatus: availabilityStatus || horse.availabilityStatus || "available",
           imageUrls: imageUrls || horse.imageUrls,
         },
@@ -185,8 +211,8 @@ export async function PATCH(
         description: description.trim(),
         imageUrls: imageUrls || horse.imageUrls,
         pricePerHour: pricePerHour ? parseFloat(pricePerHour.toString()) : null,
-        age: age ? parseInt(age.toString()) : null,
-        skills: Array.isArray(skills) ? skills.map((s: string) => s.trim()).filter((s: string) => s.length > 0) : [],
+        color: color || null,
+        skills: skills,
         availabilityStatus: availabilityStatus || horse.availabilityStatus || "available",
       },
     });

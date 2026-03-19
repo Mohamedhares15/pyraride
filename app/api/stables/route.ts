@@ -103,6 +103,9 @@ export async function GET(req: NextRequest) {
     const minRating = searchParams.get("minRating");
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
+    const color = searchParams.get("color");
+    const skillsParam = searchParams.get("skills");
+    const skills = skillsParam ? skillsParam.split(",") : null;
     const ownerOnly = searchParams.get("ownerOnly") === "true"; // Get only owner's stable
     const sort = searchParams.get("sort") || "recommended";
     const isAdmin = session?.user?.role === "admin";
@@ -160,6 +163,8 @@ export async function GET(req: NextRequest) {
         horses: {
           where: {
             isActive: true,
+            ...(color && color !== "all" ? { color } : {}),
+            ...(skills && skills.length > 0 ? { skills: { hasSome: skills } } : {}),
           },
           select: {
             id: true,
@@ -167,7 +172,7 @@ export async function GET(req: NextRequest) {
             description: true,
             imageUrls: true,
             pricePerHour: true,
-            age: true,
+            color: true,
             skills: true,
             skillLevel: true,
             adminTier: true,
@@ -331,7 +336,7 @@ export async function GET(req: NextRequest) {
               : stable._count.bookings,
           distanceKm,
           stableRating,
-          age: horse.age,
+          color: horse.color,
           skills: horse.skills,
           skillLevel: horse.skillLevel,
           adminTier: horse.adminTier,
@@ -380,7 +385,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const sortByHorsePrice = sort === "price-asc" || sort === "price-desc" || minPrice || maxPrice;
+    const sortByHorsePrice = sort === "price-asc" || sort === "price-desc" || minPrice || maxPrice || (color && color !== "all") || (skills && skills.length > 0);
 
     if (sortByHorsePrice) {
       const horseEntries = stablesWithRating
@@ -424,7 +429,7 @@ export async function GET(req: NextRequest) {
                 skills: horse.skills,
                 skillLevel: horse.skillLevel,
                 adminTier: horse.adminTier,
-                age: horse.age,
+                color: horse.color,
               };
             })
         )

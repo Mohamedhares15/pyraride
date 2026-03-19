@@ -20,11 +20,15 @@ interface SearchFiltersProps {
   minPrice: string;
   maxPrice: string;
   sort: string;
+  color: string;
+  skills: string[];
   onSearchChange: (value: string) => void;
   onLocationChange: (value: string) => void;
   onRatingChange: (value: string) => void;
   onPriceChange: (min: string, max: string) => void;
   onSortChange: (value: string) => void;
+  onColorChange: (value: string) => void;
+  onSkillsChange: (value: string[]) => void;
   onClear: () => void;
 }
 
@@ -35,13 +39,19 @@ export default function SearchFilters({
   minPrice,
   maxPrice,
   sort,
+  color,
+  skills,
   onSearchChange,
   onLocationChange,
   onRatingChange,
   onPriceChange,
   onSortChange,
+  onColorChange,
+  onSkillsChange,
   onClear,
 }: SearchFiltersProps) {
+  const ALLOWED_COLORS = ["Adham", "Azra2", "Ashkar", "Ahmar", "Pure White", "Palomino", "Pinto"];
+  const ALLOWED_SKILLS = ["Adab", "Levade", "Impulsion", "Mettle", "Bolt", "Nerve", "Impeccable Manners", "Beginner Friendly"];
   const [locations, setLocations] = useState<{ id: string; name: string }[]>([]);
   // Local slider value — update URL only on drag end to avoid constant re-fetches
   const [localMax, setLocalMax] = useState(maxPrice ? parseInt(maxPrice) : 5000);
@@ -60,7 +70,7 @@ export default function SearchFilters({
   }, [maxPrice]);
 
   const hasActiveFilters =
-    search || location !== "all" || minRating !== "0" || minPrice || maxPrice;
+    search || location !== "all" || minRating !== "0" || minPrice || maxPrice || color !== "all" || skills.length > 0;
 
   const pct = (localMax / 5000) * 100;
   const displayLabel =
@@ -138,6 +148,26 @@ export default function SearchFilters({
             </Select>
           </div>
 
+        </div>
+
+        {/* Second Row Grid */}
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-2">
+          {/* Color */}
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Horse Color</Label>
+            <Select value={color} onValueChange={onColorChange}>
+              <SelectTrigger className="h-11 rounded-xl border-border/60 bg-background/50">
+                <SelectValue placeholder="Any Color" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any Color</SelectItem>
+                {ALLOWED_COLORS.map(c => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Sort */}
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Sort By</Label>
@@ -151,6 +181,43 @@ export default function SearchFilters({
                 <SelectItem value="distance">Nearest First</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </div>
+
+        {/* Skills */}
+        <div className="space-y-3">
+          <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Skills (Select 1-4)
+          </Label>
+          <div className="flex flex-wrap gap-2">
+            {ALLOWED_SKILLS.map((skill) => {
+              const isSelected = skills.includes(skill);
+              return (
+                <button
+                  key={skill}
+                  onClick={() => {
+                    let newSkills;
+                    if (isSelected) {
+                      newSkills = skills.filter(s => s !== skill);
+                    } else {
+                      if (skills.length >= 4) {
+                        alert("You can select maximum 4 skills for filtering.");
+                        return;
+                      }
+                      newSkills = [...skills, skill];
+                    }
+                    onSkillsChange(newSkills);
+                  }}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
+                    isSelected 
+                      ? 'bg-primary text-primary-foreground border-primary shadow-sm' 
+                      : 'bg-background hover:bg-muted text-muted-foreground border-border/60'
+                  }`}
+                >
+                  {skill}
+                </button>
+              );
+            })}
           </div>
         </div>
 
