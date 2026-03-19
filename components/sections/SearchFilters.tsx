@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Search, X } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Search, X, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -44,6 +43,9 @@ export default function SearchFilters({
   onClear,
 }: SearchFiltersProps) {
   const [locations, setLocations] = useState<{ id: string; name: string }[]>([]);
+  // Local slider value — update URL only on drag end to avoid constant re-fetches
+  const [localMax, setLocalMax] = useState(maxPrice ? parseInt(maxPrice) : 5000);
+  const isDragging = useRef(false);
 
   useEffect(() => {
     fetch("/api/locations")
@@ -52,136 +54,178 @@ export default function SearchFilters({
       .catch((err) => console.error("Failed to fetch locations:", err));
   }, []);
 
+  // Keep local value in sync if parent changes externally
+  useEffect(() => {
+    setLocalMax(maxPrice ? parseInt(maxPrice) : 5000);
+  }, [maxPrice]);
+
   const hasActiveFilters =
     search || location !== "all" || minRating !== "0" || minPrice || maxPrice;
 
+  const pct = (localMax / 5000) * 100;
+  const displayLabel =
+    localMax >= 5000 ? "Any Price" : `Up to EGP ${localMax.toLocaleString()}`;
+
   return (
-    <div className="space-y-6 rounded-lg border border-border bg-card p-6 shadow-sm">
-      {/* Title */}
-      <div className="flex items-center justify-between">
-        <h2 className="font-display text-2xl font-bold">Search Stables</h2>
+    <div className="rounded-2xl border border-border/60 bg-card shadow-lg shadow-black/5 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-border/40 px-6 py-4">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="h-4 w-4 text-primary" />
+          <h2 className="font-semibold text-base tracking-tight">Search & Filter</h2>
+        </div>
         {hasActiveFilters && (
           <Button
             variant="ghost"
             size="sm"
             onClick={onClear}
-            className="gap-2"
+            className="gap-1.5 text-muted-foreground hover:text-foreground h-8 px-3 text-xs"
           >
-            <X className="h-4 w-4" />
-            Clear Filters
+            <X className="h-3.5 w-3.5" />
+            Clear All
           </Button>
         )}
       </div>
 
-      {/* Search Input */}
-      <div className="space-y-2">
-        <Label htmlFor="search">Search by name or description</Label>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            id="search"
-            type="text"
-            placeholder="Search for stables..."
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="grid gap-4 md:grid-cols-3">
-        {/* Location Filter */}
+      <div className="p-6 space-y-6">
+        {/* Search Input */}
         <div className="space-y-2">
-          <Label htmlFor="location">Location</Label>
-          <Select value={location} onValueChange={onLocationChange}>
-            <SelectTrigger id="location">
-              <SelectValue placeholder="Select location" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Locations</SelectItem>
-              {locations.map((loc) => (
-                <SelectItem key={loc.id} value={loc.name}>
-                  {loc.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Search</Label>
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="search"
+              type="text"
+              placeholder="Search for stables or horses..."
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="pl-10 h-11 rounded-xl border-border/60 bg-background/50 focus-visible:ring-primary/30"
+            />
+          </div>
         </div>
 
-        {/* Max Price Filter (Single thumb, right-to-left) */}
-        <div className="space-y-4">
+        {/* Filters Grid */}
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Location */}
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Location</Label>
+            <Select value={location} onValueChange={onLocationChange}>
+              <SelectTrigger className="h-11 rounded-xl border-border/60 bg-background/50">
+                <SelectValue placeholder="All Locations" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Locations</SelectItem>
+                {locations.map((loc) => (
+                  <SelectItem key={loc.id} value={loc.name}>{loc.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Min Rating */}
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Min. Rating</Label>
+            <Select value={minRating} onValueChange={onRatingChange}>
+              <SelectTrigger className="h-11 rounded-xl border-border/60 bg-background/50">
+                <SelectValue placeholder="Any Rating" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">Any Rating</SelectItem>
+                <SelectItem value="3">3+ Stars ⭐⭐⭐</SelectItem>
+                <SelectItem value="4">4+ Stars ⭐⭐⭐⭐</SelectItem>
+                <SelectItem value="5">5 Stars ⭐⭐⭐⭐⭐</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Sort */}
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Sort By</Label>
+            <Select value={sort} onValueChange={onSortChange}>
+              <SelectTrigger className="h-11 rounded-xl border-border/60 bg-background/50">
+                <SelectValue placeholder="Recommended" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recommended">Recommended</SelectItem>
+                <SelectItem value="rating">Highest Rating</SelectItem>
+                <SelectItem value="distance">Nearest First</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* ── LUXURY PRICE SLIDER ── */}
+        <div className="space-y-4 rounded-xl border border-border/40 bg-muted/20 p-5">
           <div className="flex items-center justify-between">
-            <Label>Price Range (EGP)</Label>
-            <span className="text-sm font-medium text-primary">
-              {!maxPrice || parseInt(maxPrice) >= 5000
-                ? "Any Price"
-                : `Up to EGP ${maxPrice}`}
+            <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Price Range
+            </Label>
+            <span
+              className={`text-sm font-bold tabular-nums transition-colors duration-200 ${
+                localMax >= 5000 ? "text-muted-foreground" : "text-primary"
+              }`}
+            >
+              {displayLabel}
             </span>
           </div>
-          <input
-            type="range"
-            min="0"
-            max="5000"
-            step="100"
-            value={maxPrice ? parseInt(maxPrice) : 5000}
-            onChange={(e) => {
-              e.stopPropagation();
-              const val = parseInt(e.target.value);
-              // Always set minPrice to 0, only adjust maxPrice
-              onPriceChange("0", val >= 5000 ? "" : val.toString());
-            }}
-            className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-            style={{
-              background: `linear-gradient(to right, hsl(var(--primary)) ${((maxPrice ? parseInt(maxPrice) : 5000) / 5000) * 100}%, hsl(var(--muted)) ${((maxPrice ? parseInt(maxPrice) : 5000) / 5000) * 100}%)`
-            }}
-          />
-          <div className="flex justify-between text-xs text-muted-foreground">
+
+          {/* Track + Thumb */}
+          <div className="relative pt-1 pb-1">
+            {/* Background track */}
+            <div className="h-1.5 w-full rounded-full bg-border/60" />
+
+            {/* Filled track (active) */}
+            <div
+              className="absolute top-1 left-0 h-1.5 rounded-full bg-gradient-to-r from-primary/70 to-primary transition-all duration-75"
+              style={{ width: `${pct}%` }}
+            />
+
+            {/* Actual range input, invisible but interactive on top */}
+            <input
+              type="range"
+              min={0}
+              max={5000}
+              step={100}
+              value={localMax}
+              onMouseDown={() => { isDragging.current = true; }}
+              onTouchStart={() => { isDragging.current = true; }}
+              onChange={(e) => {
+                e.stopPropagation();
+                setLocalMax(parseInt(e.target.value));
+              }}
+              onMouseUp={(e) => {
+                isDragging.current = false;
+                const val = parseInt((e.target as HTMLInputElement).value);
+                onPriceChange("0", val >= 5000 ? "" : val.toString());
+              }}
+              onTouchEnd={(e) => {
+                isDragging.current = false;
+                const val = parseInt((e.target as HTMLInputElement).value);
+                onPriceChange("0", val >= 5000 ? "" : val.toString());
+              }}
+              className="absolute inset-0 w-full opacity-0 cursor-pointer h-full"
+              style={{ WebkitAppearance: "none", appearance: "none" }}
+            />
+
+            {/* Custom thumb bubble */}
+            <div
+              className="pointer-events-none absolute top-1/2 -translate-y-1/2 -translate-x-1/2 transition-all duration-75"
+              style={{ left: `${pct}%` }}
+            >
+              <div className="relative flex items-center justify-center">
+                <div className="h-5 w-5 rounded-full border-[3px] border-primary bg-background shadow-lg shadow-primary/30 ring-4 ring-primary/10" />
+              </div>
+            </div>
+          </div>
+
+          {/* Scale labels */}
+          <div className="flex justify-between text-[10px] font-medium tracking-wide text-muted-foreground/60 uppercase">
             <span>EGP 0</span>
             <span>EGP 2,500</span>
             <span>EGP 5,000+</span>
           </div>
         </div>
-
-        {/* Rating Filter */}
-        <div className="space-y-2">
-          <Label htmlFor="rating">Minimum Rating</Label>
-          <Select value={minRating} onValueChange={onRatingChange}>
-            <SelectTrigger id="rating">
-              <SelectValue placeholder="Select rating" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="0">Any Rating</SelectItem>
-              <SelectItem value="3">3+ Stars</SelectItem>
-              <SelectItem value="4">4+ Stars</SelectItem>
-              <SelectItem value="5">5 Stars</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Sort */}
-        <div className="space-y-2">
-          <Label htmlFor="sort">Sort by</Label>
-          <Select value={sort} onValueChange={onSortChange}>
-            <SelectTrigger id="sort">
-              <SelectValue placeholder="Recommended" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="recommended">Recommended</SelectItem>
-              <SelectItem value="rating">Rating: High to Low</SelectItem>
-              <SelectItem value="distance">Distance: Nearest first</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
       </div>
-
-      {/* Results Count */}
-      {hasActiveFilters && (
-        <div className="rounded-md bg-primary/10 p-3 text-sm text-primary">
-          Showing filtered results
-        </div>
-      )}
     </div>
   );
 }
-

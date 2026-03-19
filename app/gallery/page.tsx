@@ -146,8 +146,8 @@ export default function GalleryPage() {
           </div>
         </section>
 
-        {/* Gallery — single column, full width cards */}
-        <section className="mx-auto max-w-[1920px] px-4 py-16 md:px-8 md:py-24">
+        {/* Gallery */}
+        <section className="mx-auto max-w-3xl px-4 py-16 md:px-8 md:py-24">
           {isLoading ? (
             <div className="flex h-96 items-center justify-center">
               <Loader2 className="h-12 w-12 animate-spin text-white/20" />
@@ -164,49 +164,55 @@ export default function GalleryPage() {
             </motion.div>
           ) : (
             <>
-              {/* 1 image per row, full width */}
-              <div className="flex flex-col gap-8 max-w-3xl mx-auto">
+              <div className="flex flex-col gap-10">
                 {items.map((item, index) => (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-80px" }}
-                    transition={{ duration: 0.6, delay: Math.min(index * 0.05, 0.3) }}
-                    className="group relative overflow-hidden rounded-2xl bg-white/[0.02] shadow-2xl shadow-black/50"
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    className="group relative overflow-hidden rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.8)]"
                   >
-                    <div className="relative w-full overflow-hidden">
+                    {/*
+                      IMPORTANT: Fixed tall aspect ratio so the browser always
+                      reserves the correct space → no layout shift / gray boxes.
+                      Using 3/4 (taller than wide) for a luxury editorial look.
+                    */}
+                    <div
+                      className="relative w-full overflow-hidden bg-zinc-900"
+                      style={{ aspectRatio: "3 / 4" }}
+                    >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={`/api/gallery/image/${item.id}`}
                         alt={item.caption || "Gallery photo"}
-                        loading={index < 4 ? "eager" : "lazy"}
+                        loading={index < 3 ? "eager" : "lazy"}
                         decoding="async"
-                        className="w-full object-cover transition-all duration-700 group-hover:scale-[1.02]"
-                        style={{ aspectRatio: "4/3" }}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                       />
-                      {/* Caption overlay on hover */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                      <div className="absolute inset-0 flex items-end p-6 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                        <div className="w-full transform translate-y-4 transition-transform duration-500 group-hover:translate-y-0">
-                          <p className="text-base font-medium text-white drop-shadow-lg">
-                            {item.caption || "PyraRides Experience"}
-                          </p>
+
+                      {/* Luxury gradient overlay — always at bottom */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+
+                      {/* Caption — only on hover/press */}
+                      <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-2 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="h-px flex-1 bg-white/30" />
+                          <span className="text-white/40 text-xs tracking-widest uppercase">PyraRides</span>
+                          <div className="h-px flex-1 bg-white/30" />
                         </div>
+                        <p className="text-base font-semibold text-white text-center tracking-wide drop-shadow-lg">
+                          {item.caption || "PyraRides Experience"}
+                        </p>
                       </div>
-                    </div>
-                    {/* Always-visible caption below image */}
-                    <div className="px-6 py-4">
-                      <p className="text-sm font-medium text-white/60">
-                        {item.caption || "PyraRides Experience"}
-                      </p>
                     </div>
                   </motion.div>
                 ))}
               </div>
 
               {hasMore && (
-                <div className="mt-12 flex justify-center">
+                <div className="mt-16 flex justify-center">
                   <Button
                     onClick={loadMore}
                     disabled={isLoadingMore}
@@ -225,7 +231,7 @@ export default function GalleryPage() {
         </section>
 
         {/* Upload Section */}
-        <section className="relative border-t border-white/10 bg-gradient-to-b from-white/5 to-black py-32 backdrop-blur-lg">
+        <section className="relative border-t border-white/10 bg-gradient-to-b from-white/5 to-black py-32">
           <div className="mx-auto max-w-4xl px-4 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

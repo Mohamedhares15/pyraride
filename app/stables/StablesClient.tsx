@@ -142,37 +142,33 @@ export default function StablesClient() {
     fetchStables();
   }, [fetchStables]);
 
+  // KEY FIX: use router.replace with scroll: false to prevent page jump on every filter change
+  const updateUrl = (params: URLSearchParams) => {
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
+
   const handleSearchChange = (value: string) => {
     setSearch(value);
     const params = new URLSearchParams(searchParams);
-    if (value) {
-      params.set("search", value);
-    } else {
-      params.delete("search");
-    }
-    router.push(`?${params.toString()}`);
+    if (value) params.set("search", value);
+    else params.delete("search");
+    updateUrl(params);
   };
 
   const handleLocationChange = (value: string) => {
     setLocation(value);
     const params = new URLSearchParams(searchParams);
-    if (value !== "all") {
-      params.set("location", value);
-    } else {
-      params.delete("location");
-    }
-    router.push(`?${params.toString()}`);
+    if (value !== "all") params.set("location", value);
+    else params.delete("location");
+    updateUrl(params);
   };
 
   const handleRatingChange = (value: string) => {
     setMinRating(value);
     const params = new URLSearchParams(searchParams);
-    if (value !== "0") {
-      params.set("minRating", value);
-    } else {
-      params.delete("minRating");
-    }
-    router.push(`?${params.toString()}`);
+    if (value !== "0") params.set("minRating", value);
+    else params.delete("minRating");
+    updateUrl(params);
   };
 
   const handlePriceChange = (min: string, max: string) => {
@@ -183,18 +179,15 @@ export default function StablesClient() {
     else params.delete("minPrice");
     if (max) params.set("maxPrice", max);
     else params.delete("maxPrice");
-    router.push(`?${params.toString()}`);
+    updateUrl(params);
   };
 
   const handleSortChange = (value: string) => {
     setSort(value);
     const params = new URLSearchParams(searchParams);
-    if (value && value !== "recommended") {
-      params.set("sort", value);
-    } else {
-      params.delete("sort");
-    }
-    router.push(`?${params.toString()}`);
+    if (value && value !== "recommended") params.set("sort", value);
+    else params.delete("sort");
+    updateUrl(params);
   };
 
   const handleClear = () => {
@@ -204,7 +197,7 @@ export default function StablesClient() {
     setMinPrice("");
     setMaxPrice("");
     setSort("recommended");
-    router.push("/stables");
+    router.replace("/stables", { scroll: false });
   };
 
   return (
@@ -299,4 +292,3 @@ export default function StablesClient() {
     </div>
   );
 }
-
