@@ -43,7 +43,7 @@ interface HorseResult {
   media?: Array<{ url: string; type: string }>;
   distanceKm?: number;
   adminTier?: string;
-  age?: number;
+  color?: string | null;
   skills?: string[];
   description?: string;
 }
@@ -98,7 +98,7 @@ export default function StablesClient() {
       setMode((data.mode as StableMode) || "stable");
       setResults(
         (data.stables || []).map((item: any) =>
-          sort === "price-asc" || sort === "price-desc" || minPrice || maxPrice
+          sort === "price-asc" || sort === "price-desc" || minPrice || maxPrice || (color && color !== "all") || (skills && skills.length > 0) || data.mode === "horse"
             ? ({
               type: "horse",
               id: item.id,
@@ -115,7 +115,7 @@ export default function StablesClient() {
               stableLocation: item.stableLocation,
               distanceKm: item.distanceKm,
               adminTier: item.adminTier,
-              age: item.age,
+              color: item.color,
               skills: item.skills,
               description: item.description,
             } as HorseResult)
