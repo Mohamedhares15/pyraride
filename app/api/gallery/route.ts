@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "12", 10);
+    const limit = parseInt(searchParams.get("limit") || "20", 10);
     const skip = (page - 1) * limit;
 
     const [items, total] = await Promise.all([
@@ -16,10 +16,10 @@ export async function GET(req: NextRequest) {
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
-        // Only select what we need — no heavy fields
+        // Only return ID and caption — NOT url (which can be a huge base64 string)
+        // Images are served via /api/gallery/image/[id]
         select: {
           id: true,
-          url: true,
           caption: true,
           createdAt: true,
         },
