@@ -611,7 +611,7 @@ export default function ManageHorsesPage() {
             name: "",
             description: "",
             pricePerHour: "",
-            age: "",
+            color: "",
             skills: [],
             imageUrls: [],
             googleDriveUrls: "",
