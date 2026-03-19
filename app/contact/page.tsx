@@ -136,8 +136,8 @@ export default function ContactPage() {
                       <p className="text-sm text-white/60 mb-2">
                         Best for: General inquiries, booking support, detailed questions
                       </p>
-                      <a href="mailto:support@pyraride.com" className="text-primary hover:text-primary/80 font-medium transition-colors">
-                        support@pyraride.com
+                      <a href="mailto:support@pyrarides.com" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                        support@pyrarides.com
                       </a>
                       <p className="text-xs text-white/40 mt-2">
                         ⚡ Response time: 2-4 hours
@@ -177,13 +177,13 @@ export default function ContactPage() {
               <CardContent className="pt-6 pb-6">
                 <h3 className="font-bold text-white mb-2">Stable Partnership Inquiries</h3>
                 <p className="text-sm text-white/60 mb-3">
-                  Interested in listing your stable on PyraRide?
+                  Interested in listing your stable on PyraRides?
                 </p>
                 <a
-                  href="mailto:partnerships@pyraride.com"
+                  href="mailto:partnerships@pyrarides.com"
                   className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors"
                 >
-                  partnerships@pyraride.com
+                  partnerships@pyrarides.com
                 </a>
               </CardContent>
             </Card>

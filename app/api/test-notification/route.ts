@@ -31,7 +31,7 @@ export async function POST(req: Request) {
         const result = await sendPushNotification(
             user.pushToken,
             "Test Notification 🔔",
-            "This is a test notification from PyraRide to confirm your device is connected!",
+            "This is a test notification from PyraRides to confirm your device is connected!",
             {
                 url: "/dashboard",
             }

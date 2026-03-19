@@ -1,4 +1,4 @@
-# 🏢 **Complete Guide: How to Add Stable Owners to PyraRide**
+# 🏢 **Complete Guide: How to Add Stable Owners to PyraRides**
 
 ## 📋 **Two Methods to Add Stable Owners:**
 
@@ -7,7 +7,7 @@
 ## **Method 1: Via Website Registration + Database Update (RECOMMENDED)**
 
 ### **Step 1: Create User Account via Website**
-1. Go to: https://pyraride.vercel.app
+1. Go to: https://pyrarides.vercel.app
 2. Click "Sign In" or "Get Started"
 3. Click "Sign Up"
 4. Fill in:
@@ -21,7 +21,7 @@
 
 #### **Option A: Via Neon Console (Easiest)**
 1. Go to: https://console.neon.tech
-2. Open your `pyraride` database
+2. Open your `pyrarides` database
 3. Click "SQL Editor" → "New Query"
 4. Run this SQL:
 
@@ -41,7 +41,7 @@ WHERE email = 'owner@giza-pyramids.com';
 #### **Option B: Via API (If you have API access)**
 ```bash
 # Update role via API (requires admin access)
-curl -X POST https://pyraride.vercel.app/api/admin/users/update-role \
+curl -X POST https://pyrarides.vercel.app/api/admin/users/update-role \
   -H "Content-Type: application/json" \
   -d '{"email": "owner@giza-pyramids.com", "role": "stable_owner"}'
 ```
@@ -68,7 +68,7 @@ See `CREATE_TEST_STABLE_OWNERS.sql` below!
 2. Make API call to create stable:
 
 ```bash
-curl -X POST https://pyraride.vercel.app/api/stables \
+curl -X POST https://pyrarides.vercel.app/api/stables \
   -H "Content-Type: application/json" \
   -H "Cookie: your-session-cookie" \
   -d '{

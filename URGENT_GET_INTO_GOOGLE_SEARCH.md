@@ -1,4 +1,4 @@
-# 🚨 URGENT: Why PyraRide Isn't in Google Search & How to Fix It
+# 🚨 URGENT: Why PyraRides Isn't in Google Search & How to Fix It
 
 ## 📊 **Analysis from Your Screenshots:**
 
@@ -11,9 +11,9 @@ Based on your Google Search Console data and search results, here's exactly why 
 ### **Problem #1: Sitemap Has Wrong Domain URLs (11 Errors)**
 **What Google Shows:**
 - Sitemap contains URLs like:
-  - `https://pyraride.vercel.app` (Line 3)
-  - `https://pyraride.vercel.app/stables` (Line 9)
-  - `https://pyraride.vercel.app/faq` (Line 15)
+  - `https://pyrarides.vercel.app` (Line 3)
+  - `https://pyrarides.vercel.app/stables` (Line 9)
+  - `https://pyrarides.vercel.app/faq` (Line 15)
 
 **Why This Happens:**
 - Google cached the old sitemap from before you updated the code
@@ -49,7 +49,7 @@ Based on your Google Search Console data and search results, here's exactly why 
 **Why This Happens:**
 1. **Site is brand new** - No authority yet
 2. **Not indexed** - Google doesn't have your content in search yet
-3. **No brand recognition** - Google doesn't know "PyraRide" exists
+3. **No brand recognition** - Google doesn't know "PyraRides" exists
 4. **Typo correction** - Google thinks "pyrarides" is a typo of "pyramids"
 
 **This is COMPLETELY NORMAL for new sites!**
@@ -174,7 +174,7 @@ After deployment, test:
 This is **100% normal** for new sites! Here's why:
 
 1. **Your site isn't indexed yet** - Google has no content to show
-2. **No brand authority** - Google doesn't recognize "PyraRide" as a brand
+2. **No brand authority** - Google doesn't recognize "PyraRides" as a brand
 3. **Typo correction algorithm** - Google sees "pyrarides" and thinks "pyramids" typo
 4. **No search history** - No one has searched for "pyrarides" before
 

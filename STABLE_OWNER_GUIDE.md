@@ -19,7 +19,7 @@ This creates:
 
 ## **Step 2: Sign In as Stable Owner**
 
-1. Go to: https://pyraride.vercel.app
+1. Go to: https://pyrarides.vercel.app
 2. Click "Sign In"
 3. Use:
    - Email: `ahmed@giza-pyramids.com`
@@ -31,7 +31,7 @@ This creates:
 
 ## **Step 3: View Your Stable**
 
-- Go to: https://pyraride.vercel.app/stables
+- Go to: https://pyrarides.vercel.app/stables
 - You'll see "Giza Pyramid Tours" and other test stables!
 - Click on any stable to see details
 
@@ -68,7 +68,7 @@ WHERE email = 'your@email.com';
 After signing in as stable_owner:
 
 ```bash
-curl -X POST https://pyraride.vercel.app/api/stables \
+curl -X POST https://pyrarides.vercel.app/api/stables \
   -H "Content-Type: application/json" \
   -b "your-session-cookie" \
   -d '{

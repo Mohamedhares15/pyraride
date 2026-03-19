@@ -35,7 +35,7 @@ This will show you:
 ### Step 2: Reset All Passwords
 
 ```bash
-# Reset to default password "PyraRide2024!"
+# Reset to default password "PyraRides2024!"
 node scripts/reset-stable-owner-passwords.js
 
 # Or use a custom password
@@ -70,7 +70,7 @@ curl http://localhost:3000/api/admin/users?role=stable_owner&includeStable=true 
 curl -X PATCH http://localhost:3000/api/admin/users/[USER_ID]/password \
   -H "Content-Type: application/json" \
   -H "Cookie: your-admin-session-cookie" \
-  -d '{"password": "PyraRide2024!"}'
+  -d '{"password": "PyraRides2024!"}'
 ```
 
 ---
@@ -121,8 +121,8 @@ ORDER BY email;
 # 1. See all stable owners
 node scripts/list-stable-owners.js
 
-# 2. Reset all passwords to "PyraRide2024!"
-node scripts/reset-stable-owner-passwords.js "PyraRide2024!"
+# 2. Reset all passwords to "PyraRides2024!"
+node scripts/reset-stable-owner-passwords.js "PyraRides2024!"
 
 # 3. Login with any stable owner email and the password you set
 ```

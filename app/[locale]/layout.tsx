@@ -13,8 +13,8 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: {
-    default: "PyraRide - Book Your Trusted Giza Horse Riding Experience",
-    template: "%s | PyraRide",
+    default: "PyraRides - Book Your Trusted Giza Horse Riding Experience",
+    template: "%s | PyraRides",
   },
   description: "Book your trusted, vetted ride at the Giza and Saqqara Pyramids",
   keywords: ["horse riding", "Giza", "Saqqara", "Egypt", "tourism", "pyramids"],

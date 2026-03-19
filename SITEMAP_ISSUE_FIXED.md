@@ -5,7 +5,7 @@
 Your sitemap **code is CORRECT** (`app/sitemap.ts` uses `https://www.pyrarides.com`).
 
 But you're seeing:
-- ❌ Old domain: `https://pyraride.vercel.app` in the XML
+- ❌ Old domain: `https://pyrarides.vercel.app` in the XML
 - ❌ Dashboard pages that shouldn't be in sitemap
 - ❌ This is a **cached/old version**
 
@@ -21,7 +21,7 @@ Vercel/Next.js was **caching** the sitemap from an older deployment.
    - This forces fresh generation every time
 
 2. **Fixed email domain** in `lib/email.ts`:
-   - Changed `pyraride.vercel.app` → `www.pyrarides.com`
+   - Changed `pyrarides.vercel.app` → `www.pyrarides.com`
 
 ## 🚀 **Next Steps:**
 
@@ -69,7 +69,7 @@ After deployment completes (2-3 minutes):
 
 ❌ **Should NOT Contain:**
 - Dashboard pages (`/dashboard/rider`, `/dashboard/stable`, etc.)
-- Old domain URLs (`pyraride.vercel.app`)
+- Old domain URLs (`pyrarides.vercel.app`)
 - Private/API routes
 
 ---

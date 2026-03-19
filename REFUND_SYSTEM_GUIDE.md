@@ -1,6 +1,6 @@
 # Refund System - Complete Implementation ✅
 
-PyraRide now has a complete refund system for handling customer refunds!
+PyraRides now has a complete refund system for handling customer refunds!
 
 ## 🎯 What's Been Implemented
 

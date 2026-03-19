@@ -26,7 +26,7 @@
 2. **Generate App Password**:
    - Go to [App Passwords](https://myaccount.google.com/apppasswords)
    - Select "Mail" and "Other (Custom name)"
-   - Enter "PyraRide" as the name
+   - Enter "PyraRides" as the name
    - Copy the generated 16-character password
 
 3. **Add to Environment Variables**:
@@ -77,7 +77,7 @@ EMAIL_USER=your-email@gmail.com
 EMAIL_PASSWORD=your-app-password-or-api-key
 
 # Base URL (for email links)
-NEXTAUTH_URL=https://pyraride.vercel.app
+NEXTAUTH_URL=https://pyrarides.vercel.app
 ```
 
 ---

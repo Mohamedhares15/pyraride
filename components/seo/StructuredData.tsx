@@ -10,13 +10,13 @@ export function LocalBusinessSchema() {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "@id": "https://www.pyrarides.com/#organization",
-    "name": "PyraRide",
+    "name": "PyraRides",
     "description": "Egypt's first online marketplace for booking horse riding experiences at the Giza and Saqqara Pyramids. Compare and book from multiple verified stables.",
     "url": "https://www.pyrarides.com",
     "logo": "https://www.pyrarides.com/logo.png",
     "image": "https://www.pyrarides.com/og-image.jpg",
     "telephone": "+20-123-456-7890",
-    "email": "support@pyraride.com",
+    "email": "support@pyrarides.com",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "Giza District",
@@ -83,7 +83,7 @@ export function ServiceSchema() {
     "serviceType": "Horse Riding Tours",
     "provider": {
       "@type": "LocalBusiness",
-      "name": "PyraRide",
+      "name": "PyraRides",
       "url": "https://www.pyrarides.com",
       "@id": "https://www.pyrarides.com/#organization"
     },
@@ -170,7 +170,7 @@ export function WebSiteSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "PyraRide",
+    "name": "PyraRides",
     "url": "https://www.pyrarides.com",
     "potentialAction": {
       "@type": "SearchAction",

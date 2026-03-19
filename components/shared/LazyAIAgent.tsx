@@ -79,7 +79,7 @@ export function LazyAIAgent() {
                     onFocus={handleInteraction}
                     className="h-14 w-14 rounded-full bg-white/20 shadow-lg shadow-black/20 hover:bg-white/35 hover:scale-105 transition-all hover:shadow-2xl border border-white/50"
                     size="icon"
-                    aria-label="Open PyraRide assistant"
+                    aria-label="Open PyraRides assistant"
                     style={{
                         backdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
                         WebkitBackdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',

@@ -71,7 +71,7 @@ export function getNotificationGuidance() {
     if (device.needsPWAInstall) {
         return {
             type: 'needs-install',
-            message: 'Add PyraRide to your Home Screen for notifications',
+            message: 'Add PyraRides to your Home Screen for notifications',
             action: 'Install App',
             instructions: [
                 'Tap the Share button (square with arrow)',

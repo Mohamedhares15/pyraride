@@ -7,7 +7,7 @@ After checking [https://www.pyrarides.com/sitemap.xml](https://www.pyrarides.com
 ### **❌ Problems:**
 
 1. **Wrong Domain:**
-   - Shows: `https://pyraride.vercel.app` ❌
+   - Shows: `https://pyrarides.vercel.app` ❌
    - Should be: `https://www.pyrarides.com` ✅
 
 2. **Dashboard Pages Included (Should NOT be):**
@@ -95,7 +95,7 @@ After deployment completes:
 
 ### ❌ **Should NOT Contain:**
 - ❌ Dashboard pages (`/dashboard/*`)
-- ❌ Old domain (`pyraride.vercel.app`)
+- ❌ Old domain (`pyrarides.vercel.app`)
 - ❌ API routes (`/api/*`)
 - ❌ Auth pages (`/auth/*`)
 

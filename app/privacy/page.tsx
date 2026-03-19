@@ -27,7 +27,7 @@ export default function PrivacyPage() {
         <div className="space-y-8">
           <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm">
             <p className="text-white/80 leading-relaxed">
-              At PyraRide, we take your privacy seriously. This policy outlines how we handle your data to ensure a secure and transparent experience.
+              At PyraRides, we take your privacy seriously. This policy outlines how we handle your data to ensure a secure and transparent experience.
             </p>
             <p className="text-sm text-white/40 mt-4">
               Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
@@ -152,8 +152,8 @@ export default function PrivacyPage() {
             </p>
             <div className="flex items-center gap-3 text-white/70">
               <Mail className="w-5 h-5 text-primary" />
-              <a href="mailto:privacy@pyraride.com" className="text-white hover:text-primary transition-colors">
-                privacy@pyraride.com
+              <a href="mailto:privacy@pyrarides.com" className="text-white hover:text-primary transition-colors">
+                privacy@pyrarides.com
               </a>
             </div>
           </section>

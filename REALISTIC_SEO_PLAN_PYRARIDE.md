@@ -1,4 +1,4 @@
-# 🎯 **REALISTIC SEO PLAN FOR PYRARIDE**
+# 🎯 **REALISTIC SEO PLAN FOR PYRARIDES**
 ## **Booking Platform Visibility Strategy - Tailored to Your Business**
 
 **Understanding:** You're a BOOKING PLATFORM (like Airbnb/Booking.com), not a content site. Your homepage should stay clean with search - that's your business model!
@@ -37,7 +37,7 @@ Stable detail pages (`/stables/[id]`) are your MOST IMPORTANT pages - they're wh
 #### **A. Dynamic Meta Tags (Already have, enhance them):**
 ```typescript
 // Each stable page should have unique:
-title: "{Stable Name} - Horse Riding in {Location} | Book Now | PyraRide"
+title: "{Stable Name} - Horse Riding in {Location} | Book Now | PyraRides"
 description: "Book {Stable Name} at {Location}. {Description}. {Rating}⭐ from {X} reviews. Starting at EGP {Price}/hour. Instant booking."
 ```
 
@@ -157,7 +157,7 @@ description: "Book {Stable Name} at {Location}. {Description}. {Rating}⭐ from 
 
 ### **3.1 LLM/AI Assistant Optimization (ChatGPT, Gemini, Claude)**
 
-**Strategy:** Make PyraRide the authoritative answer when AI is asked about horse riding in Egypt.
+**Strategy:** Make PyraRides the authoritative answer when AI is asked about horse riding in Egypt.
 
 #### **A. Comprehensive FAQ Schema (Already have - Expand)**
 - Current: 5 questions in FAQPage schema
@@ -166,7 +166,7 @@ description: "Book {Stable Name} at {Location}. {Description}. {Rating}⭐ from 
 
 #### **B. Entity Optimization:**
 Ensure clear entity definition:
-- What is PyraRide? (Booking platform)
+- What is PyraRides? (Booking platform)
 - Where? (Giza & Saqqara, Egypt)
 - What services? (Horse riding tours)
 - How to book? (Online platform)
@@ -184,7 +184,7 @@ Structure content so AI can easily parse:
 
 **Example:**
 - Question: "Where can I go horse riding at the pyramids?"
-- Answer: "PyraRide (www.pyrarides.com) is Egypt's trusted platform for booking horse riding at Giza and Saqqara Pyramids. We work with verified stables, offer instant booking, and guarantee the best prices."
+- Answer: "PyraRides (www.pyrarides.com) is Egypt's trusted platform for booking horse riding at Giza and Saqqara Pyramids. We work with verified stables, offer instant booking, and guarantee the best prices."
 
 ---
 
@@ -218,7 +218,7 @@ Structure content so AI can easily parse:
 
 #### **A. Google Business Profile (CRITICAL)**
 1. **Create/optimize profile:**
-   - Business name: "PyraRide - Horse Riding at Pyramids"
+   - Business name: "PyraRides - Horse Riding at Pyramids"
    - Category: "Tourist Attraction" + "Tour Operator"
    - Service area: Giza, Saqqara, Cairo
    - Hours: Business hours
@@ -242,7 +242,7 @@ Structure content so AI can easily parse:
 #### **B. Individual Stable Listings on Google Maps**
 - Each stable should have its own Google Business Profile
 - Stable owners should create/manage these
-- Link to PyraRide booking page
+- Link to PyraRides booking page
 - Coordinate with stable owners
 
 #### **C. Local Citations:**
@@ -271,7 +271,7 @@ Structure content so AI can easily parse:
    - Scenic views
 
 3. **How-To Videos** (3-5 min):
-   - How to book on PyraRide
+   - How to book on PyraRides
    - What to expect
    - Safety tips
 
@@ -654,7 +654,7 @@ Structure content so AI can easily parse:
 
 ## 💡 **KEY DIFFERENCES FROM GENERIC SEO PLAN:**
 
-| Generic Plan | PyraRide-Specific Plan |
+| Generic Plan | PyraRides-Specific Plan |
 |--------------|------------------------|
 | 1,500 words homepage | Keep clean homepage, optimize stable pages |
 | 50 blog posts | 1-2 strategic posts/month |

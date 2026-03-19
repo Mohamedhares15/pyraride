@@ -1,5 +1,5 @@
 # 🎯 **FOCUSED SEO & SEOx MAXIMIZATION PLAN**
-## **Make PyraRide #1 in Google, AI Assistants, TikTok, Instagram Search**
+## **Make PyraRides #1 in Google, AI Assistants, TikTok, Instagram Search**
 
 **Focus:** Optimize EXISTING pages to dominate search results everywhere
 **No new pages** - Enhance what you have
@@ -17,7 +17,7 @@
 ---
 
 ## 🔥 **PHASE 1: LLM/AI ASSISTANT OPTIMIZATION (Weeks 1-2)**
-### **Goal: When someone asks ChatGPT/Gemini/Claude about horse riding in Egypt, they get PyraRide**
+### **Goal: When someone asks ChatGPT/Gemini/Claude about horse riding in Egypt, they get PyraRides**
 
 ### **1.1 Comprehensive FAQ Schema Expansion**
 
@@ -30,11 +30,11 @@
 
 **Add these question categories to FAQ:**
 
-1. **"What is PyraRide?" Questions:**
-   - "What is PyraRide?"
-   - "Is PyraRide the only booking platform for horse riding in Egypt?"
-   - "How is PyraRide different from other horse riding websites?"
-   - "Does PyraRide have multiple stables or just one?"
+1. **"What is PyraRides?" Questions:**
+   - "What is PyraRides?"
+   - "Is PyraRides the only booking platform for horse riding in Egypt?"
+   - "How is PyraRides different from other horse riding websites?"
+   - "Does PyraRides have multiple stables or just one?"
 
 2. **"Where can I ride?" Questions:**
    - "Where can I go horse riding at the pyramids?"
@@ -47,7 +47,7 @@
    - "How do I book horse riding at the pyramids online?"
    - "Can I book same-day horse riding?"
    - "Do I need to book in advance?"
-   - "What payment methods does PyraRide accept?"
+   - "What payment methods does PyraRides accept?"
 
 4. **"Safety & Experience" Questions:**
    - "Is horse riding at the pyramids safe?"
@@ -76,7 +76,7 @@
 
 ### **1.2 Entity Definition & Knowledge Graph**
 
-**Goal:** Make it crystal clear what PyraRide IS
+**Goal:** Make it crystal clear what PyraRides IS
 
 #### **A. Enhanced Organization Schema**
 
@@ -86,8 +86,8 @@
 ```json
 {
   "@type": "Organization",
-  "name": "PyraRide",
-  "alternateName": "PyraRide - Horse Riding Booking Platform",
+  "name": "PyraRides",
+  "alternateName": "PyraRides - Horse Riding Booking Platform",
   "description": "Egypt's first and only online booking marketplace for horse riding experiences at the Giza and Saqqara Pyramids. Book from multiple verified stables in one platform.",
   "knowsAbout": [
     "Horse Riding Tours",
@@ -120,7 +120,7 @@
 
 **Enhance description:**
 ```typescript
-description: "PyraRide is Egypt's first online marketplace for booking horse riding experiences at the Giza and Saqqara Pyramids. Compare and book from multiple verified stables in one platform. 100% verified, instant booking, best prices guaranteed."
+description: "PyraRides is Egypt's first online marketplace for booking horse riding experiences at the Giza and Saqqara Pyramids. Compare and book from multiple verified stables in one platform. 100% verified, instant booking, best prices guaranteed."
 ```
 
 **Key phrases to include:**
@@ -148,9 +148,9 @@ description: "PyraRide is Egypt's first online marketplace for booking horse rid
     </h2>
     <div className="space-y-4">
       <div>
-        <h3 className="font-semibold mb-2">What is PyraRide?</h3>
+        <h3 className="font-semibold mb-2">What is PyraRides?</h3>
         <p className="text-muted-foreground">
-          PyraRide is Egypt's first online marketplace for booking horse riding experiences 
+          PyraRides is Egypt's first online marketplace for booking horse riding experiences 
           at the Giza and Saqqara Pyramids. Unlike single-stable websites, we offer multiple 
           verified stables on one platform, allowing you to compare prices, read reviews, 
           and book instantly.
@@ -159,7 +159,7 @@ description: "PyraRide is Egypt's first online marketplace for booking horse rid
       <div>
         <h3 className="font-semibold mb-2">Where can I book horse riding at the pyramids?</h3>
         <p className="text-muted-foreground">
-          You can book horse riding at both Giza and Saqqara Pyramids through PyraRide. 
+          You can book horse riding at both Giza and Saqqara Pyramids through PyraRides. 
           We work with verified stables in both locations, offering instant online booking 
           and guaranteed best prices.
         </p>
@@ -192,14 +192,14 @@ description: "PyraRide is Egypt's first online marketplace for booking horse rid
 **Enhanced title:**
 ```typescript
 title: {
-  default: "Book Horse Riding at Pyramids Egypt | PyraRide - #1 Marketplace",
-  template: "%s | PyraRide - Egypt's Horse Riding Booking Platform"
+  default: "Book Horse Riding at Pyramids Egypt | PyraRides - #1 Marketplace",
+  template: "%s | PyraRides - Egypt's Horse Riding Booking Platform"
 }
 ```
 
 **Enhanced description:**
 ```typescript
-description: "Book horse riding at Giza & Saqqara Pyramids on PyraRide - Egypt's first online marketplace. Compare 20+ verified stables, read reviews, instant booking. Starting from EGP 300/hour. ⭐ 4.9/5 rating."
+description: "Book horse riding at Giza & Saqqara Pyramids on PyraRides - Egypt's first online marketplace. Compare 20+ verified stables, read reviews, instant booking. Starting from EGP 300/hour. ⭐ 4.9/5 rating."
 ```
 
 **Key phrases included:**
@@ -257,8 +257,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const stable = await getStableData(params.id);
   
   return {
-    title: `${stable.name} - Horse Riding in ${stable.location} | Book Now | PyraRide`,
-    description: `Book ${stable.name} at ${stable.location} Pyramids. ${stable.rating}⭐ from ${stable.totalReviews} reviews. Starting at EGP ${stable.startingPrice}/hour. Instant booking on PyraRide - Egypt's #1 horse riding marketplace.`,
+    title: `${stable.name} - Horse Riding in ${stable.location} | Book Now | PyraRides`,
+    description: `Book ${stable.name} at ${stable.location} Pyramids. ${stable.rating}⭐ from ${stable.totalReviews} reviews. Starting at EGP ${stable.startingPrice}/hour. Instant booking on PyraRides - Egypt's #1 horse riding marketplace.`,
     keywords: [
       `${stable.name} horse riding`,
       `horse riding ${stable.location}`,
@@ -292,7 +292,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     <p className="text-muted-foreground leading-relaxed mt-4">
       Located at {stable.location} Pyramids, {stable.name} offers authentic horse riding 
       experiences with stunning views of Egypt's most iconic landmarks. Book your adventure 
-      through PyraRide - Egypt's trusted booking platform for horse riding experiences.
+      through PyraRides - Egypt's trusted booking platform for horse riding experiences.
     </p>
   </div>
 
@@ -305,7 +305,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   </div>
 
   <div>
-    <h2 className="text-2xl font-bold mb-4">Why Book {stable.name} on PyraRide?</h2>
+    <h2 className="text-2xl font-bold mb-4">Why Book {stable.name} on PyraRides?</h2>
     <ul className="list-disc list-inside space-y-2 text-muted-foreground">
       <li>Instant booking confirmation</li>
       <li>Verified stable with {stable.rating}⭐ rating</li>
@@ -331,7 +331,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 ```typescript
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Browse 20+ Horse Riding Stables at Giza & Saqqara | PyraRide",
+    title: "Browse 20+ Horse Riding Stables at Giza & Saqqara | PyraRides",
     description: "Compare and book from 20+ verified horse riding stables at Giza and Saqqara Pyramids. Read reviews, compare prices, instant booking. Egypt's #1 horse riding marketplace.",
     keywords: [
       "horse riding stables Egypt",
@@ -354,12 +354,12 @@ export async function generateMetadata(): Promise<Metadata> {
     Book Horse Riding at Giza & Saqqara Pyramids
   </h1>
   <p className="text-lg text-muted-foreground mb-4">
-    PyraRide is Egypt's first online marketplace for booking horse riding experiences 
+    PyraRides is Egypt's first online marketplace for booking horse riding experiences 
     at the pyramids. Compare {stableCount}+ verified stables, read authentic reviews, 
     and book instantly with guaranteed best prices.
   </p>
   <p className="text-muted-foreground">
-    <strong>Why choose PyraRide?</strong> Unlike single-stable websites, we offer multiple 
+    <strong>Why choose PyraRides?</strong> Unlike single-stable websites, we offer multiple 
     stables in one platform, making it easy to compare prices, locations, and reviews. 
     All stables are verified for safety and quality. Instant booking, secure payments, 
     24/7 support.
@@ -395,7 +395,7 @@ export async function generateMetadata(): Promise<Metadata> {
 - Emojis for visual appeal
 
 **Name:**
-- Primary: `@pyraride` or `@pyraride_egypt`
+- Primary: `@pyrarides` or `@pyrarides_egypt`
 - Username: Include keywords if possible
 
 #### **B. Content Strategy for Discovery**
@@ -435,12 +435,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 1. **Stable Showcases** (3x/week):
    - Photos/videos of different stables
-   - Caption: "Stable Name at Giza Pyramids - Book on PyraRide.com"
+   - Caption: "Stable Name at Giza Pyramids - Book on PyraRides.com"
    - Include: Stable name, location, pricing, booking link
 
 2. **Customer Stories** (2x/week):
    - Repost customer photos/videos
-   - Caption: "Amazing experience at [Stable]! Book yours at PyraRide.com"
+   - Caption: "Amazing experience at [Stable]! Book yours at PyraRides.com"
    - Tag location, use hashtags
 
 3. **Behind-the-Scenes** (2x/week):
@@ -449,13 +449,13 @@ export async function generateMetadata(): Promise<Metadata> {
    - "Why choose verified stables" messaging
 
 4. **Comparison Posts** (1x/week):
-   - "Why PyraRide vs Single-Stable Sites"
+   - "Why PyraRides vs Single-Stable Sites"
    - "Compare multiple stables in one place"
    - Emphasize marketplace advantage
 
 **Caption Strategy:**
 - First line: Hook with keyword
-- Include: "Book at PyraRide.com" link
+- Include: "Book at PyraRides.com" link
 - Include: Location tags
 - Include: 20-30 hashtags
 - Include: CTA to visit website
@@ -474,7 +474,7 @@ export async function generateMetadata(): Promise<Metadata> {
 ```
 
 **Name:**
-- `@pyraride` or `@pyrarideegypt`
+- `@pyrarides` or `@pyraridesegypt`
 
 #### **B. Content Strategy**
 
@@ -483,7 +483,7 @@ export async function generateMetadata(): Promise<Metadata> {
 1. **Stable Tours** (2x/week):
    - 15-30 second tours
    - Show horses, facilities, pyramid views
-   - Text overlay: "Stable Name - Book on PyraRide.com"
+   - Text overlay: "Stable Name - Book on PyraRides.com"
    - Sound: Trending audio or music
 
 2. **Quick Tips** (2x/week):
@@ -495,10 +495,10 @@ export async function generateMetadata(): Promise<Metadata> {
 3. **Customer Experiences** (2x/week):
    - Repost customer videos
    - Show actual rides
-   - Caption: "Book yours at PyraRide.com"
+   - Caption: "Book yours at PyraRides.com"
 
 4. **Comparison Content** (1x/week):
-   - "Why PyraRide is different"
+   - "Why PyraRides is different"
    - "Single stable vs Marketplace"
    - Emphasize unique value
 
@@ -513,7 +513,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 **SEO Elements:**
 - Website link in bio (critical!)
-- Mention "PyraRide.com" in videos
+- Mention "PyraRides.com" in videos
 - Text overlays with website
 - Location tags
 
@@ -575,7 +575,7 @@ export async function generateMetadata(): Promise<Metadata> {
 ```json
 {
   "@type": "Organization",
-  "name": "PyraRide",
+  "name": "PyraRides",
   "additionalType": "https://schema.org/TravelAgency",
   "description": "Online marketplace for booking horse riding experiences",
   "makesOffer": {
@@ -601,10 +601,10 @@ export async function generateMetadata(): Promise<Metadata> {
 **Add these critical questions:**
 
 1. **Marketplace Questions:**
-   - "Is PyraRide a single stable or multiple stables?"
-   - "How many stables does PyraRide have?"
-   - "Can I compare different stables on PyraRide?"
-   - "Why book through PyraRide instead of directly?"
+   - "Is PyraRides a single stable or multiple stables?"
+   - "How many stables does PyraRides have?"
+   - "Can I compare different stables on PyraRides?"
+   - "Why book through PyraRides instead of directly?"
 
 2. **Booking Questions:**
    - "How do I book horse riding online in Egypt?"
@@ -638,7 +638,7 @@ export async function generateMetadata(): Promise<Metadata> {
 7. Cairo/Giza business directories
 
 **Consistent NAP:**
-- Name: PyraRide
+- Name: PyraRides
 - Address: Giza District, Cairo, Egypt (or your actual address)
 - Phone: Your phone number
 - Website: www.pyrarides.com
@@ -675,7 +675,7 @@ export async function generateMetadata(): Promise<Metadata> {
 2. Ask Gemini: "What's the best website to book horse riding in Egypt?"
 3. Ask Claude: "How do I book horse riding at Giza Pyramids?"
 
-**Goal:** PyraRide mentioned first
+**Goal:** PyraRides mentioned first
 
 ### **7.2 Track Rankings**
 
@@ -734,7 +734,7 @@ export async function generateMetadata(): Promise<Metadata> {
 ## 🎯 **EXPECTED RESULTS**
 
 ### **After 1 Month:**
-- ✅ AI assistants mention PyraRide for horse riding queries
+- ✅ AI assistants mention PyraRides for horse riding queries
 - ✅ Top 10 rankings for primary keywords
 - ✅ 1,000+ Instagram followers
 - ✅ 500+ TikTok followers
@@ -742,7 +742,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 ### **After 3 Months:**
 - ✅ #1-3 rankings for "horse riding Egypt"
-- ✅ AI consistently recommends PyraRide
+- ✅ AI consistently recommends PyraRides
 - ✅ 5,000+ Instagram followers
 - ✅ 2,000+ TikTok followers
 - ✅ Strong social search presence
@@ -759,7 +759,7 @@ export async function generateMetadata(): Promise<Metadata> {
 ## 💡 **KEY SUCCESS FACTORS**
 
 1. ✅ **Unique Positioning:** Emphasize "marketplace" vs "single stable"
-2. ✅ **Consistent Branding:** PyraRide.com everywhere
+2. ✅ **Consistent Branding:** PyraRides.com everywhere
 3. ✅ **Keyword Density:** Natural use of target keywords
 4. ✅ **AI-Friendly Content:** Clear Q&A format
 5. ✅ **Social Signals:** Active Instagram & TikTok

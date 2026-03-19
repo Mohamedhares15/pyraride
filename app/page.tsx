@@ -17,9 +17,9 @@ function TikTokIcon({ className }: { className?: string }) {
 
 const homepageFaq = [
   {
-    question: "What is PyraRide?",
+    question: "What is PyraRides?",
     answer:
-      "PyraRide is Egypt's first online marketplace for booking horse riding at the Giza and Saqqara Pyramids. Compare multiple verified stables, read reviews, and book instantly at www.pyrarides.com."
+      "PyraRides is Egypt's first online marketplace for booking horse riding at the Giza and Saqqara Pyramids. Compare multiple verified stables, read reviews, and book instantly at www.pyrarides.com."
   },
   {
     question: "How do I book a ride?",
@@ -39,12 +39,12 @@ const homepageFaq = [
   {
     question: "Is horse riding safe for beginners?",
     answer:
-      "Yes. Every PyraRide partner provides beginner-friendly horses, helmets, professional guides, and safety briefings. Most riders on PyraRide are first-timers."
+      "Yes. Every PyraRides partner provides beginner-friendly horses, helmets, professional guides, and safety briefings. Most riders on PyraRides are first-timers."
   },
   {
-    question: "Why use PyraRide instead of booking directly?",
+    question: "Why use PyraRides instead of booking directly?",
     answer:
-      "PyraRide lets you compare multiple stables, see verified reviews, pay securely, and get 24/7 support. All partners are pre-vetted for safety, horse welfare, and quality."
+      "PyraRides lets you compare multiple stables, see verified reviews, pay securely, and get 24/7 support. All partners are pre-vetted for safety, horse welfare, and quality."
   }
 ];
 
@@ -66,7 +66,7 @@ export default function HomePage() {
             Frequently Asked Questions
           </h2>
           <p className="mx-auto mb-10 max-w-3xl text-center text-base text-white/90 drop-shadow md:text-lg font-medium">
-            <strong className="text-white">PyraRide is Egypt's first and only online marketplace</strong> for booking horse riding experiences at the Giza and Saqqara Pyramids. Unlike single-stable websites, we bring multiple verified stables into one platform, making it easy to compare prices, read reviews, and book instantly.
+            <strong className="text-white">PyraRides is Egypt's first and only online marketplace</strong> for booking horse riding experiences at the Giza and Saqqara Pyramids. Unlike single-stable websites, we bring multiple verified stables into one platform, making it easy to compare prices, read reviews, and book instantly.
           </p>
           <div className="grid gap-6 md:grid-cols-2">
             {homepageFaq.map((item) => (

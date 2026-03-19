@@ -10,7 +10,7 @@
 
 #### **A. Footer Component (`components/shared/Footer.tsx`)**
 - ✅ Added TikTok icon component (SVG)
-- ✅ Added TikTok link: `https://tiktok.com/@pyraride`
+- ✅ Added TikTok link: `https://tiktok.com/@pyrarides`
 - ✅ Positioned next to Instagram, Facebook, Twitter, YouTube icons
 - ✅ Proper accessibility labels
 
@@ -53,12 +53,12 @@
 - ✅ Added `provider` and `areaServed` details
 
 **Enhanced Description:**
-- ✅ Explicitly states: "PyraRide is Egypt's first and only online booking marketplace"
+- ✅ Explicitly states: "PyraRides is Egypt's first and only online booking marketplace"
 - ✅ Mentions "Unlike single-stable websites"
 - ✅ Emphasizes marketplace positioning
 
 **Impact:**
-- LLMs (ChatGPT, Gemini, Claude, Grok) will better understand PyraRide
+- LLMs (ChatGPT, Gemini, Claude, Grok) will better understand PyraRides
 - More keywords for AI to associate with your brand
 - Clear marketplace positioning in structured data
 
@@ -68,18 +68,18 @@
 
 #### **A. Homepage (`app/page.tsx`)**
 - ✅ Added prominent paragraph above FAQ section
-- ✅ Explicitly states: **"PyraRide is Egypt's first and only online marketplace"**
+- ✅ Explicitly states: **"PyraRides is Egypt's first and only online marketplace"**
 - ✅ Mentions: "Unlike single-stable websites"
 - ✅ Clear value proposition for AI parsing
 
 **Before:**
 ```
-PyraRide is the first booking marketplace...
+PyraRides is the first booking marketplace...
 ```
 
 **After:**
 ```
-PyraRide is Egypt's first and only online marketplace for booking horse riding 
+PyraRides is Egypt's first and only online marketplace for booking horse riding 
 experiences at the Giza and Saqqara Pyramids. Unlike single-stable websites, 
 we bring multiple verified stables into one platform...
 ```
@@ -136,9 +136,9 @@ we bring multiple verified stables into one platform...
 - ✅ Better understanding of marketplace model
 
 ### **LLM Search (ChatGPT, Gemini, Claude, Grok):**
-- ✅ PyraRide mentioned first for Egypt horse riding queries
+- ✅ PyraRides mentioned first for Egypt horse riding queries
 - ✅ Clear understanding of "first marketplace" positioning
-- ✅ More keywords associated with PyraRide
+- ✅ More keywords associated with PyraRides
 - ✅ Better entity recognition
 
 ### **SEOx (Instagram, TikTok Search):**
@@ -170,13 +170,13 @@ we bring multiple verified stables into one platform...
 ## 🚀 **NEXT STEPS (User Actions):**
 
 ### **1. Create TikTok Account (15 min):**
-- [ ] Create TikTok account: `@pyraride` or `@pyrarideegypt`
+- [ ] Create TikTok account: `@pyrarides` or `@pyraridesegypt`
 - [ ] Optimize profile (use guide in `INSTAGRAM_TIKTOK_SEO_STRATEGY.md`)
 - [ ] Update link in Footer if username differs
 - [ ] Start posting content
 
 ### **2. Create Instagram Account (15 min):**
-- [ ] If not created, set up Instagram: `@pyraride` or `@pyraride_egypt`
+- [ ] If not created, set up Instagram: `@pyrarides` or `@pyrarides_egypt`
 - [ ] Update links if username differs
 - [ ] Start posting content
 

@@ -115,7 +115,7 @@ WHERE email = 'owner@example.com';
 
 ### **PRIORITY 2: Homepage Q&A Section** ⏳
 - Add small FAQ section below hero
-- 5-7 key questions about PyraRide
+- 5-7 key questions about PyraRides
 - Clean, non-intrusive design
 - Structured for AI scraping
 - **Time:** 1 hour

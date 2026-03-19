@@ -1,4 +1,4 @@
-# 🔍 Why PyraRide Isn't Showing in Google Search - FINAL ANSWER
+# 🔍 Why PyraRides Isn't Showing in Google Search - FINAL ANSWER
 
 ## 📊 **Based on Your Screenshots:**
 
@@ -12,7 +12,7 @@ I analyzed your Google Search Console data and the search results. Here's exactl
 
 **What Google Shows:**
 - Sitemap errors: "URL not allowed" - 11 instances
-- Sitemap contains: `https://pyraride.vercel.app/*` URLs
+- Sitemap contains: `https://pyrarides.vercel.app/*` URLs
 - But it should have: `https://www.pyrarides.com/*` URLs
 
 **Why:**
@@ -53,7 +53,7 @@ When you search "pyrarides":
 **Why This Happens:**
 1. **Site is brand new** - No authority yet
 2. **Not indexed** - Google doesn't have your content
-3. **No brand recognition** - Google doesn't know "PyraRide" exists
+3. **No brand recognition** - Google doesn't know "PyraRides" exists
 4. **Typo correction** - Google thinks it's a typo
 
 **This is 100% NORMAL for new sites!**
@@ -151,7 +151,7 @@ Use **URL Inspection** tool for each:
 When searching "pyrarides", Google auto-corrects to "pyramids" because:
 
 1. **Site not indexed yet** - Google has no content to show
-2. **No brand authority** - Google doesn't recognize "PyraRide"
+2. **No brand authority** - Google doesn't recognize "PyraRides"
 3. **Typo algorithm** - Google thinks "pyrarides" is typo
 4. **No search history** - No one searched for it before
 

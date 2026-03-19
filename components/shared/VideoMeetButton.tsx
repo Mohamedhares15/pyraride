@@ -31,7 +31,7 @@ export default function VideoMeetButton({
     const [ownerOnline, setOwnerOnline] = useState(false);
 
     // Generate a unique room name based on stable ID and user
-    const roomName = `pyraride-${stableId.slice(0, 8)}-${session?.user?.id?.slice(0, 6) || 'guest'}`;
+    const roomName = `pyrarides-${stableId.slice(0, 8)}-${session?.user?.id?.slice(0, 6) || 'guest'}`;
     const jitsiUrl = `https://meet.jit.si/${roomName}#config.prejoinPageEnabled=false&config.startWithAudioMuted=false&config.startWithVideoMuted=false&interfaceConfig.SHOW_JITSI_WATERMARK=false`;
 
     useEffect(() => {
@@ -103,7 +103,7 @@ export default function VideoMeetButton({
 
         window.open(
             jitsiUrl,
-            "PyraRide Video Call",
+            "PyraRides Video Call",
             `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no`
         );
 

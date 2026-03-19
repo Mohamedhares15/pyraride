@@ -252,7 +252,7 @@ export default function Navbar() {
         className="fixed top-0 left-0 right-0 z-[150] flex items-center justify-between backdrop-blur-md bg-[#121212]/90 border-b border-white/10 text-white"
       >
         <Link href="/" className="text-2xl font-bold font-display tracking-tight">
-          PyraRide
+          PyraRides
         </Link>
 
         <nav className="hidden md:block">
@@ -377,7 +377,7 @@ export default function Navbar() {
 
           <div className="py-6 border-t border-white/5 px-6">
             <p className="text-xs text-white/30 text-center font-medium tracking-widest uppercase">
-              PyraRide &copy; {new Date().getFullYear()}
+              PyraRides &copy; {new Date().getFullYear()}
             </p>
           </div>
         </div>

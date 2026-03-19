@@ -26,12 +26,12 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
   if (!stable) {
     return {
-      title: "Stable Not Found | PyraRide",
+      title: "Stable Not Found | PyraRides",
     };
   }
 
   return {
-    title: `${stable.name} | PyraRide`,
+    title: `${stable.name} | PyraRides`,
     description: stable.description,
     openGraph: {
       images: stable.imageUrl ? [stable.imageUrl] : [],

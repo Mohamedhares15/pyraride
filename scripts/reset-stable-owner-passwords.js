@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
 async function resetPasswords() {
   try {
     // Get password from command line argument or use default
-    const newPassword = process.argv[2] || "PyraRide2024!";
+    const newPassword = process.argv[2] || "PyraRides2024!";
     
     console.log("🔐 Resetting passwords for all stable owners...\n");
     console.log(`New password: ${newPassword}\n`);

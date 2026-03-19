@@ -26,11 +26,11 @@
 Add these questions to `app/faq/page.tsx`:
 
 **Marketplace Questions:**
-- "What is PyraRide?" ✅ (Already in schema, add to page)
-- "Is PyraRide a single stable or multiple stables?" ✅ (Already in schema)
-- "How is PyraRide different from other websites?" ✅ (Already in schema)
+- "What is PyraRides?" ✅ (Already in schema, add to page)
+- "Is PyraRides a single stable or multiple stables?" ✅ (Already in schema)
+- "How is PyraRides different from other websites?" ✅ (Already in schema)
 - "Can I compare different stables?"
-- "Why book through PyraRide instead of directly?"
+- "Why book through PyraRides instead of directly?"
 
 **Location Questions:**
 - "Where can I book horse riding at the pyramids?" ✅ (Already in schema)
@@ -48,12 +48,12 @@ Add these questions to `app/faq/page.tsx`:
 
 **Update title pattern:**
 ```typescript
-const title = `${stable.name} - Horse Riding in ${location} | Book on PyraRide`;
+const title = `${stable.name} - Horse Riding in ${location} | Book on PyraRides`;
 ```
 
 **Update description:**
 ```typescript
-const description = `Book ${stable.name} at ${stable.location} Pyramids through PyraRide - Egypt's #1 horse riding marketplace. ${stable.description.substring(0, 120)}... ${stable._count.reviews} reviews, ${avgRating.toFixed(1)}⭐ rating. Instant booking.`;
+const description = `Book ${stable.name} at ${stable.location} Pyramids through PyraRides - Egypt's #1 horse riding marketplace. ${stable.description.substring(0, 120)}... ${stable._count.reviews} reviews, ${avgRating.toFixed(1)}⭐ rating. Instant booking.`;
 ```
 
 ---
@@ -75,12 +75,12 @@ Add after Location section, before Reviews:
     <p className="text-muted-foreground leading-relaxed mt-4">
       Located at {stable.location} Pyramids, {stable.name} offers authentic horse riding 
       experiences with stunning views of Egypt's most iconic landmarks. Book your adventure 
-      through PyraRide.com - Egypt's trusted booking marketplace for horse riding experiences.
+      through PyraRides.com - Egypt's trusted booking marketplace for horse riding experiences.
     </p>
   </div>
 
   <div>
-    <h2 className="text-2xl font-bold mb-4">Why Book {stable.name} on PyraRide?</h2>
+    <h2 className="text-2xl font-bold mb-4">Why Book {stable.name} on PyraRides?</h2>
     <ul className="list-disc list-inside space-y-2 text-muted-foreground">
       <li>Instant booking confirmation</li>
       <li>Verified stable with {stable.rating}⭐ rating from {stable.totalReviews} reviews</li>
@@ -103,7 +103,7 @@ Add after Location section, before Reviews:
 
 Update metadata:
 ```typescript
-title: "Browse 20+ Horse Riding Stables at Giza & Saqqara | PyraRide",
+title: "Browse 20+ Horse Riding Stables at Giza & Saqqara | PyraRides",
 description: "Compare and book from 20+ verified horse riding stables at Giza and Saqqara Pyramids. Read reviews, compare prices, instant booking. Egypt's #1 horse riding marketplace at www.pyrarides.com.",
 ```
 
@@ -112,12 +112,12 @@ description: "Compare and book from 20+ verified horse riding stables at Giza an
 ### **5. Set Up Instagram & TikTok (30 min)**
 
 **Instagram:**
-- Username: `@pyraride` or `@pyraride_egypt`
+- Username: `@pyrarides` or `@pyrarides_egypt`
 - Bio: "🐴 Egypt's #1 Horse Riding Marketplace at Pyramids | 📍 Giza & Saqqara | ✅ Instant Booking | 🔗 www.pyrarides.com"
 - Post 3x/week with hashtags: #horseridingegypt #horseridingpyramids #gizapyramids #bookhorsegypt
 
 **TikTok:**
-- Username: `@pyraride` or `@pyrarideegypt`
+- Username: `@pyrarides` or `@pyraridesegypt`
 - Bio: "🐴 Egypt's #1 Horse Riding Marketplace | 📍 Compare 20+ Stables | 🔗 pyrarides.com"
 - Post 2-3x/week, mention website in videos
 
@@ -150,12 +150,12 @@ description: "Compare and book from 20+ verified horse riding stables at Giza an
 
 ### **Week 2-4:**
 - ⏳ Better Google rankings
-- ⏳ AI starts mentioning PyraRide
+- ⏳ AI starts mentioning PyraRides
 - ⏳ Social search presence starts
 
 ### **Month 2-3:**
 - ⏳ Top 10 rankings for primary keywords
-- ⏳ AI consistently recommends PyraRide
+- ⏳ AI consistently recommends PyraRides
 - ⏳ Strong social search presence
 
 ---
@@ -163,7 +163,7 @@ description: "Compare and book from 20+ verified horse riding stables at Giza an
 ## 💡 **KEY SUCCESS FACTORS:**
 
 1. ✅ **Emphasize "Marketplace"** - Your unique advantage
-2. ✅ **Consistent branding** - PyraRide.com everywhere
+2. ✅ **Consistent branding** - PyraRides.com everywhere
 3. ✅ **FAQ for AI** - Clear Q&A format
 4. ✅ **Social signals** - Active Instagram & TikTok
 5. ✅ **Authority** - First marketplace positioning

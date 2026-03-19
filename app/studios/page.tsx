@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { Card } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "Studios - Coming Soon - PyraRide",
+  title: "Studios - Coming Soon - PyraRides",
   description: "Professional photography studios for your pyramid riding experience.",
 };
 

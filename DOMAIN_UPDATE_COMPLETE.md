@@ -23,9 +23,9 @@ Your site has been updated to use **www.pyrarides.com** throughout all SEO-criti
 ## 🔍 **What Was Changed**
 
 ### **Before:**
-- `https://pyraride.vercel.app`
-- `https://pyraride.vercel.app/stables`
-- `https://pyraride.vercel.app/og-image.jpg`
+- `https://pyrarides.vercel.app`
+- `https://pyrarides.vercel.app/stables`
+- `https://pyrarides.vercel.app/og-image.jpg`
 
 ### **After:**
 - `https://www.pyrarides.com`
@@ -56,7 +56,7 @@ At your domain registrar:
 ### **4. Set Up Redirects**
 In Vercel, set up redirects:
 - `pyrarides.com` → `www.pyrarides.com` (301 redirect)
-- `pyraride.vercel.app` → `www.pyrarides.com` (301 redirect)
+- `pyrarides.vercel.app` → `www.pyrarides.com` (301 redirect)
 
 ### **5. Submit New Sitemap to Google**
 1. Go to [Google Search Console](https://search.google.com/search-console)

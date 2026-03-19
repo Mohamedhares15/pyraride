@@ -1,4 +1,4 @@
-# 🚀 Comprehensive SEO Optimization Plan for PyraRide
+# 🚀 Comprehensive SEO Optimization Plan for PyraRides
 
 Based on [Google SEO Starter Guide](https://developers.google.com/search/docs/fundamentals/seo-starter-guide), this document outlines a complete SEO strategy to rank #1 for horse riding searches in Egypt.
 

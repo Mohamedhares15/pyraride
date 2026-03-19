@@ -4,8 +4,8 @@ import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { AlertTriangle, Scale, Shield, Users, CreditCard, Database, Cloud, Gavel } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions | PyraRide",
-  description: "PyraRide Terms and Conditions - Legally binding agreement pursuant to Egyptian Electronic Signature Law No. 15 of 2004.",
+  title: "Terms & Conditions | PyraRides",
+  description: "PyraRides Terms and Conditions - Legally binding agreement pursuant to Egyptian Electronic Signature Law No. 15 of 2004.",
 };
 
 export default function TermsPage() {
@@ -50,17 +50,17 @@ export default function TermsPage() {
 
               <h3 className="text-lg font-semibold text-white mb-2">1.1. Our Role (Commercial Intermediary)</h3>
               <p className="text-white/70 mb-4">
-                The "PyraRide" platform is a technology platform and commercial marketplace connecting Riders (passengers) with independent horse stables ("Stable Partners") in Egypt. We operate exclusively as a commercial intermediary.
+                The "PyraRides" platform is a technology platform and commercial marketplace connecting Riders (passengers) with independent horse stables ("Stable Partners") in Egypt. We operate exclusively as a commercial intermediary.
               </p>
 
               <h3 className="text-lg font-semibold text-white mb-2">1.2. We Are Not a Stable</h3>
               <p className="text-white/70 mb-4">
-                PyraRide does not own, manage, or control horses, stables, or facilities. Horse riding services are provided entirely by the "Stable Partners." When you book a ride via the platform, the service contract is formed directly between you and the Stable Partner.
+                PyraRides does not own, manage, or control horses, stables, or facilities. Horse riding services are provided entirely by the "Stable Partners." When you book a ride via the platform, the service contract is formed directly between you and the Stable Partner.
               </p>
 
               <h3 className="text-lg font-semibold text-white mb-2">1.3. Disclaimer</h3>
               <p className="text-white/70">
-                While PyraRide carefully vets Stable Partners, we do not guarantee your personal safety. Horse riding is an activity involving live animals with unpredictable behavior. PyraRide assumes no liability for any errors, negligence, violations, or defaults committed by any Stable Partners.
+                While PyraRides carefully vets Stable Partners, we do not guarantee your personal safety. Horse riding is an activity involving live animals with unpredictable behavior. PyraRides assumes no liability for any errors, negligence, violations, or defaults committed by any Stable Partners.
               </p>
             </section>
 
@@ -114,9 +114,9 @@ export default function TermsPage() {
                 To the maximum extent permitted by Egyptian law:
               </p>
               <ul className="list-disc pl-6 mb-4 space-y-2 text-white/70">
-                <li>PyraRide assumes no liability for direct or indirect damages resulting from the use of the service.</li>
-                <li><strong className="text-white">Specific Waiver:</strong> You hereby waive your right to sue PyraRide for injuries resulting from ordinary negligence, lack of riding skill ("Rider Error"), or failure to follow stable instructions.</li>
-                <li><strong className="text-white">Exceptions:</strong> Pursuant to Article 217 of the Egyptian Civil Code, this exemption from liability shall not apply in cases of damages resulting from fraud or gross negligence on the part of PyraRide.</li>
+                <li>PyraRides assumes no liability for direct or indirect damages resulting from the use of the service.</li>
+                <li><strong className="text-white">Specific Waiver:</strong> You hereby waive your right to sue PyraRides for injuries resulting from ordinary negligence, lack of riding skill ("Rider Error"), or failure to follow stable instructions.</li>
+                <li><strong className="text-white">Exceptions:</strong> Pursuant to Article 217 of the Egyptian Civil Code, this exemption from liability shall not apply in cases of damages resulting from fraud or gross negligence on the part of PyraRides.</li>
               </ul>
             </section>
 
@@ -133,7 +133,7 @@ export default function TermsPage() {
               <ul className="list-disc pl-6 mb-4 space-y-2 text-white/70">
                 <li>You undertake not to attend any ride while under the influence of alcohol or drugs.</li>
                 <li><strong className="text-white">Right of Refusal:</strong> The Stable Partner reserves the absolute right to cancel your ride without refund if they suspect you are under the influence of intoxicants.</li>
-                <li><strong className="text-white">Reporting to Authorities:</strong> PyraRide reserves the right to report any user endangering themselves or others to the Egyptian Police.</li>
+                <li><strong className="text-white">Reporting to Authorities:</strong> PyraRides reserves the right to report any user endangering themselves or others to the Egyptian Police.</li>
               </ul>
 
               <h3 className="text-lg font-semibold text-white mb-2">4.2. Accuracy of Information</h3>
@@ -196,7 +196,7 @@ export default function TermsPage() {
                 In the event of a Late Cancellation (Tier 3), your spot is re-listed for booking. If another user books it:
               </p>
               <ul className="list-disc pl-6 mb-4 space-y-2 text-white/70">
-                <li>PyraRide retains its commission from the new booking.</li>
+                <li>PyraRides retains its commission from the new booking.</li>
                 <li>The Stable's share from the new booking is added to your Wallet as "Extra Credit" (potentially compensating you up to 100%).</li>
               </ul>
 
@@ -218,7 +218,7 @@ export default function TermsPage() {
               </div>
 
               <p className="text-white/70 mb-4">
-                By using PyraRide, you agree to the collection and processing of your personal data in accordance with the Personal Data Protection Law No. 151 of 2020.
+                By using PyraRides, you agree to the collection and processing of your personal data in accordance with the Personal Data Protection Law No. 151 of 2020.
               </p>
               <ul className="list-disc pl-6 mb-4 space-y-2 text-white/70">
                 <li><strong className="text-white">Marketing:</strong> You have the right to explicitly agree to or refuse the receipt of marketing communications.</li>
@@ -236,7 +236,7 @@ export default function TermsPage() {
               </div>
 
               <p className="text-white/70">
-                Neither PyraRide nor the Stable Partners shall be liable for cancellations resulting from circumstances beyond their control, including but not limited to: Sandstorms, extreme heat waves (Meteorological warnings), civil unrest, or epidemics. In such cases, the ride will be rescheduled or the value credited to the Wallet (no cash refunds for Force Majeure unless approved by the Stable).
+                Neither PyraRides nor the Stable Partners shall be liable for cancellations resulting from circumstances beyond their control, including but not limited to: Sandstorms, extreme heat waves (Meteorological warnings), civil unrest, or epidemics. In such cases, the ride will be rescheduled or the value credited to the Wallet (no cash refunds for Force Majeure unless approved by the Stable).
               </p>
             </section>
 
@@ -271,7 +271,7 @@ export default function TermsPage() {
                 For questions about these Terms, please contact us:
               </p>
               <ul className="list-none space-y-2 text-white/70">
-                <li><strong className="text-white">Email:</strong> <a href="mailto:support@pyraride.com" className="text-primary hover:underline">support@pyraride.com</a></li>
+                <li><strong className="text-white">Email:</strong> <a href="mailto:support@pyrarides.com" className="text-primary hover:underline">support@pyrarides.com</a></li>
                 <li><strong className="text-white">Website:</strong> <a href="https://www.pyrarides.com" className="text-primary hover:underline">www.pyrarides.com</a></li>
               </ul>
             </section>

@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
   try {
     // Simple authentication check (you can enhance this)
     const authHeader = request.headers.get("authorization");
-    const expectedToken = process.env.ADMIN_TOKEN || "PyraRide2024Secret";
+    const expectedToken = process.env.ADMIN_TOKEN || "PyraRides2024Secret";
 
     if (authHeader !== `Bearer ${expectedToken}`) {
       return NextResponse.json(
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     ];
 
     // Generate a secure password for all owners
-    const defaultPassword = await bcrypt.hash("PyraRide2024!", 10);
+    const defaultPassword = await bcrypt.hash("PyraRides2024!", 10);
 
     const results = [];
 
@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
       message: "Stable owners creation complete",
       results,
       credentials: {
-        defaultPassword: "PyraRide2024!",
+        defaultPassword: "PyraRides2024!",
         note: "Owners should change this password on first login",
       },
     });

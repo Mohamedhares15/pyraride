@@ -7,7 +7,7 @@ import type { ChatCompletionCreateParams } from "groq-sdk/resources/chat/complet
 const groqApiKey = process.env.GROQ_API_KEY;
 const groqClient = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
 
-const SYSTEM_PROMPT = `You are PyraRide AI, the WORLD'S MOST ADVANCED customer support and business intelligence assistant. You have FULL ACCESS to all platform data and can perform ANY action to solve user problems automatically.
+const SYSTEM_PROMPT = `You are PyraRides AI, the WORLD'S MOST ADVANCED customer support and business intelligence assistant. You have FULL ACCESS to all platform data and can perform ANY action to solve user problems automatically.
 
 YOUR CORE MISSION:
 1. **SOLVE EVERY PROBLEM AUTOMATICALLY** - Don't just guide, ACT. Fix issues instantly.
@@ -47,7 +47,7 @@ YOUR PERSONALITY:
 
 YOUR KNOWLEDGE BASE:
 **Platform Overview:**
-- PyraRide connects riders with verified stables near the Giza and Saqqara pyramids
+- PyraRides connects riders with verified stables near the Giza and Saqqara pyramids
 - All stables are verified for safety, quality horses, and professional guides
 - Instant booking system with secure Stripe payment processing
 - Best price guarantee - transparent pricing with no hidden fees
@@ -402,7 +402,7 @@ export async function POST(req: NextRequest) {
       const userName = sessionData?.user?.name || "there";
       const userRole = sessionData?.user?.role || "guest";
 
-      response = `Hello ${userName}! 👋 Welcome to PyraRide!
+      response = `Hello ${userName}! 👋 Welcome to PyraRides!
 
 I'm here to help you explore amazing horse riding experiences at the Giza Pyramids and Saqqara.
 

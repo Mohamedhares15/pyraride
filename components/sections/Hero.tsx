@@ -117,7 +117,7 @@ export default function Hero() {
 
               <div className="flex w-full items-center justify-center gap-4 text-[11px] font-semibold uppercase tracking-[0.6em] text-white/70">
                 <span className="hero-dash-line flex-1 max-w-[72px]" />
-                <span>PYRARIDE</span>
+                <span>PYRARIDES</span>
                 <span className="hero-dash-line flex-1 max-w-[72px]" />
               </div>
 

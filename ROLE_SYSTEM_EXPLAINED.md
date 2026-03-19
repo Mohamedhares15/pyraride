@@ -1,6 +1,6 @@
-# 🎯 **PyraRide Role System Explained**
+# 🎯 **PyraRides Role System Explained**
 
-## 📊 **Three User Roles in PyraRide:**
+## 📊 **Three User Roles in PyraRides:**
 
 ### **1. 🐴 RIDER (Normal User)**
 - **Who they are**: Regular customers who want to book horse riding experiences

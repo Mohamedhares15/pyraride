@@ -9,10 +9,10 @@ async function main() {
   // Create admin user
   const hashedPassword = await bcrypt.hash("Admin123", 10);
   const admin = await prisma.user.upsert({
-    where: { email: "admin@pyraride.com" },
+    where: { email: "admin@pyrarides.com" },
     update: {},
     create: {
-      email: "admin@pyraride.com",
+      email: "admin@pyrarides.com",
       profileImageUrl:
         "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=600&auto=format&fit=crop",
       phoneNumber: "+201000000001",
@@ -280,7 +280,7 @@ async function main() {
 
   console.log("\n🎉 Database seed completed successfully!");
   console.log("\n📝 Test Accounts:");
-  console.log("Admin: admin@pyraride.com / Admin123");
+  console.log("Admin: admin@pyrarides.com / Admin123");
   console.log("Owner: owner@giza-stables.com / Owner123");
   console.log("Rider: rider1@example.com / Rider123");
 }

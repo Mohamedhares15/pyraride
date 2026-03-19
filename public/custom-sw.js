@@ -5,7 +5,7 @@ self.addEventListener('push', function (event) {
     console.log('[Service Worker] Push received:', event);
 
     let notificationData = {
-        title: 'PyraRide',
+        title: 'PyraRides',
         body: 'You have a new notification',
         icon: '/icons/icon-192x192.png',
         badge: '/icons/icon-96x96.png',

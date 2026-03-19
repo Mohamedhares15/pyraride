@@ -75,7 +75,7 @@ function SignInContent() {
               Welcome Back
             </h1>
             <p className="text-white/70">
-              Sign in to continue your PyraRide journey
+              Sign in to continue your PyraRides journey
             </p>
           </div>
 

@@ -1,6 +1,6 @@
 # Stable Browsing & Search - Complete Implementation ✅
 
-PyraRide now has a complete stable browsing and search system!
+PyraRides now has a complete stable browsing and search system!
 
 ## 🎯 What's Been Implemented
 
@@ -171,7 +171,7 @@ This creates:
 After seeding, you can login with:
 - **Rider**: `rider1@example.com` / `Rider123`
 - **Owner**: `owner@giza-stables.com` / `Owner123`
-- **Admin**: `admin@pyraride.com` / `Admin123`
+- **Admin**: `admin@pyrarides.com` / `Admin123`
 
 ### Test Browse Page
 

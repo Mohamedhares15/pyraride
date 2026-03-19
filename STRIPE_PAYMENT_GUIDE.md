@@ -1,6 +1,6 @@
 # Stripe Payment Integration - Complete Implementation ✅
 
-PyraRide now has complete payment integration with Stripe!
+PyraRides now has complete payment integration with Stripe!
 
 ## 🎯 What's Been Implemented
 

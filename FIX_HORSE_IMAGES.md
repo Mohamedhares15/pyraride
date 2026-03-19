@@ -12,7 +12,7 @@ Horse images are saved in the database but not displaying on the management page
 
 ### In Neon Console:
 1. Go to: https://console.neon.tech
-2. Select your `pyraride` project
+2. Select your `pyrarides` project
 3. Click **SQL Editor**
 4. Copy and paste this EXACT SQL:
 

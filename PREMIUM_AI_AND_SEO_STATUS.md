@@ -105,7 +105,7 @@ Body: {
 
 #### **2. FAQ Page** ✅
 - ✅ Expanded to 30+ questions
-- ✅ Added "About PyraRide Platform" section
+- ✅ Added "About PyraRides Platform" section
 - ✅ FAQ schema expanded to 15 questions
 
 #### **3. Stable Detail Pages** ✅

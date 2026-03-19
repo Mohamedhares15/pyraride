@@ -2,7 +2,7 @@
 
 ## 🎯 **All Critical SEO Files Updated**
 
-I've updated all domain references from `pyraride.vercel.app` to `www.pyrarides.com` in all SEO-critical files.
+I've updated all domain references from `pyrarides.vercel.app` to `www.pyrarides.com` in all SEO-critical files.
 
 ---
 
@@ -24,7 +24,7 @@ I've updated all domain references from `pyraride.vercel.app` to `www.pyrarides.
 
 In `app/layout.tsx` line 146, there's one remaining reference in the WebSite schema:
 ```typescript
-"url": "https://pyraride.vercel.app",
+"url": "https://pyrarides.vercel.app",
 ```
 
 Change it to:

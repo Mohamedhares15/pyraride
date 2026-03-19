@@ -1,6 +1,6 @@
 # AI Agent - Complete Implementation ✅
 
-PyraRide now has an AI-powered chat assistant to help users navigate the platform!
+PyraRides now has an AI-powered chat assistant to help users navigate the platform!
 
 ## 🎯 What's Been Implemented
 
@@ -74,7 +74,7 @@ The AI agent can understand and respond to:
 - "Feedback system"
 
 #### General Help
-- "What is PyraRide?"
+- "What is PyraRides?"
 - "How does this work?"
 - "I need help"
 - "Tell me about stables"

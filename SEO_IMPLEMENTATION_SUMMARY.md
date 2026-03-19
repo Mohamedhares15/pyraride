@@ -32,7 +32,7 @@
 
 **Example Output**:
 ```
-Title: "Giza Pyramid Stables - Giza Plateau Horse Riding | PyraRide"
+Title: "Giza Pyramid Stables - Giza Plateau Horse Riding | PyraRides"
 Description: "Professional horse riding experiences at Giza pyramids. 50 reviews, 4.8⭐ rating..."
 ```
 
@@ -127,7 +127,7 @@ Description: "Professional horse riding experiences at Giza pyramids. 50 reviews
 
 ### **Priority 3: Submit to Google Search Console**
 1. Verify site ownership
-2. Submit sitemap: `https://pyraride.vercel.app/sitemap.xml`
+2. Submit sitemap: `https://pyrarides.vercel.app/sitemap.xml`
 3. Request indexing for key pages
 
 ### **Priority 4: Monitor & Optimize**

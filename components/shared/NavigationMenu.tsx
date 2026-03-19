@@ -70,7 +70,7 @@ export default function NavigationMenu() {
           >
             <div className="mb-8 flex items-center justify-between">
               <h2 className="font-display text-2xl font-bold text-primary">
-                PyraRide
+                PyraRides
               </h2>
               <Button
                 variant="ghost"

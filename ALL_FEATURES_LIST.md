@@ -1,4 +1,4 @@
-# 🎯 **PyraRide - ALL FEATURES LIST**
+# 🎯 **PyraRides - ALL FEATURES LIST**
 
 ## 📋 **COMPLETE FEATURES DOCUMENTATION**
 
@@ -7,7 +7,7 @@
 ## 🏠 **PUBLIC FEATURES (No Login Required)**
 
 ### ✅ **1. Homepage**
-- **URL**: https://pyraride.vercel.app/
+- **URL**: https://pyrarides.vercel.app/
 - **Features**:
   - Beautiful hero section with animated gradient background
   - Search form (location + date)
@@ -15,7 +15,7 @@
   - AI chat assistant button
 
 ### ✅ **2. Browse Stables**
-- **URL**: https://pyraride.vercel.app/stables
+- **URL**: https://pyrarides.vercel.app/stables
 - **Features**:
   - Search by name/description
   - Filter by location (Giza/Saqqara)
@@ -24,7 +24,7 @@
   - Click to view stable details
 
 ### ✅ **3. Stable Details Page**
-- **URL**: https://pyraride.vercel.app/stables/[id]
+- **URL**: https://pyrarides.vercel.app/stables/[id]
 - **Features**:
   - View stable information
   - See available horses
@@ -70,7 +70,7 @@
 ## 🐴 **RIDER FEATURES (For Normal Users)**
 
 ### ✅ **8. Rider Dashboard**
-- **URL**: https://pyraride.vercel.app/dashboard/rider
+- **URL**: https://pyrarides.vercel.app/dashboard/rider
 - **Features**:
   - View all bookings
   - See booking status (confirmed/completed/cancelled)
@@ -121,7 +121,7 @@
 ## 🏢 **STABLE OWNER FEATURES**
 
 ### ✅ **14. Stable Owner Dashboard**
-- **URL**: https://pyraride.vercel.app/dashboard/stable
+- **URL**: https://pyrarides.vercel.app/dashboard/stable
 - **Features**:
   - View total bookings
   - See total earnings
@@ -129,7 +129,7 @@
   - Manage stable information
 
 ### ✅ **15. Manage Stable**
-- **URL**: https://pyraride.vercel.app/dashboard/stable/manage
+- **URL**: https://pyrarides.vercel.app/dashboard/stable/manage
 - **Features**:
   - Edit stable name
   - Update description
@@ -164,7 +164,7 @@
 ## 👑 **ADMIN FEATURES**
 
 ### ✅ **19. Admin Dashboard**
-- **URL**: https://pyraride.vercel.app/dashboard/analytics
+- **URL**: https://pyrarides.vercel.app/dashboard/analytics
 - **Features**:
   - View platform-wide analytics
   - See all users
@@ -211,7 +211,7 @@
 ## 📊 **ANALYTICS FEATURES**
 
 ### ✅ **24. Analytics Dashboard**
-- **URL**: https://pyraride.vercel.app/dashboard/analytics
+- **URL**: https://pyrarides.vercel.app/dashboard/analytics
 - **Features**:
   - Total bookings
   - Total revenue

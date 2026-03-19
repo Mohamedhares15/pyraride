@@ -1,6 +1,6 @@
 # Advanced Analytics Dashboard - Complete Implementation ✅
 
-PyraRide now has a comprehensive analytics dashboard for platform insights!
+PyraRides now has a comprehensive analytics dashboard for platform insights!
 
 ## 🎯 What's Been Implemented
 
@@ -120,7 +120,7 @@ PyraRide now has a comprehensive analytics dashboard for platform insights!
 
 ### Test as Admin
 
-1. **Sign in**: `admin@pyraride.com` / `Admin123`
+1. **Sign in**: `admin@pyrarides.com` / `Admin123`
 2. **Go to**: http://localhost:3000/dashboard/analytics
 3. **See**: Platform-wide analytics
 4. **Check**: Total users, stables, bookings, revenue

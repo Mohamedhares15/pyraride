@@ -1,4 +1,4 @@
-# PyraRide - Setup Instructions
+# PyraRides - Setup Instructions
 
 ## 🚀 Quick Start
 
@@ -51,7 +51,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 ## 📦 Project Structure
 
 ```
-pyraride/
+pyrarides/
 ├── app/                    # Next.js App Router
 │   ├── api/               # API routes (coming next)
 │   ├── dashboard/         # Dashboard pages (coming next)

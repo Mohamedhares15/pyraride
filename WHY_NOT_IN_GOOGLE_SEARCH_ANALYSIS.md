@@ -1,4 +1,4 @@
-# 🔍 Why PyraRide Isn't Showing in Google Search - Complete Analysis
+# 🔍 Why PyraRides Isn't Showing in Google Search - Complete Analysis
 
 ## 🚨 **Critical Issues Identified:**
 
@@ -10,11 +10,11 @@ Based on Google Search Console data and search results, here are the exact probl
 
 **Problem:**
 - Google Search Console shows **11 errors**: "URL not allowed"
-- The sitemap contains URLs from `pyraride.vercel.app` instead of `www.pyrarides.com`
+- The sitemap contains URLs from `pyrarides.vercel.app` instead of `www.pyrarides.com`
 - Examples found:
-  - `https://pyraride.vercel.app` (Line 3)
-  - `https://pyraride.vercel.app/stables` (Line 9)
-  - `https://pyraride.vercel.app/faq` (Line 15)
+  - `https://pyrarides.vercel.app` (Line 3)
+  - `https://pyrarides.vercel.app/stables` (Line 9)
+  - `https://pyrarides.vercel.app/faq` (Line 15)
 
 **Root Cause:**
 - Google is reading a **cached/old version** of your sitemap
@@ -58,7 +58,7 @@ Based on Google Search Console data and search results, here are the exact probl
 **Root Cause:**
 1. **Site is too new** - Not enough authority yet
 2. **No indexed pages** - Google hasn't indexed any content
-3. **Brand name not recognized** - Google doesn't know "PyraRide" exists
+3. **Brand name not recognized** - Google doesn't know "PyraRides" exists
 4. **Typo correction algorithm** - Google thinks "pyrarides" is a typo of "pyramids"
 
 **This is NORMAL for new sites!**
@@ -152,17 +152,17 @@ For each URL:
 #### **5. Add More Content**
 - Add blog posts about horse riding in Giza
 - Add location-specific content
-- Add "About Us" content with brand name "PyraRide"
+- Add "About Us" content with brand name "PyraRides"
 - This helps Google understand your brand
 
 #### **6. Build Initial Authority**
 - Submit to business directories (Google My Business, etc.)
 - Share on social media (Facebook, Instagram)
 - Get initial backlinks from local Egypt tourism sites
-- This helps Google recognize "PyraRide" as a real brand
+- This helps Google recognize "PyraRides" as a real brand
 
 #### **7. Add Brand Name Prominently**
-- Make sure "PyraRide" appears in:
+- Make sure "PyraRides" appears in:
   - Page titles
   - Headings
   - Meta descriptions
@@ -205,7 +205,7 @@ When you search "pyrarides" and Google shows "pyramids":
    - Shows results for what it thinks you meant
 
 2. **No Brand Recognition**
-   - "PyraRide" isn't in Google's knowledge graph yet
+   - "PyraRides" isn't in Google's knowledge graph yet
    - No search volume/history for this term
    - Google doesn't know it's a valid brand name
 

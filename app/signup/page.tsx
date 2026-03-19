@@ -113,7 +113,7 @@ function SignUpContent() {
               <span className="text-sm">Back to Home</span>
             </Link>
             <h1 className="mb-2 font-display text-3xl font-bold tracking-tight text-white drop-shadow-lg md:text-4xl">
-              Join PyraRide
+              Join PyraRides
             </h1>
             <p className="text-white/70">
               Start your horse riding adventure at the pyramids

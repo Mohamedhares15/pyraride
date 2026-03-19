@@ -22,7 +22,7 @@ export default function AboutPage() {
   ];
 
   const milestones = [
-    { year: "2024", title: "PyraRide Founded", description: "Launched with a mission to digitize the pyramid horse riding experience." },
+    { year: "2024", title: "PyraRides Founded", description: "Launched with a mission to digitize the pyramid horse riding experience." },
     { year: "2024", title: "First Partnerships", description: "Partnered with top-rated stables in Giza and Saqqara." },
     { year: "2025", title: "Platform Growth", description: "Expanded to serve thousands of riders with verified, safe bookings." },
   ];
@@ -84,13 +84,13 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 text-lg text-white/80 leading-relaxed">
               <p>
-                PyraRide was founded with a simple yet powerful vision: to bring trust, transparency, and technology to one of the world's most iconic experiences—horse riding at the Pyramids of Giza.
+                PyraRides was founded with a simple yet powerful vision: to bring trust, transparency, and technology to one of the world's most iconic experiences—horse riding at the Pyramids of Giza.
               </p>
               <p>
                 For too long, visitors faced uncertainty with haggling, unverified operators, and safety concerns. We saw an opportunity to change that. By partnering with only the most reputable, ethical stables, we've created a platform where safety and quality are guaranteed.
               </p>
               <p>
-                Today, PyraRide is the bridge between modern travelers and ancient tradition, ensuring that every ride is safe, fair, and truly magical.
+                Today, PyraRides is the bridge between modern travelers and ancient tradition, ensuring that every ride is safe, fair, and truly magical.
               </p>
             </div>
 
@@ -165,7 +165,7 @@ export default function AboutPage() {
               <Award className="mb-4 h-10 w-10 text-primary" />
               <h3 className="mb-2 text-lg font-bold text-white">Excellence</h3>
               <p className="text-sm text-white/60">
-                We only work with the top 10% of stables. If it's on PyraRide, it's guaranteed to be exceptional.
+                We only work with the top 10% of stables. If it's on PyraRides, it's guaranteed to be exceptional.
               </p>
             </Card>
 
@@ -184,7 +184,7 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Meet Our Founders</h2>
             <p className="text-white/60 text-lg max-w-2xl mx-auto">
-              The visionaries behind PyraRide
+              The visionaries behind PyraRides
             </p>
           </div>
 
@@ -260,7 +260,7 @@ export default function AboutPage() {
                 If you run a high-quality stable and share our values, we'd love to hear from you
               </p>
               <a
-                href="mailto:partnerships@pyraride.com"
+                href="mailto:partnerships@pyrarides.com"
                 className="inline-block bg-white text-primary px-8 py-4 rounded-lg font-bold hover:bg-white/90 transition-colors shadow-lg"
               >
                 Become a Partner Stable

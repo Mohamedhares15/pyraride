@@ -2,11 +2,11 @@
 
 ## ✅ Step 1: Add Missing Environment Variable
 
-**Go to Vercel**: https://vercel.com/mohamed-hares-projects/pyraride/settings/environment-variables
+**Go to Vercel**: https://vercel.com/mohamed-hares-projects/pyrarides/settings/environment-variables
 
 **Add/Update:**
 - Name: `NEXTAUTH_URL`
-- Value: `https://pyraride-8k066m9ec-mohamed-hares-projects.vercel.app`
+- Value: `https://pyrarides-8k066m9ec-mohamed-hares-projects.vercel.app`
 - Environment: Production, Preview, Development ✅
 - Click **"Save"**
 
@@ -32,7 +32,7 @@
 ## ✅ Step 3: Redeploy to Vercel
 
 ### Option A: Via Browser
-1. Go to: https://vercel.com/mohamed-hares-projects/pyraride
+1. Go to: https://vercel.com/mohamed-hares-projects/pyrarides
 2. Click **"Deployments"** tab
 3. Find latest deployment
 4. Click **"..."** → **"Redeploy"**
@@ -40,7 +40,7 @@
 
 ### Option B: Via Terminal
 ```bash
-cd C:\Users\Administrator\Desktop\pyraride
+cd C:\Users\Administrator\Desktop\pyrarides
 vercel --prod
 ```
 
@@ -54,7 +54,7 @@ vercel --prod
 
 **Run in Terminal:**
 ```bash
-cd C:\Users\Administrator\Desktop\pyraride
+cd C:\Users\Administrator\Desktop\pyrarides
 
 # Set connection (temporarily)
 $env:DATABASE_URL="YOUR_NEON_CONNECTION_STRING"
@@ -68,7 +68,7 @@ npm run db:seed
 ## 🎉 Step 5: Test All Features
 
 ### 5.1 Visit Production Site
-**Open**: https://pyraride-8k066m9ec-mohamed-hares-projects.vercel.app
+**Open**: https://pyrarides-8k066m9ec-mohamed-hares-projects.vercel.app
 
 ### 5.2 Test Features
 - [ ] Homepage loads
@@ -92,9 +92,9 @@ npm run db:seed
 
 ### Add Environment Variable via CLI
 ```bash
-cd C:\Users\Administrator\Desktop\pyraride
+cd C:\Users\Administrator\Desktop\pyrarides
 vercel env add NEXTAUTH_URL
-# When prompted, enter: https://pyraride-8k066m9ec-mohamed-hares-projects.vercel.app
+# When prompted, enter: https://pyrarides-8k066m9ec-mohamed-hares-projects.vercel.app
 # Select: Production, Preview, Development
 ```
 
@@ -117,9 +117,9 @@ vercel ls
 
 ## 📊 Your Live URLs
 
-- **Production**: https://pyraride-8k066m9ec-mohamed-hares-projects.vercel.app
-- **Stables**: https://pyraride-8k066m9ec-mohamed-hares-projects.vercel.app/stables
-- **Dashboard**: https://pyraride-8k066m9ec-mohamed-hares-projects.vercel.app/dashboard
+- **Production**: https://pyrarides-8k066m9ec-mohamed-hares-projects.vercel.app
+- **Stables**: https://pyrarides-8k066m9ec-mohamed-hares-projects.vercel.app/stables
+- **Dashboard**: https://pyrarides-8k066m9ec-mohamed-hares-projects.vercel.app/dashboard
 
 ---
 
@@ -148,8 +148,8 @@ vercel ls
 4. Click: Run
 
 ### For Vercel:
-1. Open: https://vercel.com/mohamed-hares-projects/pyraride/settings/environment-variables
-2. Add: `NEXTAUTH_URL` = `https://pyraride-8k066m9ec-mohamed-hares-projects.vercel.app`
+1. Open: https://vercel.com/mohamed-hares-projects/pyrarides/settings/environment-variables
+2. Add: `NEXTAUTH_URL` = `https://pyrarides-8k066m9ec-mohamed-hares-projects.vercel.app`
 3. Save
 4. Redeploy
 
@@ -157,7 +157,7 @@ vercel ls
 
 ## 🎉 That's It!
 
-Follow these 4 steps and your PyraRide marketplace will be fully functional!
+Follow these 4 steps and your PyraRides marketplace will be fully functional!
 
 **Need help?** Check:
 - `FINAL_DEPLOYMENT_URL.md` - Full URL details

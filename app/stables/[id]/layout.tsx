@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
     if (!stable) {
       return {
-        title: "Stable Not Found | PyraRide",
+        title: "Stable Not Found | PyraRides",
         description: "The stable you're looking for doesn't exist or is no longer available.",
       };
     }
@@ -44,8 +44,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     const avgRating = ratingAgg._avg.stableRating || 0;
 
     const location = stable.location === "Giza" ? "Giza Plateau" : "Saqqara Desert";
-    const title = `${stable.name} - Horse Riding in ${location} | Book on PyraRide`;
-    const description = `Book ${stable.name} at ${location} Pyramids through PyraRide - Egypt's #1 horse riding marketplace. ${stable.description.substring(0, 120)}... ${stable._count.reviews} reviews, ${avgRating.toFixed(1)}⭐ rating. Instant booking at www.pyrarides.com.`;
+    const title = `${stable.name} - Horse Riding in ${location} | Book on PyraRides`;
+    const description = `Book ${stable.name} at ${location} Pyramids through PyraRides - Egypt's #1 horse riding marketplace. ${stable.description.substring(0, 120)}... ${stable._count.reviews} reviews, ${avgRating.toFixed(1)}⭐ rating. Instant booking at www.pyrarides.com.`;
 
     const ogImage = stable.imageUrl || "https://www.pyrarides.com/og-image.jpg";
 
@@ -76,7 +76,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
         description,
         type: "website",
         url: `https://www.pyrarides.com/stables/${params.id}`,
-        siteName: "PyraRide",
+        siteName: "PyraRides",
         locale: "en_US",
         images: [
           {
@@ -107,7 +107,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   } catch (error) {
     console.error("Error generating metadata:", error);
     return {
-      title: "Stable Details | PyraRide",
+      title: "Stable Details | PyraRides",
       description: "View details about this horse riding stable at the pyramids.",
     };
   }

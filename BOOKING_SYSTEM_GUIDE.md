@@ -1,6 +1,6 @@
 # Booking System - Complete Implementation ✅
 
-PyraRide now has a complete booking system that allows riders to book horse riding experiences!
+PyraRides now has a complete booking system that allows riders to book horse riding experiences!
 
 ## 🎯 What's Been Implemented
 

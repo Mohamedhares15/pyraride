@@ -1,4 +1,4 @@
-# ✅ **PyraRide Business Registration Checklist**
+# ✅ **PyraRides Business Registration Checklist**
 
 > Simple checklist to track your registration progress
 

@@ -1,6 +1,6 @@
 # Authentication Setup - Complete ✅
 
-PyraRide now has a complete authentication system with Next-Auth.js v5 (Auth.js).
+PyraRides now has a complete authentication system with Next-Auth.js v5 (Auth.js).
 
 ## 🎯 What's Been Implemented
 

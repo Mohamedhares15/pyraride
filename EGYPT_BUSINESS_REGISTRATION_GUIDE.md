@@ -1,4 +1,4 @@
-# 🏢 **Complete Guide: Getting Tax ID for PyraRide Business in Egypt**
+# 🏢 **Complete Guide: Getting Tax ID for PyraRides Business in Egypt**
 
 > **A Step-by-Step Walkthrough for Registering Your Horse Riding Marketplace**
 
@@ -46,7 +46,7 @@
 
 **Example Names:**
 - Arabic: "شركة بيران رايد للتكنولوجيا"
-- English: "PyraRide Technology Company"
+- English: "PyraRides Technology Company"
 
 **Action Items:**
 - [ ] Research 5 potential names
@@ -567,7 +567,7 @@ ___________________________________________
 
 ---
 
-**Good luck with your PyraRide business registration! 🐴🏛️**
+**Good luck with your PyraRides business registration! 🐴🏛️**
 
 For questions or clarifications, contact:
 - Tax Authority: 19757

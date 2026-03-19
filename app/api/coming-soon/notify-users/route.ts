@@ -40,23 +40,23 @@ export async function POST(req: NextRequest) {
       try {
         await sendEmail({
           to: user.email!,
-          subject: "🎉 PyraRide is Now Live!",
+          subject: "🎉 PyraRides is Now Live!",
           html: `
             <!DOCTYPE html>
             <html>
             <head>
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>PyraRide is Now Live!</title>
+              <title>PyraRides is Now Live!</title>
             </head>
             <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
               <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; text-align: center; border-radius: 10px 10px 0 0;">
-                <h1 style="color: white; margin: 0; font-size: 32px;">🎉 PyraRide is Live!</h1>
+                <h1 style="color: white; margin: 0; font-size: 32px;">🎉 PyraRides is Live!</h1>
               </div>
               <div style="background: #f9fafb; padding: 40px; border-radius: 0 0 10px 10px;">
                 <p style="font-size: 18px; margin-bottom: 20px;">Hi ${user.fullName || "there"},</p>
                 <p style="font-size: 16px; margin-bottom: 20px;">
-                  Great news! PyraRide is now fully operational and ready for you to start booking amazing horse riding experiences at the Giza and Saqqara Pyramids!
+                  Great news! PyraRides is now fully operational and ready for you to start booking amazing horse riding experiences at the Giza and Saqqara Pyramids!
                 </p>
                 <div style="background: white; padding: 20px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #667eea;">
                   <p style="margin: 0; font-size: 16px; font-weight: 600;">✨ What you can do now:</p>
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
                   Thank you for your patience! We're excited to have you with us. 🐴
                 </p>
                 <p style="font-size: 14px; color: #666; text-align: center; margin-top: 10px;">
-                  — The PyraRide Team
+                  — The PyraRides Team
                 </p>
               </div>
             </body>
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
           `,
           text: `Hi ${user.fullName || "there"},
 
-Great news! PyraRide is now fully operational and ready for you to start booking amazing horse riding experiences at the Giza and Saqqara Pyramids!
+Great news! PyraRides is now fully operational and ready for you to start booking amazing horse riding experiences at the Giza and Saqqara Pyramids!
 
 What you can do now:
 - Browse verified stables and horses
@@ -104,7 +104,7 @@ Visit us at: ${process.env.NEXTAUTH_URL || "https://www.pyrarides.com"}
 
 Thank you for your patience! We're excited to have you with us. 🐴
 
-— The PyraRide Team`,
+— The PyraRides Team`,
         });
         successCount++;
       } catch (error) {

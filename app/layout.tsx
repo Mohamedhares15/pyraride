@@ -27,10 +27,10 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: {
-    default: "Book Horse Riding at Pyramids Egypt | PyraRide - #1 Marketplace",
-    template: "%s | PyraRide - Egypt's Horse Riding Booking Platform",
+    default: "Book Horse Riding at Pyramids Egypt | PyraRides - #1 Marketplace",
+    template: "%s | PyraRides - Egypt's Horse Riding Booking Platform",
   },
-  description: "PyraRide is Egypt's first online marketplace for booking horse riding experiences at the Giza and Saqqara Pyramids. Compare and book from multiple verified stables in one platform. 100% verified, instant booking, best prices guaranteed. ⭐ 4.9/5 rating.",
+  description: "PyraRides is Egypt's first online marketplace for booking horse riding experiences at the Giza and Saqqara Pyramids. Compare and book from multiple verified stables in one platform. 100% verified, instant booking, best prices guaranteed. ⭐ 4.9/5 rating.",
   keywords: [
     // Primary keywords
     "horse riding Egypt",
@@ -59,9 +59,9 @@ export const metadata: Metadata = {
     "horse riding experience Egypt",
     "best horse riding Egypt",
   ],
-  authors: [{ name: "PyraRide" }],
-  creator: "PyraRide",
-  publisher: "PyraRide",
+  authors: [{ name: "PyraRides" }],
+  creator: "PyraRides",
+  publisher: "PyraRides",
   formatDetection: {
     email: false,
     address: false,
@@ -72,10 +72,10 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "PyraRide - Book Your Trusted Giza Horse Riding Experience",
+    title: "PyraRides - Book Your Trusted Giza Horse Riding Experience",
     description: "The Pyramids, Unforgettable. The Ride, Uncomplicated. Book your trusted, vetted ride at Giza and Saqqara.",
     url: "https://www.pyrarides.com",
-    siteName: "PyraRide",
+    siteName: "PyraRides",
     locale: "en_US",
     type: "website",
     images: [
@@ -83,15 +83,15 @@ export const metadata: Metadata = {
         url: "https://www.pyrarides.com/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "PyraRide - Horse Riding at the Pyramids",
+        alt: "PyraRides - Horse Riding at the Pyramids",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "PyraRide - Book Your Trusted Giza Horse Riding Experience",
+    title: "PyraRides - Book Your Trusted Giza Horse Riding Experience",
     description: "The Pyramids, Unforgettable. The Ride, Uncomplicated.",
-    creator: "@PyraRide",
+    creator: "@PyraRides",
     images: ["https://www.pyrarides.com/og-image.jpg"],
   },
   robots: {
@@ -111,7 +111,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "PyraRide",
+    title: "PyraRides",
   },
 };
 

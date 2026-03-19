@@ -11,7 +11,7 @@ I've fixed the bookings API to return an empty array instead of error when not a
 ## 👤 **How to Create a RIDER Account (Default):**
 
 ### **Method 1: Via Website** ✅
-1. Go to: https://pyraride.vercel.app
+1. Go to: https://pyrarides.vercel.app
 2. Click "Sign In" or "Get Started"
 3. Click "Sign Up"
 4. Enter email and password
@@ -31,7 +31,7 @@ I'll create a script for you!
 
 **Steps:**
 1. Go to: https://console.neon.tech
-2. Open your `pyraride` database
+2. Open your `pyrarides` database
 3. Click "SQL Editor" → "New Query"
 4. Run this SQL (replace `YOUR_USER_EMAIL` with actual email):
 
@@ -60,7 +60,7 @@ We need to add:
 
 **Steps:**
 1. Go to: https://console.neon.tech
-2. Open your `pyraride` database
+2. Open your `pyrarides` database
 3. Click "SQL Editor" → "New Query"
 4. Run this SQL (replace `YOUR_USER_EMAIL` with actual email):
 
@@ -79,7 +79,7 @@ UPDATE "User" SET role = 'admin' WHERE email = 'YOUR_USER_EMAIL@example.com';
 The bookings fix is deploying now.
 
 ### **Step 2: Sign Up as Rider** (1 minute)
-1. Go to: https://pyraride.vercel.app
+1. Go to: https://pyrarides.vercel.app
 2. Click "Sign Up"
 3. Create account (you're now a rider!)
 

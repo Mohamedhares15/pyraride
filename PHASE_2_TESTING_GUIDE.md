@@ -1,4 +1,4 @@
-# 🧪 **PyraRide Phase 2 - Complete Testing Guide**
+# 🧪 **PyraRides Phase 2 - Complete Testing Guide**
 
 ## 📋 **Overview**
 This guide covers all 7 Phase 2 features with step-by-step testing instructions.
@@ -14,7 +14,7 @@ Admins can create, edit, activate/deactivate, and delete locations (Giza, Saqqar
 
 #### **1.1 Access Admin Locations Page**
 1. Sign in as **Admin** user:
-   - Email: `admin@pyraride.com`
+   - Email: `admin@pyrarides.com`
    - Password: `Admin123`
 2. Navigate to: `/dashboard/admin/locations`
    - Or click "Analytics" → "Manage Locations" link
@@ -245,7 +245,7 @@ Cheat-proof leaderboard system using a Payoff Matrix. Stable owners rate rider p
 
 #### **6.1 Set Horse Admin Tier (Admin Only)**
 1. Sign in as **Admin** user:
-   - Email: `admin@pyraride.com`
+   - Email: `admin@pyrarides.com`
    - Password: `Admin123`
 2. Navigate to `/dashboard/admin/horses`
    - Or click "Manage Horse Admin Tiers" from analytics page

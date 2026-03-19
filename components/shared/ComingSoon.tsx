@@ -51,7 +51,7 @@ export default function ComingSoon({ children }: { children: React.ReactNode }) 
               {/* Logo/Brand - matches website styling */}
               <div className="space-y-3">
                 <h1 className="text-5xl md:text-6xl font-bold text-obsidian tracking-tight">
-                  PyraRide
+                  PyraRides
                 </h1>
                 <div className="w-24 h-1 bg-nile-blue mx-auto rounded-full"></div>
               </div>

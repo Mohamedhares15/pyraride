@@ -5,10 +5,10 @@
 **Root Cause**: You're not signed in! The dashboard requires authentication.
 
 **Solution**: 
-1. Go to https://pyraride.vercel.app
+1. Go to https://pyrarides.vercel.app
 2. Click "Sign In" or "Get Started"
 3. Sign up with your email
-4. Then visit https://pyraride.vercel.app/dashboard/rider
+4. Then visit https://pyrarides.vercel.app/dashboard/rider
 5. It will work!
 
 ---
@@ -17,7 +17,7 @@
 
 ### **1. Rider Account (Default) - EASY!**
 
-**Step 1**: Go to https://pyraride.vercel.app  
+**Step 1**: Go to https://pyrarides.vercel.app  
 **Step 2**: Click "Sign In" or "Get Started"  
 **Step 3**: Fill in:
 - Email: your@email.com
@@ -37,7 +37,7 @@
 #### **Option A: Via Neon Console (Easiest)**
 
 1. Go to https://console.neon.tech
-2. Open your `pyraride` database
+2. Open your `pyrarides` database
 3. Click "SQL Editor"
 4. Run this SQL:
 
@@ -168,7 +168,7 @@ admin@test.com / password123     → Admin dashboard
 ---
 
 **Test it now:**
-1. Sign up at https://pyraride.vercel.app
+1. Sign up at https://pyrarides.vercel.app
 2. Visit `/dashboard/rider`
 3. See "No Bookings Yet" (because you have no bookings)
 4. Everything works! ✅

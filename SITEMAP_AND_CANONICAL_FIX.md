@@ -2,7 +2,7 @@
 
 ## 🎯 **Issues Identified:**
 
-1. **Sitemap Errors**: Google Search Console shows 11 errors because it's reading cached sitemap with old `pyraride.vercel.app` URLs
+1. **Sitemap Errors**: Google Search Console shows 11 errors because it's reading cached sitemap with old `pyrarides.vercel.app` URLs
 2. **Canonicalization Issue**: Google sees 3 different homepage versions:
    - `http://pyrarides.com/`
    - `https://pyrarides.com/`
@@ -82,7 +82,7 @@ curl -I http://www.pyrarides.com
 ### **Check Sitemap:**
 Visit: `https://www.pyrarides.com/sitemap.xml`
 - Should only show `https://www.pyrarides.com/*` URLs
-- No `pyraride.vercel.app` URLs
+- No `pyrarides.vercel.app` URLs
 
 ---
 

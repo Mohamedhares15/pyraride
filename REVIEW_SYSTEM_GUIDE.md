@@ -1,6 +1,6 @@
 # Review System - Complete Implementation ✅
 
-PyraRide now has a complete review system where riders can rate their experience after completed bookings!
+PyraRides now has a complete review system where riders can rate their experience after completed bookings!
 
 ## 🎯 What's Been Implemented
 

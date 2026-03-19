@@ -22,7 +22,7 @@ export default function OfflinePage() {
                 >
                     <img
                         src="/icons/icon-192x192.png"
-                        alt="PyraRide"
+                        alt="PyraRides"
                         className="w-full h-full object-cover"
                     />
                 </motion.div>

@@ -59,7 +59,7 @@ async function main() {
   ];
 
   // Generate a secure password for each owner (you can customize this)
-  const defaultPassword = await bcrypt.hash("PyraRide2024!", 10);
+  const defaultPassword = await bcrypt.hash("PyraRides2024!", 10);
 
   for (const ownerData of stableOwners) {
     try {
@@ -165,7 +165,7 @@ async function main() {
 
   console.log("\n🎉 Real stable owners creation complete!");
   console.log("\n📋 Owner Accounts Created:");
-  console.log("   Default password for all accounts: PyraRide2024!");
+  console.log("   Default password for all accounts: PyraRides2024!");
   console.log("   (Owners should change this on first login)");
   stableOwners.forEach((owner) => {
     console.log(`   - ${owner.email} (${owner.fullName}) - ${owner.stable.name}`);

@@ -77,7 +77,7 @@ export default function ReviewModal({
         // Upload to Cloudinary
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('upload_preset', 'pyraride_reviews');
+        formData.append('upload_preset', 'pyrarides_reviews');
         formData.append('cloud_name', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '');
 
         const response = await fetch(

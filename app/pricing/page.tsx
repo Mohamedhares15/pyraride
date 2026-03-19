@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Pricing - Coming Soon | PyraRide",
+  title: "Pricing - Coming Soon | PyraRides",
   description: "Transparent pricing for horse riding experiences coming soon.",
 };
 

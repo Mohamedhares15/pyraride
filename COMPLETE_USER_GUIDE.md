@@ -10,7 +10,7 @@ The `/api/bookings` route requires authentication. Without being logged in, it r
 ### **The Solution:**
 
 #### **Step 1: Sign Up (Create Account)**
-1. Go to: https://pyraride.vercel.app
+1. Go to: https://pyrarides.vercel.app
 2. Click "Get Started" button (top right)
 3. Fill in:
    - Email: your-email@example.com
@@ -105,7 +105,7 @@ VALUES (gen_random_uuid(), 'admin@example.com', 'hashed_password_here', 'admin')
 
 ### **To Fix "Failed to fetch bookings":**
 
-1. **Go to**: https://pyraride.vercel.app
+1. **Go to**: https://pyrarides.vercel.app
 2. **Click**: "Get Started"
 3. **Sign up** with your email and password
 4. **After signup**, you'll be redirected to dashboard

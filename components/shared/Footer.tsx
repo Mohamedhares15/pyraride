@@ -25,7 +25,7 @@ export default function Footer() {
           
           {/* Brand & Mission */}
           <div>
-            <h3 className="text-primary font-bold text-xl mb-4">PyraRide</h3>
+            <h3 className="text-primary font-bold text-xl mb-4">PyraRides</h3>
             <p className="text-sm text-foreground/70 mb-4">
               The Pyramids, Unforgettable.<br />
               The Ride, Uncomplicated.
@@ -61,7 +61,7 @@ export default function Footer() {
             <h4 className="font-semibold text-sm mb-4">Connect With Us</h4>
             <div className="space-y-3 mb-4">
               <p className="text-sm text-foreground/70">
-                📧 <a href="mailto:support@pyraride.com" className="hover:text-primary transition-colors">support@pyraride.com</a>
+                📧 <a href="mailto:support@pyrarides.com" className="hover:text-primary transition-colors">support@pyrarides.com</a>
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -90,7 +90,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 mt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-xs text-foreground/60 text-center md:text-left">
-            © {new Date().getFullYear()} PyraRide. All rights reserved. Made with ❤️ in Egypt.
+            © {new Date().getFullYear()} PyraRides. All rights reserved. Made with ❤️ in Egypt.
           </div>
           <div className="flex flex-wrap gap-4 text-xs text-foreground/60">
             <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>

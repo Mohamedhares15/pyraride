@@ -1,4 +1,4 @@
-# PyraRide - Complete Local Testing Guide 🧪
+# PyraRides - Complete Local Testing Guide 🧪
 
 ## ✅ Build Status: READY FOR TESTING!
 
@@ -37,7 +37,7 @@ You need to set up your database before testing:
 1. **Install PostgreSQL locally**
 2. **Create `.env` file**:
 ```env
-DATABASE_URL="postgresql://username:password@localhost:5432/pyraride"
+DATABASE_URL="postgresql://username:password@localhost:5432/pyrarides"
 NEXTAUTH_SECRET="nORyje1HDo0LSAlpqqSrSedN2ZEAsb2Tt4EwsIwZumU="
 NEXTAUTH_URL="http://localhost:3000"
 STRIPE_SECRET_KEY="sk_test_...get_from_stripe"
@@ -58,7 +58,7 @@ npm run db:seed
 3. **Copy connection string**
 4. **Add to `.env`**:
 ```env
-DATABASE_URL="postgresql://username:password@host.neon.tech/pyraride?sslmode=require"
+DATABASE_URL="postgresql://username:password@host.neon.tech/pyrarides?sslmode=require"
 NEXTAUTH_SECRET="nORyje1HDo0LSAlpqqSrSedN2ZEAsb2Tt4EwsIwZumU="
 NEXTAUTH_URL="http://localhost:3000"
 STRIPE_SECRET_KEY="sk_test_...get_from_stripe"
@@ -92,7 +92,7 @@ npm run db:seed
 **Test Accounts** (after seeding):
 - Rider: `rider1@example.com` / `Rider123`
 - Owner: `owner@giza-stables.com` / `Owner123`
-- Admin: `admin@pyraride.com` / `Admin123`
+- Admin: `admin@pyrarides.com` / `Admin123`
 
 ### 3. Browse Stables (✓ Ready)
 - Visit: `http://localhost:3000/stables`

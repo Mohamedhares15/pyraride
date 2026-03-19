@@ -1,5 +1,5 @@
 # 📱 **INSTAGRAM & TIKTOK SEO STRATEGY**
-## **Make PyraRide #1 in Social Search Results**
+## **Make PyraRides #1 in Social Search Results**
 
 **Goal:** Rank #1 when people search "horse riding Egypt" or "horse riding pyramids" on Instagram/TikTok
 
@@ -10,13 +10,13 @@
 ### **1. Profile Optimization**
 
 #### **Username Options (Priority Order):**
-1. `@pyraride` (if available)
-2. `@pyraride_egypt` (if @pyraride taken)
-3. `@pyrarideegypt` (backup)
+1. `@pyrarides` (if available)
+2. `@pyrarides_egypt` (if @pyrarides taken)
+3. `@pyraridesegypt` (backup)
 
 #### **Profile Name:**
-- **Primary:** `PyraRide - Horse Riding Egypt`
-- **Alternative:** `PyraRide | Horse Riding at Pyramids`
+- **Primary:** `PyraRides - Horse Riding Egypt`
+- **Alternative:** `PyraRides | Horse Riding at Pyramids`
 
 **Why:** Instagram search prioritizes usernames and profile names that match search queries.
 
@@ -63,7 +63,7 @@ Experience authentic horse riding with stunning pyramid views!
 
 Book now at www.pyrarides.com
 
-#horseridingegypt #horseridingpyramids #gizapyramids #egypttravel #bookhorsegypt #horsebackriding #pyramidstours #egyptadventure #gizahorseriding #saqqarapyramids #cairoattractions #egypttourism #horseridingtours #bookonline #instantbooking #verifiedstables #pyraride #horseridingbooking #egyptactivities
+#horseridingegypt #horseridingpyramids #gizapyramids #egypttravel #bookhorsegypt #horsebackriding #pyramidstours #egyptadventure #gizahorseriding #saqqarapyramids #cairoattractions #egypttourism #horseridingtours #bookonline #instantbooking #verifiedstables #pyrarides #horseridingbooking #egyptactivities
 ```
 
 **B. Customer Stories (30% of content):**
@@ -90,7 +90,7 @@ Ready for your adventure? Book yours at www.pyrarides.com
 - Meet the guides
 
 **D. Comparison/Educational (10% of content):**
-- "Why PyraRide vs Single-Stable Sites"
+- "Why PyraRides vs Single-Stable Sites"
 - "How to Choose the Right Stable"
 - "Giza vs Saqqara: Which is Better?"
 
@@ -119,7 +119,7 @@ Ready for your adventure? Book yours at www.pyrarides.com
 - `#bookonline`
 - `#instantbooking`
 - `#verifiedstables`
-- `#pyraride`
+- `#pyrarides`
 - `#horseridingbooking`
 - `#egyptactivities`
 - `#desertriding`
@@ -181,7 +181,7 @@ Ready for your adventure? Book yours at www.pyrarides.com
 - Pyramid views from horseback
 
 **D. Educational (30-60 seconds):**
-- "Why Choose PyraRide?"
+- "Why Choose PyraRides?"
 - "Giza vs Saqqara: Which is Better?"
 - "How to Choose the Right Stable"
 
@@ -246,10 +246,10 @@ Ready for your adventure? Book yours at www.pyrarides.com
 ### **1. Profile Optimization**
 
 #### **Username:**
-- `@pyraride` or `@pyrarideegypt`
+- `@pyrarides` or `@pyraridesegypt`
 
 #### **Profile Name:**
-- `PyraRide | Horse Riding Egypt`
+- `PyraRides | Horse Riding Egypt`
 
 #### **Bio:**
 ```
@@ -277,7 +277,7 @@ Ready for your adventure? Book yours at www.pyrarides.com
 **A. Stable Tours (30-60 seconds):**
 - Quick tours of stables
 - Show horses, facilities, views
-- Text overlay: "Stable Name - Book on PyraRide.com"
+- Text overlay: "Stable Name - Book on PyraRides.com"
 
 **B. Quick Tips (15-30 seconds):**
 - "3 Things to Know Before Horse Riding at Pyramids"
@@ -291,7 +291,7 @@ Ready for your adventure? Book yours at www.pyrarides.com
 - Scenic views
 
 **D. Comparison Content (30-45 seconds):**
-- "Why PyraRide is Different"
+- "Why PyraRides is Different"
 - "Single Stable vs Marketplace"
 - Emphasize unique value
 
@@ -333,7 +333,7 @@ Ready for your adventure? Book yours at www.pyrarides.com
 
 **A. Video Text Overlays:**
 - Add text overlays with keywords
-- Include: "Book at PyraRide.com"
+- Include: "Book at PyraRides.com"
 - Use keywords: "horse riding Egypt", "pyramids"
 
 **B. Captions:**
@@ -489,12 +489,12 @@ Ready for your adventure? Book yours at www.pyrarides.com
 ## ✅ **ACTION ITEMS:**
 
 1. **Create Instagram Account:**
-   - Username: @pyraride or @pyraride_egypt
+   - Username: @pyrarides or @pyrarides_egypt
    - Optimize profile (bio, link, profile picture)
    - Upload 10-15 initial posts
 
 2. **Create TikTok Account:**
-   - Username: @pyraride or @pyrarideegypt
+   - Username: @pyrarides or @pyraridesegypt
    - Optimize profile
    - Upload 5-7 initial videos
 
@@ -518,7 +518,7 @@ Ready for your adventure? Book yours at www.pyrarides.com
 ## 💡 **PRO TIPS:**
 
 1. **User-Generated Content:**
-   - Encourage customers to tag @pyraride
+   - Encourage customers to tag @pyrarides
    - Repost customer content (with permission)
    - Creates authentic content and engagement
 

@@ -364,7 +364,7 @@ export default function AuthModal({ open, onOpenChange, initialTab = "signin" }:
       <DialogContent className="flex max-h-[98vh] w-[98vw] max-w-md flex-col overflow-hidden p-0 sm:max-w-md">
         <DialogHeader className="flex-shrink-0 px-3 pt-3 pb-1.5 sm:px-6 sm:pt-4 sm:pb-2">
           <DialogTitle className="text-sm sm:text-lg leading-tight">
-            {activeTab === "forgot" ? "Reset your password" : "Welcome to PyraRide"}
+            {activeTab === "forgot" ? "Reset your password" : "Welcome to PyraRides"}
           </DialogTitle>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-3 sm:px-6 sm:pb-6 min-h-0">

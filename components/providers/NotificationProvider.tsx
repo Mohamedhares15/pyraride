@@ -40,7 +40,7 @@ export default function NotificationProvider({ children }: { children: React.Rea
                 toast.custom((t) => (
                     <div className="w-full max-w-md bg-[#121212]/95 backdrop-blur-xl border border-[rgb(218,165,32)]/30 rounded-xl shadow-2xl shadow-black/50 p-4 flex items-start gap-4 ring-1 ring-white/10">
                         <div className="flex-shrink-0 p-2 rounded-full bg-gradient-to-br from-[rgba(218,165,32,0.2)] to-[rgba(184,134,11,0.1)] border border-[rgba(218,165,32,0.3)]">
-                            <img src="/icons/icon-192x192.png" alt="PyraRide" className="w-6 h-6 object-contain" />
+                            <img src="/icons/icon-192x192.png" alt="PyraRides" className="w-6 h-6 object-contain" />
                         </div>
                         <div className="flex-1 pt-0.5">
                             <h3 className="text-sm font-bold text-white mb-1 font-display tracking-wide">{payload.notification.title}</h3>

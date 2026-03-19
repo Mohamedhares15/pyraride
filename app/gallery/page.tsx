@@ -76,7 +76,7 @@ export default function GalleryPage() {
               <Home className="h-4 w-4" />
               <span>Back to Home</span>
             </Link>
-            <div className="text-lg font-bold tracking-widest text-white">PYRARIDE GALLERY</div>
+            <div className="text-lg font-bold tracking-widest text-white">PYRARIDES GALLERY</div>
             <div className="w-24" /> {/* Spacer for balance */}
           </div>
         </header>
@@ -152,7 +152,7 @@ export default function GalleryPage() {
                     <div className="absolute inset-0 flex items-end p-6 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
                       <div className="w-full transform translate-y-4 transition-transform duration-500 group-hover:translate-y-0">
                         <p className="text-base font-medium text-white drop-shadow-lg">
-                          {item.caption || "PyraRide Experience"}
+                          {item.caption || "PyraRides Experience"}
                         </p>
                       </div>
                     </div>

@@ -698,22 +698,22 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                                 <p className="text-muted-foreground leading-relaxed mt-4">
                                     Located at <strong>{stable.location} Pyramids</strong>, {stable.name} offers authentic horse riding
                                     experiences with stunning views of Egypt's most iconic landmarks. Book your adventure
-                                    through <strong>PyraRide.com</strong> - Egypt's trusted booking marketplace for horse riding experiences
-                                    at the pyramids. As part of PyraRide's verified stable network, {stable.name} has been thoroughly
+                                    through <strong>PyraRides.com</strong> - Egypt's trusted booking marketplace for horse riding experiences
+                                    at the pyramids. As part of PyraRides's verified stable network, {stable.name} has been thoroughly
                                     inspected for safety, quality, and animal welfare standards.
                                 </p>
                             </div>
 
                             <div>
-                                <h2 className="text-2xl font-bold mb-4">Why Book {stable.name} on PyraRide?</h2>
+                                <h2 className="text-2xl font-bold mb-4">Why Book {stable.name} on PyraRides?</h2>
                                 <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                                     <li><strong>Instant booking confirmation</strong> - No waiting for responses</li>
                                     <li><strong>Verified stable</strong> with {stable.rating > 0 ? `${stable.rating.toFixed(1)}⭐` : 'excellent'} rating from {stable.totalReviews} {stable.totalReviews === 1 ? 'review' : 'reviews'}</li>
                                     <li><strong>Secure online payment</strong> with multiple payment options</li>
                                     <li><strong>Best price guarantee</strong> - We'll match or beat any price</li>
                                     <li><strong>24/7 customer support</strong> to help with any questions</li>
-                                    <li><strong>Compare with other stables</strong> before booking - only on PyraRide</li>
-                                    <li><strong>Verified for safety</strong> - All PyraRide stables meet strict safety and quality standards</li>
+                                    <li><strong>Compare with other stables</strong> before booking - only on PyraRides</li>
+                                    <li><strong>Verified for safety</strong> - All PyraRides stables meet strict safety and quality standards</li>
                                 </ul>
                             </div>
 

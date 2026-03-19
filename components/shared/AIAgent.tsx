@@ -72,7 +72,7 @@ export default function AIAgent() {
     {
       role: "assistant",
       content:
-        "Hello! 👋 I'm your PyraRide AI assistant. I can help you with bookings, finding stables, and more. How can I assist you today?",
+        "Hello! 👋 I'm your PyraRides AI assistant. I can help you with bookings, finding stables, and more. How can I assist you today?",
       timestamp: new Date().toISOString(),
       suggestions: ["Show me stables", "How do I book?", "What are the prices?"]
     },
@@ -340,7 +340,7 @@ export default function AIAgent() {
       onClick={() => setIsOpen(true)}
       className="h-14 w-14 rounded-full bg-white/20 shadow-lg shadow-black/20 hover:bg-white/35 hover:scale-105 transition-all hover:shadow-2xl border border-white/50"
       size="icon"
-      aria-label="Open PyraRide assistant"
+      aria-label="Open PyraRides assistant"
       style={{
         backdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
         WebkitBackdropFilter: 'blur(24px) saturate(200%) brightness(1.1)',
@@ -598,7 +598,7 @@ export default function AIAgent() {
           </div>
           <div>
             <h3 className="font-bold text-lg flex items-center gap-2">
-              PyraRide AI
+              PyraRides AI
               <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">AI</span>
             </h3>
             <p className="text-xs text-muted-foreground">
@@ -753,7 +753,7 @@ export default function AIAgent() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask me anything about PyraRide..."
+                placeholder="Ask me anything about PyraRides..."
                 disabled={isLoading}
                 className="rounded-full"
               />

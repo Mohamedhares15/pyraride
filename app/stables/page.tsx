@@ -7,7 +7,7 @@ export const revalidate = 3600; // Revalidate every hour
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Browse 20+ Horse Riding Stables at Giza & Saqqara | PyraRide",
+    title: "Browse 20+ Horse Riding Stables at Giza & Saqqara | PyraRides",
     description: "Compare and book from 20+ verified horse riding stables at Giza and Saqqara Pyramids. Read reviews, compare prices, instant booking. Egypt's #1 horse riding marketplace at www.pyrarides.com.",
     keywords: [
       "horse stables Egypt",
@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
       canonical: "https://www.pyrarides.com/stables",
     },
     openGraph: {
-      title: "Browse 20+ Horse Riding Stables at Giza & Saqqara | PyraRide",
+      title: "Browse 20+ Horse Riding Stables at Giza & Saqqara | PyraRides",
       description: "Compare and book from 20+ verified horse riding stables. Egypt's #1 marketplace for pyramid horse riding experiences.",
       type: "website",
       url: "https://www.pyrarides.com/stables",

@@ -1,6 +1,6 @@
 # Review Display on Stable Pages - Complete Implementation ✅
 
-PyraRide now has beautiful review displays on stable detail pages!
+PyraRides now has beautiful review displays on stable detail pages!
 
 ## 🎯 What's Been Implemented
 

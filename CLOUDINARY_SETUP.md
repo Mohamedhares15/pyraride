@@ -13,13 +13,13 @@ Cloudinary upload presets control upload settings and security.
 
 ### 1.2 Create Preset
 
-**Preset Name:** `pyraride_reviews`
+**Preset Name:** `pyrarides_reviews`
 
 **Settings:**
 
 ```
 Signing Mode: Unsigned
-Folder: pyraride/reviews
+Folder: pyrarides/reviews
 Format: Auto
 Quality: Auto (to reduce file size automatically)
 Max File Size: 10 MB
@@ -75,7 +75,7 @@ npm run dev
 **Folder Structure:**
 
 ```
-pyraride/
+pyrarides/
 └── reviews/
     ├── user123/
     │   ├── 1234567890-abc.jpg
@@ -90,7 +90,7 @@ pyraride/
 
 Add environment variable in Vercel:
 
-1. Go to: <https://vercel.com/your-team/pyraride/settings/environment-variables>
+1. Go to: <https://vercel.com/your-team/pyrarides/settings/environment-variables>
 2. Add: `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
 3. Value: `your_cloud_name`
 4. Click "Save"
@@ -102,7 +102,7 @@ Add environment variable in Vercel:
 
 ### "Upload preset not found"
 
-- Check preset name is exactly: `pyraride_reviews`
+- Check preset name is exactly: `pyrarides_reviews`
 - Check it's set to "Unsigned"
 - Try refreshing Cloudinary dashboard
 

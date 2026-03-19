@@ -1,6 +1,6 @@
 # Dashboard Pages - Complete Implementation ✅
 
-PyraRide now has complete dashboard pages for both riders and stable owners!
+PyraRides now has complete dashboard pages for both riders and stable owners!
 
 ## 🎯 What's Been Implemented
 

@@ -1,7 +1,7 @@
 {
-  "name": "pyraride-evp",
+  "name": "pyrarides-evp",
   "version": "1.0.0",
-  "description": "PyraRide - Book your trusted Giza horse riding experience",
+  "description": "PyraRides - Book your trusted Giza horse riding experience",
   "private": true,
   "scripts": {
     "dev": "next dev",

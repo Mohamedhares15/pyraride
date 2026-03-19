@@ -1,6 +1,6 @@
-# 🐴 PyraRide - START HERE! 🐴
+# 🐴 PyraRides - START HERE! 🐴
 
-## Welcome to PyraRide! ✨
+## Welcome to PyraRides! ✨
 
 Your **complete, production-ready** marketplace is ready to go global!
 
@@ -110,7 +110,7 @@ After running `npm run db:seed`:
 
 - **Rider**: `rider1@example.com` / `Rider123`
 - **Owner**: `owner@giza-stables.com` / `Owner123`  
-- **Admin**: `admin@pyraride.com` / `Admin123`
+- **Admin**: `admin@pyrarides.com` / `Admin123`
 
 ---
 
@@ -175,7 +175,7 @@ npm start            # Start production server
 
 ---
 
-## 🐴 About PyraRide
+## 🐴 About PyraRides
 
 **Mission**: Connect tourists with trusted horse stables in Giza and Saqqara, Egypt
 

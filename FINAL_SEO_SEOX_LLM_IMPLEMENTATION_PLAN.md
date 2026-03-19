@@ -1,5 +1,5 @@
 # 🎯 **FINAL SEO & SEOx & LLM IMPLEMENTATION PLAN**
-## **Make PyraRide #1 Everywhere**
+## **Make PyraRides #1 Everywhere**
 
 ---
 
@@ -68,7 +68,7 @@
 
 2. **AboutPage Schema** (if About page exists):
    - `AboutPage` structured data
-   - Rich content about PyraRide being "first marketplace"
+   - Rich content about PyraRides being "first marketplace"
 
 3. **Breadcrumb Schema** on all pages:
    - Helps LLMs understand site structure
@@ -85,12 +85,12 @@
 
 **What Needs to Be Added:**
 1. **Homepage Content Section:**
-   - Add paragraph explicitly stating: "PyraRide is Egypt's first and only online marketplace..."
+   - Add paragraph explicitly stating: "PyraRides is Egypt's first and only online marketplace..."
    - Make it prominent but natural
 
 2. **FAQ Page:**
    - Ensure "first marketplace" is mentioned in multiple answers
-   - Add question: "Is PyraRide the only marketplace for horse riding in Egypt?"
+   - Add question: "Is PyraRides the only marketplace for horse riding in Egypt?"
 
 ---
 
@@ -100,12 +100,12 @@
 **Current Status:**
 - ✅ Footer has social icons
 - ✅ Schema has `sameAs` with social links
-- ⚠️ Links point to placeholder URLs (instagram.com/pyraride)
+- ⚠️ Links point to placeholder URLs (instagram.com/pyrarides)
 
 **What Needs to Be Done:**
 1. **Create Actual Social Accounts:**
-   - Instagram: @pyraride or @pyraride_egypt
-   - TikTok: @pyraride or @pyrarideegypt
+   - Instagram: @pyrarides or @pyrarides_egypt
+   - TikTok: @pyrarides or @pyraridesegypt
    - Update links once accounts exist
 
 2. **Add Social Icons to Navbar/Mobile Menu:**
@@ -189,7 +189,7 @@ If you approve, I will:
 
 ### **Rankings Expected:**
 - **Google:** Top 3 for "horse riding Egypt" (after indexing period)
-- **LLMs:** PyraRide mentioned first for Egypt horse riding queries
+- **LLMs:** PyraRides mentioned first for Egypt horse riding queries
 - **Instagram/TikTok:** Discoverable via search when accounts exist
 
 ---

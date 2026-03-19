@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import { join } from "path";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -33,55 +31,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Save file to public/uploads/gallery (will need to be created)
+    // Convert image to base64 data URL (works on Vercel and any serverless environment)
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    const base64 = buffer.toString("base64");
+    const fileUrl = `data:${file.type};base64,${base64}`;
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-    const filename = `${timestamp}-${sanitizedName}`;
-    const uploadDir = join(process.cwd(), "public", "uploads", "gallery");
-
-    try {
-      // Ensure directory exists (will be created by mkdir in production)
-      const fs = await import("fs/promises");
-      await fs.mkdir(uploadDir, { recursive: true });
-
-      // Save file
-      const filepath = join(uploadDir, filename);
-      await fs.writeFile(filepath, buffer);
-
-      // Return success with relative URL
-      const fileUrl = `/uploads/gallery/${filename}`;
-
-      // Save to database
-      const galleryItem = await prisma.galleryItem.create({
-        data: {
-          url: fileUrl,
-          status: "pending",
-          uploadedBy: "public", // Or session user if available
-        },
-      });
-
-      return NextResponse.json({
-        success: true,
-        message: "Image uploaded successfully and is pending review",
-        filename: filename,
+    // Save to database with the base64 data URL
+    const galleryItem = await prisma.galleryItem.create({
+      data: {
         url: fileUrl,
-        item: galleryItem,
-      });
-    } catch (dirError) {
-      // If directory creation fails (e.g., in Vercel), just return success
-      // In production with cloud storage, you'd upload to S3/Cloudinary here
-      console.warn("Could not save file locally (expected in production):", dirError);
+        status: "pending",
+        uploadedBy: "public",
+      },
+    });
 
-      return NextResponse.json({
-        success: true,
-        message: "Image received and is pending review. In production, this will be saved to cloud storage.",
-        filename: filename,
-      });
-    }
+    return NextResponse.json({
+      success: true,
+      message: "Image uploaded successfully and is pending review",
+      item: galleryItem,
+    });
   } catch (error) {
     console.error("Gallery upload error:", error);
     return NextResponse.json(
@@ -90,4 +59,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-

@@ -40,9 +40,9 @@ export async function POST(req: NextRequest) {
         if (resend) {
             try {
                 await resend.emails.send({
-                    from: "PyraRide <pyrarides@pyrarides.com>",
+                    from: "PyraRides <pyrarides@pyrarides.com>",
                     to: recipient.email,
-                    subject: `New message from ${senderName || "Someone"} on PyraRide`,
+                    subject: `New message from ${senderName || "Someone"} on PyraRides`,
                     html: `
             <!DOCTYPE html>
             <html>
@@ -56,13 +56,13 @@ export async function POST(req: NextRequest) {
                   
                   <!-- Logo -->
                   <div style="text-align: center; margin-bottom: 24px;">
-                    <h1 style="color: #ffffff; font-size: 28px; margin: 0;">🐴 PyraRide</h1>
+                    <h1 style="color: #ffffff; font-size: 28px; margin: 0;">🐴 PyraRides</h1>
                   </div>
                   
                   <!-- Message -->
                   <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
                     <p style="color: #9ca3af; font-size: 14px; margin: 0 0 8px 0;">New message from</p>
-                    <p style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 0 0 16px 0;">${senderName || "A PyraRide user"}</p>
+                    <p style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 0 0 16px 0;">${senderName || "A PyraRides user"}</p>
                     <div style="background: rgba(139, 92, 246, 0.1); border-left: 3px solid #8b5cf6; padding: 12px 16px; border-radius: 0 8px 8px 0;">
                       <p style="color: #e5e7eb; font-size: 16px; margin: 0; font-style: italic;">"${messagePreview.slice(0, 100)}${messagePreview.length > 100 ? '...' : ''}"</p>
                     </div>
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
                   
                   <!-- CTA Button -->
                   <div style="text-align: center;">
-                    <a href="${process.env.NEXTAUTH_URL || 'https://pyraride.com'}" 
+                    <a href="${process.env.NEXTAUTH_URL || 'https://pyrarides.com'}" 
                        style="display: inline-block; background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
                       View Message
                     </a>
@@ -79,8 +79,8 @@ export async function POST(req: NextRequest) {
                   <!-- Footer -->
                   <div style="text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);">
                     <p style="color: #6b7280; font-size: 12px; margin: 0;">
-                      This email was sent because you received a message on PyraRide.<br>
-                      <a href="${process.env.NEXTAUTH_URL || 'https://pyraride.com'}" style="color: #8b5cf6; text-decoration: none;">pyraride.com</a>
+                      This email was sent because you received a message on PyraRides.<br>
+                      <a href="${process.env.NEXTAUTH_URL || 'https://pyrarides.com'}" style="color: #8b5cf6; text-decoration: none;">pyrarides.com</a>
                     </p>
                   </div>
                   

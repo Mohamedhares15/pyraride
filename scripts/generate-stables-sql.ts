@@ -55,10 +55,10 @@ async function main() {
   ];
 
   // Generate password hash
-  const passwordHash = await bcrypt.hash("PyraRide2024!", 10);
+  const passwordHash = await bcrypt.hash("PyraRides2024!", 10);
 
-  console.log("-- SQL INSERT statements for PyraRide Stables\n");
-  console.log("-- Password for all accounts: PyraRide2024!\n");
+  console.log("-- SQL INSERT statements for PyraRides Stables\n");
+  console.log("-- Password for all accounts: PyraRides2024!\n");
   console.log("-- Owners should change this password on first login\n");
   console.log("--\n");
 

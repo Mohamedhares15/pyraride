@@ -2,7 +2,7 @@
 
 ## 🎯 **Problems Identified from Google Search Console:**
 
-1. **11 Sitemap Errors**: Google detected old `pyraride.vercel.app` URLs in sitemap
+1. **11 Sitemap Errors**: Google detected old `pyrarides.vercel.app` URLs in sitemap
 2. **Canonicalization Issue**: 3 different homepage versions being crawled:
    - `http://pyrarides.com/`
    - `https://pyrarides.com/`

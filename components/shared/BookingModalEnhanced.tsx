@@ -172,7 +172,7 @@ export default function BookingModalEnhanced({
 
   const handleWhatsAppFallback = () => {
     const message = encodeURIComponent([
-      `PyraRide Booking Request`,
+      `PyraRides Booking Request`,
       `Stable: ${stableName}`,
       `Date: ${selectedDate}`,
       `Time: ${startTime} - ${endTime}`,

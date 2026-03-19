@@ -4,7 +4,7 @@ import { Resend } from "resend";
 // Initialize Resend for fast email delivery
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-// PyraRide Brand URLs
+// PyraRides Brand URLs
 const LOGO_URL = "https://www.pyrarides.com/logo.png";
 const HERO_BG_URL = "https://www.pyrarides.com/hero-bg.webp";
 
@@ -90,7 +90,7 @@ function generateEmailTemplate({
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark">
   <meta name="supported-color-schemes" content="dark">
-  <title>${headline} - PyraRide</title>
+  <title>${headline} - PyraRides</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -131,7 +131,7 @@ function generateEmailTemplate({
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                 <tr>
                   <td style="font-family:'Inter', sans-serif; font-size:14px; font-weight:600; letter-spacing:0.3em; color:#FFFFFF; text-transform:uppercase;">
-                    PYRARIDE
+                    PYRARIDES
                   </td>
                   <td align="right" style="font-family:'Inter', sans-serif; font-size:11px; color:rgba(255,255,255,0.5); letter-spacing:0.05em;">
                     ${subheadline || "Book Your Adventure"}
@@ -155,7 +155,7 @@ function generateEmailTemplate({
           <!-- Hero Image -->
           <tr>
             <td style="padding:0 40px 40px;">
-              <img src="${imageUrl}" alt="${imageAlt || "PyraRide"}" width="520" style="width:100%; height:auto; display:block; border-radius:4px;" />
+              <img src="${imageUrl}" alt="${imageAlt || "PyraRides"}" width="520" style="width:100%; height:auto; display:block; border-radius:4px;" />
             </td>
           </tr>
           `
@@ -225,7 +225,7 @@ function generateEmailTemplate({
           <tr>
             <td style="padding:0 40px 40px;">
               <p style="margin:0 0 8px; font-family:'Inter', sans-serif; font-size:11px; color:rgba(255,255,255,0.4); text-align:center;">
-                Copyright © ${new Date().getFullYear()} PyraRide. All rights reserved.
+                Copyright © ${new Date().getFullYear()} PyraRides. All rights reserved.
               </p>
               <p style="margin:0 0 8px; font-family:'Inter', sans-serif; font-size:11px; color:rgba(255,255,255,0.3); text-align:center;">
                 You're receiving this because you booked a ride on pyrarides.com
@@ -290,11 +290,11 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData): Prom
     }
 
     const mailOptions = {
-      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      from: `"PyraRides" <${process.env.EMAIL_USER}>`,
       to: data.riderEmail,
       subject: `🐴 Booking Confirmed - ${data.horseName} at ${data.stableName}`,
       html: generateBookingConfirmationEmail(data),
-      text: `Booking Confirmed!\n\nYour booking at ${data.stableName} has been confirmed.\n\nHorse: ${data.horseName}\nDate: ${data.date}\nTime: ${data.startTime} - ${data.endTime}\nTotal: EGP ${data.totalPrice.toFixed(0)}\n\nThank you for choosing PyraRide!`,
+      text: `Booking Confirmed!\n\nYour booking at ${data.stableName} has been confirmed.\n\nHorse: ${data.horseName}\nDate: ${data.date}\nTime: ${data.startTime} - ${data.endTime}\nTotal: EGP ${data.totalPrice.toFixed(0)}\n\nThank you for choosing PyraRides!`,
     };
 
     const info = await transporter.sendMail(mailOptions);
@@ -337,11 +337,11 @@ export async function sendPasswordResetEmail(data: PasswordResetEmailData): Prom
     }
 
     const mailOptions = {
-      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      from: `"PyraRides" <${process.env.EMAIL_USER}>`,
       to: data.email,
-      subject: "Reset your PyraRide password",
+      subject: "Reset your PyraRides password",
       html: generatePasswordResetEmail(data),
-      text: `Hi ${data.fullName},\n\nWe received a request to reset your PyraRide password.\nClick the link below to set a new password (valid for 60 minutes):\n\n${data.resetLink}\n\nIf you didn't request this, you can ignore this email.\n\n— The PyraRide Team`,
+      text: `Hi ${data.fullName},\n\nWe received a request to reset your PyraRides password.\nClick the link below to set a new password (valid for 60 minutes):\n\n${data.resetLink}\n\nIf you didn't request this, you can ignore this email.\n\n— The PyraRides Team`,
     };
 
     const info = await transporter.sendMail(mailOptions);
@@ -403,7 +403,7 @@ export async function sendBookingCancellationEmail(data: BookingCancellationEmai
     }
 
     const mailOptions = {
-      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      from: `"PyraRides" <${process.env.EMAIL_USER}>`,
       to: data.riderEmail,
       subject: data.cancelledBy === "owner" ? `⚠️ Booking Cancelled by Stable - ${data.stableName}` : `Booking Cancelled - ${data.stableName}`,
       html: generateBookingCancellationEmail(data),
@@ -470,7 +470,7 @@ export async function sendBookingRescheduleEmail(data: BookingRescheduleEmailDat
     }
 
     const mailOptions = {
-      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      from: `"PyraRides" <${process.env.EMAIL_USER}>`,
       to: data.riderEmail,
       subject: data.rescheduledBy === "owner" ? `🔄 Booking Rescheduled by Stable - ${data.stableName}` : `Booking Rescheduled - ${data.stableName}`,
       html: generateBookingRescheduleEmail(data),
@@ -561,7 +561,7 @@ export async function sendOwnerBookingNotification(data: OwnerBookingNotificatio
     }
 
     const info = await transporter.sendMail({
-      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      from: `"PyraRides" <${process.env.EMAIL_USER}>`,
       to: data.ownerEmail,
       subject,
       html,
@@ -626,7 +626,7 @@ export async function sendOwnerCancellationNotification(data: OwnerCancellationN
 
     const isRiderCancelled = data.cancelledBy === "rider";
     const mailOptions = {
-      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      from: `"PyraRides" <${process.env.EMAIL_USER}>`,
       to: data.ownerEmail,
       subject: isRiderCancelled
         ? `❌ Booking Cancelled by Rider - ${data.horseName}`
@@ -698,7 +698,7 @@ export async function sendOwnerRescheduleNotification(data: OwnerRescheduleNotif
 
     const isRiderRescheduled = data.rescheduledBy === "rider";
     const mailOptions = {
-      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      from: `"PyraRides" <${process.env.EMAIL_USER}>`,
       to: data.ownerEmail,
       subject: isRiderRescheduled
         ? `🔄 Booking Rescheduled by Rider - ${data.horseName}`
@@ -765,7 +765,7 @@ export async function sendBookingReminderEmail(data: BookingReminderEmailData): 
     }
 
     const mailOptions = {
-      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      from: `"PyraRides" <${process.env.EMAIL_USER}>`,
       to: data.riderEmail,
       subject: `⏰ Reminder: Your ride with ${data.horseName} is today!`,
       html: generateBookingReminderEmail(data),
@@ -801,7 +801,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
     }
 
     const mailOptions = {
-      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      from: `"PyraRides" <${process.env.EMAIL_USER}>`,
       to: options.to,
       subject: options.subject,
       html: options.html,
@@ -832,7 +832,7 @@ function generateNewFollowerEmail(data: NewFollowerEmailData): string {
     headline: "New Follower.",
     subheadline: "Community Update",
     bodyTitle: `${data.followerName} started following you`,
-    bodyText: `You have a new follower on PyraRide! ${data.followerName} is now following your adventures.`,
+    bodyText: `You have a new follower on PyraRides! ${data.followerName} is now following your adventures.`,
     ctaText: "View Profile",
     ctaUrl: data.followerProfileUrl,
     footerNote: "Connect with more riders to share your experiences.",
@@ -845,11 +845,11 @@ export async function sendNewFollowerEmail(data: NewFollowerEmailData): Promise<
     if (!transporter) return false;
 
     const mailOptions = {
-      from: `"PyraRide" <${process.env.EMAIL_USER}>`,
+      from: `"PyraRides" <${process.env.EMAIL_USER}>`,
       to: data.followedEmail,
       subject: `👤 New Follower: ${data.followerName}`,
       html: generateNewFollowerEmail(data),
-      text: `${data.followerName} started following you on PyraRide.`,
+      text: `${data.followerName} started following you on PyraRides.`,
     };
 
     await transporter.sendMail(mailOptions);

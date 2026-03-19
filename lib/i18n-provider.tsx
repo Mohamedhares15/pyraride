@@ -206,7 +206,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         setMounted(true);
-        const saved = localStorage.getItem("pyraride-lang") as Locale;
+        const saved = localStorage.getItem("pyrarides-lang") as Locale;
         if (saved && (saved === "en" || saved === "ar")) {
             setLocaleState(saved);
             document.documentElement.dir = saved === "ar" ? "rtl" : "ltr";
@@ -216,7 +216,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
     const setLocale = (newLocale: Locale) => {
         setLocaleState(newLocale);
-        localStorage.setItem("pyraride-lang", newLocale);
+        localStorage.setItem("pyrarides-lang", newLocale);
         document.documentElement.dir = newLocale === "ar" ? "rtl" : "ltr";
         document.documentElement.lang = newLocale;
     };

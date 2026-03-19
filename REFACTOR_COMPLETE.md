@@ -2,7 +2,7 @@
 
 ## 🎯 Transformation Summary
 
-Successfully transformed PyraRide from "Cyber-Pharaoh" dark mode to "Egyptian-Minimalist" light mode, inspired by equinest.eu!
+Successfully transformed PyraRides from "Cyber-Pharaoh" dark mode to "Egyptian-Minimalist" light mode, inspired by equinest.eu!
 
 ---
 

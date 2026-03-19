@@ -112,7 +112,7 @@ Sends launch notification email to all registered users
    - Deploy changes
 
 3. **Users Receive:**
-   - Email: "🎉 PyraRide is Now Live!"
+   - Email: "🎉 PyraRides is Now Live!"
    - Can now fully use the site
    - See all content without overlay
 
