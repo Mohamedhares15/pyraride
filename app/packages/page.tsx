@@ -32,7 +32,7 @@ export default async function PackagesPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-black/40 to-transparent" />
         </div>
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto mt-16 mt-[80px]">
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto mt-[80px]">
           <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 tracking-tight drop-shadow-2xl">
             <span className="text-white">Curated</span> <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#BF953F] via-[#FCF6BA] to-[#B38728]">Journeys</span>
           </h1>

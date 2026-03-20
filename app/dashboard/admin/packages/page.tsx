@@ -345,10 +345,10 @@ export default function AdminPackagesPage() {
           resetForm();
         }
       }}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-[#121212] border-white/10">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-[#121212] border-white/10 text-white">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-display">{isEditDialogOpen ? "Edit Package" : "Create Advanced Package"}</DialogTitle>
-            <DialogDescription>Configure pricing, types, capacity, and amenities.</DialogDescription>
+            <DialogTitle className="text-2xl font-display text-white">{isEditDialogOpen ? "Edit Package" : "Create Advanced Package"}</DialogTitle>
+            <DialogDescription className="text-gray-400">Configure pricing, types, capacity, and amenities.</DialogDescription>
           </DialogHeader>
 
           <form onSubmit={isEditDialogOpen ? handleUpdate : handleCreate} className="space-y-8 mt-6">
@@ -358,17 +358,17 @@ export default function AdminPackagesPage() {
               <h3 className="text-lg font-bold border-b border-white/10 pb-2 text-[#D4AF37]">1. Core Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2 md:col-span-2">
-                  <Label>Package Title</Label>
-                  <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="e.g. Premium VIP Sunset Tour" required className="bg-white/5" />
+                  <Label className="text-white">Package Title</Label>
+                  <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="e.g. Premium VIP Sunset Tour" required className="bg-white/5 text-white border-white/20" />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label>Description</Label>
-                  <Textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required rows={3} className="bg-white/5" />
+                  <Label className="text-white">Description</Label>
+                  <Textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required rows={3} className="bg-white/5 text-white border-white/20" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-primary font-bold">Package Type</Label>
+                  <Label className="font-bold text-[#D4AF37]">Package Type</Label>
                   <select 
-                    className="flex h-10 w-full rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="flex h-10 w-full rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]"
                     value={formData.packageType}
                     onChange={e => {
                       const type = e.target.value;
@@ -384,8 +384,8 @@ export default function AdminPackagesPage() {
                   </select>
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label>Image URL</Label>
-                  <Input value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} required className="bg-white/5" />
+                  <Label className="text-white">Image URL</Label>
+                  <Input value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} required className="bg-white/5 text-white border-white/20" />
                 </div>
               </div>
             </div>
@@ -395,22 +395,22 @@ export default function AdminPackagesPage() {
               <h3 className="text-lg font-bold border-b border-white/10 pb-2 text-[#D4AF37]">2. Pricing & Limits</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Current Price (EGP)</Label>
-                  <Input type="number" min="0" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} required className="bg-black/50" />
+                  <Label className="text-white">Current Price (EGP)</Label>
+                  <Input type="number" min="0" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} required className="bg-black/50 text-white border-white/20" />
                 </div>
                 <div className="space-y-2 relative">
-                  <Label className="flex items-center gap-2">Original Price (EGP) <Percent className="w-3 h-3 text-red-400"/></Label>
-                  <Input type="number" min="0" value={formData.originalPrice} onChange={e => setFormData({...formData, originalPrice: e.target.value})} placeholder="Leave blank if no discount" className="bg-black/50" />
-                  <p className="text-[10px] text-muted-foreground mt-1">If set, this creates a crossed-out discount effect.</p>
+                  <Label className="flex items-center gap-2 text-white">Original Price (EGP) <Percent className="w-3 h-3 text-red-400"/></Label>
+                  <Input type="number" min="0" value={formData.originalPrice} onChange={e => setFormData({...formData, originalPrice: e.target.value})} placeholder="Leave blank if no discount" className="bg-black/50 text-white border-white/20" />
+                  <p className="text-[10px] mt-1 text-gray-400">If set, this creates a crossed-out discount effect.</p>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Min People {formData.packageType === "GROUP_EVENT" ? "(Min tickets to run)" : "(Usually 1)"}</Label>
-                  <Input type="number" min="1" value={formData.minPeople} onChange={e => setFormData({...formData, minPeople: e.target.value})} required className="bg-black/50" />
+                  <Label className="text-white">Min People <span className="text-gray-400 font-normal">{formData.packageType === "GROUP_EVENT" ? "(Min tickets to run)" : "(Usually 1)"}</span></Label>
+                  <Input type="number" min="1" value={formData.minPeople} onChange={e => setFormData({...formData, minPeople: e.target.value})} required className="bg-black/50 text-white border-white/20" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Max People {formData.packageType === "GROUP_EVENT" ? "(Max tickets)" : "(Exactly how many)"}</Label>
-                  <Input type="number" min="1" value={formData.maxPeople} onChange={e => setFormData({...formData, maxPeople: e.target.value})} required className="bg-black/50" />
+                  <Label className="text-white">Max People <span className="text-gray-400 font-normal">{formData.packageType === "GROUP_EVENT" ? "(Max tickets)" : "(Exactly how many)"}</span></Label>
+                  <Input type="number" min="1" value={formData.maxPeople} onChange={e => setFormData({...formData, maxPeople: e.target.value})} required className="bg-black/50 text-white border-white/20" />
                 </div>
               </div>
             </div>
@@ -420,16 +420,16 @@ export default function AdminPackagesPage() {
               <h3 className="text-lg font-bold border-b border-white/10 pb-2 text-[#D4AF37]">3. Schedule</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Duration (Hours)</Label>
-                  <Input type="number" step="0.5" min="0" value={formData.duration} onChange={e => setFormData({...formData, duration: e.target.value})} required className="bg-white/5" />
+                  <Label className="text-white">Duration (Hours)</Label>
+                  <Input type="number" step="0.5" min="0" value={formData.duration} onChange={e => setFormData({...formData, duration: e.target.value})} required className="bg-white/5 text-white border-white/20" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Specific Start Time (Optional)</Label>
-                  <Input type="time" value={formData.startTime} onChange={e => setFormData({...formData, startTime: e.target.value})} className="bg-white/5" />
+                  <Label className="text-white">Specific Start Time (Optional)</Label>
+                  <Input type="time" value={formData.startTime} onChange={e => setFormData({...formData, startTime: e.target.value})} className="bg-white/5 text-white border-white/20" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Available Days</Label>
-                  <Input value={formData.availableDays} onChange={e => setFormData({...formData, availableDays: e.target.value})} placeholder="e.g. Everyday OR Friday, Saturday" className="bg-white/5" required/>
+                  <Label className="text-white">Available Days</Label>
+                  <Input value={formData.availableDays} onChange={e => setFormData({...formData, availableDays: e.target.value})} placeholder="e.g. Everyday OR Friday, Saturday" className="bg-white/5 text-white border-white/20" required/>
                 </div>
               </div>
             </div>
@@ -440,19 +440,19 @@ export default function AdminPackagesPage() {
               
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 py-4">
                 <div className="flex flex-col space-y-2 items-start">
-                  <Label className="cursor-pointer text-sm font-medium">Include Horse Ride?</Label>
+                  <Label className="cursor-pointer text-sm font-medium text-white">Include Horse Ride?</Label>
                   <Switch checked={formData.hasHorseRide} onCheckedChange={c => setFormData({...formData, hasHorseRide: c})} />
                 </div>
                 <div className="flex flex-col space-y-2 items-start">
-                  <Label className="cursor-pointer text-sm font-medium">Include Food/Lunch?</Label>
+                  <Label className="cursor-pointer text-sm font-medium text-white">Include Food/Lunch?</Label>
                   <Switch checked={formData.hasFood} onCheckedChange={c => setFormData({...formData, hasFood: c})} />
                 </div>
                 <div className="flex flex-col space-y-2 items-start">
-                  <Label className="cursor-pointer text-sm font-medium">Include Dancing Show?</Label>
+                  <Label className="cursor-pointer text-sm font-medium text-white">Include Dancing Show?</Label>
                   <Switch checked={formData.hasDancingShow} onCheckedChange={c => setFormData({...formData, hasDancingShow: c})} />
                 </div>
                 <div className="flex flex-col space-y-2 items-start">
-                  <Label className="cursor-pointer text-sm font-medium">Include Party?</Label>
+                  <Label className="cursor-pointer text-sm font-medium text-white">Include Party?</Label>
                   <Switch checked={formData.hasParty} onCheckedChange={c => setFormData({...formData, hasParty: c})} />
                 </div>
               </div>
@@ -480,12 +480,12 @@ export default function AdminPackagesPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-white/10">
                 <div className="space-y-2">
-                  <Label>Other Included Items (comma separated)</Label>
-                  <Textarea value={formData.included} onChange={e => setFormData({...formData, included: e.target.value})} placeholder="Helmet, Tour Guide, Water Bottle" rows={2} className="bg-black/50"/>
+                  <Label className="text-white">Other Included Items (comma separated)</Label>
+                  <Textarea value={formData.included} onChange={e => setFormData({...formData, included: e.target.value})} placeholder="Helmet, Tour Guide, Water Bottle" rows={2} className="bg-black/50 text-white border-white/20"/>
                 </div>
                 <div className="space-y-2">
-                  <Label>Key Highlights (comma separated)</Label>
-                  <Textarea value={formData.highlights} onChange={e => setFormData({...formData, highlights: e.target.value})} placeholder="Watch the sunset, Private access" rows={2} className="bg-black/50" />
+                  <Label className="text-white">Key Highlights (comma separated)</Label>
+                  <Textarea value={formData.highlights} onChange={e => setFormData({...formData, highlights: e.target.value})} placeholder="Watch the sunset, Private access" rows={2} className="bg-black/50 text-white border-white/20" />
                 </div>
               </div>
             </div>
@@ -503,8 +503,8 @@ export default function AdminPackagesPage() {
                   <Switch checked={formData.isFeatured} onCheckedChange={c => setFormData({...formData, isFeatured: c})} />
                 </div>
                 <div className="space-y-2 bg-white/5 p-4 rounded-xl border border-white/10">
-                  <Label>Display Sort Order</Label>
-                  <Input type="number" value={formData.sortOrder} onChange={e => setFormData({...formData, sortOrder: e.target.value})} required className="bg-black" />
+                  <Label className="text-white">Display Sort Order</Label>
+                  <Input type="number" value={formData.sortOrder} onChange={e => setFormData({...formData, sortOrder: e.target.value})} required className="bg-black text-white border-white/20" />
                 </div>
               </div>
             </div>
