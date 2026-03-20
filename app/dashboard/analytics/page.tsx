@@ -223,6 +223,12 @@ export default function AnalyticsPage() {
                     Manage Stables
                   </Button>
                 </Link>
+                <Link href="/dashboard/admin/packages">
+                  <Button variant="outline" size="sm" className="gap-2 border-[#D4AF37]/30 bg-[#D4AF37]/10 text-[#D4AF37] hover:bg-[#D4AF37]/20 hover:text-[#D4AF37]">
+                    <Star className="h-4 w-4" />
+                    Manage Packages
+                  </Button>
+                </Link>
                 <Link href="/dashboard/admin/horses">
                   <Button variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                     <FileText className="mr-2 h-4 w-4" />
