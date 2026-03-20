@@ -50,6 +50,8 @@ const homepageFaq = [
   }
 ];
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const featuredPackages = await prisma.package.findMany({
     where: { isActive: true, isFeatured: true },
@@ -78,20 +80,36 @@ export default async function HomePage() {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {featuredPackages.map((pkg) => (
-                <div key={pkg.id} className="bg-[#121212] rounded-2xl overflow-hidden border border-white/10 group hover:border-[#D4AF37]/50 transition-colors flex flex-col shadow-2xl">
+                <div key={pkg.id} className="bg-[#121212] rounded-2xl overflow-hidden border border-white/10 group hover:border-[#D4AF37]/50 transition-colors flex flex-col shadow-2xl relative">
+                  {pkg.packageType === "GROUP_EVENT" && (
+                    <div className="absolute top-4 left-4 z-20 bg-blue-600 border border-blue-400/30 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg backdrop-blur-md">
+                      Group Event
+                    </div>
+                  )}
+                  {pkg.packageType === "PRIVATE" && (
+                    <div className="absolute top-4 left-4 z-20 bg-purple-600 border border-purple-400/30 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg backdrop-blur-md">
+                      Private VIP
+                    </div>
+                  )}
+
                   <div className="relative h-64 w-full overflow-hidden">
                     <Image src={pkg.imageUrl || "/hero-bg.webp"} alt={pkg.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent" />
                   </div>
                   <div className="p-8 flex flex-col flex-1 relative -mt-6">
-                    <h3 className="text-2xl font-bold text-white mb-3 font-display">{pkg.title}</h3>
-                    <div className="flex gap-4 text-sm text-gray-400 mb-4 font-medium">
-                      <span className="flex items-center"><Clock className="w-4 h-4 mr-1.5 text-[#D4AF37]"/> {pkg.duration} Hours</span>
-                      <span className="flex items-center"><Users className="w-4 h-4 mr-1.5 text-[#D4AF37]"/> Up to {pkg.maxPeople}</span>
+                    <h3 className="text-2xl font-bold text-white mb-3 font-display leading-tight">{pkg.title}</h3>
+                    <div className="flex flex-wrap gap-4 text-sm text-gray-400 mb-4 font-medium">
+                      <span className="flex items-center"><Clock className="w-4 h-4 mr-1.5 text-[#D4AF37]"/> {pkg.startTime ? `${pkg.startTime} • ` : ''}{pkg.duration} Hours</span>
+                      <span className="flex items-center"><Users className="w-4 h-4 mr-1.5 text-[#D4AF37]"/> 
+                        {pkg.packageType === "GROUP_EVENT" ? `Max ${pkg.maxPeople}` : `Exactly ${pkg.maxPeople}`}
+                      </span>
                     </div>
                     <p className="text-gray-400 text-sm line-clamp-3 mb-8 flex-1 leading-relaxed">{pkg.description}</p>
                     <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/10">
-                      <span className="text-[#D4AF37] font-bold text-2xl tracking-tight">EGP {pkg.price}</span>
+                      <div className="flex flex-col">
+                        {pkg.originalPrice && <del className="text-xs text-red-400/80 font-medium">EGP {pkg.originalPrice}</del>}
+                        <span className="text-[#D4AF37] font-bold text-2xl tracking-tight">EGP {pkg.price}</span>
+                      </div>
                       <Link href={`/packages`} className="text-white text-sm font-semibold hover:text-[#D4AF37] transition-colors flex items-center">
                         View Details <span className="ml-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">→</span>
                       </Link>

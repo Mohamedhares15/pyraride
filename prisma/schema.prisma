@@ -688,22 +688,50 @@ model Notification {
 }
 
 model Package {
-  id          String   @id @default(uuid())
-  title       String
-  description String   @db.Text
-  price       Float
-  duration    Float    // duration in hours
-  maxPeople   Int
-  included    String[] // array of included items
-  highlights  String[] // array of key highlights
-  imageUrl    String
-  isActive    Boolean  @default(true)
-  isFeatured  Boolean  @default(false)
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String   @id @default(uuid())
+  title            String
+  description      String   @db.Text
+  
+  // Pricing
+  price            Float
+  originalPrice    Float?   // If set, 'price' is discounted price, 'originalPrice' gets crossed out
+  
+  // Package Core Types
+  packageType      String   @default("PRIVATE") // "PRIVATE" | "GROUP_EVENT"
+  
+  // Capacity constraints
+  minPeople        Int      @default(1)
+  maxPeople        Int
+  
+  // Timing
+  duration         Float    // duration in hours
+  availableDays    String[] // e.g. ["Monday", "Tuesday"] or ["Everyday"]
+  startTime        String?  // e.g. "14:00"
+  
+  // Amenities toggles
+  hasHorseRide     Boolean  @default(true)
+  hasFood          Boolean  @default(false)
+  hasDancingShow   Boolean  @default(false)
+  hasParty         Boolean  @default(false)
+  
+  // Transportation
+  hasTransportation  Boolean @default(false)
+  transportationType String? // "HOME_PICKUP" | "MEETING_POINT"
+  
+  // Display/Content
+  included         String[] // array of custom included items
+  highlights       String[] // array of custom key highlights
+  imageUrl         String
+  
+  // State
+  isActive         Boolean  @default(true)
+  isFeatured       Boolean  @default(false)
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@index([isActive])
   @@index([isFeatured])
   @@index([sortOrder])
+  @@index([packageType])
 }
