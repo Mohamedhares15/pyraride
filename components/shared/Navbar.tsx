@@ -85,6 +85,9 @@ export default function Navbar() {
         <Link href="/stables">Stables</Link>
       </li>
       <li>
+        <Link href="/packages">Packages</Link>
+      </li>
+      <li>
         <Link href="/gallery">Gallery</Link>
       </li>
       {session && (
@@ -196,6 +199,11 @@ export default function Navbar() {
       <li onClick={closeMenu}>
         <Link href="/stables" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
           Stables
+        </Link>
+      </li>
+      <li onClick={closeMenu}>
+        <Link href="/packages" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
+          Packages
         </Link>
       </li>
       <li onClick={closeMenu}>
@@ -312,6 +320,14 @@ export default function Navbar() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /><circle cx="7" cy="17" r="2" /><circle cx="17" cy="17" r="2" /><path d="M5 17h8v-6H5v6Z" /></svg>
                   </div>
                   <span className="font-medium text-lg">Stables</span>
+                </Link>
+              </li>
+              <li onClick={closeMenu}>
+                <Link href="/packages" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
+                  <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.29 7 12 12 20.71 7" /><line x1="12" y1="22" x2="12" y2="12" /></svg>
+                  </div>
+                  <span className="font-medium text-lg">Packages</span>
                 </Link>
               </li>
               <li onClick={closeMenu}>

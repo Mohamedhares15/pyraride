@@ -686,3 +686,24 @@ model Notification {
   @@index([userId, read])
   @@index([createdAt])
 }
+
+model Package {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  price       Float
+  duration    Float    // duration in hours
+  maxPeople   Int
+  included    String[] // array of included items
+  highlights  String[] // array of key highlights
+  imageUrl    String
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([isFeatured])
+  @@index([sortOrder])
+}

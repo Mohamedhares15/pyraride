@@ -2,8 +2,10 @@ import Hero from "@/components/sections/Hero";
 import Navbar from "@/components/shared/Navbar";
 import ComingSoon from "@/components/shared/ComingSoon";
 import Link from "next/link";
-import { Instagram } from "lucide-react";
+import { Instagram, Clock, Users } from "lucide-react";
 import { FAQPageSchema } from "@/components/seo/StructuredData";
+import { prisma } from "@/lib/prisma";
+import Image from "next/image";
 
 
 // TikTok Icon SVG Component
@@ -48,12 +50,66 @@ const homepageFaq = [
   }
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const featuredPackages = await prisma.package.findMany({
+    where: { isActive: true, isFeatured: true },
+    orderBy: { sortOrder: 'asc' },
+    take: 3,
+  });
+
   return (
     <ComingSoon>
       <FAQPageSchema items={homepageFaq} />
       <Navbar />
       <Hero />
+      
+      {/* Featured Packages Section */}
+      {featuredPackages.length > 0 && (
+        <section className="relative z-20 w-full bg-[#0a0a0a] py-24">
+          <div className="container mx-auto px-4 max-w-6xl">
+            <div className="text-center mb-16">
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+                Exclusive <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#BF953F] via-[#FCF6BA] to-[#B38728]">Experiences</span>
+              </h2>
+              <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+                Curated luxury packages designed for unforgettable memories at the Great Pyramids.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {featuredPackages.map((pkg) => (
+                <div key={pkg.id} className="bg-[#121212] rounded-2xl overflow-hidden border border-white/10 group hover:border-[#D4AF37]/50 transition-colors flex flex-col shadow-2xl">
+                  <div className="relative h-64 w-full overflow-hidden">
+                    <Image src={pkg.imageUrl || "/hero-bg.webp"} alt={pkg.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent" />
+                  </div>
+                  <div className="p-8 flex flex-col flex-1 relative -mt-6">
+                    <h3 className="text-2xl font-bold text-white mb-3 font-display">{pkg.title}</h3>
+                    <div className="flex gap-4 text-sm text-gray-400 mb-4 font-medium">
+                      <span className="flex items-center"><Clock className="w-4 h-4 mr-1.5 text-[#D4AF37]"/> {pkg.duration} Hours</span>
+                      <span className="flex items-center"><Users className="w-4 h-4 mr-1.5 text-[#D4AF37]"/> Up to {pkg.maxPeople}</span>
+                    </div>
+                    <p className="text-gray-400 text-sm line-clamp-3 mb-8 flex-1 leading-relaxed">{pkg.description}</p>
+                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/10">
+                      <span className="text-[#D4AF37] font-bold text-2xl tracking-tight">EGP {pkg.price}</span>
+                      <Link href={`/packages`} className="text-white text-sm font-semibold hover:text-[#D4AF37] transition-colors flex items-center">
+                        View Details <span className="ml-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">→</span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="text-center mt-16 pb-4">
+              <Link href="/packages" className="inline-block border border-[#D4AF37]/50 text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-colors duration-300 px-8 py-3.5 rounded-full font-semibold shadow-lg shadow-[#D4AF37]/10 tracking-wide uppercase text-sm">
+                Explore All Packages
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Luxury CTA Section instead of FAQ */}
       <section className="relative z-20 w-full overflow-hidden bg-gradient-to-b from-black/80 via-black/95 to-black py-24 md:py-32">
         <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay" />
