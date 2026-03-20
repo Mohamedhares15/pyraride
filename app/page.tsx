@@ -67,60 +67,77 @@ export default async function HomePage() {
       
       {/* Featured Packages Section */}
       {featuredPackages.length > 0 && (
-        <section className="relative z-20 w-full bg-[#0a0a0a] py-24">
-          <div className="container mx-auto px-4 max-w-6xl">
-            <div className="text-center mb-16">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-                Exclusive <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#BF953F] via-[#FCF6BA] to-[#B38728]">Experiences</span>
+        <section className="relative z-20 w-full bg-[#050505] py-32 selection:bg-[#D4AF37]/30">
+          <div className="container mx-auto px-4 max-w-7xl">
+            <div className="text-center mb-24">
+              <p className="text-[#D4AF37] text-xs uppercase tracking-[0.3em] font-semibold mb-6">The Royal Collection</p>
+              <h2 className="font-display text-4xl md:text-5xl font-light text-white mb-6 tracking-wide">
+                Exclusive Experiences
               </h2>
-              <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-                Curated luxury packages designed for unforgettable memories at the Great Pyramids.
+              <div className="w-12 h-px bg-[#D4AF37]/50 mx-auto mb-6"></div>
+              <p className="text-gray-400 max-w-xl mx-auto text-sm md:text-base font-light tracking-wide">
+                A curated selection of our finest private rides and group events at the Great Pyramids.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
               {featuredPackages.map((pkg) => (
-                <div key={pkg.id} className="bg-[#121212] rounded-2xl overflow-hidden border border-white/10 group hover:border-[#D4AF37]/50 transition-colors flex flex-col shadow-2xl relative">
-                  {pkg.packageType === "GROUP_EVENT" && (
-                    <div className="absolute top-4 left-4 z-20 bg-blue-600 border border-blue-400/30 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg backdrop-blur-md">
-                      Group Event
+                <Link href="/packages" key={pkg.id} className="group flex flex-col cursor-pointer">
+                  {/* Image Container */}
+                  <div className="relative aspect-[4/5] w-full overflow-hidden mb-8">
+                    <Image 
+                      src={pkg.imageUrl || "/hero-bg.webp"} 
+                      alt={pkg.title} 
+                      fill 
+                      className="object-cover transition-transform duration-[1.5s] ease-in-out group-hover:scale-105 opacity-90 group-hover:opacity-100 grayscale-[20%] group-hover:grayscale-0" 
+                    />
+                    
+                    <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                      <div className="bg-black/40 backdrop-blur-md border border-white/10 text-white px-3 py-1 text-[9px] uppercase tracking-[0.2em]">
+                        {pkg.packageType === "GROUP_EVENT" ? "Group Event" : "Private VIP"}
+                      </div>
                     </div>
-                  )}
-                  {pkg.packageType === "PRIVATE" && (
-                    <div className="absolute top-4 left-4 z-20 bg-purple-600 border border-purple-400/30 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg backdrop-blur-md">
-                      Private VIP
-                    </div>
-                  )}
-
-                  <div className="relative h-64 w-full overflow-hidden">
-                    <Image src={pkg.imageUrl || "/hero-bg.webp"} alt={pkg.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent" />
                   </div>
-                  <div className="p-8 flex flex-col flex-1 relative -mt-6">
-                    <h3 className="text-2xl font-bold text-white mb-3 font-display leading-tight">{pkg.title}</h3>
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-400 mb-4 font-medium">
-                      <span className="flex items-center"><Clock className="w-4 h-4 mr-1.5 text-[#D4AF37]"/> {pkg.startTime ? `${pkg.startTime} • ` : ''}{pkg.duration} Hours</span>
-                      <span className="flex items-center"><Users className="w-4 h-4 mr-1.5 text-[#D4AF37]"/> 
-                        {pkg.packageType === "GROUP_EVENT" ? `Max ${pkg.maxPeople}` : `Exactly ${pkg.maxPeople}`}
+
+                  {/* Content Container */}
+                  <div className="flex flex-col flex-1">
+                    <div className="flex items-center gap-3 text-[9px] text-gray-500 uppercase tracking-[0.2em] mb-4">
+                      <span>{pkg.duration} Hours</span>
+                      <div className="w-1 h-1 bg-[#D4AF37] rounded-full"></div>
+                      <span>{pkg.packageType === "GROUP_EVENT" ? `Up to ${pkg.maxPeople} Guests` : `Exactly ${pkg.maxPeople} Guests`}</span>
+                    </div>
+                    
+                    <h3 className="text-2xl font-display font-light text-white mb-4 leading-tight group-hover:text-[#D4AF37] transition-colors duration-500">
+                      {pkg.title}
+                    </h3>
+                    
+                    <p className="text-gray-400 text-sm font-light line-clamp-2 mb-8 flex-1 leading-relaxed">
+                      {pkg.description}
+                    </p>
+                    
+                    <div className="flex items-end justify-between mt-auto pt-6 border-t border-white/10">
+                      <div>
+                        <p className="text-[9px] text-gray-500 uppercase tracking-[0.2em] mb-1">
+                          {pkg.packageType === "GROUP_EVENT" ? "Per Guest" : "Total Investment"}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl font-light text-white tracking-wide">EGP {pkg.price}</span>
+                          {pkg.originalPrice && (
+                            <del className="text-xs text-gray-600">EGP {pkg.originalPrice}</del>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-[#D4AF37] text-[10px] uppercase tracking-[0.2em] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        Discover
                       </span>
                     </div>
-                    <p className="text-gray-400 text-sm line-clamp-3 mb-8 flex-1 leading-relaxed">{pkg.description}</p>
-                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/10">
-                      <div className="flex flex-col">
-                        {pkg.originalPrice && <del className="text-xs text-red-400/80 font-medium">EGP {pkg.originalPrice}</del>}
-                        <span className="text-[#D4AF37] font-bold text-2xl tracking-tight">EGP {pkg.price}</span>
-                      </div>
-                      <Link href={`/packages`} className="text-white text-sm font-semibold hover:text-[#D4AF37] transition-colors flex items-center">
-                        View Details <span className="ml-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">→</span>
-                      </Link>
-                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
             
-            <div className="text-center mt-16 pb-4">
-              <Link href="/packages" className="inline-block border border-[#D4AF37]/50 text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-colors duration-300 px-8 py-3.5 rounded-full font-semibold shadow-lg shadow-[#D4AF37]/10 tracking-wide uppercase text-sm">
+            <div className="text-center mt-24">
+              <Link href="/packages" className="inline-block border border-[#D4AF37]/50 text-[#D4AF37] hover:bg-white hover:text-black hover:border-white transition-colors duration-500 px-10 py-4 text-xs uppercase tracking-[0.2em]">
                 Explore All Packages
               </Link>
             </div>
