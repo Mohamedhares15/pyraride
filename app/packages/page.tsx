@@ -131,7 +131,7 @@ export default async function PackagesPage() {
                         </div>
 
                         <Button asChild className="bg-transparent border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300 px-8 py-6 rounded-none text-xs uppercase tracking-[0.2em]">
-                          <Link href="/stables">
+                          <Link href={`/checkout/package/${pkg.id}`}>
                             Reserve Now
                           </Link>
                         </Button>

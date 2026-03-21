@@ -45,6 +45,16 @@ export async function POST(req: NextRequest) {
             },
           });
         }
+
+        if (session.metadata?.packageBookingId) {
+          await prisma.packageBooking.update({
+            where: { id: session.metadata.packageBookingId },
+            data: {
+              stripePaymentId: session.payment_intent as string,
+              status: "confirmed",
+            },
+          });
+        }
         
         console.log("Payment succeeded:", session.id);
         break;
@@ -54,6 +64,15 @@ export async function POST(req: NextRequest) {
         if (session2.metadata?.bookingId) {
           await prisma.booking.update({
             where: { id: session2.metadata.bookingId },
+            data: {
+              status: "confirmed",
+            },
+          });
+        }
+
+        if (session2.metadata?.packageBookingId) {
+          await prisma.packageBooking.update({
+            where: { id: session2.metadata.packageBookingId },
             data: {
               status: "confirmed",
             },

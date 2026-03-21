@@ -113,6 +113,7 @@ model User {
 
   // Relations
   bookings             Booking[]
+  packageBookings      PackageBooking[]
   reviews              Review[]
   passwordResetTokens  PasswordResetToken[]
   riderReviewsGiven    RiderReview[]        @relation("StableOwnerReviews")
@@ -730,8 +731,37 @@ model Package {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
+  // Bookings
+  bookings         PackageBooking[]
+
   @@index([isActive])
   @@index([isFeatured])
   @@index([sortOrder])
   @@index([packageType])
+}
+
+model PackageBooking {
+  id              String   @id @default(uuid())
+  riderId         String
+  packageId       String
+  date            DateTime @db.Date
+  startTime       String   // E.g. "14:00"
+  ticketsCount    Int      @default(1) // Number of people included in this order
+  totalPrice      Decimal
+  status          BookingStatus @default(confirmed)
+  stripePaymentId String?  @unique
+  commission      Decimal? // Admin commission
+  refundStatus       String? // "requested", "approved", "rejected", "processed"
+  refundAmount       Decimal?
+  stripeRefundId     String?
+  refundReason       String?       @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  rider           User     @relation(fields: [riderId], references: [id])
+  package         Package  @relation(fields: [packageId], references: [id])
+
+  @@index([riderId])
+  @@index([packageId])
+  @@index([date])
 }
