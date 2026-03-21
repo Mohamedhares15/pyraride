@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Clock, Users, Check, Star, CalendarDays, MapPin, Car } from "lucide-react";
+import { Clock, Users, Check, Star, CalendarDays, MapPin, Car, ArrowLeft } from "lucide-react";
 
 export const metadata = {
   title: "Luxury Riding Packages | PyraRides",
@@ -22,6 +22,15 @@ export default async function PackagesPage() {
     <div className="min-h-screen bg-[#050505] pb-32 font-sans text-foreground selection:bg-[#D4AF37]/30">
       {/* Hero Section */}
       <section className="relative h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
+        {/* Back to Home Link */}
+        <Link
+          href="/"
+          className="absolute top-8 left-4 md:left-8 z-20 flex items-center gap-2 text-white/70 transition-colors hover:text-white"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span className="text-sm font-medium tracking-wide">Back to Home</span>
+        </Link>
+        
         <div className="absolute inset-0 z-0">
           <Image
             src="/hero-bg.webp"
