@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Loader2, Plus, Edit2, Trash2, Image as ImageIcon, Users, Clock, CalendarDays, Percent, Camera } from "lucide-react";
 import Image from "next/image";
+import { convertGoogleDriveUrls } from "@/lib/google-drive-utils";
 
 interface Package {
   id: string;
@@ -72,10 +73,12 @@ export default function AdminPackagesPage() {
     included: "", 
     highlights: "", 
     imageUrl: "",
+    googleDriveUrl: "",
     isActive: true,
     isFeatured: false,
     sortOrder: "0",
   });
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -101,52 +104,61 @@ export default function AdminPackagesPage() {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function processImageToUpload(file: File): Promise<string> {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error(`${file.name} is too large (max 10MB)`);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    if (files[0].size > 20 * 1024 * 1024) {
+      toast.error(`File is too large (max 20MB)`);
       return;
     }
 
-    if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic'].includes(file.type)) {
-      toast.error(`${file.name} is not a supported format`);
+    if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic'].includes(files[0].type)) {
+      toast.error(`File is not a supported format`);
       return;
     }
 
-    setIsUploading(true);
-    try {
-      const uploadFormData = new FormData();
-      uploadFormData.append('file', file);
-      uploadFormData.append('upload_preset', 'pyrarides_reviews'); // Using the same preset
-      uploadFormData.append('cloud_name', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '');
+    setImageFiles(files);
+  };
 
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-        { method: 'POST', body: uploadFormData }
-      );
-
-      if (!response.ok) throw new Error('Upload failed');
-      const data = await response.json();
-      
-      setFormData(prev => ({ ...prev, imageUrl: data.secure_url }));
-      toast.success("Image uploaded successfully!");
-    } catch (err) {
-      toast.error('Failed to upload image. Please try again.');
-      console.error('Upload error:', err);
-    } finally {
-      setIsUploading(false);
-      e.target.value = '';
+  const getFinalImageUrl = async (): Promise<string> => {
+    // 1. Check Google Drive Urls
+    if (formData.googleDriveUrl && formData.googleDriveUrl.trim().length > 0) {
+      const urls = convertGoogleDriveUrls(formData.googleDriveUrl);
+      if (urls.length > 0) return urls[0];
     }
+    // 2. Check File Upload
+    if (imageFiles.length > 0) {
+      return await processImageToUpload(imageFiles[0]);
+    }
+    // 3. Fallback
+    return formData.imageUrl;
   };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      const finalImageUrl = await getFinalImageUrl();
+      if (!finalImageUrl) {
+        toast.error("An image is required!");
+        setIsSubmitting(false);
+        return;
+      }
+
       const payload = {
         ...formData,
+        imageUrl: finalImageUrl,
         originalPrice: formData.originalPrice ? Number(formData.originalPrice) : null,
         availableDays: formData.availableDays.split(",").map(d => d.trim()).filter(Boolean),
         included: formData.included.split(",").map(i => i.trim()).filter(Boolean),
@@ -177,8 +189,11 @@ export default function AdminPackagesPage() {
     if (!editingPackage) return;
     setIsSubmitting(true);
     try {
+      const finalImageUrl = await getFinalImageUrl();
+
       const payload = {
         ...formData,
+        imageUrl: finalImageUrl,
         originalPrice: formData.originalPrice ? Number(formData.originalPrice) : null,
         availableDays: formData.availableDays.split(",").map(d => d.trim()).filter(Boolean),
         included: formData.included.split(",").map(i => i.trim()).filter(Boolean),
@@ -218,7 +233,7 @@ export default function AdminPackagesPage() {
     }
   };
 
-  const resetForm = () => {
+  function resetForm() {
     setFormData({
       title: "",
       description: "",
@@ -239,10 +254,12 @@ export default function AdminPackagesPage() {
       included: "",
       highlights: "",
       imageUrl: "",
+      googleDriveUrl: "",
       isActive: true,
       isFeatured: false,
       sortOrder: "0",
     });
+    setImageFiles([]);
     setEditingPackage(null);
   };
 
@@ -268,6 +285,7 @@ export default function AdminPackagesPage() {
       included: pkg.included.join(", "),
       highlights: pkg.highlights.join(", "),
       imageUrl: pkg.imageUrl,
+      googleDriveUrl: pkg.imageUrl.includes("drive.google.com") ? pkg.imageUrl : "",
       isActive: pkg.isActive,
       isFeatured: pkg.isFeatured,
       sortOrder: pkg.sortOrder.toString(),
@@ -425,24 +443,57 @@ export default function AdminPackagesPage() {
                     <option value="GROUP_EVENT" className="bg-black text-white">Group Event (Ticket Based)</option>
                   </select>
                 </div>
-                <div className="space-y-2 md:col-span-2">
-                  <Label className="text-white">Image (Upload from device OR enter URL)</Label>
-                  <div className="flex gap-4 items-center">
-                    <label className="relative flex-shrink-0 flex items-center justify-center p-3 rounded-md border border-white/20 bg-white/5 cursor-pointer hover:bg-white/10 transition-colors h-10 px-4 group">
-                      <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp,image/heic" onChange={handleImageUpload} className="hidden" disabled={isUploading} />
-                      {isUploading ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin text-white" />
-                          <span className="text-sm font-medium text-white">Uploading...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Camera className="h-4 w-4 mr-2 text-white/70 group-hover:text-white" />
-                          <span className="text-sm font-medium text-white">Upload</span>
-                        </>
-                      )}
-                    </label>
-                    <Input value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} placeholder="Or paste image URL here..." required className="bg-white/5 text-white border-white/20 flex-1" />
+                <div className="space-y-4 md:col-span-2">
+                  <div>
+                    <Label htmlFor="googleDriveUrls" className="text-white">
+                      Google Drive Image URL (Recommended)
+                    </Label>
+                    <Textarea
+                      id="googleDriveUrls"
+                      value={formData.googleDriveUrl}
+                      onChange={(e) => setFormData({ ...formData, googleDriveUrl: e.target.value })}
+                      rows={2}
+                      placeholder="Paste a Google Drive link here..."
+                      className="font-mono text-sm bg-white/5 border-white/20 text-white mt-2"
+                    />
+                    <div className="mt-2 space-y-1">
+                      <p className="text-xs text-gray-400">
+                        💡 <strong>How to get links:</strong> Right-click image in Google Drive → "Get link" → Set to "Anyone with the link" → Copy and paste here
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="relative border-b border-white/10 flex justify-center mt-3 mb-3">
+                    <span className="absolute -top-3 bg-[#121212] px-2 text-xs text-gray-500 uppercase">OR</span>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="imageFileOp" className="text-white">Upload Photo File from Device</Label>
+                    <div className="mt-2">
+                      <input
+                        type="file"
+                        id="imageFileOp"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor="imageFileOp"
+                        className="flex justify-center rounded-md border-2 border-dashed border-white/20 px-6 py-8 hover:border-white/50 hover:bg-white/5 transition-colors cursor-pointer"
+                      >
+                        <div className="text-center">
+                          <ImageIcon className="mx-auto h-12 w-12 text-gray-400" aria-hidden="true" />
+                          <div className="mt-4 flex text-sm leading-6 text-gray-400 justify-center">
+                            <span className="relative font-semibold text-[#D4AF37] focus-within:outline-none hover:text-white">
+                              {imageFiles.length > 0 ? "Change selected file" : "Upload a file"}
+                            </span>
+                          </div>
+                          <p className="text-xs leading-5 text-gray-500">
+                            {imageFiles.length > 0 ? imageFiles[0].name : "PNG, JPG, WEBP up to 20MB"}
+                          </p>
+                        </div>
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
