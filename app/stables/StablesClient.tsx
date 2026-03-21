@@ -8,7 +8,7 @@ import SearchFilters from "@/components/sections/SearchFilters";
 import StableList from "@/components/sections/StableList";
 import WeatherWidget from "@/components/shared/WeatherWidget";
 import { Button } from "@/components/ui/button";
-import { Loader2, Home } from "lucide-react";
+import { Loader2, Home, ArrowRight, Star } from "lucide-react";
 
 type StableMode = "stable" | "horse";
 
@@ -262,6 +262,42 @@ export default function StablesClient() {
           <div className="mb-4 md:mb-0">
             <WeatherWidget location={location} />
           </div>
+
+          {/* Packages Promo Block */}
+          <Link href="/packages" className="block w-full">
+            <div className="relative overflow-hidden rounded-2xl border border-[rgb(218,165,32)]/30 bg-gradient-to-r from-black via-[rgb(218,165,32)]/10 to-black p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 group transition-all hover:border-[rgb(218,165,32)]/50 hover:shadow-[0_0_30px_rgba(218,165,32,0.15)]">
+              {/* Decorative elements */}
+              <div className="absolute -left-20 -top-20 w-40 h-40 bg-[rgb(218,165,32)]/20 blur-[50px] rounded-full pointer-events-none" />
+              <div className="absolute -right-20 -bottom-20 w-40 h-40 bg-[rgb(218,165,32)]/20 blur-[50px] rounded-full pointer-events-none" />
+              
+              <div className="flex items-center gap-6 relative z-10 w-full md:w-auto">
+                <div className="hidden sm:flex shrink-0 h-16 w-16 rounded-full bg-[rgb(218,165,32)]/10 items-center justify-center border border-[rgb(218,165,32)]/30 group-hover:scale-110 transition-transform duration-500">
+                  <Star className="h-8 w-8 text-[rgb(218,165,32)]" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[rgb(218,165,32)]">New Experience</span>
+                    <span className="flex h-2 w-2 relative">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[rgb(218,165,32)] opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[rgb(218,165,32)]"></span>
+                    </span>
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-display font-medium text-white mb-2">
+                    Discover Our Exclusive Riding Packages
+                  </h3>
+                  <p className="text-sm text-gray-400 max-w-xl">
+                    Upgrade your experience with our curated private VIP rides and group events at the Great Pyramids.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="relative z-10 shrink-0 w-full md:w-auto mt-2 md:mt-0">
+                <Button className="w-full md:w-auto bg-[rgb(218,165,32)] text-black hover:bg-[rgb(218,165,32)]/90 font-semibold gap-2 h-12 px-8 shadow-[0_0_15px_rgba(218,165,32,0.3)]">
+                  Explore Packages <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </div>
+            </div>
+          </Link>
 
           <SearchFilters
             search={search}
