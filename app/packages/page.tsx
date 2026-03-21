@@ -27,18 +27,18 @@ export default async function PackagesPage() {
             src="/hero-bg.webp"
             alt="Horse riding at the Pyramids"
             fill
-            className="object-cover opacity-30 grayscale-[30%]"
+            className="object-cover opacity-[0.35] grayscale-[40%]"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-transparent to-[#050505]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/90 via-[#050505]/60 to-[#050505]" />
         </div>
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto mt-12">
-          <p className="text-[#D4AF37] text-xs uppercase tracking-[0.3em] font-semibold mb-6">The Royal Collection</p>
-          <h1 className="text-4xl md:text-6xl font-display font-light mb-6 tracking-wide text-white">
+          <p className="text-[#D4AF37] text-xs uppercase tracking-[0.3em] font-bold mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">The Royal Collection</p>
+          <h1 className="text-4xl md:text-6xl font-display font-medium mb-6 tracking-wide text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
             Curated Experiences
           </h1>
-          <div className="w-12 h-px bg-[#D4AF37]/50 mx-auto mb-6"></div>
-          <p className="text-sm md:text-base text-gray-400 max-w-xl mx-auto font-light tracking-wide leading-relaxed">
+          <div className="w-12 h-px bg-[#D4AF37] mx-auto mb-6 shadow-lg"></div>
+          <p className="text-sm md:text-base text-gray-200 max-w-xl mx-auto font-medium tracking-wide leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
             Exclusive private rides and group events at the Great Pyramids of Giza, curated for the most discerning travelers.
           </p>
         </div>

@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Plus, Edit2, Trash2, Image as ImageIcon, Users, Clock, CalendarDays, Percent } from "lucide-react";
+import { toast } from "sonner";
+import { Loader2, Plus, Edit2, Trash2, Image as ImageIcon, Users, Clock, CalendarDays, Percent, Camera } from "lucide-react";
 import Image from "next/image";
 
 interface Package {
@@ -49,6 +50,7 @@ export default function AdminPackagesPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingPackage, setEditingPackage] = useState<Package | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -96,6 +98,46 @@ export default function AdminPackagesPage() {
       console.error("Failed to fetch packages", err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error(`${file.name} is too large (max 10MB)`);
+      return;
+    }
+
+    if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic'].includes(file.type)) {
+      toast.error(`${file.name} is not a supported format`);
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      uploadFormData.append('upload_preset', 'pyrarides_reviews'); // Using the same preset
+      uploadFormData.append('cloud_name', process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '');
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        { method: 'POST', body: uploadFormData }
+      );
+
+      if (!response.ok) throw new Error('Upload failed');
+      const data = await response.json();
+      
+      setFormData(prev => ({ ...prev, imageUrl: data.secure_url }));
+      toast.success("Image uploaded successfully!");
+    } catch (err) {
+      toast.error('Failed to upload image. Please try again.');
+      console.error('Upload error:', err);
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
     }
   };
 
@@ -384,8 +426,24 @@ export default function AdminPackagesPage() {
                   </select>
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label className="text-white">Image URL</Label>
-                  <Input value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} required className="bg-white/5 text-white border-white/20" />
+                  <Label className="text-white">Image (Upload from device OR enter URL)</Label>
+                  <div className="flex gap-4 items-center">
+                    <label className="relative flex-shrink-0 flex items-center justify-center p-3 rounded-md border border-white/20 bg-white/5 cursor-pointer hover:bg-white/10 transition-colors h-10 px-4 group">
+                      <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp,image/heic" onChange={handleImageUpload} className="hidden" disabled={isUploading} />
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin text-white" />
+                          <span className="text-sm font-medium text-white">Uploading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Camera className="h-4 w-4 mr-2 text-white/70 group-hover:text-white" />
+                          <span className="text-sm font-medium text-white">Upload</span>
+                        </>
+                      )}
+                    </label>
+                    <Input value={formData.imageUrl} onChange={e => setFormData({...formData, imageUrl: e.target.value})} placeholder="Or paste image URL here..." required className="bg-white/5 text-white border-white/20 flex-1" />
+                  </div>
                 </div>
               </div>
             </div>
