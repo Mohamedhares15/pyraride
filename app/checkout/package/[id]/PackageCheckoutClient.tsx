@@ -5,7 +5,15 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { ArrowLeft, Clock, Calendar as CalendarIcon, CheckCircle2, Ticket, Users, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Clock, Calendar as CalendarIcon, CheckCircle2, Ticket, Users, AlertTriangle, Car } from "lucide-react";
+
+const TRANSPORT_ZONES = [
+  { id: "none", name: "I will arrange my own transportation (Meet at location)", price: 0 },
+  { id: "zone1", name: "Zone 1: Giza, Haram, Dokki, Mohandeseen (+400 EGP)", price: 400 },
+  { id: "zone2", name: "Zone 2: Maadi, Zamalek, Downtown Cairo, Sheikh Zayed (+600 EGP)", price: 600 },
+  { id: "zone3", name: "Zone 3: 5th Settlement, New Cairo, Nasr City, Heliopolis (+800 EGP)", price: 800 },
+  { id: "zone4", name: "Zone 4: Obour, Shorouk, Madinaty, Cairo Airport (+1000 EGP)", price: 1000 },
+];
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,11 +25,14 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
 
   const [date, setDate] = useState<string>("");
   const [tickets, setTickets] = useState<number>(pkg.minPeople);
+  const [selectedZone, setSelectedZone] = useState<string>(TRANSPORT_ZONES[0].id);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
 
   const isPrivate = pkg.packageType === "PRIVATE";
-  const finalPrice = isPrivate ? pkg.price : pkg.price * tickets;
+  const basePrice = isPrivate ? pkg.price : pkg.price * tickets;
+  const transportPrice = pkg.hasTransportation ? (TRANSPORT_ZONES.find(z => z.id === selectedZone)?.price || 0) : 0;
+  const finalPrice = basePrice + transportPrice;
 
   const minDate = new Date().toISOString().split("T")[0];
 
@@ -55,6 +66,9 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
           date,
           startTime: pkg.startTime || "10:00",
           ticketsCount: isPrivate ? pkg.maxPeople : tickets,
+          transportationZone: pkg.hasTransportation && selectedZone !== "none" 
+            ? TRANSPORT_ZONES.find(z => z.id === selectedZone)?.name 
+            : undefined,
         }),
       });
 
@@ -235,6 +249,36 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
                       )}
                     </div>
                   </div>
+
+                  {/* Transportation Zone Selector */}
+                  {pkg.hasTransportation && (
+                    <div className="mt-6 pt-6 border-t border-white/10 space-y-3">
+                      <Label htmlFor="transport" className="text-white text-sm">
+                        Pickup Location (Optional)
+                      </Label>
+                      <div className="relative">
+                        <Car className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/50 pointer-events-none z-10" />
+                        <select 
+                          id="transport"
+                          className="h-12 w-full rounded-md border border-white/20 bg-[#121212] px-10 py-2 text-sm text-white ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(218,165,32)] focus-visible:ring-offset-2 appearance-none"
+                          value={selectedZone}
+                          onChange={(e) => setSelectedZone(e.target.value)}
+                        >
+                          {TRANSPORT_ZONES.map(zone => (
+                            <option key={zone.id} value={zone.id} className="bg-black text-white">
+                              {zone.name}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white/50">
+                          <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                        </div>
+                      </div>
+                      <p className="text-xs text-white/50 -mt-1">
+                        Select a zone to add round-trip transportation from your hotel or home in Cairo/Giza.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -267,6 +311,14 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
                       <span className="text-white/70">{isPrivate ? "Guests:" : "Tickets:"}</span>
                       <span className="text-white">{isPrivate ? `Up to ${pkg.maxPeople}` : tickets}</span>
                     </div>
+                    {pkg.hasTransportation && selectedZone !== "none" && (
+                      <div className="flex justify-between text-sm text-[rgb(218,165,32)]">
+                        <span className="text-[rgb(218,165,32)]/70 flex items-center gap-1">
+                          <Car className="h-3 w-3" /> Pickup:
+                        </span>
+                        <span>+EGP {transportPrice}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Payment Info */}

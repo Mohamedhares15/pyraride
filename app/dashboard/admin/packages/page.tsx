@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -308,9 +309,16 @@ export default function AdminPackagesPage() {
           <h1 className="text-3xl font-bold font-display">Manage Packages</h1>
           <p className="text-muted-foreground mt-2">Create and manage advanced luxury and group packages.</p>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)} className="bg-[#D4AF37] hover:bg-[#B38728] text-black">
-          <Plus className="mr-2 h-4 w-4" /> Add Package
-        </Button>
+        <div className="flex gap-3">
+          <Link href="/dashboard/admin/packages/bookings">
+            <Button variant="outline" className="border-[#D4AF37]/50 text-[#D4AF37] hover:bg-[#D4AF37]/10">
+              <Users className="mr-2 h-4 w-4" /> View Bookings
+            </Button>
+          </Link>
+          <Button onClick={() => setIsDialogOpen(true)} className="bg-[#D4AF37] hover:bg-[#B38728] text-black">
+            <Plus className="mr-2 h-4 w-4" /> Add Package
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

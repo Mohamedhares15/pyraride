@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { packageId, date, startTime, ticketsCount } = body;
+    const { packageId, date, startTime, ticketsCount, transportationZone } = body;
 
     if (!packageId || !date || !startTime || !ticketsCount) {
       return NextResponse.json(
@@ -35,10 +35,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Securely calculate transportation price
+    let transportPrice = 0;
+    if (pkg.hasTransportation && transportationZone) {
+      if (transportationZone.includes("Zone 1")) transportPrice = 400;
+      else if (transportationZone.includes("Zone 2")) transportPrice = 600;
+      else if (transportationZone.includes("Zone 3")) transportPrice = 800;
+      else if (transportationZone.includes("Zone 4")) transportPrice = 1000;
+    }
+
     // Calculate price
     const unitPrice = pkg.price;
     const finalTicketsCount = pkg.packageType === "PRIVATE" ? 1 : Number(ticketsCount);
-    const totalPrice = unitPrice * finalTicketsCount;
+    const totalPrice = (unitPrice * finalTicketsCount) + transportPrice;
 
     // Create the booking in DB
     const packageBooking = await prisma.packageBooking.create({
@@ -49,6 +58,7 @@ export async function POST(req: NextRequest) {
         startTime,
         ticketsCount: finalTicketsCount,
         totalPrice: totalPrice,
+        transportationZone: transportationZone || null,
         status: "confirmed",
         stripePaymentId: null, // Filled via webhook
         commission: totalPrice * 0.15, // standard 15% platform fee
@@ -74,10 +84,10 @@ export async function POST(req: NextRequest) {
         line_items: [
           {
             price_data: {
-              currency: "egp", // Use EGP or USD? Existing checkout uses usd but pyraride uses EGP strings. Wait, existing uses 'usd', I'll use 'egp' since package price is EGP. Wait, let me check what existing does: unit_amount is totalPrice * 100, currency: "usd". Ah, if PyraRides uses EGP, maybe the app uses USD in Stripe. Let's use EGP.
+              currency: "egp",
               product_data: {
                 name: pkg.title,
-                description: `Package Booking: ${pkg.packageType === 'PRIVATE' ? 'Private Event' : finalTicketsCount + ' Tickets'} on ${new Date(date).toLocaleDateString()}`,
+                description: `Package Booking: ${pkg.packageType === 'PRIVATE' ? 'Private Event' : finalTicketsCount + ' Tickets'} on ${new Date(date).toLocaleDateString()}${transportationZone ? ' + Pickup' : ''}`,
               },
               unit_amount: Math.round(totalPrice * 100), // Convert to cents
             },

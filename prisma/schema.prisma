@@ -748,6 +748,7 @@ model PackageBooking {
   startTime       String   // E.g. "14:00"
   ticketsCount    Int      @default(1) // Number of people included in this order
   totalPrice      Decimal
+  transportationZone String? // Optional selected pickup zone
   status          BookingStatus @default(confirmed)
   stripePaymentId String?  @unique
   commission      Decimal? // Admin commission
