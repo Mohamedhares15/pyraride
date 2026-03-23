@@ -136,7 +136,7 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
           <div className="mb-4 md:mb-6 flex-shrink-0">
             <Link
               href={`/packages`}
-              className="mb-2 inline-flex items-center gap-2 text-white/70 transition-colors hover:text-white"
+              className="mb-2 inline-flex items-center gap-2 text-white/70 transition-colors hover:text-white mt-12 md:mt-0"
             >
               <ArrowLeft className="h-4 w-4" />
               <span className="text-sm">Back to Packages</span>
@@ -383,6 +383,30 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
                   </Button>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Trust Indicators Footer to fill empty vertical space */}
+          <div className="mt-12 md:mt-auto pt-8 border-t border-white/10 grid grid-cols-2 lg:grid-cols-4 gap-6 text-center opacity-80 pb-8">
+            <div className="space-y-3 p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/5">
+              <CheckCircle2 className="h-6 w-6 text-[#D4AF37] mx-auto" />
+              <p className="text-sm font-semibold text-white">Best Price Guarantee</p>
+              <p className="text-xs text-white/50">Absolutely no hidden fees</p>
+            </div>
+            <div className="space-y-3 p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/5">
+              <Ticket className="h-6 w-6 text-[#D4AF37] mx-auto" />
+              <p className="text-sm font-semibold text-white">Instant Confirmation</p>
+              <p className="text-xs text-white/50">Your ticket is booked instantly</p>
+            </div>
+            <div className="space-y-3 p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/5 hidden md:block">
+              <AlertTriangle className="h-6 w-6 text-[#D4AF37] mx-auto" />
+              <p className="text-sm font-semibold text-white">Verified Guides</p>
+              <p className="text-xs text-white/50">Safety and quality assured</p>
+            </div>
+            <div className="space-y-3 p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/5 hidden md:block">
+              <CalendarIcon className="h-6 w-6 text-[#D4AF37] mx-auto" />
+              <p className="text-sm font-semibold text-white">Flexible Cancellation</p>
+              <p className="text-xs text-white/50">Cancel up to 48h before</p>
             </div>
           </div>
         </div>
