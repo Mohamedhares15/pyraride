@@ -1,19 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { ArrowLeft, Clock, Calendar as CalendarIcon, CheckCircle2, Ticket, Users, AlertTriangle, Car } from "lucide-react";
 
-const TRANSPORT_ZONES = [
-  { id: "none", name: "I will arrange my own transportation (Meet at location)", price: 0 },
-  { id: "zone1", name: "Zone 1: Giza, Haram, Dokki, Mohandeseen (+400 EGP)", price: 400 },
-  { id: "zone2", name: "Zone 2: Maadi, Zamalek, Downtown Cairo, Sheikh Zayed (+600 EGP)", price: 600 },
-  { id: "zone3", name: "Zone 3: 5th Settlement, New Cairo, Nasr City, Heliopolis (+800 EGP)", price: 800 },
-  { id: "zone4", name: "Zone 4: Obour, Shorouk, Madinaty, Cairo Airport (+1000 EGP)", price: 1000 },
-];
+interface TransportZone {
+  id: string;
+  name: string;
+  price: number;
+}
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,13 +23,36 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
 
   const [date, setDate] = useState<string>("");
   const [tickets, setTickets] = useState<number>(pkg.minPeople);
-  const [selectedZone, setSelectedZone] = useState<string>(TRANSPORT_ZONES[0].id);
+  const [transportZones, setTransportZones] = useState<TransportZone[]>([
+    { id: "none", name: "I will arrange my own transportation (Meet at location)", price: 0 }
+  ]);
+  const [selectedZone, setSelectedZone] = useState<string>("none");
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (pkg.hasTransportation) {
+      fetch("/api/transport-zones")
+        .then(res => res.json())
+        .then((data: TransportZone[]) => {
+          if (Array.isArray(data)) {
+            const formattedZones = data.map(z => ({
+              ...z,
+              name: `${z.name} (+${z.price} EGP)`
+            }));
+            setTransportZones([
+              { id: "none", name: "I will arrange my own transportation (Meet at location)", price: 0 },
+              ...formattedZones
+            ]);
+          }
+        })
+        .catch(err => console.error("Failed to fetch transport zones", err));
+    }
+  }, [pkg.hasTransportation]);
+
   const isPrivate = pkg.packageType === "PRIVATE";
   const basePrice = isPrivate ? pkg.price : pkg.price * tickets;
-  const transportPrice = pkg.hasTransportation ? (TRANSPORT_ZONES.find(z => z.id === selectedZone)?.price || 0) : 0;
+  const transportPrice = pkg.hasTransportation ? (transportZones.find(z => z.id === selectedZone)?.price || 0) : 0;
   const finalPrice = basePrice + transportPrice;
 
   const minDate = new Date().toISOString().split("T")[0];
@@ -66,8 +87,8 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
           date,
           startTime: pkg.startTime || "10:00",
           ticketsCount: isPrivate ? pkg.maxPeople : tickets,
-          transportationZone: pkg.hasTransportation && selectedZone !== "none" 
-            ? TRANSPORT_ZONES.find(z => z.id === selectedZone)?.name 
+          transportationZoneId: pkg.hasTransportation && selectedZone !== "none" 
+            ? selectedZone 
             : undefined,
         }),
       });
@@ -264,7 +285,7 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
                           value={selectedZone}
                           onChange={(e) => setSelectedZone(e.target.value)}
                         >
-                          {TRANSPORT_ZONES.map(zone => (
+                          {transportZones.map((zone: TransportZone) => (
                             <option key={zone.id} value={zone.id} className="bg-black text-white">
                               {zone.name}
                             </option>

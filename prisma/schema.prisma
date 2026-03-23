@@ -766,3 +766,12 @@ model PackageBooking {
   @@index([packageId])
   @@index([date])
 }
+
+model TransportZone {
+  id        String   @id @default(uuid())
+  name      String   // E.g. "Zone 1: Giza, Haram, Dokki"
+  price     Decimal  // E.g. 400
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

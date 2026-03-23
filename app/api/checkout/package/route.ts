@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { packageId, date, startTime, ticketsCount, transportationZone } = body;
+    const { packageId, date, startTime, ticketsCount, transportationZoneId } = body;
 
     if (!packageId || !date || !startTime || !ticketsCount) {
       return NextResponse.json(
@@ -37,11 +37,15 @@ export async function POST(req: NextRequest) {
 
     // Securely calculate transportation price
     let transportPrice = 0;
-    if (pkg.hasTransportation && transportationZone) {
-      if (transportationZone.includes("Zone 1")) transportPrice = 400;
-      else if (transportationZone.includes("Zone 2")) transportPrice = 600;
-      else if (transportationZone.includes("Zone 3")) transportPrice = 800;
-      else if (transportationZone.includes("Zone 4")) transportPrice = 1000;
+    let transportZoneName = "";
+    if (pkg.hasTransportation && transportationZoneId) {
+      const zone = await prisma.transportZone.findUnique({
+        where: { id: transportationZoneId, isActive: true },
+      });
+      if (zone) {
+        transportPrice = Number(zone.price);
+        transportZoneName = zone.name;
+      }
     }
 
     // Calculate price
@@ -58,7 +62,7 @@ export async function POST(req: NextRequest) {
         startTime,
         ticketsCount: finalTicketsCount,
         totalPrice: totalPrice,
-        transportationZone: transportationZone || null,
+        transportationZone: transportZoneName || null,
         status: "confirmed",
         stripePaymentId: null, // Filled via webhook
         commission: totalPrice * 0.15, // standard 15% platform fee
@@ -87,7 +91,7 @@ export async function POST(req: NextRequest) {
               currency: "egp",
               product_data: {
                 name: pkg.title,
-                description: `Package Booking: ${pkg.packageType === 'PRIVATE' ? 'Private Event' : finalTicketsCount + ' Tickets'} on ${new Date(date).toLocaleDateString()}${transportationZone ? ' + Pickup' : ''}`,
+                description: `Package Booking: ${pkg.packageType === 'PRIVATE' ? 'Private Event' : finalTicketsCount + ' Tickets'} on ${new Date(date).toLocaleDateString()}${transportZoneName ? ' + Pickup' : ''}`,
               },
               unit_amount: Math.round(totalPrice * 100), // Convert to cents
             },

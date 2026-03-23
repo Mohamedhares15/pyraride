@@ -304,18 +304,18 @@ export default function AdminPackagesPage() {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold font-display">Manage Packages</h1>
           <p className="text-muted-foreground mt-2">Create and manage advanced luxury and group packages.</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3 mt-4 sm:mt-0">
           <Link href="/dashboard/admin/packages/bookings">
-            <Button variant="outline" className="border-[#D4AF37]/50 text-[#D4AF37] hover:bg-[#D4AF37]/10">
+            <Button variant="outline" className="border-[#D4AF37]/50 text-[#D4AF37] hover:bg-[#D4AF37]/10 w-full sm:w-auto">
               <Users className="mr-2 h-4 w-4" /> View Bookings
             </Button>
           </Link>
-          <Button onClick={() => setIsDialogOpen(true)} className="bg-[#D4AF37] hover:bg-[#B38728] text-black">
+          <Button onClick={() => setIsDialogOpen(true)} className="bg-[#D4AF37] hover:bg-[#B38728] text-black w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" /> Add Package
           </Button>
         </div>

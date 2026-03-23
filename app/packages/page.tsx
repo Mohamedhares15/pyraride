@@ -25,7 +25,7 @@ export default async function PackagesPage() {
         {/* Back to Home Link */}
         <Link
           href="/"
-          className="absolute top-8 left-4 md:left-8 z-20 flex items-center gap-2 text-white/70 transition-colors hover:text-white"
+          className="absolute top-16 md:top-8 left-4 md:left-8 z-20 flex items-center gap-2 text-white/70 transition-colors hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
           <span className="text-sm font-medium tracking-wide">Back to Home</span>
