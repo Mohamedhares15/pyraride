@@ -40,6 +40,12 @@ interface Package {
   isActive: boolean;
   isFeatured: boolean;
   sortOrder: number;
+  stableId?: string | null;
+}
+
+interface Stable {
+  id: string;
+  name: string;
 }
 
 export default function AdminPackagesPage() {
@@ -47,6 +53,7 @@ export default function AdminPackagesPage() {
   const router = useRouter();
 
   const [packages, setPackages] = useState<Package[]>([]);
+  const [stables, setStables] = useState<Stable[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -78,6 +85,7 @@ export default function AdminPackagesPage() {
     isActive: true,
     isFeatured: false,
     sortOrder: "0",
+    stableId: "",
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
 
@@ -88,8 +96,21 @@ export default function AdminPackagesPage() {
       router.push("/dashboard");
     } else {
       fetchPackages();
+      fetchStables();
     }
   }, [session, status]);
+
+  const fetchStables = async () => {
+    try {
+      const res = await fetch("/api/stables");
+      if (res.ok) {
+        const data = await res.json();
+        setStables(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch stables", err);
+    }
+  };
 
   const fetchPackages = async () => {
     try {
@@ -259,6 +280,7 @@ export default function AdminPackagesPage() {
       isActive: true,
       isFeatured: false,
       sortOrder: "0",
+      stableId: "",
     });
     setImageFiles([]);
     setEditingPackage(null);
@@ -290,6 +312,7 @@ export default function AdminPackagesPage() {
       isActive: pkg.isActive,
       isFeatured: pkg.isFeatured,
       sortOrder: pkg.sortOrder.toString(),
+      stableId: pkg.stableId || "",
     });
     setIsEditDialogOpen(true);
   };
@@ -449,6 +472,21 @@ export default function AdminPackagesPage() {
                   >
                     <option value="PRIVATE" className="bg-black text-white">Private (Standard/VIP - Per Booking)</option>
                     <option value="GROUP_EVENT" className="bg-black text-white">Group Event (Ticket Based)</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-bold text-[#D4AF37]">Assigned Stable (Optional)</Label>
+                  <select 
+                    className="flex h-10 w-full rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]"
+                    value={formData.stableId}
+                    onChange={e => setFormData({ ...formData, stableId: e.target.value })}
+                  >
+                    <option value="" className="bg-black text-white">None (Platform Package)</option>
+                    {stables.map(stable => (
+                      <option key={stable.id} value={stable.id} className="bg-black text-white">
+                        {stable.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="space-y-4 md:col-span-2">

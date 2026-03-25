@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
+import { sendBookingConfirmationEmail, sendOwnerBookingNotification } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -68,9 +69,94 @@ export async function POST(req: NextRequest) {
         commission: totalPrice * 0.15, // standard 15% platform fee
       },
       include: {
-        package: true,
+        package: {
+          include: {
+            stable: {
+              include: {
+                owner: true
+              }
+            }
+          }
+        },
+        rider: true,
       }
     });
+
+    // Send Emails
+    if (packageBooking.rider.email) {
+      // 1. Send confirmation to Rider
+      try {
+        await sendBookingConfirmationEmail({
+          bookingId: packageBooking.id,
+          riderName: packageBooking.rider.fullName || "Valued Guest",
+          riderEmail: packageBooking.rider.email,
+          stableName: packageBooking.package.stable?.name || "PyraRides Official",
+          stableAddress: packageBooking.package.stable?.address || "Giza Pyramids Area (Meeting point details to follow)",
+          horseName: packageBooking.package.title,
+          horseImage: packageBooking.package.imageUrl,
+          date: packageBooking.date.toISOString(),
+          startTime: packageBooking.startTime,
+          endTime: `+${packageBooking.package.duration} HRS`,
+          totalPrice: parseFloat(packageBooking.totalPrice.toString()),
+          riders: packageBooking.ticketsCount,
+        });
+      } catch (err) {
+        console.error("Failed to send rider package confirmation:", err);
+      }
+
+      // 2. Send notification to Stable Owner (if assigned)
+      if (packageBooking.package.stable?.owner?.email) {
+        try {
+          await sendOwnerBookingNotification({
+            ownerEmail: packageBooking.package.stable.owner.email,
+            riderName: packageBooking.rider.fullName || "Valued Guest",
+            riderEmail: packageBooking.rider.email,
+            riderPhone: "Not provided",
+            horseName: `VIP PACKAGE: ${packageBooking.package.title}`,
+            horseImage: packageBooking.package.imageUrl,
+            date: packageBooking.date.toISOString(),
+            startTime: packageBooking.startTime,
+            endTime: `+${packageBooking.package.duration} HRS`,
+            totalPrice: parseFloat(packageBooking.totalPrice.toString()),
+            bookingId: packageBooking.id,
+          });
+        } catch (err) {
+          console.error("Failed to send owner package notification:", err);
+        }
+      }
+
+      // 3. Create In-App Notification for Rider
+      try {
+        await prisma.notification.create({
+          data: {
+            userId: packageBooking.riderId,
+            type: "booking_confirmed",
+            title: "VIP Package Confirmed",
+            message: `Your luxury package ${packageBooking.package.title} is confirmed for ${new Date(date).toLocaleDateString()}.`,
+            data: { packageBookingId: packageBooking.id },
+          }
+        });
+      } catch (err) {
+        console.error("Failed to create rider notification:", err);
+      }
+
+      // 4. Create In-App Notification for Stable Owner (if assigned)
+      if (packageBooking.package.stable?.owner?.id) {
+        try {
+          await prisma.notification.create({
+            data: {
+              userId: packageBooking.package.stable.owner.id,
+              type: "booking_received",
+              title: "New VIP Package Booking",
+              message: `${packageBooking.rider.fullName || "A rider"} booked ${packageBooking.package.title} for ${packageBooking.ticketsCount} tickets. Earnings: EGP ${parseFloat(packageBooking.totalPrice.toString())}`,
+              data: { packageBookingId: packageBooking.id },
+            }
+          });
+        } catch (err) {
+          console.error("Failed to create owner notification:", err);
+        }
+      }
+    }
 
     // Handle Stripe
     if (!process.env.STRIPE_SECRET_KEY || !stripe || typeof stripe.checkout === 'undefined') {

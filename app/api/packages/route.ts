@@ -54,6 +54,7 @@ export async function POST(req: Request) {
         isActive: data.isActive ?? true,
         isFeatured: data.isFeatured ?? false,
         sortOrder: Number(data.sortOrder ?? 0),
+        stableId: data.stableId || null,
       },
     });
 

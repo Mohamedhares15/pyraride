@@ -183,6 +183,7 @@ model Stable {
   owners            User[]             @relation("StableOwners")
   horses            Horse[]
   bookings          Booking[]
+  packages          Package[]
   reviews           Review[]
   blockedSlots      BlockedSlot[]
   availabilitySlots AvailabilitySlot[]
@@ -689,78 +690,83 @@ model Notification {
 }
 
 model Package {
-  id               String   @id @default(uuid())
-  title            String
-  description      String   @db.Text
-  
+  id          String @id @default(uuid())
+  title       String
+  description String @db.Text
+
   // Pricing
-  price            Float
-  originalPrice    Float?   // If set, 'price' is discounted price, 'originalPrice' gets crossed out
-  
+  price         Float
+  originalPrice Float? // If set, 'price' is discounted price, 'originalPrice' gets crossed out
+
   // Package Core Types
-  packageType      String   @default("PRIVATE") // "PRIVATE" | "GROUP_EVENT"
-  
+  packageType String @default("PRIVATE") // "PRIVATE" | "GROUP_EVENT"
+
   // Capacity constraints
-  minPeople        Int      @default(1)
-  maxPeople        Int
-  
+  minPeople Int @default(1)
+  maxPeople Int
+
   // Timing
-  duration         Float    // duration in hours
-  availableDays    String[] // e.g. ["Monday", "Tuesday"] or ["Everyday"]
-  startTime        String?  // e.g. "14:00"
-  
+  duration      Float // duration in hours
+  availableDays String[] // e.g. ["Monday", "Tuesday"] or ["Everyday"]
+  startTime     String? // e.g. "14:00"
+
   // Amenities toggles
-  hasHorseRide     Boolean  @default(true)
-  hasFood          Boolean  @default(false)
-  hasDancingShow   Boolean  @default(false)
-  hasParty         Boolean  @default(false)
-  
+  hasHorseRide   Boolean @default(true)
+  hasFood        Boolean @default(false)
+  hasDancingShow Boolean @default(false)
+  hasParty       Boolean @default(false)
+
   // Transportation
   hasTransportation  Boolean @default(false)
   transportationType String? // "HOME_PICKUP" | "MEETING_POINT"
-  
+
   // Display/Content
-  included         String[] // array of custom included items
-  highlights       String[] // array of custom key highlights
-  imageUrl         String
-  
+  included   String[] // array of custom included items
+  highlights String[] // array of custom key highlights
+  imageUrl   String
+
   // State
-  isActive         Boolean  @default(true)
-  isFeatured       Boolean  @default(false)
-  sortOrder        Int      @default(0)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  isActive   Boolean  @default(true)
+  isFeatured Boolean  @default(false)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Stable Assignment (Optional)
+  stableId String?
+  stable   Stable? @relation(fields: [stableId], references: [id])
 
   // Bookings
-  bookings         PackageBooking[]
+  bookings PackageBooking[]
 
   @@index([isActive])
   @@index([isFeatured])
   @@index([sortOrder])
   @@index([packageType])
+  @@index([stableId])
 }
 
 model PackageBooking {
-  id              String   @id @default(uuid())
-  riderId         String
-  packageId       String
-  date            DateTime @db.Date
-  startTime       String   // E.g. "14:00"
-  ticketsCount    Int      @default(1) // Number of people included in this order
-  totalPrice      Decimal
+  id                 String        @id @default(uuid())
+  riderId            String
+  packageId          String
+  date               DateTime      @db.Date
+  startTime          String // E.g. "14:00"
+  ticketsCount       Int           @default(1) // Number of people included in this order
+  totalPrice         Decimal
   transportationZone String? // Optional selected pickup zone
-  status          BookingStatus @default(confirmed)
-  stripePaymentId String?  @unique
-  commission      Decimal? // Admin commission
+  status             BookingStatus @default(confirmed)
+  stripePaymentId    String?       @unique
+  commission         Decimal? // Admin commission
   refundStatus       String? // "requested", "approved", "rejected", "processed"
   refundAmount       Decimal?
   stripeRefundId     String?
   refundReason       String?       @db.Text
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 
-  rider           User     @relation(fields: [riderId], references: [id])
-  package         Package  @relation(fields: [packageId], references: [id])
+  rider   User    @relation(fields: [riderId], references: [id])
+  package Package @relation(fields: [packageId], references: [id])
 
   @@index([riderId])
   @@index([packageId])
@@ -769,8 +775,8 @@ model PackageBooking {
 
 model TransportZone {
   id        String   @id @default(uuid())
-  name      String   // E.g. "Zone 1: Giza, Haram, Dokki"
-  price     Decimal  // E.g. 400
+  name      String // E.g. "Zone 1: Giza, Haram, Dokki"
+  price     Decimal // E.g. 400
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
