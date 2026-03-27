@@ -55,6 +55,7 @@ export async function POST(req: Request) {
         isFeatured: data.isFeatured ?? false,
         sortOrder: Number(data.sortOrder ?? 0),
         stableId: data.stableId || null,
+        minLeadTimeHours: data.minLeadTimeHours !== undefined ? Number(data.minLeadTimeHours) : 8,
       },
     });
 

@@ -41,6 +41,7 @@ interface Package {
   isFeatured: boolean;
   sortOrder: number;
   stableId?: string | null;
+  minLeadTimeHours: number;
 }
 
 interface Stable {
@@ -86,6 +87,7 @@ export default function AdminPackagesPage() {
     isFeatured: false,
     sortOrder: "0",
     stableId: "",
+    minLeadTimeHours: "8",
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
 
@@ -281,6 +283,7 @@ export default function AdminPackagesPage() {
       isFeatured: false,
       sortOrder: "0",
       stableId: "",
+      minLeadTimeHours: "8",
     });
     setImageFiles([]);
     setEditingPackage(null);
@@ -313,6 +316,7 @@ export default function AdminPackagesPage() {
       isFeatured: pkg.isFeatured,
       sortOrder: pkg.sortOrder.toString(),
       stableId: pkg.stableId || "",
+      minLeadTimeHours: (pkg.minLeadTimeHours ?? 8).toString(),
     });
     setIsEditDialogOpen(true);
   };
@@ -573,7 +577,7 @@ export default function AdminPackagesPage() {
             {/* 3. Schedule */}
             <div className="space-y-4">
               <h3 className="text-lg font-bold border-b border-white/10 pb-2 text-[#D4AF37]">3. Schedule</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-white">Duration (Hours)</Label>
                   <Input type="number" step="0.5" min="0" value={formData.duration} onChange={e => setFormData({...formData, duration: e.target.value})} required className="bg-white/5 text-white border-white/20" />
@@ -585,6 +589,13 @@ export default function AdminPackagesPage() {
                 <div className="space-y-2">
                   <Label className="text-white">Available Days</Label>
                   <Input value={formData.availableDays} onChange={e => setFormData({...formData, availableDays: e.target.value})} placeholder="e.g. Everyday OR Friday, Saturday" className="bg-white/5 text-white border-white/20" required/>
+                </div>
+                <div className="space-y-2 bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
+                  <Label className="text-amber-300 font-bold flex items-center gap-2">
+                    <Clock className="h-4 w-4" /> Min. Lead Time (Hours)
+                  </Label>
+                  <Input type="number" min="0" step="1" value={formData.minLeadTimeHours} onChange={e => setFormData({...formData, minLeadTimeHours: e.target.value})} className="bg-black/50 text-white border-amber-500/30" />
+                  <p className="text-[10px] text-amber-400/70">Min hours in advance a customer must book. Set to 0 for anytime.</p>
                 </div>
               </div>
             </div>

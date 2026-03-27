@@ -859,3 +859,145 @@ export async function sendNewFollowerEmail(data: NewFollowerEmailData): Promise<
     return false;
   }
 }
+
+// ============================================================================
+// ICS CALENDAR ATTACHMENT HELPER
+// ============================================================================
+export function generateICSContent({
+  uid,
+  summary,
+  description,
+  location,
+  startDate,
+  durationHours,
+}: {
+  uid: string;
+  summary: string;
+  description: string;
+  location: string;
+  startDate: Date;
+  durationHours: number;
+}): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const fmt = (d: Date) =>
+    `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
+
+  const endDate = new Date(startDate.getTime() + durationHours * 60 * 60 * 1000);
+  const now = fmt(new Date());
+
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//PyraRides//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:REQUEST",
+    "BEGIN:VEVENT",
+    `UID:${uid}@pyrarides.com`,
+    `DTSTAMP:${now}`,
+    `DTSTART:${fmt(startDate)}`,
+    `DTEND:${fmt(endDate)}`,
+    `SUMMARY:${summary}`,
+    `DESCRIPTION:${description.replace(/\n/g, "\\n")}`,
+    `LOCATION:${location}`,
+    "STATUS:CONFIRMED",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+}
+
+// ============================================================================
+// PRE-RIDE REMINDER EMAIL (12 hours before)
+// ============================================================================
+interface PreRideReminderData {
+  riderName: string;
+  riderEmail: string;
+  rideName: string;
+  rideLocation: string;
+  startTime: string;
+  bookingDate: string;
+  mapsLink?: string;
+}
+
+function generatePreRideReminderEmail(data: PreRideReminderData): string {
+  return generateEmailTemplate({
+    headline: "Tomorrow is\nYour Day.",
+    subheadline: "Ride Reminder — 12 Hours Away",
+    imageUrl: HERO_BG_URL,
+    imageAlt: "The Pyramids of Giza at sunset",
+    bodyTitle: `${data.rideName} starts in ~12 hours!`,
+    bodyText: `Hi ${data.riderName}, your adventure at the Giza Pyramids is almost here! Here is how to prepare for an unforgettable experience.`,
+    details: [
+      { label: "Booking", value: data.rideName },
+      { label: "Date", value: new Date(data.bookingDate).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) },
+      { label: "Start Time", value: data.startTime },
+      { label: "Location", value: data.rideLocation },
+      { label: "☀️ Checklist", value: "High SPF Sunscreen & Sunglasses" },
+      { label: "👟 Checklist", value: "Comfortable closed-toe shoes" },
+      { label: "📸 Checklist", value: "Fully charged camera / phone" },
+    ],
+    ctaText: "Get Directions",
+    ctaUrl: data.mapsLink || "https://maps.google.com/?q=Giza+Pyramids+Egypt",
+    footerNote: "Please arrive 10-15 minutes early for check-in.",
+  });
+}
+
+export async function sendPreRideReminderEmail(data: PreRideReminderData): Promise<boolean> {
+  const transporter = createTransporter();
+  if (!transporter) return false;
+  try {
+    await transporter.sendMail({
+      from: `"PyraRides" <${process.env.EMAIL_USER}>`,
+      to: data.riderEmail,
+      subject: `⏰ Tomorrow is Your Adventure — ${data.rideName}!`,
+      html: generatePreRideReminderEmail(data),
+      text: `Reminder: ${data.rideName} starts in ~12 hours at ${data.startTime}. Location: ${data.rideLocation}. Please arrive 15 minutes early!`,
+    });
+    return true;
+  } catch (e) {
+    console.error("Failed to send pre-ride reminder:", e);
+    return false;
+  }
+}
+
+// ============================================================================
+// POST-RIDE FOLLOW-UP EMAIL (with review prompt)
+// ============================================================================
+interface PostRideFollowupData {
+  riderName: string;
+  riderEmail: string;
+  rideName: string;
+  reviewUrl: string;
+  rideImage?: string;
+}
+
+function generatePostRideFollowupEmail(data: PostRideFollowupData): string {
+  return generateEmailTemplate({
+    headline: "How Was\nYour Ride?",
+    subheadline: "Thank You — We Hope You Loved It",
+    imageUrl: data.rideImage || HERO_BG_URL,
+    imageAlt: data.rideName,
+    bodyTitle: "Your adventure is complete!",
+    bodyText: `Hi ${data.riderName}, thank you for choosing PyraRides for your Pyramids adventure! We hope you made unforgettable memories. It would mean the world to us if you shared your experience — your review helps other riders discover the magic of the desert.`,
+    ctaText: "★ Leave a Review",
+    ctaUrl: data.reviewUrl,
+    footerNote: "Reviews take less than 60 seconds and help our guides a lot. Thank you!",
+  });
+}
+
+export async function sendPostRideFollowupEmail(data: PostRideFollowupData): Promise<boolean> {
+  const transporter = createTransporter();
+  if (!transporter) return false;
+  try {
+    await transporter.sendMail({
+      from: `"PyraRides" <${process.env.EMAIL_USER}>`,
+      to: data.riderEmail,
+      subject: `★ How was your ride with ${data.rideName}? Leave a Review!`,
+      html: generatePostRideFollowupEmail(data),
+      text: `Hi ${data.riderName}, thank you for riding with PyraRides! Please take a moment to leave a review: ${data.reviewUrl}`,
+    });
+    return true;
+  } catch (e) {
+    console.error("Failed to send post-ride follow-up:", e);
+    return false;
+  }
+}

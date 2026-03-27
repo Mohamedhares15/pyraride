@@ -36,6 +36,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Validate minimum lead time
+    const minLeadTimeHours = pkg.minLeadTimeHours ?? 8;
+    if (minLeadTimeHours > 0) {
+      // Parse booking date + time into a full UTC datetime
+      const [hour, minute] = startTime.split(":").map(Number);
+      const bookingDateTime = new Date(date);
+      bookingDateTime.setHours(hour, minute, 0, 0);
+      const now = new Date();
+      const hoursUntilBooking = (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+      
+      if (hoursUntilBooking < minLeadTimeHours) {
+        return NextResponse.json(
+          { error: `This package requires at least ${minLeadTimeHours} hours advance booking. Please choose a later date or time.` },
+          { status: 400 }
+        );
+      }
+    }
+
     // Securely calculate transportation price
     let transportPrice = 0;
     let transportZoneName = "";

@@ -40,6 +40,7 @@ export async function PATCH(
         isFeatured: data.isFeatured,
         sortOrder: data.sortOrder !== undefined ? Number(data.sortOrder) : undefined,
         stableId: data.stableId !== undefined ? data.stableId : undefined,
+        minLeadTimeHours: data.minLeadTimeHours !== undefined ? Number(data.minLeadTimeHours) : undefined,
       },
     });
 

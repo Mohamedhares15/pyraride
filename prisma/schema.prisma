@@ -726,11 +726,12 @@ model Package {
   imageUrl   String
 
   // State
-  isActive   Boolean  @default(true)
-  isFeatured Boolean  @default(false)
-  sortOrder  Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  isActive         Boolean  @default(true)
+  isFeatured       Boolean  @default(false)
+  sortOrder        Int      @default(0)
+  minLeadTimeHours Int      @default(8) // Minimum hours before booking is allowed
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   // Stable Assignment (Optional)
   stableId String?
