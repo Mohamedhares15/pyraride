@@ -14,16 +14,16 @@ export async function GET(req: Request) {
 
   try {
     const now = new Date();
-    const in11Hours = new Date(now.getTime() + 11 * 60 * 60 * 1000);
-    const in13Hours = new Date(now.getTime() + 13 * 60 * 60 * 1000);
+    const in4Hours = new Date(now.getTime() + 4 * 60 * 60 * 1000);
+    const in6Hours = new Date(now.getTime() + 6 * 60 * 60 * 1000);
 
     // --- Standard Horse Bookings ---
     const upcomingBookings = await prisma.booking.findMany({
       where: {
         status: "confirmed",
         startTime: {
-          gte: in11Hours,
-          lte: in13Hours,
+          gte: in4Hours,
+          lte: in6Hours,
         },
       },
       include: {
@@ -54,8 +54,8 @@ export async function GET(req: Request) {
       horseNotifications.push({
         userId: booking.riderId,
         type: "ride_reminder",
-        title: "⏰ Your Adventure Starts in ~12 Hours!",
-        message: `Your ride with ${booking.horse.name} at ${booking.stable.name} is almost here. Remember to arrive 15 minutes early!`,
+        title: "⏰ Your Adventure Starts in ~5 Hours!",
+        message: `Your ride with ${booking.horse.name} at ${booking.stable.name} starts in about 5 hours. Get ready and arrive 10 minutes early!`,
         data: { bookingId: booking.id },
       });
     }
@@ -86,9 +86,9 @@ export async function GET(req: Request) {
       const bookingDateTime = new Date(booking.date);
       bookingDateTime.setHours(hour, minute, 0, 0);
 
-      // Only send if it falls in the 11-13 hour window
+      // Only send if it falls in the 4-6 hour window
       const hoursAway = (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-      if (hoursAway < 11 || hoursAway > 13) continue;
+      if (hoursAway < 4 || hoursAway > 6) continue;
 
       const location = booking.package.stable?.address || "Giza Pyramids — Meeting point details in your booking.";
       const mapsLink = booking.package.stable?.address
@@ -108,8 +108,8 @@ export async function GET(req: Request) {
       packageNotifications.push({
         userId: booking.riderId,
         type: "ride_reminder",
-        title: "⏰ Your VIP Package Starts in ~12 Hours!",
-        message: `${booking.package.title} is almost here! Have everything ready and arrive 15 minutes early for check-in.`,
+        title: "⏰ Your VIP Package Starts in ~5 Hours!",
+        message: `${booking.package.title} is just a few hours away! Get ready for an unforgettable experience.`,
         data: { packageBookingId: booking.id },
       });
     }

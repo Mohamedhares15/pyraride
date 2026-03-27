@@ -920,8 +920,8 @@ interface PreRideReminderData {
 
 function generatePreRideReminderEmail(data: PreRideReminderData): string {
   return generateEmailTemplate({
-    headline: "Tomorrow is\nYour Day.",
-    subheadline: "Ride Reminder — 12 Hours Away",
+    headline: "Tonight is\nYour Night.",
+    subheadline: "Ride Reminder — Only 5 Hours Away",
     imageUrl: HERO_BG_URL,
     imageAlt: "The Pyramids of Giza at sunset",
     bodyTitle: `${data.rideName} starts in ~12 hours!`,
