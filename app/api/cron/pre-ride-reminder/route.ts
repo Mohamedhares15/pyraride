@@ -14,8 +14,10 @@ export async function GET(req: Request) {
 
   try {
     const now = new Date();
+    // Runs once daily at 6AM UTC (8AM Cairo).
+    // Sends reminders for ALL rides happening today that are still 4-20 hours away.
     const in4Hours = new Date(now.getTime() + 4 * 60 * 60 * 1000);
-    const in6Hours = new Date(now.getTime() + 6 * 60 * 60 * 1000);
+    const in20Hours = new Date(now.getTime() + 20 * 60 * 60 * 1000);
 
     // --- Standard Horse Bookings ---
     const upcomingBookings = await prisma.booking.findMany({
@@ -23,7 +25,7 @@ export async function GET(req: Request) {
         status: "confirmed",
         startTime: {
           gte: in4Hours,
-          lte: in6Hours,
+          lte: in20Hours,
         },
       },
       include: {
@@ -86,9 +88,9 @@ export async function GET(req: Request) {
       const bookingDateTime = new Date(booking.date);
       bookingDateTime.setHours(hour, minute, 0, 0);
 
-      // Only send if it falls in the 4-6 hour window
+      // Only send if it's at least 4 hours away and within today
       const hoursAway = (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-      if (hoursAway < 4 || hoursAway > 6) continue;
+      if (hoursAway < 4 || hoursAway > 20) continue;
 
       const location = booking.package.stable?.address || "Giza Pyramids — Meeting point details in your booking.";
       const mapsLink = booking.package.stable?.address
@@ -119,7 +121,7 @@ export async function GET(req: Request) {
       await createBulkNotifications(allNotifications);
     }
 
-    console.log(`[Cron/PreRide] Processed ${upcomingBookings.length} horse rides and ${upcomingPackages.length} packages.`);
+    console.log(`[Cron/PreRide] Runs daily at 6AM UTC. Processed ${upcomingBookings.length} horse rides and ${upcomingPackages.length} packages.`);
 
     return NextResponse.json({
       success: true,
