@@ -339,7 +339,7 @@ export default function Navbar() {
                 </Link>
               </li>
 
-              <div className="my-4 h-px bg-white/10 mx-4" />
+              <li role="separator" className="my-4 h-px bg-white/10 mx-4" />
 
               {session ? (
                 <>
@@ -392,8 +392,8 @@ export default function Navbar() {
           </div>
 
           <div className="py-6 border-t border-white/5 px-6">
-            <p className="text-xs text-white/30 text-center font-medium tracking-widest uppercase">
-              PyraRides &copy; {new Date().getFullYear()}
+            <p className="text-xs text-white/50 text-center font-medium tracking-widest uppercase">
+              PyraRides &copy; 2026
             </p>
           </div>
         </div>

@@ -23,7 +23,13 @@ export default function Hero() {
   };
 
   const [location, setLocation] = useState("all");
-  const [date, setDate] = useState(getToday);
+  const [date, setDate] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setDate(getToday());
+  }, []);
 
   const [locations, setLocations] = useState<{ id: string; name: string }[]>([]);
 
@@ -185,7 +191,7 @@ export default function Hero() {
 
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-3">
                 <Select value={location} onValueChange={setLocation}>
-                  <SelectTrigger className="!h-[56px] rounded-2xl border border-white/30 bg-white/5 px-4 text-left text-base text-white placeholder-white/70 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/60 md:!h-12 md:flex-1 md:rounded-full md:border-white/50 md:bg-white/90 md:text-foreground md:focus:ring-ring">
+                  <SelectTrigger aria-label="Select location" className="!h-[56px] rounded-2xl border border-white/30 bg-white/5 px-4 text-left text-base text-white placeholder-white/70 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/60 md:!h-12 md:flex-1 md:rounded-full md:border-white/50 md:bg-white/90 md:text-foreground md:focus:ring-ring">
                     <SelectValue placeholder="Choose location" />
                   </SelectTrigger>
                   <SelectContent className="z-[120] border-white/15 bg-black/90 text-white md:border-border md:bg-card md:text-foreground">
@@ -218,7 +224,7 @@ export default function Hero() {
                     }}
                     className="flex !h-[56px] w-full cursor-pointer items-center justify-between rounded-2xl border border-white/30 bg-white/5 px-4 text-left text-base text-white transition-all duration-200 focus-within:border-white/70 focus-within:ring-2 focus-within:ring-white/60 md:!h-12 md:rounded-full md:border-white/50 md:bg-white/90 md:text-foreground md:focus-within:ring-ring"
                   >
-                    <span>{displayDate(date)}</span>
+                    <span suppressHydrationWarning>{mounted ? displayDate(date) : "Select date"}</span>
                     <CalendarDays className="h-4 w-4 text-white/70 md:text-foreground/60" aria-hidden="true" />
                   </button>
                   <Input

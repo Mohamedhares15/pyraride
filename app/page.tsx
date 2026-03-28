@@ -102,7 +102,7 @@ export default async function HomePage() {
 
                   {/* Content Container */}
                   <div className="flex flex-col flex-1">
-                    <div className="flex items-center gap-3 text-[9px] text-gray-500 uppercase tracking-[0.2em] mb-4">
+                    <div className="flex items-center gap-3 text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-4">
                       <span>{pkg.duration} Hours</span>
                       <div className="w-1 h-1 bg-[#D4AF37] rounded-full"></div>
                       <span>{pkg.packageType === "GROUP_EVENT" ? `Up to ${pkg.maxPeople} Guests` : `Exactly ${pkg.maxPeople} Guests`}</span>
@@ -118,13 +118,13 @@ export default async function HomePage() {
                     
                     <div className="flex items-end justify-between mt-auto pt-6 border-t border-white/10">
                       <div>
-                        <p className="text-[9px] text-gray-500 uppercase tracking-[0.2em] mb-1">
+                        <p className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-1">
                           {pkg.packageType === "GROUP_EVENT" ? "Per Guest" : "Total Investment"}
                         </p>
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-light text-white tracking-wide">EGP {pkg.price}</span>
                           {pkg.originalPrice && (
-                            <del className="text-xs text-gray-600">EGP {pkg.originalPrice}</del>
+                            <del className="text-xs text-gray-400">EGP {pkg.originalPrice}</del>
                           )}
                         </div>
                       </div>
