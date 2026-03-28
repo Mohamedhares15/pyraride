@@ -39,7 +39,7 @@ export default function CookieConsent() {
             
             <div className="flex-1">
               <h3 className="font-bold text-lg mb-2">We Value Your Privacy</h3>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-foreground/80 mb-4">
                 We use cookies to enhance your browsing experience, analyze site traffic, and provide personalized content. 
                 By clicking "Accept", you consent to our use of cookies. You can manage your preferences anytime.
               </p>
@@ -69,7 +69,7 @@ export default function CookieConsent() {
 
             <button
               onClick={declineCookies}
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-foreground/80 hover:text-foreground transition-colors"
               aria-label="Close cookie banner"
             >
               <X className="w-5 h-5" />
