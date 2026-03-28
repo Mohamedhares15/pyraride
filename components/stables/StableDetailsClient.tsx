@@ -139,10 +139,13 @@ function groupSlotsByDayAndPeriod(
         const slotDateTime = parseTimeString(timeStr, currentDate);
         const period = getTimePeriod(slotDateTime.getHours());
 
-        if (allowShift && slotDateTime < safeBookingTime) {
-            // Slot is within lead time window, push to tomorrow
-            // This ensures users see these slots as available for the next day instead of grayed out for today.
-            tomorrow[period].push(timeStr);
+        if (slotDateTime < safeBookingTime) {
+            // Unbookable due to lead time. DO NOT render it as available.
+            // If allowShift is false (which is used for rendering blocked times), we STILL push it to today so it renders grayed out.
+            // But we completely REMOVED the logic that pushes slots to tomorrow, as that caused phantom duplicate slots on UI.
+            if (!allowShift) {
+                today[period].push(timeStr);
+            }
         } else {
             // Slot is safe to book today
             today[period].push(timeStr);
