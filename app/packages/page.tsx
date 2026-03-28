@@ -9,8 +9,8 @@ export const metadata = {
   description: "Browse our exclusive horse riding packages at the Great Pyramids of Giza.",
 };
 
-// Bypass Next.js static caching so new packages show instantly
-export const dynamic = "force-dynamic";
+// Cache statically for 1 hour via ISR to handle high concurrent load
+export const revalidate = 3600;
 
 export default async function PackagesPage() {
   const packages = await prisma.package.findMany({
