@@ -107,10 +107,17 @@ export default function AdminPackagesPage() {
       const res = await fetch("/api/stables");
       if (res.ok) {
         const data = await res.json();
-        setStables(data);
+        if (Array.isArray(data)) {
+          setStables(data);
+        } else {
+          setStables([]);
+        }
+      } else {
+        setStables([]);
       }
     } catch (err) {
       console.error("Failed to fetch stables", err);
+      setStables([]);
     }
   };
 
@@ -493,7 +500,7 @@ export default function AdminPackagesPage() {
                     onChange={e => setFormData({ ...formData, stableId: e.target.value })}
                   >
                     <option value="" className="bg-black text-white">None (Platform Package)</option>
-                    {stables.map(stable => (
+                    {Array.isArray(stables) && stables.map(stable => (
                       <option key={stable.id} value={stable.id} className="bg-black text-white">
                         {stable.name}
                       </option>
