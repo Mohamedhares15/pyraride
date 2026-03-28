@@ -274,7 +274,13 @@ export async function GET(
     console.log(`[GET /api/stables/${params.id}/slots] Returning ${uniqueSlots.length} unique slots (from ${processedSlots.length} total)`);
 
     // Force no caching at all levels (browser, CDN, edge)
-    return NextResponse.json(uniqueSlots);
+    return NextResponse.json(uniqueSlots, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
+    });
   } catch (error) {
     console.error("Error fetching availability slots:", error);
     return new NextResponse("Internal Error", { status: 500 });

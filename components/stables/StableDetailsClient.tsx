@@ -306,7 +306,7 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                 const dateStr = selectedDate.toISOString().split("T")[0];
 
                 const [slotsRes, bookingRes] = await Promise.all([
-                    fetch(`/api/stables/${id}/slots?date=${dateStr}`),
+                    fetch(`/api/stables/${id}/slots?date=${dateStr}`, { cache: 'no-store' }),
                     session?.user?.id ? fetch(`/api/bookings?stableId=${id}&userId=${session.user.id}&status=confirmed`) : Promise.resolve(null)
                 ]);
 
@@ -393,7 +393,7 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
         const fetchSlots = async () => {
             try {
                 const dateStr = selectedDate.toISOString().split("T")[0];
-                const slotsRes = await fetch(`/api/stables/${id}/slots?date=${dateStr}`);
+                const slotsRes = await fetch(`/api/stables/${id}/slots?date=${dateStr}`, { cache: 'no-store' });
 
                 if (slotsRes.ok) {
                     const slotsData = await slotsRes.json();
