@@ -15,6 +15,10 @@ interface TransportZone {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
@@ -275,22 +279,52 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
                           </span>
                         )}
                       </Label>
-                      <div className="relative">
-                        <CalendarIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/50 pointer-events-none z-10" />
-                        <input
-                          id="date"
-                          type="date"
-                          value={date}
-                          onChange={(e) => {
-                            setDate(e.target.value);
-                            setError("");
-                          }}
-                          min={minDate}
-                          className="h-12 w-full rounded-md border border-white/20 bg-white/5 px-10 py-2 text-sm text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(218,165,32)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                          style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
-                          required
-                        />
-                      </div>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "h-12 w-full justify-start text-left font-normal border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white",
+                              !date && "text-white/50"
+                            )}
+                          >
+                            <CalendarIcon className="mr-3 h-5 w-5 text-white/50" />
+                            {date ? format(new Date(date.split("-").map(Number)[0], date.split("-").map(Number)[1] - 1, date.split("-").map(Number)[2]), "PPP") : <span>Pick a date</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 bg-[#1a1a1a] border border-white/10" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={date ? new Date(date.split("-").map(Number)[0], date.split("-").map(Number)[1] - 1, date.split("-").map(Number)[2]) : undefined}
+                            onSelect={(d) => {
+                              if (d) {
+                                const formatted = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                                setDate(formatted);
+                                setError("");
+                              }
+                            }}
+                            disabled={(d) => {
+                              // Normalize time for comparison
+                              const checkDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                              const minD = new Date(minDate.split("-").map(Number)[0], minDate.split("-").map(Number)[1] - 1, minDate.split("-").map(Number)[2]);
+                              
+                              if (checkDate < minD) return true;
+                              
+                              if (pkg.availableDays && pkg.availableDays.length > 0 && pkg.availableDays[0] !== "Everyday") {
+                                const dayName = checkDate.toLocaleDateString("en-US", { weekday: "long" });
+                                const isAvailable = pkg.availableDays.some(
+                                  (availDay: string) => availDay.toLowerCase() === dayName.toLowerCase()
+                                );
+                                if (!isAvailable) return true;
+                              }
+                              
+                              return false;
+                            }}
+                            initialFocus
+                            className="bg-[#121212] rounded-md border-white/10 text-white"
+                          />
+                        </PopoverContent>
+                      </Popover>
                       {pkg.availableDays && pkg.availableDays.length > 0 && pkg.availableDays[0] !== "Everyday" && (
                         <p className="text-xs text-[rgb(218,165,32)]/80 mt-1">
                           Usually runs on: {pkg.availableDays.join(", ")}
