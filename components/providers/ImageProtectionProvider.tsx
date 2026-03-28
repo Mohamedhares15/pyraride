@@ -10,8 +10,8 @@ export default function ImageProtectionProvider() {
       const target = event.target as HTMLElement | null;
       if (!target) return;
       if (
-        IMAGE_TAGS.includes(target.tagName.toLowerCase()) ||
-        target.closest("img, video, canvas, picture")
+        (target?.tagName && IMAGE_TAGS.includes(target.tagName.toLowerCase())) ||
+        target?.closest?.("img, video, canvas, picture")
       ) {
         event.preventDefault();
       }
@@ -21,15 +21,15 @@ export default function ImageProtectionProvider() {
       const target = event.target as HTMLElement | null;
       if (!target) return;
       if (
-        IMAGE_TAGS.includes(target.tagName.toLowerCase()) ||
-        target.closest("img, video, canvas, picture")
+        (target?.tagName && IMAGE_TAGS.includes(target.tagName.toLowerCase())) ||
+        target?.closest?.("img, video, canvas, picture")
       ) {
         event.preventDefault();
       }
     };
 
     const preventShortcutCopy = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase();
+      const key = event?.key?.toLowerCase() || "";
       if (
         (event.ctrlKey || event.metaKey) &&
         (key === "s" || key === "p")

@@ -119,7 +119,14 @@ export default function AdminPackagesPage() {
       const res = await fetch("/api/packages");
       if (res.ok) {
         const data = await res.json();
-        setPackages(data);
+        if (Array.isArray(data)) {
+          setPackages(data);
+        } else {
+          setPackages([]);
+          toast.error(data.error || "Invalid packages data format");
+        }
+      } else {
+        setPackages([]);
       }
     } catch (err) {
       console.error("Failed to fetch packages", err);
@@ -349,7 +356,7 @@ export default function AdminPackagesPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {packages.map(pkg => (
+        {Array.isArray(packages) && packages.map(pkg => (
           <Card key={pkg.id} className="overflow-hidden flex flex-col border-white/10 relative group">
             <div className="relative h-56 w-full bg-muted">
               {pkg.imageUrl ? (
@@ -424,7 +431,7 @@ export default function AdminPackagesPage() {
             </div>
           </Card>
         ))}
-        {packages.length === 0 && (
+        {(!Array.isArray(packages) || packages.length === 0) && (
           <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-16 border-2 border-dashed border-white/20 rounded-2xl text-muted-foreground bg-white/5">
             <h3 className="text-xl font-bold mb-2 text-white">No Packages Found</h3>
             <p>Create your first VIP or Group package to get started.</p>
