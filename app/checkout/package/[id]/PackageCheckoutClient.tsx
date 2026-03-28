@@ -55,7 +55,34 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
   const transportPrice = pkg.hasTransportation ? (transportZones.find(z => z.id === selectedZone)?.price || 0) : 0;
   const finalPrice = basePrice + transportPrice;
 
-  const minDate = new Date().toISOString().split("T")[0];
+  const minLeadTimeHours = pkg.minLeadTimeHours ?? 0;
+
+  // Calculate the earliest allowed booking date based on lead time and package start time
+  const getMinDate = () => {
+    const now = new Date();
+    const earliestAllowedTime = new Date(now.getTime() + minLeadTimeHours * 60 * 60 * 1000);
+    
+    if (pkg.startTime) {
+      const [hour, minute] = pkg.startTime.split(":").map(Number);
+      const todayStartTime = new Date();
+      todayStartTime.setHours(hour, minute, 0, 0);
+      
+      // If today's slot is already past the earliest allowed time, min safe day is tomorrow (or later)
+      if (todayStartTime < earliestAllowedTime) {
+        const nextValidDay = new Date(earliestAllowedTime);
+        nextValidDay.setHours(hour, minute, 0, 0);
+        if (nextValidDay < earliestAllowedTime) {
+           nextValidDay.setDate(nextValidDay.getDate() + 1);
+        }
+        // Keep checking if the new day is valid (edge case for very large lead times)
+        return nextValidDay.toISOString().split("T")[0];
+      }
+    }
+    
+    return earliestAllowedTime.toISOString().split("T")[0];
+  };
+
+  const minDate = getMinDate();
 
   const safeToFixed = (value: any, decimals: number = 0) => {
     const num = Number(value);
@@ -73,6 +100,19 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
     if (!date) {
       setError("Please select a date for your experience.");
       return;
+    }
+
+    if (minLeadTimeHours > 0) {
+      const [hour, minute] = (pkg.startTime || "00:00").split(":").map(Number);
+      const bookingDateTime = new Date(date);
+      bookingDateTime.setHours(hour, minute, 0, 0);
+      const now = new Date();
+      const hoursUntilBooking = (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+      
+      if (hoursUntilBooking < minLeadTimeHours) {
+        setError(`This package requires at least ${minLeadTimeHours} hours advance booking. Please select a later date.`);
+        return;
+      }
     }
 
     setIsProcessing(true);
