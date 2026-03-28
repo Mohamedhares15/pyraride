@@ -148,7 +148,7 @@ export default async function HomePage() {
 
       {/* Luxury CTA Section instead of FAQ */}
       <section className="relative z-20 w-full overflow-hidden bg-gradient-to-b from-black/80 via-black/95 to-black py-24 md:py-32">
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay" />
+        <div className="absolute inset-0 bg-black opacity-10" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         
         <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-4 text-center">

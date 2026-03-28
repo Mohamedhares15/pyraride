@@ -339,7 +339,7 @@ export default function Navbar() {
                 </Link>
               </li>
 
-              <li role="separator" className="my-4 h-px bg-white/10 mx-4" />
+              <li aria-hidden="true" className="my-4 h-px bg-white/10 mx-4" />
 
               {session ? (
                 <>
