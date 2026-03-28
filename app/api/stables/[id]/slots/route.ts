@@ -177,8 +177,12 @@ export async function GET(
         status: { not: 'cancelled' }
       },
       select: {
+        id: true,
         horseId: true,
-        startTime: true
+        startTime: true,
+        endTime: true,
+        status: true,
+        rider: { select: { fullName: true, email: true } }
       }
     });
 
@@ -212,14 +216,21 @@ export async function GET(
 
     // Second pass: Process slots and assign status
     const processedSlots = slots.map(slot => {
+      // Create a unified booking object if it falls within an actual booking
+      const overlappingBooking = bookings.find(b => 
+        b.horseId === slot.horseId && 
+        new Date(slot.startTime).getTime() >= new Date(b.startTime).getTime() && 
+        new Date(slot.startTime).getTime() < new Date(b.endTime).getTime()
+      );
+
       // If booking is cancelled, treat as available (remove booking object)
       if (slot.booking && slot.booking.status === 'cancelled') {
         slot.booking = null;
       }
 
       // 1. Check if already booked
-      if (slot.booking) {
-        return { ...slot, status: 'booked' };
+      if (slot.booking || overlappingBooking) {
+        return { ...slot, status: 'booked', booking: slot.booking || overlappingBooking };
       }
 
       // 2. Check Lead Time - DISABLED SERVER SIDE

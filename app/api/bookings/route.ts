@@ -274,20 +274,36 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        // Update availability slots
-        await tx.availabilitySlot.updateMany({
+        // Update availability slots safely to avoid unique constraint collisions
+        const slotsToUpdate = await tx.availabilitySlot.findMany({
           where: {
             stableId,
             horseId,
-            startTime: { gte: new Date(startTime) },
-            endTime: { lte: new Date(endTime) },
+            startTime: { gte: new Date(startTime), lt: new Date(endTime) },
             isBooked: false,
           },
-          data: {
-            isBooked: true,
-            bookingId: newBooking.id,
-          },
+          orderBy: { startTime: 'asc' }
         });
+
+        if (slotsToUpdate.length > 0) {
+          // Only link the FIRST slot to the booking to satisfy unique constraint
+          await tx.availabilitySlot.update({
+            where: { id: slotsToUpdate[0].id },
+            data: {
+              isBooked: true,
+              bookingId: newBooking.id, // Only attach unique ID to the first slot
+            },
+          });
+          
+          // Mark any other overlapping slots (like for multi-hour rides) as booked
+          if (slotsToUpdate.length > 1) {
+            const otherIds = slotsToUpdate.slice(1).map(s => s.id);
+            await tx.availabilitySlot.updateMany({
+              where: { id: { in: otherIds } },
+              data: { isBooked: true },
+            });
+          }
+        }
 
         results.push(newBooking);
       }
