@@ -36,12 +36,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const [parsedYear, parsedMonth, parsedDay] = date.split("-").map(Number);
+    const localSelectedDate = new Date(parsedYear, parsedMonth - 1, parsedDay);
+
+    // Validate available days
+    if (pkg.availableDays && pkg.availableDays.length > 0 && pkg.availableDays[0] !== "Everyday") {
+      const selectedDayName = localSelectedDate.toLocaleDateString("en-US", { weekday: "long" });
+      const isAvailable = pkg.availableDays.some(
+        (d: string) => d.toLowerCase() === selectedDayName.toLowerCase()
+      );
+      if (!isAvailable) {
+        return NextResponse.json(
+          { error: `This package is only available on: ${pkg.availableDays.join(", ")}.` },
+          { status: 400 }
+        );
+      }
+    }
+
     // Validate minimum lead time
-    const minLeadTimeHours = pkg.minLeadTimeHours ?? 8;
+    const minLeadTimeHours = pkg.minLeadTimeHours ?? 0;
     if (minLeadTimeHours > 0) {
       // Parse booking date + time into a full UTC datetime
-      const [hour, minute] = startTime.split(":").map(Number);
-      const bookingDateTime = new Date(date);
+      const [hour, minute] = (startTime || "18:00").split(":").map(Number);
+      const bookingDateTime = new Date(localSelectedDate);
       bookingDateTime.setHours(hour, minute, 0, 0);
       const now = new Date();
       const hoursUntilBooking = (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);

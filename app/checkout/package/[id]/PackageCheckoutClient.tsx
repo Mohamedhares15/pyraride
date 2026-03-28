@@ -62,8 +62,9 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
     const now = new Date();
     const earliestAllowedTime = new Date(now.getTime() + minLeadTimeHours * 60 * 60 * 1000);
     
-    if (pkg.startTime) {
-      const [hour, minute] = pkg.startTime.split(":").map(Number);
+    if (pkg.startTime || minLeadTimeHours > 0) {
+      // If no start time is specified, assume the package closes at 6 PM (18:00) for same-day booking purposes.
+      const [hour, minute] = (pkg.startTime || "18:00").split(":").map(Number);
       const todayStartTime = new Date();
       todayStartTime.setHours(hour, minute, 0, 0);
       
@@ -102,9 +103,23 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
       return;
     }
 
+    const [parsedYear, parsedMonth, parsedDay] = date.split("-").map(Number);
+    const localSelectedDate = new Date(parsedYear, parsedMonth - 1, parsedDay);
+
+    if (pkg.availableDays && pkg.availableDays.length > 0 && pkg.availableDays[0] !== "Everyday") {
+      const selectedDayName = localSelectedDate.toLocaleDateString("en-US", { weekday: "long" });
+      const isAvailable = pkg.availableDays.some(
+        (d: string) => d.toLowerCase() === selectedDayName.toLowerCase()
+      );
+      if (!isAvailable) {
+        setError(`This package is only available on: ${pkg.availableDays.join(", ")}. Please select a matching date.`);
+        return;
+      }
+    }
+
     if (minLeadTimeHours > 0) {
-      const [hour, minute] = (pkg.startTime || "00:00").split(":").map(Number);
-      const bookingDateTime = new Date(date);
+      const [hour, minute] = (pkg.startTime || "18:00").split(":").map(Number);
+      const bookingDateTime = new Date(localSelectedDate);
       bookingDateTime.setHours(hour, minute, 0, 0);
       const now = new Date();
       const hoursUntilBooking = (bookingDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
@@ -125,7 +140,7 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
         body: JSON.stringify({
           packageId: pkg.id,
           date,
-          startTime: pkg.startTime || "10:00",
+          startTime: pkg.startTime || "18:00",
           ticketsCount: isPrivate ? pkg.maxPeople : tickets,
           transportationZoneId: pkg.hasTransportation && selectedZone !== "none" 
             ? selectedZone 

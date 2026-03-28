@@ -107,7 +107,9 @@ export default function AdminPackagesPage() {
       const res = await fetch("/api/stables");
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data)) {
+        if (data && Array.isArray(data.stables)) {
+          setStables(data.stables);
+        } else if (Array.isArray(data)) {
           setStables(data);
         } else {
           setStables([]);
