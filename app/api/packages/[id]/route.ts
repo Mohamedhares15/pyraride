@@ -39,7 +39,7 @@ export async function PATCH(
         isActive: data.isActive,
         isFeatured: data.isFeatured,
         sortOrder: data.sortOrder !== undefined ? Number(data.sortOrder) : undefined,
-        stableId: data.stableId !== undefined ? data.stableId : undefined,
+        stableId: data.stableId !== undefined ? (data.stableId || null) : undefined,
         minLeadTimeHours: data.minLeadTimeHours !== undefined ? Number(data.minLeadTimeHours) : undefined,
       },
     });
