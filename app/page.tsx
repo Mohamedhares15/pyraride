@@ -89,6 +89,7 @@ export default async function HomePage() {
                       src={pkg.imageUrl || "/hero-bg.webp"} 
                       alt={pkg.title} 
                       fill 
+                      quality={50}
                       sizes="(max-width: 768px) 100vw, 33vw"
                       className="object-cover transition-transform duration-[1.5s] ease-in-out group-hover:scale-105 opacity-90 group-hover:opacity-100 grayscale-[20%] group-hover:grayscale-0" 
                     />

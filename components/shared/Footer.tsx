@@ -26,11 +26,11 @@ export default function Footer() {
           {/* Brand & Mission */}
           <div>
             <h3 className="text-primary font-bold text-xl mb-4">PyraRides</h3>
-            <p className="text-sm text-foreground/70 mb-4">
+            <p className="text-sm text-foreground/80 mb-4">
               The Pyramids, Unforgettable.<br />
               The Ride, Uncomplicated.
             </p>
-            <p className="text-xs text-foreground/60">
+            <p className="text-xs text-foreground/80">
               Connecting travelers with trusted, verified horse riding experiences at Egypt's most iconic landmarks.
             </p>
           </div>
@@ -38,7 +38,7 @@ export default function Footer() {
           {/* Quick Links */}
           <div>
             <h4 className="font-semibold text-sm mb-4">Explore</h4>
-            <nav className="flex flex-col gap-2 text-sm text-foreground/70">
+            <nav className="flex flex-col gap-2 text-sm text-foreground/80">
               <Link href="/stables" className="hover:text-primary transition-colors">Browse Stables</Link>
               <Link href="/gallery" className="hover:text-primary transition-colors">Photo Gallery</Link>
               <Link href="/contact" className="hover:text-primary transition-colors">Contact</Link>
@@ -49,7 +49,7 @@ export default function Footer() {
           {/* Support & Legal */}
           <div>
             <h4 className="font-semibold text-sm mb-4">Support & Legal</h4>
-            <nav className="flex flex-col gap-2 text-sm text-foreground/70">
+            <nav className="flex flex-col gap-2 text-sm text-foreground/80">
               <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
               <Link href="/terms" className="hover:text-primary transition-colors">Terms & Conditions</Link>
               <Link href="/refund-policy" className="hover:text-primary transition-colors">Refund Policy</Link>
@@ -60,7 +60,7 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-sm mb-4">Connect With Us</h4>
             <div className="space-y-3 mb-4">
-              <p className="text-sm text-foreground/70">
+              <p className="text-sm text-foreground/80">
                 📧 <a href="mailto:support@pyrarides.com" className="hover:text-primary transition-colors">support@pyrarides.com</a>
               </p>
             </div>
@@ -89,10 +89,10 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 mt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-xs text-foreground/60 text-center md:text-left">
+          <div className="text-xs text-foreground/80 text-center md:text-left">
             © {new Date().getFullYear()} PyraRides. All rights reserved. Made with ❤️ in Egypt.
           </div>
-          <div className="flex flex-wrap gap-4 text-xs text-foreground/60">
+          <div className="flex flex-wrap gap-4 text-xs text-foreground/80">
             <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>
             <Link href="/refund-policy" className="hover:text-primary transition-colors">Refunds</Link>
