@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
@@ -131,47 +131,39 @@ export default function Navbar() {
           <span className="text-sm font-medium text-white/90 group-hover/btn:text-white transition-colors">{displayName}</span>
         </button>
 
-        <AnimatePresence>
-          {isOpen && (
-            <div className="absolute right-0 top-full pt-2 w-56 origin-top-right z-50">
-              <motion.div
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-                className="rounded-xl bg-[#121212]/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden ring-1 ring-black/5"
-              >
-                <div className="p-1">
-                  <Link
-                    href={`/users/${session?.user?.id}`}
-                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-lg transition-all duration-200 group"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <div className="p-1.5 rounded-md bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
-                      <User className="h-4 w-4" />
-                    </div>
-                    My Profile
-                  </Link>
+        {isOpen && (
+          <div className="absolute right-0 top-full pt-2 w-56 origin-top-right z-50">
+            <div className="rounded-xl bg-[#121212]/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-200">
+              <div className="p-1">
+                <Link
+                  href={`/users/${session?.user?.id}`}
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-lg transition-all duration-200 group"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <div className="p-1.5 rounded-md bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
+                    <User className="h-4 w-4" />
+                  </div>
+                  My Profile
+                </Link>
 
-                  <div className="my-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                <div className="my-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
-                  <button
-                    onClick={() => {
-                      setIsOpen(false);
-                      signOut();
-                    }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/80 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200 group"
-                  >
-                    <div className="p-1.5 rounded-md bg-white/5 text-white/60 group-hover:text-red-400 group-hover:bg-red-500/10 transition-colors">
-                      <LogOut className="h-4 w-4" />
-                    </div>
-                    Sign Out
-                  </button>
-                </div>
-              </motion.div>
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    signOut();
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/80 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200 group"
+                >
+                  <div className="p-1.5 rounded-md bg-white/5 text-white/60 group-hover:text-red-400 group-hover:bg-red-500/10 transition-colors">
+                    <LogOut className="h-4 w-4" />
+                  </div>
+                  Sign Out
+                </button>
+              </div>
             </div>
-          )}
-        </AnimatePresence>
+          </div>
+        )}
       </li>
     ) : (
       <>
@@ -248,9 +240,8 @@ export default function Navbar() {
 
   return (
     <>
-      <motion.header
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
+      <header
+
         style={{
           height: 'var(--header-total-height)',
           paddingTop: 'var(--sat)',
@@ -280,7 +271,7 @@ export default function Navbar() {
         >
           {isOpen ? "✕" : "☰"}
         </button>
-      </motion.header>
+      </header>
 
       <div
         className={`fixed inset-0 bg-black/50 z-[140] transition-opacity duration-300 ease-out ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}

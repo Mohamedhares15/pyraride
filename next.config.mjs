@@ -153,19 +153,17 @@ const nextConfig = {
   // SEO Redirects: Force www and HTTPS
   async redirects() {
     return [
-      // Redirect non-www to www (when accessed via pyrarides.com)
+      // ...
       {
         source: '/:path*',
-        has: [
-          {
-            type: 'host',
-            value: 'pyrarides.com',
-          },
-        ],
+        has: [{ type: 'host', value: 'pyrarides.com' }],
         destination: 'https://www.pyrarides.com/:path*',
-        permanent: true, // 301 redirect for SEO
+        permanent: true,
       },
     ];
+  },
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'date-fns', 'framer-motion', '@radix-ui/react-icons', '@radix-ui/react-popover'],
   },
 };
 
