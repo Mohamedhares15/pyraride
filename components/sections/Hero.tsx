@@ -72,8 +72,8 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70 z-10" />
       </div>
 
-      {/* Glass effect overlay */}
-      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-white/5 via-white/10 to-white/5 backdrop-blur-sm" />
+      {/* Subtle overlay for depth */}
+      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-white/[0.03] via-white/[0.06] to-white/[0.03]" />
 
       {/* Additional overlay for better text contrast */}
       <div className="absolute inset-0 z-[2] bg-black/30" />
