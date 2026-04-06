@@ -139,13 +139,12 @@ function groupSlotsByDayAndPeriod(
         const slotDateTime = parseTimeString(timeStr, currentDate);
         const period = getTimePeriod(slotDateTime.getHours());
 
-        if (slotDateTime < safeBookingTime) {
-            // Unbookable due to lead time. DO NOT render it as available.
-            // If allowShift is false (which is used for rendering blocked times), we STILL push it to today so it renders grayed out.
-            // But we completely REMOVED the logic that pushes slots to tomorrow, as that caused phantom duplicate slots on UI.
-            if (!allowShift) {
-                today[period].push(timeStr);
-            }
+        if (allowShift && slotDateTime < safeBookingTime) {
+            // Slot is within lead time window, push to tomorrow preview
+            tomorrow[period].push(timeStr);
+        } else if (!allowShift && slotDateTime < safeBookingTime) {
+            // Blocked slot rendering: keep in today so it shows grayed out
+            today[period].push(timeStr);
         } else {
             // Slot is safe to book today
             today[period].push(timeStr);
@@ -185,6 +184,8 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
     const [blockedSlots, setBlockedSlots] = useState<Record<string, Record<string, string[]>>>({});
 
     const [groupedSlots, setGroupedSlots] = useState<Record<string, DayGroupedSlots>>({});
+    // Tomorrow's REAL available slots fetched from the API (used to filter out ghost slots)
+    const [tomorrowAvailableSlots, setTomorrowAvailableSlots] = useState<Record<string, string[]>>({});
     const [groupedBlockedSlots, setGroupedBlockedSlots] = useState<Record<string, DayGroupedSlots>>({});
 
     const [portfolioViewer, setPortfolioViewer] = useState<PortfolioViewerState | null>(null);
@@ -308,8 +309,14 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                 setIsLoadingSlots(true);
                 const dateStr = selectedDate.toISOString().split("T")[0];
 
-                const [slotsRes, bookingRes] = await Promise.all([
+                // Also fetch tomorrow's slots to power the accurate tomorrow preview
+                const tomorrowDate = new Date(selectedDate);
+                tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+                const tomorrowDateStr = tomorrowDate.toISOString().split("T")[0];
+
+                const [slotsRes, tomorrowSlotsRes, bookingRes] = await Promise.all([
                     fetch(`/api/stables/${id}/slots?date=${dateStr}`, { cache: 'no-store' }),
+                    fetch(`/api/stables/${id}/slots?date=${tomorrowDateStr}`, { cache: 'no-store' }),
                     session?.user?.id ? fetch(`/api/bookings?stableId=${id}&userId=${session.user.id}&status=confirmed`) : Promise.resolve(null)
                 ]);
 
@@ -376,6 +383,37 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                         setTakenSlots(newTaken);
                     }
                 }
+
+                // Process tomorrow's real slots
+                if (tomorrowSlotsRes.ok) {
+                    const tomorrowData = await tomorrowSlotsRes.json();
+                    const tomorrowAvail: Record<string, string[]> = {};
+
+                    initialStable.horses.forEach((horse: any) => {
+                        tomorrowAvail[horse.id] = [];
+                    });
+
+                    tomorrowData.forEach((slot: any) => {
+                        if (slot.status !== 'available') return; // Only track available slots
+                        const time = new Date(slot.startTime).toLocaleTimeString("en-US", {
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true
+                        });
+                        const targetHorses = slot.horseId
+                            ? [initialStable.horses.find((h: any) => h.id === slot.horseId)].filter(Boolean)
+                            : initialStable.horses || [];
+                        targetHorses.forEach((horse: any) => {
+                            if (!horse) return;
+                            if (!tomorrowAvail[horse.id]) tomorrowAvail[horse.id] = [];
+                            tomorrowAvail[horse.id].push(time);
+                        });
+                    });
+
+                    if (isMounted) {
+                        setTomorrowAvailableSlots(tomorrowAvail);
+                    }
+                }
             } catch (error) {
                 console.error("Error fetching slots:", error);
             } finally {
@@ -396,7 +434,14 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
         const fetchSlots = async () => {
             try {
                 const dateStr = selectedDate.toISOString().split("T")[0];
-                const slotsRes = await fetch(`/api/stables/${id}/slots?date=${dateStr}`, { cache: 'no-store' });
+                const tomorrowDate = new Date(selectedDate);
+                tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+                const tomorrowDateStr = tomorrowDate.toISOString().split("T")[0];
+
+                const [slotsRes, tomorrowSlotsRes] = await Promise.all([
+                    fetch(`/api/stables/${id}/slots?date=${dateStr}`, { cache: 'no-store' }),
+                    fetch(`/api/stables/${id}/slots?date=${tomorrowDateStr}`, { cache: 'no-store' })
+                ]);
 
                 if (slotsRes.ok) {
                     const slotsData = await slotsRes.json();
@@ -438,6 +483,37 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                     setAvailableSlots(newAvailable);
                     setTakenSlots(newTaken);
                     setBlockedSlots(newBlocked);
+                }
+
+                // Process tomorrow's real slots for the polling refresh too
+                if (tomorrowSlotsRes.ok) {
+                    const tomorrowData = await tomorrowSlotsRes.json();
+                    const tomorrowAvail: Record<string, string[]> = {};
+
+                    stable?.horses.forEach(horse => {
+                        tomorrowAvail[horse.id] = [];
+                    });
+
+                    tomorrowData.forEach((slot: any) => {
+                        if (slot.status !== 'available') return;
+                        const slotDate = new Date(slot.startTime);
+                        const hours = slotDate.getHours();
+                        const minutes = slotDate.getMinutes();
+                        const ampm = hours >= 12 ? 'PM' : 'AM';
+                        const displayHours = hours % 12 || 12;
+                        const time = `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+
+                        const targetHorses = slot.horseId
+                            ? [stable?.horses.find(h => h.id === slot.horseId)].filter(Boolean)
+                            : stable?.horses || [];
+                        targetHorses.forEach(horse => {
+                            if (!horse) return;
+                            if (!tomorrowAvail[horse.id]) tomorrowAvail[horse.id] = [];
+                            tomorrowAvail[horse.id].push(time);
+                        });
+                    });
+
+                    setTomorrowAvailableSlots(tomorrowAvail);
                 }
             } catch (err) {
                 console.error("Error refreshing slots:", err);
@@ -489,12 +565,30 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
             const availableTimes = availableSlots[dateStr]?.[horse.id] || [];
             const blockedTimes = blockedSlots[dateStr]?.[horse.id] || [];
 
-            newGroupedSlots[horse.id] = groupSlotsByDayAndPeriod(
+            const grouped = groupSlotsByDayAndPeriod(
                 availableTimes,
                 leadTimeHours,
                 currentDate,
                 true
             );
+
+            // CRITICAL FIX: Filter the "tomorrow" bucket against real tomorrow data.
+            // Only keep a slot in the tomorrow preview if it actually exists as available in tomorrow's API response.
+            const realTomorrowTimes = tomorrowAvailableSlots[horse.id] || [];
+            if (realTomorrowTimes.length > 0) {
+                // Keep shifted slots only if they match a real available slot tomorrow
+                (['morning', 'afternoon', 'evening'] as const).forEach(period => {
+                    grouped.tomorrow[period] = grouped.tomorrow[period].filter(
+                        time => realTomorrowTimes.includes(time)
+                    );
+                });
+            }
+            // If we have NO real tomorrow data yet, clear the tomorrow bucket entirely to avoid ghost slots
+            if (realTomorrowTimes.length === 0 && (grouped.tomorrow.morning.length > 0 || grouped.tomorrow.afternoon.length > 0 || grouped.tomorrow.evening.length > 0)) {
+                grouped.tomorrow = { morning: [], afternoon: [], evening: [] };
+            }
+
+            newGroupedSlots[horse.id] = grouped;
 
             newGroupedBlockedSlots[horse.id] = groupSlotsByDayAndPeriod(
                 blockedTimes,
@@ -506,7 +600,7 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
 
         setGroupedSlots(newGroupedSlots);
         setGroupedBlockedSlots(newGroupedBlockedSlots);
-    }, [availableSlots, blockedSlots, stable, selectedDate]);
+    }, [availableSlots, blockedSlots, tomorrowAvailableSlots, stable, selectedDate]);
 
     const openPortfolio = (horseName: string, items: HorseMediaItem[], startIndex = 0) => {
         if (!items || items.length === 0) return;
