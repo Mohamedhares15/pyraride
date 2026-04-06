@@ -82,7 +82,7 @@ export default function Navbar() {
         <Link href="/">Home</Link>
       </li>
       <li>
-        <Link href="/stables">Stables</Link>
+        <Link href="/stables">Book a Ride</Link>
       </li>
       <li>
         <Link href="/packages">Packages</Link>
@@ -190,7 +190,7 @@ export default function Navbar() {
       </li>
       <li onClick={closeMenu}>
         <Link href="/stables" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
-          Stables
+          Book a Ride
         </Link>
       </li>
       <li onClick={closeMenu}>

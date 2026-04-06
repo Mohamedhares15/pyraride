@@ -90,15 +90,6 @@ export default function Hero() {
           <div className="flex w-full flex-1 flex-col items-center justify-center">
             {/* Desktop headline */}
             <div className="relative hidden flex-col items-center justify-center text-center md:flex">
-              {/* Leaderboard Button - Text button, positioned above the text */}
-              <Link
-                href="/leaderboard"
-                className="group absolute -top-32 z-50 rounded-full bg-gradient-to-b from-white/30 to-white/10 px-8 py-3 backdrop-blur-md text-white font-bold text-lg shadow-[0_4px_14px_0_rgba(255,255,255,0.25),inset_0_1px_0_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:scale-110 hover:from-white/40 hover:to-white/20 hover:shadow-[0_6px_20px_0_rgba(255,255,255,0.35),inset_0_1px_0_0_rgba(255,255,255,0.4)]"
-                aria-label="View Leaderboard"
-              >
-                Leaderboard
-              </Link>
-
               <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-2xl md:text-5xl lg:text-7xl">
                 THE PYRAMIDS, UNFORGETTABLE.
               </h1>
@@ -110,17 +101,7 @@ export default function Hero() {
               </p>
             </div>
 
-            {/* Mobile hero aesthetic */}
             <div className="relative flex w-full flex-col items-center gap-6 text-white md:hidden">
-              {/* Leaderboard Button - Text button, positioned above the text */}
-              <Link
-                href="/leaderboard"
-                className="group absolute -top-24 z-50 rounded-full bg-gradient-to-b from-white/30 to-white/10 px-6 py-2.5 backdrop-blur-md text-white font-bold text-base shadow-[0_4px_14px_0_rgba(255,255,255,0.25),inset_0_1px_0_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:scale-110 hover:from-white/40 hover:to-white/20 hover:shadow-[0_6px_20px_0_rgba(255,255,255,0.35),inset_0_1px_0_0_rgba(255,255,255,0.4)]"
-                aria-label="View Leaderboard"
-              >
-                Leaderboard
-              </Link>
-
               <div className="flex w-full items-center justify-center gap-4 text-[11px] font-semibold uppercase tracking-[0.6em] text-white/70">
                 <span className="hero-dash-line flex-1 max-w-[72px]" />
                 <span>PYRARIDES</span>
@@ -131,6 +112,10 @@ export default function Hero() {
                 <span className="block">Ride Into</span>
                 <span className="block">Adventure!</span>
               </div>
+
+              <p className="text-sm text-white/70 max-w-xs text-center">
+                Book a horse ride at the Pyramids in 3 easy steps
+              </p>
 
               <div className="flex w-full max-w-xs items-center justify-center gap-4">
                 <span className="hero-dash-line flex-1 max-w-[72px]" />
@@ -243,7 +228,7 @@ export default function Hero() {
                   variant="primary"
                   className="relative z-[80] !h-[56px] w-full rounded-2xl border border-white/30 !bg-white !text-black text-[11px] font-semibold uppercase tracking-[0.35em] shadow-lg transition-transform duration-200 hover:scale-[1.01] active:scale-[0.98] md:!h-12 md:w-auto md:rounded-full md:border-transparent md:px-8 md:tracking-normal md:!bg-primary md:!text-white md:text-base"
                 >
-                  Search
+                  Find Rides
                 </Button>
               </div>
             </form>

@@ -64,6 +64,57 @@ export default async function HomePage() {
       <FAQPageSchema items={homepageFaq} />
       <Navbar />
       <Hero />
+
+      {/* How It Works — 3-Step Guide for First-Time Visitors */}
+      <section className="relative z-20 w-full bg-[#0a0a0a] py-20 md:py-28">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="text-center mb-16">
+            <p className="text-[#D4AF37] text-xs uppercase tracking-[0.3em] font-semibold mb-4">Simple &amp; Seamless</p>
+            <h2 className="font-display text-3xl md:text-4xl font-light text-white tracking-wide">
+              How It Works
+            </h2>
+            <div className="w-12 h-px bg-[#D4AF37]/50 mx-auto mt-4"></div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            {/* Step 1 */}
+            <div className="text-center group">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 flex items-center justify-center text-2xl">
+                🏇
+              </div>
+              <div className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.2em] mb-2">Step 1</div>
+              <h3 className="text-lg font-semibold text-white mb-2">Choose Your Ride</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">Browse verified stables or pick a ready-made package with everything included.</p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="text-center group">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 flex items-center justify-center text-2xl">
+                📅
+              </div>
+              <div className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.2em] mb-2">Step 2</div>
+              <h3 className="text-lg font-semibold text-white mb-2">Pick Date &amp; Time</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">Select your preferred slot with live, real-time availability. No guessing.</p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="text-center group">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 flex items-center justify-center text-2xl">
+                ✅
+              </div>
+              <div className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.2em] mb-2">Step 3</div>
+              <h3 className="text-lg font-semibold text-white mb-2">Book Instantly</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">Confirm your ride and receive instant email confirmation with directions.</p>
+            </div>
+          </div>
+
+          <div className="text-center mt-14">
+            <Link href="/stables" className="inline-block border border-[#D4AF37]/50 text-[#D4AF37] hover:bg-white hover:text-black hover:border-white transition-colors duration-500 px-10 py-4 text-xs uppercase tracking-[0.2em] rounded-full">
+              Start Booking Now
+            </Link>
+          </div>
+        </div>
+      </section>
       
       {/* Featured Packages Section */}
       {featuredPackages.length > 0 && (
@@ -129,8 +180,8 @@ export default async function HomePage() {
                           )}
                         </div>
                       </div>
-                      <span className="text-[#D4AF37] text-[10px] uppercase tracking-[0.2em] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        Discover
+                      <span className="text-[#D4AF37] text-[10px] uppercase tracking-[0.2em] font-medium md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                        View Details →
                       </span>
                     </div>
                   </div>
