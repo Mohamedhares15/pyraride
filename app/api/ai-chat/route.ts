@@ -185,7 +185,7 @@ function parseLLMResponse(raw: string): LLMResult {
   };
 }
 
-async function fetchLLMResponse(message: string, history: Message[], session: any): Promise<LLMResult | null> {
+async function fetchLLMResponse(message: string, history: Message[], session: any, currentPage?: string): Promise<LLMResult | null> {
   if (!groqClient) return null;
   try {
     // Fetch real-time context data for better responses
@@ -239,7 +239,7 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
     const messages: ChatCompletionCreateParams["messages"] = [
       {
         role: "system",
-        content: `${SYSTEM_PROMPT}\n\nCURRENT CONTEXT:\n${contextSummary}\n\nRemember: Commission is 15%, not 20%!`
+        content: `${SYSTEM_PROMPT}\n\nCURRENT CONTEXT:\n${contextSummary}\n\nUser is currently on page: ${currentPage || "/"}\n\nRemember: Commission is 15%, not 20%!`
       },
       ...history.slice(-8).map( // Limit history to last 8 messages to stay within token limits
         (msg): ChatCompletionCreateParams["messages"][number] => ({
@@ -325,7 +325,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession();
     const body = await req.json();
-    const { message, conversationHistory = [] } = body as { message: string; conversationHistory?: Message[] };
+    const { message, conversationHistory = [], currentPage = "/" } = body as { message: string; conversationHistory?: Message[]; currentPage?: string };
 
     if (!message) {
       return NextResponse.json(
@@ -334,12 +334,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const llmResponse = await fetchLLMResponse(message, conversationHistory, session);
+    const llmResponse = await fetchLLMResponse(message, conversationHistory, session, currentPage);
     if (llmResponse) {
       return NextResponse.json({
         response: llmResponse.answer,
         suggestions: llmResponse.suggestions,
         actions: llmResponse.actions,
+        cards: [],
         timestamp: new Date().toISOString(),
       });
     }
@@ -348,6 +349,7 @@ export async function POST(req: NextRequest) {
     let response = "";
     let suggestions: string[] = [];
     let actions: Record<string, string> = {};
+    let cards: any[] = [];
 
     // Enhanced AI understanding with better intent recognition
     const userRole = (session as any)?.user?.role || "guest";
@@ -517,6 +519,23 @@ ${userRole === "rider" ? "ماذا تريد أن تفعل اليوم؟" : "كي�
 
       suggestions = ["Show me stables", "What's the price?", "How long is a ride?"];
       actions = { "View Stables": "/stables", "My Dashboard": "/dashboard/rider" };
+
+      // Add rich cards
+      if (availableStables.length > 0) {
+        const stablesWithImages = await prisma.stable.findMany({
+          where: { id: { in: availableStables.map((s: any) => s.id) } },
+          select: { id: true, name: true, location: true, imageUrl: true, horses: { select: { pricePerHour: true }, where: { isActive: true }, take: 1, orderBy: { pricePerHour: "asc" } } },
+        }).catch(() => []);
+        cards = stablesWithImages.map((s: any) => ({
+          type: "stable",
+          id: s.id,
+          name: s.name,
+          location: s.location,
+          image: s.imageUrl || "/gallery1.jpg",
+          price: s.horses?.[0]?.pricePerHour ? Number(s.horses[0].pricePerHour) : null,
+          link: `/stables/${s.id}`,
+        }));
+      }
     }
     else if (isStableQuery) {
       // Fetch and display real stables
@@ -538,6 +557,21 @@ ${userRole === "rider" ? "ماذا تريد أن تفعل اليوم؟" : "كي�
         ).join("\n\n");
 
         response = `🐴 Here are our amazing stables:\n\n${stableInfo}\n\n✨ Each stable is carefully vetted for safety, quality horses, and unforgettable experiences. Click any one to view details and book!`;
+
+        // Rich cards for stables
+        const stablesWithImages = await prisma.stable.findMany({
+          where: { id: { in: stables.map((s: any) => s.id) } },
+          select: { id: true, name: true, location: true, imageUrl: true, horses: { select: { pricePerHour: true }, where: { isActive: true }, take: 1, orderBy: { pricePerHour: "asc" } } },
+        }).catch(() => []);
+        cards = stablesWithImages.map((s: any) => ({
+          type: "stable",
+          id: s.id,
+          name: s.name,
+          location: s.location,
+          image: s.imageUrl || "/gallery1.jpg",
+          price: s.horses?.[0]?.pricePerHour ? Number(s.horses[0].pricePerHour) : null,
+          link: `/stables/${s.id}`,
+        }));
 
         suggestions = ["Show me more", "Book now", "Tell me about prices"];
         actions = { "Browse All": "/stables" };
@@ -605,6 +639,18 @@ ${userRole === "rider" ? "ماذا تريد أن تفعل اليوم؟" : "كي�
             "Browse Horses": `/stables?sort=price-asc`,
             "View Stables": "/stables"
           };
+
+          // Rich cards for horses in price range
+          cards = horsesInRange.slice(0, 5).map((horse: any) => ({
+            type: "horse",
+            id: horse.id,
+            name: horse.name,
+            stableName: horse.stable?.name,
+            location: horse.stable?.location,
+            image: horse.media?.[0]?.url || (horse.imageUrls && horse.imageUrls.length > 0 ? horse.imageUrls[0] : "/gallery1.jpg"),
+            price: horse.pricePerHour ? Number(horse.pricePerHour) : null,
+            link: `/stables/${horse.stable?.id}`,
+          }));
         } else {
           response = `💰 I couldn't find any horses in the price range ${minPrice !== null && maxPrice !== null ? `EGP ${minPrice}-EGP ${maxPrice}` : minPrice !== null ? `above EGP ${minPrice}` : `under EGP ${maxPrice}`}.\n\n**Available Price Range:**\n- Most horses: EGP 40-100/hour\n- Premium horses: EGP 100+/hour\n\nTry adjusting your price range, or let me show you all available horses!`;
 
@@ -930,6 +976,7 @@ ${userRole === "rider" ? "ماذا تريد أن تفعل اليوم؟" : "كي�
       response,
       suggestions,
       actions,
+      cards,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {

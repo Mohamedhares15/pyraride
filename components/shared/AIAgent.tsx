@@ -1,16 +1,28 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageCircle, Send, X, Minimize2, Loader2, Sparkles,
-  Users, Bot, Search, ArrowLeft, Check, CheckCheck
+  Users, Bot, Search, ArrowLeft, Check, CheckCheck, MapPin
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
+
+interface CardItem {
+  type: "stable" | "horse";
+  id: string;
+  name: string;
+  stableName?: string;
+  location?: string;
+  image: string;
+  price: number | null;
+  link: string;
+}
 
 interface Message {
   role: "user" | "assistant";
@@ -18,6 +30,7 @@ interface Message {
   timestamp: string;
   suggestions?: string[];
   actions?: Record<string, string>;
+  cards?: CardItem[];
 }
 
 interface ChatMessage {
@@ -62,10 +75,36 @@ type ChatMode = "bot" | "messages" | "conversation";
 
 export default function AIAgent() {
   const { data: session } = useSession();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [chatMode, setChatMode] = useState<ChatMode>("bot");
+
+  // Smart initial suggestions based on page and user role
+  const smartSuggestions = useMemo(() => {
+    const role = (session as any)?.user?.role;
+    if (pathname?.startsWith("/stables/") && pathname !== "/stables") {
+      return ["Book this stable", "Show me prices", "Is this stable good?"];
+    }
+    if (pathname === "/stables") {
+      return ["Top rated stables", "Cheapest horses", "Stables in Giza"];
+    }
+    if (pathname?.startsWith("/booking")) {
+      return ["How does payment work?", "Can I cancel?", "Refund policy"];
+    }
+    if (pathname?.startsWith("/dashboard")) {
+      return role === "stable_owner"
+        ? ["How to increase bookings?", "View analytics", "Add a horse"]
+        : ["My upcoming rides", "Cancel a booking", "Leave a review"];
+    }
+    if (pathname === "/packages") {
+      return ["VIP experiences", "Group events", "What's included?"];
+    }
+    return role === "stable_owner"
+      ? ["My stable analytics", "Add a horse", "View bookings"]
+      : ["Show me stables", "How do I book?", "What are the prices?"];
+  }, [pathname, session]);
 
   // Bot state
   const [messages, setMessages] = useState<Message[]>([
@@ -74,7 +113,7 @@ export default function AIAgent() {
       content:
         "Hello! 👋 I'm your PyraRides AI assistant. I can help you with bookings, finding stables, and more. How can I assist you today?",
       timestamp: new Date().toISOString(),
-      suggestions: ["Show me stables", "How do I book?", "What are the prices?"]
+      suggestions: smartSuggestions
     },
   ]);
   const [input, setInput] = useState("");
@@ -287,6 +326,7 @@ export default function AIAgent() {
         body: JSON.stringify({
           message: input,
           conversationHistory: conversationHistory,
+          currentPage: pathname || "/",
         }),
       });
 
@@ -297,6 +337,7 @@ export default function AIAgent() {
         timestamp: data.timestamp,
         suggestions: data.suggestions || [],
         actions: data.actions || {},
+        cards: data.cards || [],
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -675,6 +716,39 @@ export default function AIAgent() {
                       {message.content}
                     </p>
                   </div>
+
+                  {/* Rich Cards */}
+                  {message.role === "assistant" && message.cards && message.cards.length > 0 && (
+                    <div className="flex gap-2 overflow-x-auto pb-1 mt-1 scrollbar-thin">
+                      {message.cards.map((card) => (
+                        <Link key={card.id} href={card.link} className="flex-shrink-0">
+                          <div className="w-[140px] rounded-lg border border-white/10 bg-white/5 overflow-hidden hover:bg-white/10 transition-all group cursor-pointer">
+                            <div className="h-[80px] relative overflow-hidden">
+                              <img
+                                src={card.image}
+                                alt={card.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                onError={(e) => { (e.target as HTMLImageElement).src = "/gallery1.jpg"; }}
+                              />
+                            </div>
+                            <div className="p-2">
+                              <p className="text-xs font-semibold text-white truncate">{card.name}</p>
+                              {card.location && (
+                                <p className="text-[10px] text-white/50 flex items-center gap-0.5 mt-0.5">
+                                  <MapPin className="h-2.5 w-2.5" />{card.location}
+                                </p>
+                              )}
+                              {card.price && (
+                                <p className="text-[10px] text-primary font-medium mt-0.5">
+                                  From EGP {card.price}/hr
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Quick Action Buttons */}
                   {message.role === "assistant" && message.actions && Object.keys(message.actions).length > 0 && (
