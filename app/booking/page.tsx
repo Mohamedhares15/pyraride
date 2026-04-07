@@ -176,11 +176,9 @@ function BookingContent() {
   }, [stableId, horseId, searchParams, router]);
 
 
-  // Check authentication
+  // Check authentication (Removed strict redirect to allow guest booking review)
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push(`/signin?redirect=/booking?${searchParams.toString()}`);
-    }
+    // Only redirect if explicitly in a session error state (optional)
   }, [status, router, searchParams]);
 
   // Enforce lead time: check if booking is within minimum notice period
@@ -879,7 +877,7 @@ function BookingContent() {
                   disabled={isSubmitting || !selectedDate || !selectedStartTime || !selectedEndTime}
                   className="w-full h-12 bg-[rgb(218,165,32)] hover:bg-[rgb(218,165,32)]/90 text-black font-semibold"
                 >
-                  {isSubmitting ? "Processing..." : "Confirm Booking"}
+                  {isSubmitting ? "Processing..." : !session ? "Sign in to Confirm Booking" : "Confirm Booking"}
                 </Button>
               </div>
             </div>

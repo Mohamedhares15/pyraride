@@ -111,21 +111,7 @@ export default function SearchFilters({
       </div>
 
       <div className="p-6 space-y-6">
-        {/* Search Input */}
-        <div className="space-y-2">
-          <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Search</Label>
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              id="search"
-              type="text"
-              placeholder="Search for stables or horses..."
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-10 h-11 rounded-xl border-border/60 bg-background/50 focus-visible:ring-primary/30"
-            />
-          </div>
-        </div>
+
 
         {/* Filters Grid */}
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
