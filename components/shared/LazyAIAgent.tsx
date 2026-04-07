@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { Button } from '@/components/ui/button'
 import { MessageCircle } from 'lucide-react'
-import { motion } from 'framer-motion'
 
 // Lazy load the heavy AIAgent component
 const AIAgent = dynamic(() => import('./AIAgent'), {
@@ -86,11 +85,7 @@ export function LazyAIAgent() {
                     }}
                 >
                     <MessageCircle className="h-6 w-6 text-primary drop-shadow-sm" />
-                    <motion.div
-                        className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 shadow-md border border-white/30"
-                        animate={{ scale: [1, 1.15, 1] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    />
+                    <div className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 shadow-md border border-white/30 animate-pulse" />
                 </Button>
             </div>
         )

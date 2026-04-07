@@ -69,6 +69,7 @@ export default function Hero() {
             alt="Horse riding at the Giza Pyramids, Egypt"
             fill
             priority
+            fetchPriority="high"
             className="object-cover object-center"
             sizes="100vw"
             quality={50}
