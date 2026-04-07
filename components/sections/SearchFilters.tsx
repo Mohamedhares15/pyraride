@@ -222,17 +222,38 @@ export default function SearchFilters({
 
         {/* ── LUXURY PRICE SLIDER ── */}
         <div className="space-y-4 rounded-xl border border-border/40 bg-muted/20 p-5">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          <div className="flex items-center justify-between gap-4">
+            <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground whitespace-nowrap">
               Price Range
             </Label>
-            <span
-              className={`text-sm font-bold tabular-nums transition-colors duration-200 ${
-                localMax >= 5000 ? "text-muted-foreground" : "text-primary"
-              }`}
-            >
-              {displayLabel}
-            </span>
+            <div className="flex flex-1 justify-end items-center gap-2">
+              <span
+                className={`text-sm font-bold tabular-nums transition-colors duration-200 hidden sm:inline-block ${
+                  localMax >= 5000 ? "text-muted-foreground" : "text-primary"
+                }`}
+              >
+                Up to
+              </span>
+              <Input
+                type="number"
+                min={0}
+                max={5000}
+                step={500}
+                value={localMax}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  if (!isNaN(val)) {
+                    setLocalMax(val);
+                    onPriceChange("0", val >= 5000 ? "" : val.toString());
+                  }
+                }}
+                className={`h-8 w-24 px-2 text-right text-sm font-bold bg-background transition-colors ${
+                  localMax >= 5000 ? "text-muted-foreground border-border/40" : "text-primary border-primary/50 ring-1 ring-primary/20"
+                }`}
+                placeholder="5000"
+              />
+              <span className="text-xs text-muted-foreground font-semibold">EGP</span>
+            </div>
           </div>
 
           {/* Track + Thumb */}
@@ -251,7 +272,7 @@ export default function SearchFilters({
               type="range"
               min={0}
               max={5000}
-              step={100}
+              step={500}
               value={localMax}
               onMouseDown={() => { isDragging.current = true; }}
               onTouchStart={() => { isDragging.current = true; }}
@@ -293,7 +314,7 @@ export default function SearchFilters({
 
           {/* Quick Click Checkpoints */}
           <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-border/40">
-            {[1000, 2000, 3000].map(val => (
+            {[500, 1000, 1500, 2000, 2500, 3000].map(val => (
               <button
                 key={val}
                 onClick={() => {
