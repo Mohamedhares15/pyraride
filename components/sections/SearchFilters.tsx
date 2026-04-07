@@ -52,6 +52,19 @@ export default function SearchFilters({
 }: SearchFiltersProps) {
   const ALLOWED_COLORS = ["Adham", "Azra2", "Ashkar", "Ahmar", "Pure White", "Palomino", "Pinto"];
   const ALLOWED_SKILLS = ["Adab", "Levade", "Impulsion", "Mettle", "Bolt", "Nerve", "Impeccable Manners", "Beginner Friendly"];
+  
+  // Tourist-friendly display labels for complex equestrian terms
+  const SKILL_LABELS: Record<string, string> = {
+    "Adab": "Well-Mannered",
+    "Levade": "Trained Dancer",
+    "Impulsion": "Energetic",
+    "Mettle": "Confident",
+    "Bolt": "Fast Runner",
+    "Nerve": "Fearless",
+    "Impeccable Manners": "Gentle",
+    "Beginner Friendly": "Beginner Friendly"
+  };
+
   const [locations, setLocations] = useState<{ id: string; name: string }[]>([]);
   // Local slider value — update URL only on drag end to avoid constant re-fetches
   const [localMax, setLocalMax] = useState(maxPrice ? parseInt(maxPrice) : 5000);
@@ -214,7 +227,7 @@ export default function SearchFilters({
                       : 'bg-background hover:bg-muted text-muted-foreground border-border/60'
                   }`}
                 >
-                  {skill}
+                  {SKILL_LABELS[skill] || skill}
                 </button>
               );
             })}

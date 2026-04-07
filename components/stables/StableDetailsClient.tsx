@@ -879,11 +879,23 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                                                             <div className="flex items-start justify-between text-sm">
                                                                 <span className="text-muted-foreground">Skills:</span>
                                                                 <div className="flex flex-wrap gap-1 justify-end">
-                                                                    {horseSkills.map((skill, idx) => (
-                                                                        <Badge key={idx} variant="outline" className="text-xs">
-                                                                            {skill}
-                                                                        </Badge>
-                                                                    ))}
+                                                                    {horseSkills.map((skill, idx) => {
+                                                                        const SKILL_LABELS: Record<string, string> = {
+                                                                            "Adab": "Well-Mannered",
+                                                                            "Levade": "Trained Dancer",
+                                                                            "Impulsion": "Energetic",
+                                                                            "Mettle": "Confident",
+                                                                            "Bolt": "Fast Runner",
+                                                                            "Nerve": "Fearless",
+                                                                            "Impeccable Manners": "Gentle",
+                                                                            "Beginner Friendly": "Beginner Friendly"
+                                                                        };
+                                                                        return (
+                                                                            <Badge key={idx} variant="outline" className="text-xs">
+                                                                                {SKILL_LABELS[skill as string] || skill}
+                                                                            </Badge>
+                                                                        );
+                                                                    })}
                                                                 </div>
                                                             </div>
                                                             {/* Price Per Hour */}

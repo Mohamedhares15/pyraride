@@ -304,7 +304,7 @@ export default function StablesClient() {
             <Button 
               variant="outline" 
               onClick={() => setShowMobileFilters(!showMobileFilters)} 
-              className="w-full h-12 flex items-center justify-between px-4 border-white/20 bg-black/40 backdrop-blur-md"
+              className="w-full h-12 flex items-center justify-between px-4 border-white/20 bg-black/40 backdrop-blur-md hover:bg-white/10 hover:text-white active:bg-white/20 transition-colors"
             >
               <span className="font-medium text-white">{showMobileFilters ? "Hide Filters" : "🔍 Show Filters"}</span>
               <span className="text-xs text-white/50">{showMobileFilters ? "▲" : "▼"}</span>
