@@ -7,6 +7,7 @@ import CookieConsent from "@/components/shared/CookieConsent";
 import Footer from "@/components/shared/Footer";
 import OrientationLock from "@/components/shared/OrientationLock";
 import { OptimalCinematicWrapper } from "@/components/OptimalCinematicWrapper";
+import { LazyPyraVoice } from "@/components/shared/LazyPyraVoice";
 import NotificationProvider from "@/components/providers/NotificationProvider";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Script from "next/script";
@@ -175,6 +176,7 @@ export default function RootLayout({
               <WebVitals />
             </OptimalCinematicWrapper>
             <LazyAIAgent />
+            <LazyPyraVoice />
             <CookieConsent />
           </NotificationProvider>
         </AuthProvider>
