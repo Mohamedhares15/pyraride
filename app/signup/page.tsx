@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { ArrowLeft, Home } from "lucide-react";
+import { logEvent } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -69,6 +70,8 @@ function SignUpContent() {
         password: formData.password,
         redirect: false,
       });
+
+      logEvent({ action: "sign_up", method: "credentials" });
 
       router.push(callbackUrl);
       router.refresh();

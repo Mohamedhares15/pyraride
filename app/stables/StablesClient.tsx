@@ -9,6 +9,7 @@ import StableList from "@/components/sections/StableList";
 import WeatherWidget from "@/components/shared/WeatherWidget";
 import { Button } from "@/components/ui/button";
 import { Loader2, Home, ArrowRight, Star } from "lucide-react";
+import { logEvent } from "@/lib/analytics";
 
 type StableMode = "stable" | "horse";
 
@@ -97,8 +98,7 @@ export default function StablesClient() {
 
       const data = await response.json();
       setMode((data.mode as StableMode) || "stable");
-      setResults(
-        (data.stables || []).map((item: any) =>
+      const mappedResults = (data.stables || []).map((item: any) =>
           sort === "price-asc" || sort === "price-desc" || minPrice || maxPrice || (color && color !== "all") || (skills && skills.length > 0) || data.mode === "horse"
             ? ({
               type: "horse",
@@ -134,8 +134,23 @@ export default function StablesClient() {
               createdAt: item.createdAt,
               distanceKm: item.distanceKm,
             } as StableResult)
-        )
-      );
+        );
+
+      setResults(mappedResults);
+
+      if (mappedResults.length > 0) {
+        logEvent({
+          action: "view_item_list",
+          item_list_id: search || location !== "all" ? "filtered_search" : "default_list",
+          item_list_name: "Stables and Horses List",
+          items: mappedResults.map((r: any, i: number) => ({
+            item_id: r.id,
+            item_name: r.name,
+            index: i,
+            price: r.type === "horse" ? r.pricePerHour : undefined
+          }))
+        });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {

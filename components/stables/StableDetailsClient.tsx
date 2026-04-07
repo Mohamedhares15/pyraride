@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import BookingModal from "@/components/shared/BookingModal";
+import { logEvent } from "@/lib/analytics";
 
 import ReviewsSection, { Review } from "@/components/sections/ReviewsSection";
 import StableLocationMap from "@/components/maps/StableLocationMap";
@@ -177,6 +178,18 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
     const [stable, setStable] = useState<Stable | null>(initialStable);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Analytics: track viewing the stable
+    useEffect(() => {
+        if (stable?.id) {
+            logEvent({
+                action: "view_item",
+                item_id: stable.id,
+                item_name: stable.name,
+                item_category: "stable"
+            });
+        }
+    }, [stable?.id]);
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
     const [availableSlots, setAvailableSlots] = useState<Record<string, Record<string, string[]>>>({});
@@ -298,6 +311,17 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
             startTime,
             endTime,
         });
+
+        logEvent({
+            action: "begin_checkout",
+            item_id: horseId,
+            item_name: horse?.name || "Horse",
+            price: horse?.pricePerHour || 0,
+            currency: "EGP",
+            stable_name: stable?.name,
+            booking_date: date.toISOString().split("T")[0]
+        });
+
         router.push(`/booking?${bookingParams.toString()}`);
     };
 

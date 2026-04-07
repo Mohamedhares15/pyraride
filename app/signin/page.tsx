@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { ArrowLeft, Home } from "lucide-react";
+import { logEvent } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PasswordInput from "@/components/shared/PasswordInput";
@@ -33,6 +34,7 @@ function SignInContent() {
       if (result?.error) {
         setError("Invalid credentials. Please check your email/phone and password.");
       } else {
+        logEvent({ action: "login", method: "credentials" });
         router.push(callbackUrl);
         router.refresh();
       }

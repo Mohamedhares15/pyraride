@@ -4,8 +4,9 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { ArrowLeft, Home, Calendar, Clock, CreditCard, Tag, CheckCircle2, CloudSun, Wind, AlertTriangle, UserPlus, X, Search, Check } from "lucide-react";
+import { ArrowLeft, Home, Calendar, Clock, CreditCard, Tag, CheckCircle2, CloudSun, Wind, AlertTriangle, UserPlus, X, Search, Check, Info, Loader2, MoreHorizontal, Copy } from "lucide-react";
 import { getWeatherForecast, getWeatherWarning, WeatherData } from "@/lib/weather";
+import { logEvent } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -417,6 +418,7 @@ function BookingContent() {
 
   const handleCheckout = async () => {
     if (!session) {
+      logEvent({ action: "login_prompt", reason: "checkout", flow: "booking" });
       router.push(`/signin?callbackUrl=${encodeURIComponent(`/booking?${searchParams.toString()}`)}`);
       return;
     }
@@ -465,6 +467,14 @@ function BookingContent() {
       }
 
       const data = await response.json();
+
+      logEvent({
+        action: "purchase",
+        transaction_id: data.bookings[0].id,
+        value: totalPrice,
+        currency: "EGP",
+        items: [{ item_id: stableId, item_name: stable?.name, price: totalPrice }]
+      });
 
       // Use the first booking ID for redirection/reference
       const primaryBookingId = data.bookings[0].id;

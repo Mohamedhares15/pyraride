@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Search, X, SlidersHorizontal } from "lucide-react";
+import { logEvent } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -118,7 +119,10 @@ export default function SearchFilters({
           {/* Location */}
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Location</Label>
-            <Select value={location} onValueChange={onLocationChange}>
+            <Select value={location} onValueChange={(val) => {
+              logEvent({ action: "filter_changed", filter_type: "location", label: val });
+              onLocationChange(val);
+            }}>
               <SelectTrigger className="h-11 rounded-xl border-border/60 bg-background/50">
                 <SelectValue placeholder="All Locations" />
               </SelectTrigger>
@@ -134,7 +138,10 @@ export default function SearchFilters({
           {/* Min Rating */}
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Min. Rating</Label>
-            <Select value={minRating} onValueChange={onRatingChange}>
+            <Select value={minRating} onValueChange={(val) => {
+              logEvent({ action: "filter_changed", filter_type: "rating", label: val });
+              onRatingChange(val);
+            }}>
               <SelectTrigger className="h-11 rounded-xl border-border/60 bg-background/50">
                 <SelectValue placeholder="Any Rating" />
               </SelectTrigger>
@@ -170,7 +177,10 @@ export default function SearchFilters({
           {/* Sort */}
           <div className="space-y-2">
             <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Sort By</Label>
-            <Select value={sort} onValueChange={onSortChange}>
+            <Select value={sort} onValueChange={(val) => {
+              logEvent({ action: "filter_changed", filter_type: "sort", label: val });
+              onSortChange(val);
+            }}>
               <SelectTrigger className="h-11 rounded-xl border-border/60 bg-background/50">
                 <SelectValue placeholder="Recommended" />
               </SelectTrigger>
@@ -283,11 +293,13 @@ export default function SearchFilters({
               onMouseUp={(e) => {
                 isDragging.current = false;
                 const val = parseInt((e.target as HTMLInputElement).value);
+                logEvent({ action: "filter_changed", filter_type: "price_slider", value: val });
                 onPriceChange("0", val >= 5000 ? "" : val.toString());
               }}
               onTouchEnd={(e) => {
                 isDragging.current = false;
                 const val = parseInt((e.target as HTMLInputElement).value);
+                logEvent({ action: "filter_changed", filter_type: "price_slider", value: val });
                 onPriceChange("0", val >= 5000 ? "" : val.toString());
               }}
               className="absolute inset-0 w-full opacity-0 cursor-pointer h-full"
@@ -319,6 +331,7 @@ export default function SearchFilters({
                 key={val}
                 onClick={() => {
                   setLocalMax(val);
+                  logEvent({ action: "filter_changed", filter_type: "price_checkpoint", value: val });
                   onPriceChange("0", val.toString());
                 }}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
@@ -333,6 +346,7 @@ export default function SearchFilters({
             <button
               onClick={() => {
                 setLocalMax(5000);
+                logEvent({ action: "filter_changed", filter_type: "price_checkpoint", value: 5000 });
                 onPriceChange("0", "");
               }}
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
