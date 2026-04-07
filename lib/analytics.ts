@@ -1,12 +1,5 @@
 // lib/analytics.ts
 
-declare global {
-  interface Window {
-    gtag: (...args: any[]) => void;
-    dataLayer: any[];
-  }
-}
-
 type GtagEvent = {
   action: string;
   category?: string;
@@ -17,8 +10,8 @@ type GtagEvent = {
 
 // Log specific events
 export const logEvent = ({ action, category, label, value, ...rest }: GtagEvent) => {
-  if (typeof window !== "undefined" && typeof window.gtag !== "undefined") {
-    window.gtag("event", action, {
+  if (typeof window !== "undefined" && typeof (window as any).gtag !== "undefined") {
+    (window as any).gtag("event", action, {
       event_category: category,
       event_label: label,
       value: value,
