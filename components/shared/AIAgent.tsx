@@ -331,9 +331,23 @@ export default function AIAgent() {
       });
 
       const data = await response.json();
+
+      // Client-side safeguard: if the response looks like raw JSON, try to extract the answer
+      let cleanResponse = data.response || "";
+      if (cleanResponse.trim().startsWith("{") && cleanResponse.includes('"answer"')) {
+        try {
+          const parsed = JSON.parse(cleanResponse);
+          cleanResponse = parsed.answer || parsed.response || cleanResponse;
+        } catch {
+          // Regex fallback
+          const m = cleanResponse.match(/"answer"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+          if (m?.[1]) cleanResponse = m[1].replace(/\\n/g, "\n").replace(/\\"/g, '"');
+        }
+      }
+
       const assistantMessage: Message = {
         role: "assistant",
-        content: data.response,
+        content: cleanResponse,
         timestamp: data.timestamp,
         suggestions: data.suggestions || [],
         actions: data.actions || {},

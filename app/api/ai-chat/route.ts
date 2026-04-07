@@ -151,33 +151,81 @@ function parseLLMResponse(raw: string): LLMResult {
     };
   }
 
+  // Strategy 1: Clean JSON parse
   try {
-    // Try to find JSON in the response (may have markdown code blocks or extra text)
-    let jsonString = raw;
+    let jsonString = raw.trim();
 
     // Remove markdown code blocks if present
     jsonString = jsonString.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
 
-    // Find JSON object in the string
-    const jsonMatch = jsonString.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
-      return {
-        answer: parsed.answer || parsed.response || raw,
-        suggestions: Array.isArray(parsed.suggestions) && parsed.suggestions.length > 0
-          ? parsed.suggestions.slice(0, 4)
-          : defaultSuggestions,
-        actions: typeof parsed.actions === "object" && parsed.actions !== null && !Array.isArray(parsed.actions)
-          ? parsed.actions
-          : {},
-      };
+    // Find the outermost JSON object
+    const firstBrace = jsonString.indexOf("{");
+    const lastBrace = jsonString.lastIndexOf("}");
+
+    if (firstBrace !== -1 && lastBrace > firstBrace) {
+      const jsonCandidate = jsonString.substring(firstBrace, lastBrace + 1);
+      const parsed = JSON.parse(jsonCandidate);
+
+      if (parsed.answer || parsed.response) {
+        return {
+          answer: String(parsed.answer || parsed.response),
+          suggestions: Array.isArray(parsed.suggestions) && parsed.suggestions.length > 0
+            ? parsed.suggestions.slice(0, 4)
+            : defaultSuggestions,
+          actions: typeof parsed.actions === "object" && parsed.actions !== null && !Array.isArray(parsed.actions)
+            ? parsed.actions
+            : {},
+        };
+      }
     }
-  } catch (error: any) {
-    console.error("Failed to parse LLM response:", error?.message);
-    console.error("Raw response:", raw.substring(0, 200));
+  } catch (e) {
+    // JSON parse failed, try other strategies
   }
 
-  // If no JSON found, return the raw text as answer
+  // Strategy 2: Extract "answer" value with regex (handles malformed JSON)
+  try {
+    const answerMatch = raw.match(/"answer"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+    if (answerMatch && answerMatch[1]) {
+      const answer = answerMatch[1]
+        .replace(/\\n/g, "\n")
+        .replace(/\\"/g, '"')
+        .replace(/\\\\/g, "\\");
+
+      let suggestions = defaultSuggestions;
+      const sugMatch = raw.match(/"suggestions"\s*:\s*\[(.*?)\]/s);
+      if (sugMatch) {
+        try {
+          const parsed = JSON.parse(`[${sugMatch[1]}]`);
+          if (Array.isArray(parsed) && parsed.length > 0) suggestions = parsed.slice(0, 4);
+        } catch {}
+      }
+
+      let actions: Record<string, string> = {};
+      const actMatch = raw.match(/"actions"\s*:\s*(\{[^}]*\})/);
+      if (actMatch) {
+        try { actions = JSON.parse(actMatch[1]); } catch {}
+      }
+
+      return { answer, suggestions, actions };
+    }
+  } catch {}
+
+  // Strategy 3: If the text looks like it contains JSON, strip all JSON syntax
+  if (raw.includes('"answer"') || raw.startsWith("{")) {
+    const cleaned = raw
+      .replace(/^\s*\{?\s*"answer"\s*:\s*"?/i, "")
+      .replace(/"\s*,?\s*"suggestions"\s*:[\s\S]*$/i, "")
+      .replace(/"\s*\}\s*$/, "")
+      .replace(/\\n/g, "\n")
+      .replace(/\\"/g, '"')
+      .trim();
+
+    if (cleaned.length > 10) {
+      return { answer: cleaned, suggestions: defaultSuggestions, actions: {} };
+    }
+  }
+
+  // Strategy 4: Return raw text as-is (for plain text LLM responses)
   return {
     answer: raw,
     suggestions: defaultSuggestions,
