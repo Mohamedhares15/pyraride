@@ -301,14 +301,14 @@ export default function StablesClient() {
           </Link>
 
           <div className="md:hidden">
-            <Button 
-              variant="outline" 
+            <button 
+              type="button"
               onClick={() => setShowMobileFilters(!showMobileFilters)} 
-              className="w-full h-12 flex items-center justify-between px-4 border-white/20 bg-black/40 backdrop-blur-md hover:bg-white/10 hover:text-white active:bg-white/20 transition-colors"
+              className="w-full h-12 flex items-center justify-between px-4 border border-border/40 bg-zinc-900 rounded-xl hover:bg-zinc-800 active:bg-black text-white transition-colors shadow-sm"
             >
-              <span className="font-medium text-white">{showMobileFilters ? "Hide Filters" : "🔍 Show Filters"}</span>
-              <span className="text-xs text-white/50">{showMobileFilters ? "▲" : "▼"}</span>
-            </Button>
+              <span className="font-medium">{showMobileFilters ? "Hide Filters" : "🔍 Show Filters"}</span>
+              <span className="text-xs opacity-50">{showMobileFilters ? "▲" : "▼"}</span>
+            </button>
           </div>
 
           <div className={`${showMobileFilters ? 'block' : 'hidden'} md:block`}>
