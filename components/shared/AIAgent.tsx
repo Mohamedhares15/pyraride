@@ -843,7 +843,8 @@ export default function AIAgent() {
                 onKeyPress={handleKeyPress}
                 placeholder="Ask me anything about PyraRides..."
                 disabled={isLoading}
-                className="rounded-full"
+                className="rounded-full text-base"
+                style={{ fontSize: "16px" }}
               />
               <Button
                 onClick={handleSend}

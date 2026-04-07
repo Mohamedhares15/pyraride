@@ -237,8 +237,14 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
   if (!groqClient) return null;
   try {
     // Fetch real-time context data for better responses
-    const [stablesCount, bookingsCount, pricingData] = await Promise.all([
-      prisma.stable.count({ where: { status: "approved" } }).catch(() => 0),
+    const [stablesData, bookingsCount, pricingData, packagesData] = await Promise.all([
+      prisma.stable.findMany({
+        where: { status: "approved", isHidden: false },
+        select: {
+          id: true, name: true, location: true,
+          horses: { where: { isActive: true }, select: { name: true, pricePerHour: true } }
+        },
+      }).catch(() => []),
       session?.user?.id
         ? prisma.booking.count({ where: { riderId: session.user.id } }).catch(() => 0)
         : Promise.resolve(0),
@@ -246,13 +252,22 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
       prisma.horse.findMany({
         where: {
           isActive: true,
-          stable: { status: "approved" },
+          stable: { status: "approved", isHidden: false },
           pricePerHour: { not: null },
         },
         select: { pricePerHour: true },
         take: 100,
       }).catch(() => []),
+      // Fetch active packages
+      prisma.package.findMany({
+        where: { isActive: true },
+        select: { title: true, price: true, duration: true, packageType: true, hasHorseRide: true, hasFood: true, hasDancingShow: true, maxPeople: true },
+        orderBy: { sortOrder: "asc" },
+        take: 10,
+      }).catch(() => []),
     ]);
+
+    const stablesCount = stablesData.length;
 
     // Calculate real pricing statistics
     const prices = pricingData
@@ -265,22 +280,33 @@ async function fetchLLMResponse(message: string, history: Message[], session: an
     // Floor average to nearest clean number (50 or 100) - always round DOWN
     const rawAvg = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 50;
     const avgPrice = rawAvg >= 100
-      ? Math.floor(rawAvg / 100) * 100  // Floor to nearest 100 (800, 900, etc.)
-      : Math.floor(rawAvg / 50) * 50;    // Floor to nearest 50 (50, 100, etc.)
+      ? Math.floor(rawAvg / 100) * 100
+      : Math.floor(rawAvg / 50) * 50;
 
     const userName = session?.user?.name || session?.user?.email || "Guest";
     const userRole = session?.user?.role || "guest";
 
+    // Build real stable list for LLM context
+    const stablesList = stablesData.map((s: any) =>
+      `${s.name} (${s.location}) - ${s.horses.length} active horses`
+    ).join(", ");
+
+    // Build real package list for LLM context
+    const packagesList = packagesData.map((p: any) =>
+      `${p.title} (${p.packageType === "PRIVATE" ? "Private" : "Group"}, ${p.duration}hrs, EGP ${p.price})`
+    ).join(", ");
+
     const contextSummary = [
       `Current user: ${userName} (${userRole})`,
       userRole === "rider" ? `User has ${bookingsCount} booking(s)` : "",
-      `Platform has ${stablesCount} verified stables available`,
+      `Platform has ${stablesCount} visible verified stables: ${stablesList || "none"}`,
+      `Active packages: ${packagesList || "none currently active"}`,
       `Current pricing: EGP ${minPrice}-EGP ${maxPrice}/hour (average: EGP ${avgPrice}/hour) - USE THESE REAL PRICES`,
       "Key features: verified stables, professional guides, best price guarantee, instant booking, Stripe payments",
       "Primary locations: Giza Plateau (Great Pyramids area), Saqqara Desert (Step Pyramid area)",
       "Platform commission is 15% (not 20%)",
       "Support: support@pyrarides.com or visit /contact",
-      "CRITICAL: Use real pricing data provided above, not examples. Query database for specific horse prices.",
+      "CRITICAL: Use the real stable names and pricing data provided above. Do NOT invent stable names or prices.",
     ].filter(Boolean).join(". ");
 
     // Build conversation messages with context
@@ -545,7 +571,7 @@ ${userRole === "rider" ? "ماذا تريد أن تفعل اليوم؟" : "كي�
     else if (isBookingQuery) {
       // Fetch available stables for booking
       const availableStables = await prisma.stable.findMany({
-        where: { status: "approved" },
+        where: { status: "approved", isHidden: false },
         take: 5,
         select: {
           id: true,
@@ -588,7 +614,7 @@ ${userRole === "rider" ? "ماذا تريد أن تفعل اليوم؟" : "كي�
     else if (isStableQuery) {
       // Fetch and display real stables
       const stables = await prisma.stable.findMany({
-        where: { status: "approved" },
+        where: { status: "approved", isHidden: false },
         take: 5,
         orderBy: { createdAt: "desc" },
         select: {
@@ -634,6 +660,7 @@ ${userRole === "rider" ? "ماذا تريد أن تفعل اليوم؟" : "كي�
           isActive: true,
           stable: {
             status: "approved",
+            isHidden: false,
           },
         };
 
@@ -710,7 +737,7 @@ ${userRole === "rider" ? "ماذا تريد أن تفعل اليوم؟" : "كي�
         const allHorses = await prisma.horse.findMany({
           where: {
             isActive: true,
-            stable: { status: "approved" },
+            stable: { status: "approved", isHidden: false },
             pricePerHour: { not: null },
           },
           select: {
@@ -768,6 +795,7 @@ ${userRole === "rider" ? "ماذا تريد أن تفعل اليوم؟" : "كي�
         const gizaStables = await prisma.stable.findMany({
           where: {
             status: "approved",
+            isHidden: false,
             location: { contains: "Giza", mode: "insensitive" }
           },
           take: 3,
@@ -900,6 +928,7 @@ ${userRole === "rider" ? "ماذا تريد أن تفعل اليوم؟" : "كي�
           const allStables = await prisma.stable.findMany({
             where: {
               status: "approved",
+              isHidden: false,
               location: ownerStable.location,
               NOT: { id: ownerStable.id },
             },
