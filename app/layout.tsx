@@ -19,7 +19,7 @@ const poppins = Poppins({
   subsets: ["latin"],
   weight: ["300", "400", "600", "700"],
   variable: "--font-poppins",
-  display: "optional", // Changed from swap to optional for better CLS
+  display: "swap", // Use swap to ensure text paints immediately to fix LCP Render Delay
   preload: true,
   adjustFontFallback: true, // Adjust fallback font to match Poppins metrics
 });
