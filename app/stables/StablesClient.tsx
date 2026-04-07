@@ -266,10 +266,10 @@ export default function StablesClient() {
 
           {/* Packages Promo Block */}
           <Link href="/packages" className="block w-full">
-            <div className="relative overflow-hidden rounded-2xl border border-[rgb(218,165,32)]/30 bg-gradient-to-r from-black via-[rgb(218,165,32)]/10 to-black p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 group transition-all hover:border-[rgb(218,165,32)]/50 hover:shadow-[0_0_30px_rgba(218,165,32,0.15)]">
+            <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-r from-neutral-950 via-neutral-900 to-neutral-950 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 group transition-all hover:border-[rgb(218,165,32)]/30 hover:shadow-[0_0_20px_rgba(218,165,32,0.1)]">
               {/* Decorative elements */}
-              <div className="absolute -left-20 -top-20 w-40 h-40 bg-[rgb(218,165,32)]/20 blur-[50px] rounded-full pointer-events-none" />
-              <div className="absolute -right-20 -bottom-20 w-40 h-40 bg-[rgb(218,165,32)]/20 blur-[50px] rounded-full pointer-events-none" />
+              <div className="absolute -left-20 -top-20 w-40 h-40 bg-[rgb(218,165,32)]/5 blur-[50px] rounded-full pointer-events-none" />
+              <div className="absolute -right-20 -bottom-20 w-40 h-40 bg-[rgb(218,165,32)]/5 blur-[50px] rounded-full pointer-events-none" />
               
               <div className="flex items-center gap-6 relative z-10 w-full md:w-auto">
                 <div className="hidden sm:flex shrink-0 h-16 w-16 rounded-full bg-[rgb(218,165,32)]/10 items-center justify-center border border-[rgb(218,165,32)]/30 group-hover:scale-110 transition-transform duration-500">

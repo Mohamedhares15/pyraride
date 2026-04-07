@@ -290,6 +290,39 @@ export default function SearchFilters({
             <span>EGP 2,500</span>
             <span>EGP 5,000+</span>
           </div>
+
+          {/* Quick Click Checkpoints */}
+          <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-border/40">
+            {[1000, 2000, 3000].map(val => (
+              <button
+                key={val}
+                onClick={() => {
+                  setLocalMax(val);
+                  onPriceChange("0", val.toString());
+                }}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                  localMax === val
+                    ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                    : 'bg-background hover:bg-muted text-muted-foreground border-border/60'
+                }`}
+              >
+                Up to EGP {val}
+              </button>
+            ))}
+            <button
+              onClick={() => {
+                setLocalMax(5000);
+                onPriceChange("0", "");
+              }}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                localMax >= 5000
+                  ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                  : 'bg-background hover:bg-muted text-muted-foreground border-border/60'
+              }`}
+            >
+              Any Price
+            </button>
+          </div>
         </div>
       </div>
     </div>

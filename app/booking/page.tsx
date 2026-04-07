@@ -417,7 +417,7 @@ function BookingContent() {
 
   const handleCheckout = async () => {
     if (!session) {
-      router.push(`/signin?redirect=/booking?${searchParams.toString()}`);
+      router.push(`/signin?redirect=${encodeURIComponent(`/booking?${searchParams.toString()}`)}`);
       return;
     }
 
