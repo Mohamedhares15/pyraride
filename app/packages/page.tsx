@@ -129,7 +129,7 @@ export default async function PackagesPage() {
                       <div className="flex flex-col md:flex-row md:items-end justify-between pt-8 border-t border-white/10 mt-auto">
                         <div className="mb-6 md:mb-0">
                           <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em] mb-2">
-                            {pkg.packageType === "GROUP_EVENT" ? "Per Guest" : "Total Investment"}
+                            {pkg.packageType === "GROUP_EVENT" ? "Per Guest" : "Total Price"}
                           </p>
                           <div className="flex items-end gap-3">
                             <span className="text-2xl md:text-3xl font-light text-white tracking-wide">EGP {pkg.price}</span>

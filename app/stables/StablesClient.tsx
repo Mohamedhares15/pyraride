@@ -58,6 +58,7 @@ export default function StablesClient() {
   const [mode, setMode] = useState<StableMode>("stable");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const normalizeLocationParam = (value: string | null) => {
     if (!value) return "all";
@@ -299,24 +300,37 @@ export default function StablesClient() {
             </div>
           </Link>
 
-          <SearchFilters
-            search={search}
-            location={location}
-            minRating={minRating}
-            minPrice={minPrice}
-            maxPrice={maxPrice}
-            sort={sort}
-            color={color}
-            skills={skills}
-            onSearchChange={handleSearchChange}
-            onLocationChange={handleLocationChange}
-            onRatingChange={handleRatingChange}
-            onPriceChange={handlePriceChange}
-            onSortChange={handleSortChange}
-            onColorChange={handleColorChange}
-            onSkillsChange={handleSkillsChange}
-            onClear={handleClear}
-          />
+          <div className="md:hidden">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowMobileFilters(!showMobileFilters)} 
+              className="w-full h-12 flex items-center justify-between px-4 border-white/20 bg-black/40 backdrop-blur-md"
+            >
+              <span className="font-medium text-white">{showMobileFilters ? "Hide Filters" : "🔍 Show Filters"}</span>
+              <span className="text-xs text-white/50">{showMobileFilters ? "▲" : "▼"}</span>
+            </Button>
+          </div>
+
+          <div className={`${showMobileFilters ? 'block' : 'hidden'} md:block`}>
+            <SearchFilters
+              search={search}
+              location={location}
+              minRating={minRating}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              sort={sort}
+              color={color}
+              skills={skills}
+              onSearchChange={handleSearchChange}
+              onLocationChange={handleLocationChange}
+              onRatingChange={handleRatingChange}
+              onPriceChange={handlePriceChange}
+              onSortChange={handleSortChange}
+              onColorChange={handleColorChange}
+              onSkillsChange={handleSkillsChange}
+              onClear={handleClear}
+            />
+          </div>
 
           {error ? (
             <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-center">

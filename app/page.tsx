@@ -171,7 +171,7 @@ export default async function HomePage() {
                     <div className="flex items-end justify-between mt-auto pt-6 border-t border-white/10">
                       <div>
                         <p className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-1">
-                          {pkg.packageType === "GROUP_EVENT" ? "Per Guest" : "Total Investment"}
+                          {pkg.packageType === "GROUP_EVENT" ? "Per Guest" : "Total Price"}
                         </p>
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-light text-white tracking-wide">EGP {pkg.price}</span>

@@ -779,55 +779,8 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                 <div className="grid gap-8 md:grid-cols-3 items-start max-w-full">
                     {/* Main Content */}
                     <div className="md:col-span-2 space-y-8 w-full min-w-0">
-                        {/* Location & Map */}
-                        <Card className="p-6">
-                            <div className="mb-4 flex items-start gap-4">
-                                <MapPin className="mt-1 h-6 w-6 text-primary" />
-                                <div>
-                                    <h3 className="mb-2 font-semibold">Location</h3>
-                                    <p className="text-sm text-muted-foreground">{stable.address || stable.location}</p>
-                                    <p className="mt-1 text-sm capitalize">{stable.location}</p>
-                                </div>
-                            </div>
-                            <StableLocationMap
-                                stableId={stable.id}
-                                stableName={stable.name}
-                                stableLocation={stable.location}
-                                stableAddress={stable.address}
-                            />
-                        </Card>
-
-                        {/* SEO Content Section */}
-                        <Card className="p-6 space-y-6">
-                            <div>
-                                <h2 className="text-2xl font-bold mb-4">About {stable.name}</h2>
-                                <p className="text-muted-foreground leading-relaxed">
-                                    {stable.description}
-                                </p>
-                                <p className="text-muted-foreground leading-relaxed mt-4">
-                                    Located at <strong>{stable.location} Pyramids</strong>, {stable.name} offers authentic horse riding
-                                    experiences with stunning views of Egypt's most iconic landmarks. Book your adventure
-                                    through <strong>PyraRides.com</strong> - Egypt's trusted booking marketplace for horse riding experiences
-                                    at the pyramids. As part of PyraRides's verified stable network, {stable.name} has been thoroughly
-                                    inspected for safety, quality, and animal welfare standards.
-                                </p>
-                            </div>
-
-                            <div>
-                                <h2 className="text-2xl font-bold mb-4">Why Book {stable.name} on PyraRides?</h2>
-                                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                                    <li><strong>Instant booking confirmation</strong> - No waiting for responses</li>
-                                    <li><strong>Verified stable</strong> with {stable.rating > 0 ? `${stable.rating.toFixed(1)}⭐` : 'excellent'} rating from {stable.totalReviews} {stable.totalReviews === 1 ? 'review' : 'reviews'}</li>
-                                    <li><strong>Secure online payment</strong> with multiple payment options</li>
-                                    <li><strong>24/7 customer support</strong> to help with any questions</li>
-                                    <li><strong>Compare with other stables</strong> before booking - only on PyraRides</li>
-                                    <li><strong>Verified for safety</strong> - All PyraRides stables meet strict safety and quality standards</li>
-                                </ul>
-                            </div>
-                        </Card>
-
-                        {/* Horses */}
-                        <div>
+                        {/* Horses — MOVED TO TOP for instant booking access */}
+                        <div id="horses-section">
                             <h2 className="mb-6 font-display text-2xl font-bold">Our Horses</h2>
                             {stable.horses.length > 0 ? (
                                 <div className="space-y-6">
@@ -1021,6 +974,53 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                                 </Card>
                             )}
                         </div>
+
+                        {/* Location & Map — moved below horses for better UX */}
+                        <Card className="p-6">
+                            <div className="mb-4 flex items-start gap-4">
+                                <MapPin className="mt-1 h-6 w-6 text-primary" />
+                                <div>
+                                    <h3 className="mb-2 font-semibold">Location</h3>
+                                    <p className="text-sm text-muted-foreground">{stable.address || stable.location}</p>
+                                    <p className="mt-1 text-sm capitalize">{stable.location}</p>
+                                </div>
+                            </div>
+                            <StableLocationMap
+                                stableId={stable.id}
+                                stableName={stable.name}
+                                stableLocation={stable.location}
+                                stableAddress={stable.address}
+                            />
+                        </Card>
+
+                        {/* About Section — moved below horses */}
+                        <Card className="p-6 space-y-6">
+                            <div>
+                                <h2 className="text-2xl font-bold mb-4">About {stable.name}</h2>
+                                <p className="text-muted-foreground leading-relaxed">
+                                    {stable.description}
+                                </p>
+                                <p className="text-muted-foreground leading-relaxed mt-4">
+                                    Located at <strong>{stable.location} Pyramids</strong>, {stable.name} offers authentic horse riding
+                                    experiences with stunning views of Egypt&apos;s most iconic landmarks. Book your adventure
+                                    through <strong>PyraRides.com</strong> - Egypt&apos;s trusted booking marketplace for horse riding experiences
+                                    at the pyramids. As part of PyraRides&apos;s verified stable network, {stable.name} has been thoroughly
+                                    inspected for safety, quality, and animal welfare standards.
+                                </p>
+                            </div>
+
+                            <div>
+                                <h2 className="text-2xl font-bold mb-4">Why Book {stable.name} on PyraRides?</h2>
+                                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                                    <li><strong>Instant booking confirmation</strong> - No waiting for responses</li>
+                                    <li><strong>Verified stable</strong> with {stable.rating > 0 ? `${stable.rating.toFixed(1)}⭐` : 'excellent'} rating from {stable.totalReviews} {stable.totalReviews === 1 ? 'review' : 'reviews'}</li>
+                                    <li><strong>Secure online payment</strong> with multiple payment options</li>
+                                    <li><strong>24/7 customer support</strong> to help with any questions</li>
+                                    <li><strong>Compare with other stables</strong> before booking - only on PyraRides</li>
+                                    <li><strong>Verified for safety</strong> - All PyraRides stables meet strict safety and quality standards</li>
+                                </ul>
+                            </div>
+                        </Card>
 
                         {/* Reviews */}
                         <div>
@@ -1350,6 +1350,17 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                     </div>
                 </>
             )}
+            {/* Sticky CTA — Mobile only — scrolls to horses section */}
+            <button
+                onClick={() => {
+                    const el = document.getElementById('horses-section');
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] md:hidden bg-primary text-white px-6 py-3 rounded-full shadow-lg shadow-primary/30 font-semibold text-sm flex items-center gap-2 hover:scale-105 transition-transform active:scale-95"
+                aria-label="Scroll to horses and book"
+            >
+                🐴 View Horses &amp; Book
+            </button>
         </div>
     );
 }
