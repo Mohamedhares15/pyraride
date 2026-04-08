@@ -217,8 +217,8 @@ function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuc
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      setError(`${file.name} is too large (max 10MB)`);
+    if (file.size > 5 * 1024 * 1024) {
+      setError(`${file.name} is too large (max 5MB)`);
       return;
     }
 
@@ -226,24 +226,22 @@ function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuc
     setError("");
 
     try {
-      const formDataUpload = new FormData();
-      formDataUpload.append("file", file);
-      formDataUpload.append("upload_preset", "pyrarides_reviews");
-      formDataUpload.append("cloud_name", process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "");
-
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-        { method: "POST", body: formDataUpload }
-      );
-
-      if (!response.ok) throw new Error("Upload failed");
-
-      const data = await response.json();
-      setFormData(prev => ({ ...prev, imageUrl: data.secure_url }));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          setFormData(prev => ({ ...prev, imageUrl: reader.result as string }));
+        }
+        setIsUploading(false);
+      };
+      reader.onerror = () => {
+        setError("Failed to process image.");
+        setIsUploading(false);
+      };
+      reader.readAsDataURL(file);
     } catch (err) {
       setError("Failed to upload image. Please try again.");
-    } finally {
       setIsUploading(false);
+    } finally {
       e.target.value = "";
     }
   };
