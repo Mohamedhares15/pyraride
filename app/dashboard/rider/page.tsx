@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -48,7 +48,7 @@ interface Enrollment {
   sessions: any[];
 }
 
-export default function RiderDashboard() {
+function RiderDashboardContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -358,6 +358,18 @@ export default function RiderDashboard() {
         <CancelRescheduleModal open={cancelRescheduleModalOpen} onOpenChange={setCancelRescheduleModalOpen} booking={selectedBooking} mode={cancelRescheduleMode} />
       )}
     </div>
+  );
+}
+
+export default function RiderDashboard() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-black">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#D4AF37] border-t-transparent" />
+      </div>
+    }>
+      <RiderDashboardContent />
+    </Suspense>
   );
 }
 
