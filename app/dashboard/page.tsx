@@ -24,6 +24,8 @@ export default function DashboardPage() {
       router.push("/dashboard/rider");
     } else if (role === "stable_owner") {
       router.push("/dashboard/stable");
+    } else if (role === "captain") {
+      router.push("/dashboard/captain");
     } else if (role === "admin") {
       router.push("/dashboard/analytics");
     } else if (role === "cx_media") {
