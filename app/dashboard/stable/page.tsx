@@ -84,75 +84,78 @@ export default function StableOwnerDashboard() {
 
     // Trigger auto-completion of past bookings
     fetch("/api/system/auto-complete-bookings", { method: "POST" })
-      .catch(err => console.error("Failed to auto-complete bookings:", err));
+      .catch((err) => console.error("Failed to auto-complete bookings:", err));
 
-    // Check if this stable_owner is also an academy captain
-    fetch("/api/captain/dashboard")
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data && !data.error) setAcademyAssignment(data);
-      })
-      .catch(() => {});
-
-    fetchStableData();
+    fetchDashboardData();
   }, [session, status, router]);
 
-  async function fetchStableData() {
+  async function fetchDashboardData() {
     try {
-      // Fetch the owner's stable directly
-      const stablesRes = await fetch("/api/stables?ownerOnly=true");
-      if (!stablesRes.ok) {
-        throw new Error("Failed to fetch stable data");
+      // Fetch both Captain data and Stable data simultaneously
+      const [captainRes, stablesRes] = await Promise.all([
+        fetch("/api/captain/dashboard").catch(() => null),
+        fetch("/api/stables?ownerOnly=true").catch(() => null)
+      ]);
+
+      let hasAcademy = false;
+
+      if (captainRes && captainRes.ok) {
+        const data = await captainRes.json();
+        if (data && !data.error) {
+          setAcademyAssignment(data);
+          hasAcademy = true;
+        }
       }
-      const stablesData = await stablesRes.json();
 
-      const ownerStable = stablesData.stables?.[0]; // Should be only one
+      let ownerStable = null;
+      if (stablesRes && stablesRes.ok) {
+        const stablesData = await stablesRes.json();
+        ownerStable = stablesData.stables?.[0];
+      }
 
-      if (!ownerStable) {
-        setError("Stable not found. Please create a stable first.");
+      if (!ownerStable && !hasAcademy) {
+        setError("Dashboard restricted. Please register a stable or be assigned to an academy first.");
         setIsLoading(false);
         return;
       }
 
-      setStable({
-        id: ownerStable.id,
-        name: ownerStable.name,
-        location: ownerStable.location,
-        status: ownerStable.status || "approved",
-        _count: {
-          bookings: ownerStable.totalBookings || 0,
-          horses: ownerStable.horseCount || 0,
-        },
-      });
-
-      // Fetch bookings for this stable
-      const bookingsRes = await fetch(`/api/stables/${ownerStable.id}/bookings`);
-      if (bookingsRes.ok) {
-        const bookingsData = await bookingsRes.json();
-        const fetchedBookings = bookingsData.bookings || [];
-        setBookings(fetchedBookings);
-
-        // Recalculate stats after fetching bookings
-        const totalBookings = fetchedBookings.length;
-        const totalEarnings = fetchedBookings
-          .filter((b: Booking) => b.status === "completed")
-          .reduce((sum: number, b: Booking) => sum + (parseFloat(b.totalPrice.toString()) - parseFloat(b.commission.toString())), 0);
-        const upcoming = fetchedBookings.filter(
-          (b: Booking) =>
-            b.status === "confirmed" &&
-            new Date(b.startTime) > new Date()
-        ).length;
-
-        setStats({
-          totalBookings,
-          totalEarnings,
-          upcomingBookings: upcoming,
+      if (ownerStable) {
+        setStable({
+          id: ownerStable.id,
+          name: ownerStable.name,
+          location: ownerStable.location,
+          status: ownerStable.status || "approved",
+          _count: {
+            bookings: ownerStable.totalBookings || 0,
+            horses: ownerStable.horseCount || 0,
+          },
         });
+
+        // Fetch bookings using the resolved stable ID
+        const bookingsRes = await fetch(`/api/stables/${ownerStable.id}/bookings`);
+        if (bookingsRes.ok) {
+          const bookingsData = await bookingsRes.json();
+          const fetchedBookings = bookingsData.bookings || [];
+          setBookings(fetchedBookings);
+
+          const totalBookings = fetchedBookings.length;
+          const totalEarnings = fetchedBookings
+            .filter((b: Booking) => b.status === "completed")
+            .reduce((sum: number, b: Booking) => sum + (parseFloat(b.totalPrice.toString()) - parseFloat(b.commission.toString())), 0);
+          const upcoming = fetchedBookings.filter(
+            (b: Booking) => b.status === "confirmed" && new Date(b.startTime) > new Date()
+          ).length;
+
+          setStats({ totalBookings, totalEarnings, upcomingBookings: upcoming });
+        }
+      } else if (hasAcademy) {
+        // If they have no stable but DO have an academy, default them directly to the academy tab
+        setActiveView("academy");
       }
 
     } catch (err) {
-      console.error("Error fetching stable data:", err);
-      setError(err instanceof Error ? err.message : "Failed to load stable data");
+      console.error("Error fetching dashboard data:", err);
+      setError(err instanceof Error ? err.message : "Failed to load dashboard data");
     } finally {
       setIsLoading(false);
     }
@@ -341,7 +344,7 @@ export default function StableOwnerDashboard() {
         {error ? (
           <Card className="p-6 text-center">
             <p className="text-destructive mb-4">{error}</p>
-            <Button onClick={fetchStableData}>Try Again</Button>
+            <Button onClick={fetchDashboardData}>Try Again</Button>
           </Card>
         ) : (
           <>
@@ -541,7 +544,7 @@ export default function StableOwnerDashboard() {
           riderId={reviewBooking.rider.id}
           riderName={reviewBooking.rider.fullName || reviewBooking.rider.email}
           onReviewSubmitted={() => {
-            fetchStableData(); // Refresh data to update "Reviewed" status
+              fetchDashboardData(); // Refresh data to update "Reviewed" status
           }}
         />
       )}

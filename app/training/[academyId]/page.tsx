@@ -100,7 +100,7 @@ export default function AcademyDetailPage({ params }: { params: { academyId: str
     );
   }
 
-  if (!academy) {
+  if (!academy || "error" in academy) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
         <h1 className="text-2xl mb-4">Academy Not Found</h1>

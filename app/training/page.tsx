@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Master the art of horse riding at the Pyramids. Professional training academies across Egypt with certified captains. Beginner to Advanced programs available.",
 };
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function TrainingPage() {
   const academies = await prisma.academy.findMany({
