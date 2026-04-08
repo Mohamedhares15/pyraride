@@ -82,8 +82,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Captain user not found" }, { status: 404 });
     }
 
-    // Update user role to captain if not already
-    if (captain.role !== "captain") {
+    // Update user role to captain if not already (but preserve stable_owner role)
+    if (captain.role !== "captain" && captain.role !== "stable_owner") {
       await prisma.user.update({
         where: { id: captainId },
         data: { role: "captain" },

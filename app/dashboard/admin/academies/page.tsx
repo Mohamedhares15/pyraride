@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, AlertCircle, CheckCircle, XCircle, Plus, X, Camera } from "lucide-react";
+import { Loader2, AlertCircle, CheckCircle, XCircle, Plus, X, Camera, BookOpen } from "lucide-react";
 import Image from "next/image";
 
 export default function AdminAcademiesPage() {
@@ -11,6 +11,7 @@ export default function AdminAcademiesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [addProgramAcademyId, setAddProgramAcademyId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAdminAcademyData();
@@ -148,6 +149,12 @@ export default function AdminAcademiesPage() {
                     </div>
                  </div>
                </div>
+                  <button 
+                    onClick={() => setAddProgramAcademyId(academy.id)}
+                    className="mt-4 w-full border border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/10 py-2 rounded-lg text-xs tracking-widest uppercase transition-colors flex items-center justify-center gap-2"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" /> Add Program
+                  </button>
              </div>
            ))}
          </div>
@@ -160,6 +167,17 @@ export default function AdminAcademiesPage() {
             setIsCreateModalOpen(false);
             fetchAdminAcademyData();
           }} 
+        />
+      )}
+
+      {addProgramAcademyId && (
+        <AddProgramModal
+          academyId={addProgramAcademyId}
+          onClose={() => setAddProgramAcademyId(null)}
+          onSuccess={() => {
+            setAddProgramAcademyId(null);
+            fetchAdminAcademyData();
+          }}
         />
       )}
     </div>
@@ -364,6 +382,144 @@ function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuc
             <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-lg text-white font-semibold hover:bg-white/10 transition-colors">Cancel</button>
             <button type="submit" disabled={saving} className="bg-[#D4AF37] px-6 py-2.5 rounded-lg text-black font-semibold disabled:opacity-50 hover:bg-[#C49A2F] transition-colors flex items-center gap-2">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Create Academy
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function AddProgramModal({ academyId, onClose, onSuccess }: { academyId: string; onClose: () => void; onSuccess: () => void; }) {
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    description: "",
+    skillLevel: "BEGINNER",
+    price: "",
+    totalSessions: "",
+    sessionDuration: "1",
+    validityDays: "60",
+    startTime: "10:00",
+    availableDays: [] as string[],
+  });
+
+  const allDays = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+  const toggleDay = (day: string) => {
+    setForm(prev => ({
+      ...prev,
+      availableDays: prev.availableDays.includes(day)
+        ? prev.availableDays.filter(d => d !== day)
+        : [...prev.availableDays, day],
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (form.availableDays.length === 0) {
+      setError("Please select at least one available day.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/admin/academies/programs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, academyId }),
+      });
+
+      if (!res.ok) {
+        const d = await res.json();
+        throw new Error(d.error || "Failed to create program");
+      }
+      onSuccess();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto relative p-6 my-auto">
+        <button onClick={onClose} className="absolute top-6 right-6 text-neutral-400 hover:text-white transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+        
+        <h2 className="text-2xl font-display text-white mb-6">Add Training Program</h2>
+        
+        {error && <div className="p-3 mb-6 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg text-sm">{error}</div>}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Program Name</label>
+            <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="e.g. Beginner Foundations" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Description</label>
+            <textarea required className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37] min-h-[60px]" placeholder="What trainees will learn..." value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Skill Level</label>
+              <select className="w-full bg-neutral-900 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" value={form.skillLevel} onChange={(e) => setForm({ ...form, skillLevel: e.target.value })}>
+                <option value="BEGINNER">Beginner</option>
+                <option value="INTERMEDIATE">Intermediate</option>
+                <option value="ADVANCED">Advanced</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Price (EGP)</label>
+              <input required type="number" min="1" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="e.g. 2500" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Total Sessions</label>
+              <input required type="number" min="1" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="e.g. 8" value={form.totalSessions} onChange={(e) => setForm({ ...form, totalSessions: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Duration (hrs)</label>
+              <input required type="number" min="0.5" step="0.5" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="1" value={form.sessionDuration} onChange={(e) => setForm({ ...form, sessionDuration: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Validity (days)</label>
+              <input required type="number" min="7" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="60" value={form.validityDays} onChange={(e) => setForm({ ...form, validityDays: e.target.value })} />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Start Time</label>
+            <input required type="time" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Available Days</label>
+            <div className="flex flex-wrap gap-2">
+              {allDays.map(day => (
+                <button key={day} type="button" onClick={() => toggleDay(day)} className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                  form.availableDays.includes(day)
+                    ? "bg-[#D4AF37] text-black"
+                    : "bg-white/5 text-neutral-400 border border-white/10 hover:border-[#D4AF37]/40"
+                }`}>
+                  {day.slice(0, 3)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-4 flex justify-end gap-3 mt-4">
+            <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-lg text-white font-semibold hover:bg-white/10 transition-colors">Cancel</button>
+            <button type="submit" disabled={saving} className="bg-[#D4AF37] px-6 py-2.5 rounded-lg text-black font-semibold disabled:opacity-50 hover:bg-[#C49A2F] transition-colors flex items-center gap-2">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Create Program
             </button>
           </div>
         </form>

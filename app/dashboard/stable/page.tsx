@@ -71,6 +71,8 @@ export default function StableOwnerDashboard() {
   const [cancelRescheduleMode, setCancelRescheduleMode] = useState<"cancel" | "reschedule">("cancel");
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
+  const [activeView, setActiveView] = useState<"stable" | "academy">("stable");
+  const [academyAssignment, setAcademyAssignment] = useState<any>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -83,6 +85,14 @@ export default function StableOwnerDashboard() {
     // Trigger auto-completion of past bookings
     fetch("/api/system/auto-complete-bookings", { method: "POST" })
       .catch(err => console.error("Failed to auto-complete bookings:", err));
+
+    // Check if this stable_owner is also an academy captain
+    fetch("/api/captain/dashboard")
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && !data.error) setAcademyAssignment(data);
+      })
+      .catch(() => {});
 
     fetchStableData();
   }, [session, status, router]);
@@ -242,6 +252,28 @@ export default function StableOwnerDashboard() {
               </Button>
             </div>
           </div>
+
+          {/* Dual-Role Tab Switcher (if also a captain) */}
+          {academyAssignment && (
+            <div className="mt-6 flex gap-2 bg-white/5 p-1 rounded-full border border-white/10 self-start">
+              <button
+                onClick={() => setActiveView("stable")}
+                className={`px-6 py-2 rounded-full text-xs uppercase tracking-widest font-semibold transition-all ${
+                  activeView === "stable" ? "bg-[#D4AF37] text-black" : "text-white/60 hover:text-white"
+                }`}
+              >
+                🏠 My Stable
+              </button>
+              <button
+                onClick={() => setActiveView("academy")}
+                className={`px-6 py-2 rounded-full text-xs uppercase tracking-widest font-semibold transition-all ${
+                  activeView === "academy" ? "bg-[#D4AF37] text-black" : "text-white/60 hover:text-white"
+                }`}
+              >
+                🎓 My Academy
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -254,6 +286,58 @@ export default function StableOwnerDashboard() {
             backdrop-filter: blur(8px);
           }
         `}</style>
+
+        {activeView === "academy" && academyAssignment ? (
+          /* ---- Academy (Captain) View ---- */
+          <div className="space-y-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-display text-white">{academyAssignment.academy?.name || "My Academy"}</h2>
+                <p className="text-gray-400">{academyAssignment.academy?.location}</p>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: "Active Trainees", value: academyAssignment.stats?.activeTrainees || 0, icon: "👥" },
+                { label: "Completed Sessions", value: academyAssignment.stats?.completedSessions || 0, icon: "✅" },
+                { label: "Revenue (Month)", value: `EGP ${academyAssignment.stats?.revenueThisMonth || 0}`, icon: "💰" },
+                { label: "Total Enrollments", value: academyAssignment.stats?.totalEnrollments || 0, icon: "🎓" },
+              ].map((stat, i) => (
+                <div key={i} className="p-6 rounded-2xl bg-white/[0.02] border border-white/5">
+                  <p className="text-2xl mb-2">{stat.icon}</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">{stat.label}</p>
+                  <p className="text-2xl text-white font-light">{stat.value}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Upcoming Sessions */}
+            {academyAssignment.upcomingSessions?.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="font-display text-xl text-white">Upcoming Sessions</h3>
+                <div className="grid gap-3">
+                  {academyAssignment.upcomingSessions.map((session: any) => (
+                    <div key={session.id} className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex justify-between items-center">
+                      <div>
+                        <p className="text-white text-sm font-medium">Session {session.sessionNumber} — {session.enrollment?.rider?.fullName || "Trainee"}</p>
+                        <p className="text-gray-500 text-xs">{session.startTime} - {session.endTime}</p>
+                      </div>
+                      <span className="text-[10px] uppercase tracking-widest text-[#D4AF37] border border-[#D4AF37]/30 px-2 py-0.5 rounded-full">{session.enrollment?.program?.skillLevel || "Training"}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="text-center pt-4">
+              <a href="/dashboard/captain" className="text-[#D4AF37] text-xs uppercase tracking-widest hover:underline">Open Full Captain Dashboard →</a>
+            </div>
+          </div>
+        ) : (
+          /* ---- Stable Owner View (Original) ---- */
+          <>
         {error ? (
           <Card className="p-6 text-center">
             <p className="text-destructive mb-4">{error}</p>
