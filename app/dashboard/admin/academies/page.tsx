@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, AlertCircle, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, AlertCircle, CheckCircle, XCircle, Plus, X } from "lucide-react";
 import Image from "next/image";
 
 export default function AdminAcademiesPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
     fetchAdminAcademyData();
@@ -58,9 +59,17 @@ export default function AdminAcademiesPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-display text-white mb-2">Academy Management</h1>
-        <p className="text-neutral-400">Oversee PyraRides training academies and approve price changes.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-display text-white mb-2">Academy Management</h1>
+          <p className="text-neutral-400">Oversee PyraRides training academies and approve price changes.</p>
+        </div>
+        <button 
+          onClick={() => setIsCreateModalOpen(true)}
+          className="bg-[#D4AF37] text-black hover:bg-[#C49A2F] active:scale-95 px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 transition-all"
+        >
+          <Plus className="w-5 h-5" /> Add Academy
+        </button>
       </div>
 
       {/* Price Change Requests (Pending) */}
@@ -144,6 +153,15 @@ export default function AdminAcademiesPage() {
          </div>
       </CardSection>
 
+      {isCreateModalOpen && (
+        <CreateAcademyModal 
+          onClose={() => setIsCreateModalOpen(false)} 
+          onSuccess={() => {
+            setIsCreateModalOpen(false);
+            fetchAdminAcademyData();
+          }} 
+        />
+      )}
     </div>
   );
 }
@@ -160,6 +178,128 @@ function CardSection({ title, count, children }: { title: string; count?: number
         )}
       </div>
       {children}
+    </div>
+  );
+}
+
+function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void; }) {
+  const [users, setUsers] = useState<any[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    location: "saqqara",
+    address: "",
+    captainId: "",
+    imageUrl: "",
+  });
+
+  useEffect(() => {
+    fetch("/api/admin/users")
+      .then((res) => res.json())
+      .then((data) => {
+        setUsers(data.users ? data.users.filter((u: any) => u.role !== "admin") : []);
+        setLoadingUsers(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoadingUsers(false);
+      });
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/admin/academies", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to create academy");
+      }
+
+      onSuccess();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto relative p-6 my-auto">
+        <button onClick={onClose} className="absolute top-6 right-6 text-neutral-400 hover:text-white transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+        
+        <h2 className="text-2xl font-display text-white mb-6">Add New Academy</h2>
+        
+        {error && <div className="p-3 mb-6 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg text-sm">{error}</div>}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Academy Name</label>
+            <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="e.g PyraRides Academy - Saqqara" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Description</label>
+            <textarea required className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37] min-h-[80px]" placeholder="Brief description of this academy..." value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Region/Location</label>
+              <select required className="w-full bg-neutral-900 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })}>
+                <option value="saqqara">Saqqara</option>
+                <option value="nazlet">Nazlet</option>
+                <option value="abousir">Abousir</option>
+                <option value="fayoum">Fayoum</option>
+                <option value="newcairo">New Cairo</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Address</label>
+              <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="Physical address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Academy Image URL</label>
+            <input type="text" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="https://..." value={formData.imageUrl} onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })} />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Assign Captain</label>
+            <select required className="w-full bg-neutral-900 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" value={formData.captainId} onChange={(e) => setFormData({ ...formData, captainId: e.target.value })}>
+              <option value="" disabled>Select a user to assign as Captain</option>
+              {loadingUsers ? <option value="" disabled>Loading users...</option> : users.map(u => (
+                <option key={u.id} value={u.id}>{u.fullName} ({u.email}) - {u.role}</option>
+              ))}
+            </select>
+            <p className="text-[10px] text-neutral-500 px-1 mt-1">This user will automatically be promoted to the 'captain' role upon saving.</p>
+          </div>
+
+          <div className="pt-4 flex justify-end gap-3 mt-4">
+            <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-lg text-white font-semibold hover:bg-white/10 transition-colors">Cancel</button>
+            <button type="submit" disabled={saving} className="bg-[#D4AF37] px-6 py-2.5 rounded-lg text-black font-semibold disabled:opacity-50 hover:bg-[#C49A2F] transition-colors flex items-center gap-2">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Create Academy
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
