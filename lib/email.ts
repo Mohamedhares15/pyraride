@@ -1001,3 +1001,141 @@ export async function sendPostRideFollowupEmail(data: PostRideFollowupData): Pro
     return false;
   }
 }
+
+// ============================================================================
+// ACADEMY NOTIFICATION EMAILS
+// ============================================================================
+interface AcademyEnrollmentData {
+  riderName: string;
+  riderEmail: string;
+  academyName: string;
+  programName: string;
+  totalSessions: number;
+}
+
+export async function sendAcademyEnrollmentEmail(data: AcademyEnrollmentData): Promise<boolean> {
+  const transporter = createTransporter();
+  if (!transporter) return false;
+  try {
+    await transporter.sendMail({
+      from: `"PyraRides Academy" <${process.env.EMAIL_USER}>`,
+      to: data.riderEmail,
+      subject: `🎓 Welcome to PyraRides Academy: ${data.programName}`,
+      html: generateEmailTemplate({
+        headline: "Welcome to\nThe Academy.",
+        subheadline: "Enrollment Confirmed",
+        bodyTitle: `You're enrolled in ${data.programName}`,
+        bodyText: `Hi ${data.riderName}, your enrollment in ${data.programName} at ${data.academyName} is confirmed. Get ready for an incredible ${data.totalSessions}-session journey to master the art of riding.`,
+        details: [
+          { label: "Academy", value: data.academyName },
+          { label: "Program", value: data.programName },
+          { label: "Sessions", value: data.totalSessions.toString() },
+        ],
+        ctaText: "View My Training",
+        ctaUrl: "https://www.pyrarides.com/dashboard/rider?tab=training",
+      }),
+      text: `Your enrollment in ${data.programName} at ${data.academyName} is confirmed. Log in to PyraRides to view your training schedule.`,
+    });
+    return true;
+  } catch (e) {
+    console.error("Failed to send academy enrollment email:", e);
+    return false;
+  }
+}
+
+interface CaptainNewTraineeData {
+  captainName: string;
+  captainEmail: string;
+  riderName: string;
+  programName: string;
+}
+
+export async function sendCaptainNewTraineeEmail(data: CaptainNewTraineeData): Promise<boolean> {
+  const transporter = createTransporter();
+  if (!transporter) return false;
+  try {
+    await transporter.sendMail({
+      from: `"PyraRides Academy" <${process.env.EMAIL_USER}>`,
+      to: data.captainEmail,
+      subject: `🔔 New Trainee Alert: ${data.riderName}`,
+      html: generateEmailTemplate({
+        headline: "You Have a\nNew Trainee.",
+        subheadline: data.programName,
+        bodyTitle: `${data.riderName} just joined your program`,
+        bodyText: `Hi ${data.captainName}, ${data.riderName} has successfully enrolled in the ${data.programName} program. Their sessions have been automatically slotted based on your availability.`,
+        ctaText: "Go to Dashboard",
+        ctaUrl: "https://www.pyrarides.com/dashboard/captain",
+      }),
+      text: `${data.riderName} has enrolled in ${data.programName}. Check your captain dashboard for the updated schedule.`,
+    });
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+interface PriceChangeResponseData {
+  captainName: string;
+  captainEmail: string;
+  programName: string;
+  status: "approved" | "rejected";
+}
+
+export async function sendPriceChangeResponseEmail(data: PriceChangeResponseData): Promise<boolean> {
+  const transporter = createTransporter();
+  if (!transporter) return false;
+  try {
+    const isApproved = data.status === "approved";
+    await transporter.sendMail({
+      from: `"PyraRides Admin" <${process.env.EMAIL_USER}>`,
+      to: data.captainEmail,
+      subject: `💰 Price Change ${isApproved ? 'Approved' : 'Rejected'} for ${data.programName}`,
+      html: generateEmailTemplate({
+        headline: `Price Change\n${isApproved ? 'Approved' : 'Rejected'}.`,
+        subheadline: "Academy Settings",
+        bodyTitle: `Your request for ${data.programName} was ${data.status}`,
+        bodyText: `Hi ${data.captainName}, your request to change the pricing for the ${data.programName} program has been ${data.status} by an admin.`,
+        ctaText: "Open Dashboard",
+        ctaUrl: "https://www.pyrarides.com/dashboard/captain",
+      }),
+      text: `Your price change request for ${data.programName} was ${data.status}.`,
+    });
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+interface SessionRescheduledData {
+  riderName: string;
+  riderEmail: string;
+  academyName: string;
+  newDate: string;
+  newTime: string;
+  sessionNumber: number;
+}
+
+export async function sendSessionRescheduledEmail(data: SessionRescheduledData): Promise<boolean> {
+  const transporter = createTransporter();
+  if (!transporter) return false;
+  try {
+    await transporter.sendMail({
+      from: `"PyraRides Academy" <${process.env.EMAIL_USER}>`,
+      to: data.riderEmail,
+      subject: `🗓️ Session Rescheduled: PyraRides Academy`,
+      html: generateEmailTemplate({
+        headline: "Schedule\nUpdate.",
+        subheadline: "Session Rescheduled",
+        bodyTitle: `Session ${data.sessionNumber} at ${data.academyName} moved to ${data.newDate}`,
+        bodyText: `Hi ${data.riderName}, your captain has rescheduled your upcoming training session. Your new time is ${data.newTime} on ${data.newDate}.`,
+        ctaText: "View My Schedule",
+        ctaUrl: "https://www.pyrarides.com/dashboard/rider?tab=training",
+      }),
+      text: `Session ${data.sessionNumber} rescheduled to ${data.newDate} at ${data.newTime}.`,
+    });
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+

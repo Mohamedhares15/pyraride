@@ -15,6 +15,7 @@ enum Role {
   stable_owner
   admin
   cx_media
+  captain
 }
 
 enum GalleryItemStatus {
@@ -142,6 +143,13 @@ model User {
 
   // Notifications
   notifications Notification[]
+
+  // Academy / Training
+  managedAcademy      Academy?             @relation("AcademyCaptain")
+  trainingEnrollments TrainingEnrollment[] @relation("TraineeEnrollments")
+  sessionReviewsGiven SessionReview[]      @relation("CaptainSessionReviews")
+  priceChangeRequests AcademyPriceChangeRequest[] @relation("CaptainPriceChanges")
+  priceChangeReviews  AcademyPriceChangeRequest[] @relation("AdminPriceChangeReviewer")
 }
 
 model RiderRank {
@@ -781,4 +789,210 @@ model TransportZone {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ============================================================================
+// PYRARIDES ACADEMY — Training System
+// ============================================================================
+
+enum TrainingBookingStatus {
+  active
+  completed
+  cancelled
+  expired
+}
+
+enum TrainingSessionStatus {
+  scheduled
+  completed
+  cancelled
+  rescheduled
+}
+
+enum AcademyPriceChangeStatus {
+  pending
+  approved
+  rejected
+}
+
+// Academy — Physical training location managed by a Captain
+model Academy {
+  id          String  @id @default(uuid())
+  name        String // "PyraRides Academy - New Cairo"
+  description String  @db.Text
+  location    String // "New Cairo", "Saqqara", "Nasr City"
+  address     String
+  imageUrl    String?
+  isActive    Boolean @default(true)
+  isHidden    Boolean @default(false)
+
+  // Captain (manager)
+  captainId String @unique
+  captain   User   @relation("AcademyCaptain", fields: [captainId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  programs     TrainingProgram[]
+  enrollments  TrainingEnrollment[]
+  priceChanges AcademyPriceChangeRequest[]
+
+  @@index([isActive])
+  @@index([location])
+}
+
+// TrainingProgram — A plan offered at an academy (Beginner 4 sessions, etc.)
+model TrainingProgram {
+  id          String @id @default(uuid())
+  academyId   String
+  name        String // "Beginner Foundations"
+  description String @db.Text
+  skillLevel  SkillLevel @default(BEGINNER)
+
+  // Pricing & Structure
+  price          Decimal @db.Decimal(10, 2) // Total price for the program
+  totalSessions  Int // Number of sessions included (e.g. 4, 8, 12)
+  sessionDuration Float @default(1) // Duration of each session in hours
+  validityDays   Int @default(60) // How many days the enrollment is valid
+
+  // Schedule
+  availableDays String[] // ["Saturday", "Tuesday", "Thursday"]
+  startTime     String? // Default start time e.g. "10:00"
+
+  // State
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  academy     Academy              @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  enrollments TrainingEnrollment[]
+
+  @@index([academyId])
+  @@index([isActive])
+  @@index([skillLevel])
+}
+
+// TrainingEnrollment — A rider's subscription to a training program
+model TrainingEnrollment {
+  id        String                @id @default(uuid())
+  riderId   String
+  academyId String
+  programId String
+  status    TrainingBookingStatus @default(active)
+
+  // Subscription tracking
+  totalSessions     Int // Copied from program at enrollment time
+  completedSessions Int @default(0)
+  startDate         DateTime @db.Date
+  expiryDate        DateTime @db.Date // startDate + validityDays
+
+  // Payment
+  totalPrice      Decimal  @db.Decimal(10, 2)
+  stripePaymentId String?  @unique
+  commission      Decimal? @db.Decimal(10, 2)
+
+  // Renewal
+  renewedFromId String? // If renewed, points to previous enrollment
+  isRenewed     Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  rider    User             @relation("TraineeEnrollments", fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  academy  Academy          @relation(fields: [academyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  program  TrainingProgram  @relation(fields: [programId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sessions TrainingSession[]
+
+  @@index([riderId])
+  @@index([academyId])
+  @@index([programId])
+  @@index([status])
+}
+
+// TrainingSession — Individual session slot within an enrollment
+model TrainingSession {
+  id           String                @id @default(uuid())
+  enrollmentId String
+  sessionNumber Int // 1, 2, 3... up to totalSessions
+  date         DateTime              @db.Date
+  startTime    String // "10:00"
+  endTime      String // "11:00"
+  status       TrainingSessionStatus @default(scheduled)
+
+  // Reschedule tracking
+  originalDate      DateTime? @db.Date
+  originalStartTime String?
+  rescheduledAt     DateTime?
+  rescheduleReason  String?   @db.Text
+
+  // Completion
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  enrollment TrainingEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  review     SessionReview?
+
+  @@index([enrollmentId])
+  @@index([date])
+  @@index([status])
+}
+
+// SessionReview — Captain's feedback after each completed session
+model SessionReview {
+  id        String @id @default(uuid())
+  sessionId String @unique
+  captainId String
+
+  // Ratings
+  performanceRating Int // 1-10 scale
+  techniqueRating   Int // 1-10 scale
+  attitudeRating    Int // 1-5 stars
+
+  // Feedback
+  comment     String?  @db.Text
+  improvements String? @db.Text // Suggested areas for improvement
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  session TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  captain User            @relation("CaptainSessionReviews", fields: [captainId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+// AcademyPriceChangeRequest — Captain requests price change, admin approves
+model AcademyPriceChangeRequest {
+  id         String                   @id @default(uuid())
+  academyId  String
+  captainId  String
+  programId  String // Which program's price to change
+
+  // Proposed changes
+  currentPrice  Decimal @db.Decimal(10, 2)
+  proposedPrice Decimal @db.Decimal(10, 2)
+  reason        String? @db.Text
+
+  // Review
+  status          AcademyPriceChangeStatus @default(pending)
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  rejectionReason String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  academy  Academy @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  captain  User    @relation("CaptainPriceChanges", fields: [captainId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  reviewer User?   @relation("AdminPriceChangeReviewer", fields: [reviewedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([academyId])
+  @@index([status])
 }
