@@ -228,7 +228,7 @@ function RiderDashboardContent() {
                           <div className="flex items-center justify-between gap-8 md:justify-end">
                             <div className="text-left md:text-right">
                               <p className="text-[10px] uppercase tracking-widest text-neutral-500 mb-1">Total</p>
-                              <span className="text-xl font-light text-white">EGP {booking.totalPrice.toFixed(0)}</span>
+                              <span className="text-xl font-light text-white">EGP {Number(booking.totalPrice || 0).toFixed(0)}</span>
                             </div>
                             <div className="flex gap-2">
                               {booking.status === "completed" && !booking.hasReview && <Button size="sm" onClick={() => { setSelectedBooking(booking); setReviewModalOpen(true); }} className="bg-white/10 text-white hover:bg-white/20"><Star className="mr-2 h-3.5 w-3.5" />Review</Button>}
