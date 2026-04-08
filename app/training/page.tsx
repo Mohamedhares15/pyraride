@@ -3,6 +3,7 @@ import Navbar from "@/components/shared/Navbar";
 import ComingSoon from "@/components/shared/ComingSoon";
 import Link from "next/link";
 import Image from "next/image";
+import { MapPin } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -138,9 +139,15 @@ export default async function TrainingPage() {
                       <h3 className="text-xl font-semibold text-white mb-2">
                         {academy.name}
                       </h3>
-                      <p className="text-gray-400 text-sm line-clamp-2 mb-4">
+                      <p className="text-gray-400 text-sm line-clamp-2 mb-3">
                         {academy.description}
                       </p>
+                      
+                      {academy.googleMapsUrl && (
+                        <a href={academy.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[11px] text-[#D4AF37] hover:text-[#C49A2F] mb-6 transition-colors border border-[#D4AF37]/30 px-3 py-1.5 rounded-full uppercase tracking-widest bg-[#D4AF37]/5">
+                          <MapPin className="w-3.5 h-3.5" /> Open Google Maps
+                        </a>
+                      )}
 
                       {/* Captain */}
                       <div className="flex items-center gap-3 mb-6 pb-6 border-b border-white/10">

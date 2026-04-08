@@ -67,7 +67,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, description, location, address, captainId, imageUrl } = body;
+    const { name, description, location, address, captainId, imageUrl, googleMapsUrl } = body;
 
     if (!name || !description || !location || !address || !captainId) {
       return NextResponse.json(
@@ -98,6 +98,7 @@ export async function POST(request: Request) {
         address,
         captainId,
         imageUrl: imageUrl || null,
+        googleMapsUrl: googleMapsUrl || null,
       },
       include: {
         captain: {

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, AlertCircle, CheckCircle, XCircle, Plus, X } from "lucide-react";
+import { Loader2, AlertCircle, CheckCircle, XCircle, Plus, X, Camera } from "lucide-react";
 import Image from "next/image";
 
 export default function AdminAcademiesPage() {
@@ -187,6 +187,8 @@ function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuc
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [customLocation, setCustomLocation] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -195,6 +197,7 @@ function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuc
     address: "",
     captainId: "",
     imageUrl: "",
+    googleMapsUrl: "",
   });
 
   useEffect(() => {
@@ -210,16 +213,56 @@ function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuc
       });
   }, []);
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError(`${file.name} is too large (max 10MB)`);
+      return;
+    }
+
+    setIsUploading(true);
+    setError("");
+
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", file);
+      formDataUpload.append("upload_preset", "pyrarides_reviews");
+      formDataUpload.append("cloud_name", process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "");
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        { method: "POST", body: formDataUpload }
+      );
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const data = await response.json();
+      setFormData(prev => ({ ...prev, imageUrl: data.secure_url }));
+    } catch (err) {
+      setError("Failed to upload image. Please try again.");
+    } finally {
+      setIsUploading(false);
+      e.target.value = "";
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setError("");
 
+    // Use custom location text if "other" is selected
+    const finalLocation = formData.location === "other" && customLocation.trim() !== ""
+      ? customLocation.trim()
+      : formData.location;
+
     try {
       const res = await fetch("/api/admin/academies", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, location: finalLocation }),
       });
 
       if (!res.ok) {
@@ -266,8 +309,12 @@ function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuc
                 <option value="abousir">Abousir</option>
                 <option value="fayoum">Fayoum</option>
                 <option value="newcairo">New Cairo</option>
-                <option value="other">Other</option>
+                <option value="other">Other (Custom)</option>
               </select>
+              
+              {formData.location === "other" && (
+                <input required type="text" className="w-full bg-white/5 border border-[#D4AF37] rounded-lg p-3 text-white focus:outline-none mt-2 placeholder-neutral-500" placeholder="Type custom location..." value={customLocation} onChange={(e) => setCustomLocation(e.target.value)} />
+              )}
             </div>
             
             <div className="space-y-2">
@@ -277,8 +324,31 @@ function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuc
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Academy Image URL</label>
-            <input type="text" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="https://..." value={formData.imageUrl} onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })} />
+            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Google Maps Link (Optional)</label>
+            <input type="url" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="https://maps.google.com/..." value={formData.googleMapsUrl} onChange={(e) => setFormData({ ...formData, googleMapsUrl: e.target.value })} />
+            <p className="text-[10px] text-neutral-500 px-1 mt-1">This will display a clickable directions button on public pages and rider dashboards.</p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Academy Image</label>
+            <div className="flex items-center gap-4">
+              <label className="flex-shrink-0 cursor-pointer group">
+                <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp,image/heic" onChange={handleImageUpload} className="hidden" disabled={isUploading} />
+                <div className="h-20 w-20 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-white/20 bg-white/5 group-hover:bg-white/10 group-hover:border-[#D4AF37] transition-all">
+                  {isUploading ? <Loader2 className="h-6 w-6 text-[#D4AF37] animate-spin" /> : (
+                    <>
+                      <Camera className="h-6 w-6 text-neutral-400 group-hover:text-[#D4AF37] mb-1" />
+                      <span className="text-[10px] text-neutral-400 group-hover:text-[#D4AF37]">{formData.imageUrl ? "Change" : "Upload"}</span>
+                    </>
+                  )}
+                </div>
+              </label>
+              {formData.imageUrl && (
+                <div className="h-20 flex-1 relative rounded-lg overflow-hidden border border-white/10">
+                  <img src={formData.imageUrl} alt="Academy preview" className="h-full w-full object-cover" />
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">

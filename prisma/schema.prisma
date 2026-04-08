@@ -821,10 +821,11 @@ model Academy {
   name        String // "PyraRides Academy - New Cairo"
   description String  @db.Text
   location    String // "New Cairo", "Saqqara", "Nasr City"
-  address     String
-  imageUrl    String?
-  isActive    Boolean @default(true)
-  isHidden    Boolean @default(false)
+  address       String
+  imageUrl      String?
+  googleMapsUrl String? 
+  isActive      Boolean @default(true)
+  isHidden      Boolean @default(false)
 
   // Captain (manager)
   captainId String @unique

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendAcademyEnrollmentEmail, sendCaptainNewTraineeEmail } from "@/lib/email";
 
 // POST /api/training/enroll — Enroll a rider in a training program
 export async function POST(request: Request) {
@@ -169,6 +170,27 @@ export async function POST(request: Request) {
         },
       },
     });
+
+    // Fire emails asynchronously
+    if (session.user.email) {
+      sendAcademyEnrollmentEmail({
+        riderName: session.user.name || "Rider",
+        riderEmail: session.user.email,
+        academyName: program.academy.name,
+        programName: program.name,
+        totalSessions: program.totalSessions,
+        googleMapsUrl: program.academy.googleMapsUrl || null,
+      }).catch(e => console.error(e));
+    }
+
+    if (program.academy.captain.email) {
+      sendCaptainNewTraineeEmail({
+        captainName: program.academy.captain.fullName || "Captain",
+        captainEmail: program.academy.captain.email,
+        riderName: session.user.name || "A new rider",
+        programName: program.name,
+      }).catch(e => console.error(e));
+    }
 
     // Fetch the complete enrollment to return
     const completeEnrollment = await prisma.trainingEnrollment.findUnique({

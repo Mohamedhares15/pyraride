@@ -1011,6 +1011,7 @@ interface AcademyEnrollmentData {
   academyName: string;
   programName: string;
   totalSessions: number;
+  googleMapsUrl?: string | null;
 }
 
 export async function sendAcademyEnrollmentEmail(data: AcademyEnrollmentData): Promise<boolean> {
@@ -1025,7 +1026,7 @@ export async function sendAcademyEnrollmentEmail(data: AcademyEnrollmentData): P
         headline: "Welcome to\nThe Academy.",
         subheadline: "Enrollment Confirmed",
         bodyTitle: `You're enrolled in ${data.programName}`,
-        bodyText: `Hi ${data.riderName}, your enrollment in ${data.programName} at ${data.academyName} is confirmed. Get ready for an incredible ${data.totalSessions}-session journey to master the art of riding.`,
+        bodyText: `Hi ${data.riderName}, your enrollment in ${data.programName} at ${data.academyName} is confirmed. Get ready for an incredible ${data.totalSessions}-session journey to master the art of riding.${data.googleMapsUrl ? `<br><br>📍 <a href="${data.googleMapsUrl}" style="color: #D4AF37; text-decoration: underline;">Open Google Maps Directions</a>` : ''}`,
         details: [
           { label: "Academy", value: data.academyName },
           { label: "Program", value: data.programName },
