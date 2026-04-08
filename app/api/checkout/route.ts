@@ -175,57 +175,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
-
-
-    // CRITICAL FIX: Link the booking to the availability slot
-    // We use a robust find-or-create approach to handle potential race conditions or time precision issues
-
-    // 1. Try to find the slot (allow +/- 1 minute tolerance)
-    const oneMinute = 60 * 1000;
-    const minStart = new Date(start.getTime() - oneMinute);
-    const maxStart = new Date(start.getTime() + oneMinute);
-
-    const existingSlot = await prisma.availabilitySlot.findFirst({
-      where: {
-        stableId,
-        horseId,
-        startTime: {
-          gte: minStart,
-          lte: maxStart,
-        },
-      },
-    });
-
-    if (existingSlot) {
-      // Update existing slot
-      await prisma.availabilitySlot.update({
-        where: { id: existingSlot.id },
-        data: {
-          isBooked: true,
-          bookingId: booking.id,
-        },
-      });
-      console.log(`[Checkout] Linked booking ${booking.id} to existing slot ${existingSlot.id}`);
-    } else {
-      // Create new slot if missing (e.g. race condition deleted it)
-      // Derive date (YYYY-MM-DD) from start time
-      // Note: This assumes start time is correct for the slot
-      const slotDate = new Date(start);
-      slotDate.setHours(0, 0, 0, 0); // Normalize to midnight for @db.Date if needed, though Prisma handles Date objects for @db.Date
-
-      await prisma.availabilitySlot.create({
-        data: {
-          stableId,
-          horseId,
-          date: slotDate,
-          startTime: start,
-          endTime: end,
-          isBooked: true,
-          bookingId: booking.id,
-        },
-      });
-      console.log(`[Checkout] Created new booked slot for booking ${booking.id} (slot was missing)`);
-    }
+    // The slot calculation is now generated dynamically based on active horses and their bookings.
+    // We no longer manage physical AvailabilitySlot entries here.
 
     // Send confirmation email
     if (booking.rider.email) {

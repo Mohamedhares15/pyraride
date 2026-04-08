@@ -39,111 +39,39 @@ export async function GET(
       where: { stableId: params.id, isActive: true },
     });
 
-    // 1. Automatic Slot Generation & Cleanup
-    // To ensure users see the correct updated hours (2, 3, 4 PM), we need to clear out old unbooked slots
-    // that might have been generated with the wrong hours.
+    // 1. Dynamic Slot Calculation
+    // Build slots in memory using the dates and horses without writing to the database
+    const amHours = [5, 6, 7, 8, 9, 10]; // Egypt time: 7-12
+    const pmHours = [12, 13, 14];        // Egypt time: 14-16
+    const desiredHours = [...amHours, ...pmHours];
 
-    // Delete UNBOOKED slots for this date/stable to force regeneration with new hours
-    // This acts as a self-healing mechanism for the slot hours update.
-    await prisma.availabilitySlot.deleteMany({
-      where: {
-        stableId: params.id,
-        date: queryDate,
-        bookingId: null, // Only delete unbooked slots
-      },
-    });
-
-    // Fetch existing (booked) slots to avoid duplicates
-    const existingSlots = await prisma.availabilitySlot.findMany({
-      where: {
-        stableId: params.id,
-        date: queryDate,
-      },
-    });
-
-    // Always attempt to generate slots, but filter out existing ones
+    const slots: any[] = [];
+    
     if (horses.length > 0) {
-      // console.log(`[GET /api/stables/${params.id}/slots] Checking/Generating slots for ${dateStr}...`);
+      const y = queryDate.getFullYear();
+      const m = queryDate.getMonth();
+      const d = queryDate.getDate();
 
-      const newSlots = [];
-      // Egypt is UTC+2. We generate slots in UTC to match Egypt time.
-      // Morning: 7, 8, 9, 10, 11, 12 Egypt -> 5, 6, 7, 8, 9, 10 UTC
-      // Afternoon: 2, 3, 4 PM (14, 15, 16) Egypt -> 12, 13, 14 UTC
-      const amHours = [5, 6, 7, 8, 9, 10];
-      const pmHours = [12, 13, 14];
-      const desiredHours = [...amHours, ...pmHours];
+      for (const horse of horses) {
+        // If a specific horse is requested, skip others
+        if (horseId && horseId !== "all" && horse.id !== horseId) continue;
 
-      // Loop for 7 days
-      for (let i = 0; i < 7; i++) {
-        const targetDate = new Date(queryDate);
-        targetDate.setDate(targetDate.getDate() + i);
+        for (const hour of desiredHours) {
+          const start = new Date(Date.UTC(y, m, d, hour, 0, 0));
+          const end = new Date(Date.UTC(y, m, d, hour + 1, 0, 0));
 
-        // Extract YMD from targetDate to build UTC date
-        const y = targetDate.getFullYear();
-        const m = targetDate.getMonth();
-        const d = targetDate.getDate();
-
-        for (const horse of horses) {
-          for (const hour of desiredHours) {
-            // Create UTC date objects
-            const start = new Date(Date.UTC(y, m, d, hour, 0, 0));
-            const end = new Date(Date.UTC(y, m, d, hour + 1, 0, 0));
-
-            // Check if slot already exists (e.g. booked) - Fuzzy match (1 minute tolerance)
-            const exists = existingSlots.some(
-              s => s.horseId === horse.id &&
-                Math.abs(new Date(s.startTime).getTime() - start.getTime()) < 60000
-            );
-
-            if (!exists) {
-              newSlots.push({
-                stableId: params.id,
-                horseId: horse.id,
-                date: targetDate,
-                startTime: start,
-                endTime: end,
-              });
-            }
-          }
+          slots.push({
+            id: `v-slot-${horse.id}-${start.getTime()}`,
+            stableId: params.id,
+            horseId: horse.id,
+            date: queryDate,
+            startTime: start,
+            endTime: end,
+            booking: null // Bookings are overlaid later mathematically
+          });
         }
       }
-
-      if (newSlots.length > 0) {
-        await prisma.availabilitySlot.createMany({
-          data: newSlots,
-        });
-        console.log(`[GET /api/stables/${params.id}/slots] Auto-generated ${newSlots.length} missing slots`);
-      }
     }
-
-    const slots = await prisma.availabilitySlot.findMany({
-      where: {
-        stableId: params.id,
-        date: queryDate,
-        ...(horseId && horseId !== "all" ? { horseId } : {}),
-      },
-      include: {
-        booking: {
-          select: {
-            id: true,
-            riderId: true,
-            startTime: true,
-            endTime: true,
-            status: true,
-            cancelledBy: true, // Include cancelledBy to check cancellation
-            rider: {
-              select: {
-                fullName: true,
-                email: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        startTime: "asc",
-      },
-    });
 
     // 2. Horse Welfare & Lead Time Logic
     // Instead of filtering out slots, we will mark them with a status.
@@ -198,22 +126,6 @@ export async function GET(
       horseBookings.set(booking.horseId, current);
     });
 
-    // Also use slot.booking as a fallback/supplement
-    slots.forEach(slot => {
-      if (!slot.horseId) return;
-
-      if (slot.booking && slot.booking.status !== 'cancelled') {
-        const hour = new Date(slot.startTime).getHours();
-        const isAm = hour < 12;
-
-        const current = horseBookings.get(slot.horseId) || { am: false, pm: false };
-        if (isAm) current.am = true;
-        else current.pm = true;
-
-        horseBookings.set(slot.horseId, current);
-      }
-    });
-
     // Second pass: Process slots and assign status
     const processedSlots = slots.map(slot => {
       // Create a unified booking object if it falls within an actual booking
@@ -223,14 +135,9 @@ export async function GET(
         new Date(slot.startTime).getTime() < new Date(b.endTime).getTime()
       );
 
-      // If booking is cancelled, treat as available (remove booking object)
-      if (slot.booking && slot.booking.status === 'cancelled') {
-        slot.booking = null;
-      }
-
       // 1. Check if already booked
-      if (slot.booking || overlappingBooking) {
-        return { ...slot, status: 'booked', booking: slot.booking || overlappingBooking };
+      if (overlappingBooking) {
+        return { ...slot, status: 'booked', booking: overlappingBooking };
       }
 
       // 2. Check Lead Time - DISABLED SERVER SIDE
@@ -298,7 +205,7 @@ export async function GET(
   }
 }
 
-// POST: Create availability slots
+// POST: Create availability slots (Deprecated - Now completely dynamic but maintained to prevent frontend errors)
 export async function POST(
   req: Request,
   { params }: { params: { id: string } }
@@ -309,60 +216,7 @@ export async function POST(
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const {
-      date,
-      startTime,
-      endTime,
-      horseId,
-      duration = 60, // Default 1 hour slots
-      timezoneOffset, // Client's timezone offset in minutes
-    } = await req.json();
-
-    if (!date || !startTime || !endTime) {
-      return new NextResponse("Missing required fields", { status: 400 });
-    }
-
-    // Validate date format (YYYY-MM-DD)
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(date)) {
-      return new NextResponse("Invalid date format. Use YYYY-MM-DD", { status: 400 });
-    }
-
-    // Parse date parts
-    const [year, month, day] = date.split('-').map(Number);
-    const queryDate = new Date(year, month - 1, day);
-
-    // Parse times
-    const start = new Date(startTime);
-    const end = new Date(endTime);
-
-    // Create slots
-    // If horseId is 'all', create for all active horses
-    let targetHorseIds: string[] = [];
-
-    if (horseId === 'all') {
-      const horses = await prisma.horse.findMany({
-        where: { stableId: params.id, isActive: true },
-        select: { id: true }
-      });
-      targetHorseIds = horses.map(h => h.id);
-    } else {
-      targetHorseIds = [horseId];
-    }
-
-    const newSlots = targetHorseIds.map(hId => ({
-      stableId: params.id,
-      horseId: hId,
-      date: queryDate,
-      startTime: start,
-      endTime: end,
-    }));
-
-    await prisma.availabilitySlot.createMany({
-      data: newSlots,
-    });
-
-    return NextResponse.json({ success: true, count: newSlots.length });
+    return NextResponse.json({ success: true, count: 0 });
   } catch (error) {
     console.error("Error creating slots:", error);
     return new NextResponse("Internal Error", { status: 500 });

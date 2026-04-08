@@ -104,14 +104,8 @@ export async function POST(
       },
     });
 
-    // Free up the availability slot
-    await prisma.availabilitySlot.updateMany({
-      where: { bookingId: params.id },
-      data: {
-        isBooked: false,
-        bookingId: null,
-      },
-    });
+    // In our new architecture, slots are mathematically generated. Cancelling the booking 
+    // itself is sufficient to make the time slot mathematically 'available' again.
 
     // Format times for email
     const startTimeStr = new Date(booking.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
