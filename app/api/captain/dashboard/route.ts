@@ -19,7 +19,7 @@ export async function GET() {
       select: { role: true },
     });
 
-    if (user?.role !== "captain") {
+    if (user?.role !== "captain" && user?.role !== "stable_owner") {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
