@@ -17,7 +17,14 @@ export async function GET() {
       where: { riderId: session.user.id },
       include: {
         academy: {
-          select: { id: true, name: true, location: true, address: true, imageUrl: true },
+          select: { 
+            id: true, 
+            name: true, 
+            location: true, 
+            address: true, 
+            imageUrl: true,
+            captain: { select: { fullName: true, phoneNumber: true } }
+          },
         },
         program: {
           select: {

@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import ReviewModal from "@/components/shared/ReviewModal";
 import CancelRescheduleModal from "@/components/shared/CancelRescheduleModal";
+import CancelEnrollmentModal from "@/components/shared/CancelEnrollmentModal";
 import Image from "next/image";
 
 interface Booking {
@@ -44,7 +45,7 @@ interface Enrollment {
   completedSessions: number;
   startDate: string;
   expiryDate: string;
-  academy: { name: string; location: string; imageUrl: string | null };
+  academy: { name: string; location: string; imageUrl: string | null; captain?: { fullName: string; phoneNumber?: string } };
   program: { name: string; skillLevel: string; totalSessions: number; sessionDuration: number; price: number };
   sessions: any[];
 }
@@ -66,6 +67,9 @@ function RiderDashboardContent() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [cancelRescheduleModalOpen, setCancelRescheduleModalOpen] = useState(false);
   const [cancelRescheduleMode, setCancelRescheduleMode] = useState<"cancel" | "reschedule">("cancel");
+
+  const [selectedEnrollmentToCancel, setSelectedEnrollmentToCancel] = useState<Enrollment | null>(null);
+  const [cancelEnrollmentModalOpen, setCancelEnrollmentModalOpen] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -99,7 +103,8 @@ function RiderDashboardContent() {
   }
 
   const handleRenewCancelEnrollment = async (enrollmentId: string, action: "renew" | "cancel") => {
-    if (action === "cancel" && !confirm("Are you sure you want to cancel this training enrollment?")) return;
+    // Note: 'cancel' is now handled through the dedicated CancelEnrollmentModal component onConfirm callback.
+    // 'renew' logic remains here or could be expanded.
     
     try {
       const res = await fetch(`/api/training/enrollments/${enrollmentId}`, {
@@ -301,7 +306,7 @@ function RiderDashboardContent() {
 
                          <div className="flex gap-3">
                            {enr.status === "active" && enr.completedSessions < 2 && (
-                             <button onClick={() => handleRenewCancelEnrollment(enr.id, "cancel")} className="text-xs uppercase tracking-widest text-gray-400 hover:text-red-400 transition-colors">Cancel</button>
+                             <button onClick={() => { setSelectedEnrollmentToCancel(enr); setCancelEnrollmentModalOpen(true); }} className="text-xs uppercase tracking-widest text-gray-400 hover:text-red-400 transition-colors">Cancel</button>
                            )}
                            {(enr.status === "completed" || enr.status === "expired") && (
                              <button onClick={() => handleRenewCancelEnrollment(enr.id, "renew")} className="bg-[#D4AF37] text-black px-6 py-2 rounded-full text-xs font-semibold uppercase tracking-widest hover:scale-105 transition-transform">Renew Program</button>
@@ -358,6 +363,24 @@ function RiderDashboardContent() {
       {selectedBooking && (
         <CancelRescheduleModal open={cancelRescheduleModalOpen} onOpenChange={setCancelRescheduleModalOpen} booking={selectedBooking} mode={cancelRescheduleMode} />
       )}
+      <CancelEnrollmentModal 
+        open={cancelEnrollmentModalOpen} 
+        onOpenChange={setCancelEnrollmentModalOpen} 
+        enrollment={selectedEnrollmentToCancel} 
+        onConfirm={async (enrollmentId) => {
+          try {
+            const res = await fetch(`/api/training/enrollments/${enrollmentId}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "cancel" }),
+            });
+            if (res.ok) fetchData();
+            else alert("Failed to cancel enrollment");
+          } catch (e) {
+            alert("Something went wrong");
+          }
+        }} 
+      />
     </div>
   );
 }
