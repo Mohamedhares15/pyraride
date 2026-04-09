@@ -70,9 +70,9 @@ export default function Hero() {
             fill
             priority
             fetchPriority="high"
+            unoptimized
             className="object-cover object-center"
             sizes="100vw"
-            quality={50}
           />
         </div>
         {/* Dark gradient overlay for text */}

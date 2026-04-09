@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Note: Domain redirects (non-www → www) are handled in next.config.mjs
@@ -39,29 +39,20 @@ export function middleware(request: NextRequest) {
   
   // ─── Driver Isolation Guard ───
   // If a driver tries to visit any page outside /dashboard/driver, force them back.
-  // We read the JWT to check the role without calling the DB.
-  const sessionToken = request.cookies.get('next-auth.session-token') ||
-                       request.cookies.get('__Secure-next-auth.session-token');
-
-  if (sessionToken) {
-    try {
-      // Decode JWT payload (base64) to get the role without a DB call
-      const tokenParts = sessionToken.value.split('.');
-      if (tokenParts.length === 3) {
-        const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
-        if (payload.role === 'driver') {
-          const allowedDriverPaths = ['/dashboard/driver', '/api/', '/_next/', '/favicon.', '/manifest.', '/icons/', '/sw.'];
-          const isAllowed = allowedDriverPaths.some(p => pathname.startsWith(p));
-          if (!isAllowed) {
-            const driverUrl = request.nextUrl.clone();
-            driverUrl.pathname = '/dashboard/driver';
-            return NextResponse.redirect(driverUrl);
-          }
-        }
+  // We use getToken to correctly decrypt the NextAuth JWE token.
+  try {
+    const token = await import("next-auth/jwt").then(mod => mod.getToken({ req: request }));
+    if (token && token.role === "driver") {
+      const allowedDriverPaths = ["/dashboard/driver", "/api/", "/_next/", "/favicon.", "/manifest.", "/icons/", "/sw."];
+      const isAllowed = allowedDriverPaths.some(p => pathname.startsWith(p));
+      if (!isAllowed) {
+        const driverUrl = request.nextUrl.clone();
+        driverUrl.pathname = "/dashboard/driver";
+        return NextResponse.redirect(driverUrl);
       }
-    } catch (e) {
-      // JWT decode failed — skip guard (non-JWT session strategy)
     }
+  } catch (error) {
+    console.error("Middleware getToken error:", error);
   }
 
   // Security: Add rate limiting headers (basic implementation)
