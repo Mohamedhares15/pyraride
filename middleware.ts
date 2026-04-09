@@ -37,6 +37,33 @@ export function middleware(request: NextRequest) {
     }
   }
   
+  // ─── Driver Isolation Guard ───
+  // If a driver tries to visit any page outside /dashboard/driver, force them back.
+  // We read the JWT to check the role without calling the DB.
+  const sessionToken = request.cookies.get('next-auth.session-token') ||
+                       request.cookies.get('__Secure-next-auth.session-token');
+
+  if (sessionToken) {
+    try {
+      // Decode JWT payload (base64) to get the role without a DB call
+      const tokenParts = sessionToken.value.split('.');
+      if (tokenParts.length === 3) {
+        const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
+        if (payload.role === 'driver') {
+          const allowedDriverPaths = ['/dashboard/driver', '/api/', '/_next/', '/favicon.', '/manifest.', '/icons/', '/sw.'];
+          const isAllowed = allowedDriverPaths.some(p => pathname.startsWith(p));
+          if (!isAllowed) {
+            const driverUrl = request.nextUrl.clone();
+            driverUrl.pathname = '/dashboard/driver';
+            return NextResponse.redirect(driverUrl);
+          }
+        }
+      }
+    } catch (e) {
+      // JWT decode failed — skip guard (non-JWT session strategy)
+    }
+  }
+
   // Security: Add rate limiting headers (basic implementation)
   const response = NextResponse.next();
   

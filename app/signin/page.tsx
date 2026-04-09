@@ -35,6 +35,17 @@ function SignInContent() {
         setError("Invalid credentials. Please check your email/phone and password.");
       } else {
         logEvent({ action: "login", method: "credentials" });
+        // Check user role to redirect drivers directly to their PWA
+        try {
+          const sessionRes = await fetch("/api/auth/session");
+          const sessionData = await sessionRes.json();
+          if (sessionData?.user?.role === "driver") {
+            window.location.href = "/dashboard/driver";
+            return;
+          }
+        } catch (e) {
+          // Fallback to default redirect
+        }
         router.push(callbackUrl);
         router.refresh();
       }

@@ -214,6 +214,24 @@ export async function POST(req: NextRequest) {
           console.error("Failed to create owner notification:", err);
         }
       }
+
+      // 5. Create In-App Notification for ALL Admin users
+      try {
+        const admins = await prisma.user.findMany({ where: { role: "admin" } });
+        if (admins.length > 0) {
+          await prisma.notification.createMany({
+            data: admins.map(admin => ({
+              userId: admin.id,
+              type: "system",
+              title: "New Package Booking",
+              message: `${packageBooking.rider.fullName || "A rider"} booked "${packageBooking.package.title}" (${packageBooking.ticketsCount} tickets, EGP ${parseFloat(packageBooking.totalPrice.toString())})${transportZoneName ? ` + Transport from ${transportZoneName}` : ""}`,
+              data: { packageBookingId: packageBooking.id, url: "/dashboard/analytics" }
+            }))
+          });
+        }
+      } catch (err) {
+        console.error("Failed to notify admins:", err);
+      }
     }
 
     // Handle Stripe
