@@ -2,7 +2,6 @@ import { ReactNode } from "react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Navigation } from "@/components/shared/Navigation"; // Standard nav logic can be suppressed here if needed
 
 export default async function DriverDashboardLayout({ children }: { children: ReactNode }) {
   const session = await getServerSession(authOptions);
