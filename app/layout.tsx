@@ -8,23 +8,21 @@ import Footer from "@/components/shared/Footer";
 import OrientationLock from "@/components/shared/OrientationLock";
 import { OptimalCinematicWrapper } from "@/components/OptimalCinematicWrapper";
 import NotificationProvider from "@/components/providers/NotificationProvider";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import Script from "next/script";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { WebVitals } from "@/components/analytics/WebVitals";
 import { LocalBusinessSchema, WebSiteSchema, SpeakableSchema } from "@/components/seo/StructuredData";
+import { headers } from "next/headers";
 import "./globals.css";
 
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["300", "400", "600", "700"],
   variable: "--font-poppins",
-  display: "swap", // Use swap to ensure text paints immediately to fix LCP Render Delay
+  display: "swap",
   preload: true,
-  adjustFontFallback: true, // Adjust fallback font to match Poppins metrics
+  adjustFontFallback: true,
 });
-
-// Viewport export removed in favor of manual meta tags for better compatibility with Instagram browser
 
 export const metadata: Metadata = {
   title: {
@@ -33,18 +31,15 @@ export const metadata: Metadata = {
   },
   description: "PyraRides is Egypt's first online marketplace for booking horse riding experiences at the Giza and Saqqara Pyramids. Compare and book from multiple verified stables in one platform. 100% verified, instant booking, best prices guaranteed. ⭐ 4.9/5 rating.",
   keywords: [
-    // Primary keywords
     "horse riding Egypt",
     "horse riding pyramids",
     "horse riding Giza",
     "book horse riding Egypt",
     "horse riding booking Egypt",
-    // Marketplace keywords
     "horse riding marketplace Egypt",
     "compare horse riding stables",
     "horse riding platform Egypt",
     "online horse riding booking Egypt",
-    // Location keywords
     "Giza horse riding",
     "Saqqara horse riding",
     "horse riding near pyramids",
@@ -53,7 +48,6 @@ export const metadata: Metadata = {
     "Egypt horse riding",
     "Cairo horse riding",
     "book horse ride Giza",
-    // Experience keywords
     "safe horse riding Egypt",
     "Arabian horse riding",
     "sunset horse riding pyramids",
@@ -129,35 +123,36 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Detect driver dashboard routes to suppress main site chrome
+  const headersList = headers();
+  const pathname = headersList.get("x-invoke-path") || headersList.get("x-nextjs-page") || "";
+  const isDriverRoute = pathname.startsWith("/dashboard/driver");
+
   return (
     <html lang="en" dir="ltr" className="light">
       <head>
-        {/* DNS Prefetch for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
-
-        {/* Favicon and Icons for Search Engines */}
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="shortcut icon" href="/favicon.png" />
         <link rel="manifest" href="/manifest.json" />
-
-        {/* Apple Touch Icons for different devices */}
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-
         <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-192x192.png" />
 
-        {/* Structured Data */}
-        <LocalBusinessSchema />
-        <WebSiteSchema />
-        <SpeakableSchema />
+        {!isDriverRoute && (
+          <>
+            <LocalBusinessSchema />
+            <WebSiteSchema />
+            <SpeakableSchema />
+          </>
+        )}
       </head>
       <body className={`${poppins.variable} font-sans antialiased`}>
-        {/* Skip to main content link for accessibility */}
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-primary focus:text-primary-foreground focus:rounded"
@@ -167,25 +162,30 @@ export default function RootLayout({
 
         <AuthProvider>
           <NotificationProvider>
-            <OptimalCinematicWrapper>
-              <ImageProtectionProvider />
-              <OrientationLock />
-              <main id="main-content" className="pb-0">{children}</main>
-              <Footer />
-              <SpeedInsights />
-              <WebVitals />
-            </OptimalCinematicWrapper>
-            <LazyAIAgent />
-            <CookieConsent />
+            {isDriverRoute ? (
+              /* Driver PWA: Completely isolated — no Navbar, Footer, AI Agent, or cinematic effects */
+              <main id="main-content">{children}</main>
+            ) : (
+              /* Standard Consumer Site */
+              <OptimalCinematicWrapper>
+                <ImageProtectionProvider />
+                <OrientationLock />
+                <main id="main-content" className="pb-0">{children}</main>
+                <Footer />
+                <WebVitals />
+              </OptimalCinematicWrapper>
+            )}
+            {!isDriverRoute && <LazyAIAgent />}
+            {!isDriverRoute && <CookieConsent />}
           </NotificationProvider>
         </AuthProvider>
 
-        {/* Google Analytics - Optimized loading via next/third-parties */}
+        {/* Google Analytics */}
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}
 
-        {/* Plausible Analytics - Load on idle */}
+        {/* Plausible Analytics */}
         <Script
           src="https://plausible.io/js/script.js"
           data-domain="www.pyrarides.com"
