@@ -132,8 +132,6 @@ export default function RootLayout({
   return (
     <html lang="en" dir="ltr" className={isDriverRoute ? "dark bg-black" : "light"}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
@@ -182,9 +180,24 @@ export default function RootLayout({
           </NotificationProvider>
         </AuthProvider>
 
-        {/* Google Analytics */}
+        {/* Google Analytics - Strict Lazy Load */}
         {process.env.NEXT_PUBLIC_GA_ID && (
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+              strategy="lazyOnload"
+            />
+            <Script id="google-analytics" strategy="lazyOnload">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
+                  page_path: window.location.pathname,
+                });
+              `}
+            </Script>
+          </>
         )}
 
         {/* Plausible Analytics */}
@@ -192,7 +205,6 @@ export default function RootLayout({
           src="https://plausible.io/js/script.js"
           data-domain="www.pyrarides.com"
           strategy="lazyOnload"
-          defer
         />
       </body>
     </html>

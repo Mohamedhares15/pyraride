@@ -85,10 +85,10 @@
     "typescript": "^5.7.2"
   },
   "browserslist": [
-    "chrome >= 87",
-    "defaults",
-    "not ie 11",
-    "not op_mini all",
-    "not dead"
+    "Edge >= 110",
+    "Firefox >= 110",
+    "Chrome >= 110",
+    "Safari >= 15",
+    "iOS >= 15"
   ]
 }
