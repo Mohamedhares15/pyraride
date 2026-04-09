@@ -387,11 +387,11 @@ export default function AcademyCheckoutPage({ params }: { params: { academyId: s
                 {/* Content */}
                 <div className="flex-1 space-y-4">
                   {/* Academy Info */}
-                  <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-                     <Image src={academy.imageUrl} alt={academy.name} width={40} height={40} className="rounded-md object-cover" />
-                     <div>
-                       <p className="text-white font-semibold text-sm">{academy.name}</p>
-                       <p className="text-[10px] text-white/50 uppercase tracking-widest">{academy.location}</p>
+                  <div className="flex items-center gap-4 border-b border-white/10 pb-4">
+                     <Image src={academy.imageUrl} alt={academy.name} width={40} height={40} className="rounded-md object-cover w-10 h-10 shrink-0" />
+                     <div className="flex-1 min-w-0">
+                       <p className="text-white font-semibold text-sm truncate">{academy.name}</p>
+                       <p className="text-[10px] text-white/50 uppercase tracking-widest truncate">{academy.location}</p>
                      </div>
                   </div>
 
