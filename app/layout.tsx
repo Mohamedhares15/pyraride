@@ -13,7 +13,6 @@ import Script from "next/script";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { WebVitals } from "@/components/analytics/WebVitals";
 import { LocalBusinessSchema, WebSiteSchema, SpeakableSchema } from "@/components/seo/StructuredData";
-import { headers } from "next/headers";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -119,19 +118,22 @@ export const viewport: Viewport = {
   themeColor: "#000000",
 };
 
+import RouteLayoutAdapter from "@/components/shared/RouteLayoutAdapter";
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Detect driver dashboard routes to suppress main site chrome
-  const headersList = headers();
-  const pathname = headersList.get("x-invoke-path") || headersList.get("x-nextjs-page") || "";
-  const isDriverRoute = pathname.startsWith("/dashboard/driver");
-
   return (
-    <html lang="en" dir="ltr" className={isDriverRoute ? "dark bg-black" : "light"}>
+    <html lang="en" dir="ltr" className="light" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          if (window.location.pathname.startsWith('/dashboard/driver')) {
+            document.documentElement.classList.remove('light');
+            document.documentElement.classList.add('dark', 'bg-black');
+          }
+        `}} />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
@@ -143,13 +145,9 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-192x192.png" />
 
-        {!isDriverRoute && (
-          <>
-            <LocalBusinessSchema />
-            <WebSiteSchema />
-            <SpeakableSchema />
-          </>
-        )}
+        <LocalBusinessSchema />
+        <WebSiteSchema />
+        <SpeakableSchema />
       </head>
       <body className={`${poppins.variable} font-sans antialiased`}>
         <a
@@ -161,22 +159,23 @@ export default function RootLayout({
 
         <AuthProvider>
           <NotificationProvider>
-            {isDriverRoute ? (
-              /* Driver PWA: Completely isolated — no Navbar, Footer, AI Agent, or cinematic effects */
-              <main id="main-content">{children}</main>
-            ) : (
-              /* Standard Consumer Site */
-              <OptimalCinematicWrapper>
-                <ImageProtectionProvider />
-                <OrientationLock />
-                <main id="main-content" className="pb-0">{children}</main>
-                <Footer />
-                <SpeedInsights />
-                <WebVitals />
-              </OptimalCinematicWrapper>
-            )}
-            {!isDriverRoute && <LazyAIAgent />}
-            {!isDriverRoute && <CookieConsent />}
+            <RouteLayoutAdapter
+              driverContent={<main id="main-content">{children}</main>}
+              consumerContent={
+                <>
+                  <OptimalCinematicWrapper>
+                    <ImageProtectionProvider />
+                    <OrientationLock />
+                    <main id="main-content" className="pb-0">{children}</main>
+                    <Footer />
+                    <SpeedInsights />
+                    <WebVitals />
+                  </OptimalCinematicWrapper>
+                  <LazyAIAgent />
+                  <CookieConsent />
+                </>
+              }
+            />
           </NotificationProvider>
         </AuthProvider>
 
