@@ -13,6 +13,10 @@ const ImageProtectionProvider = dynamic(
   () => import('@/components/providers/ImageProtectionProvider'),
   { ssr: false }
 );
+const FirebaseNotifications = dynamic(
+  () => import('@/components/providers/FirebaseNotifications'),
+  { ssr: false }
+);
 
 import Footer from "@/components/shared/Footer";
 import { OptimalCinematicWrapper } from "@/components/OptimalCinematicWrapper";
@@ -179,6 +183,7 @@ export default function RootLayout({
                     <Footer />
                     <SpeedInsights />
                     <WebVitals />
+                    <FirebaseNotifications />
                   </OptimalCinematicWrapper>
                   <LazyAIAgent />
                   <CookieConsent />

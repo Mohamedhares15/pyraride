@@ -9,6 +9,10 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  compiler: {
+    // Remove React properties in production for smaller bundle
+    reactRemoveProperties: process.env.NODE_ENV === 'production',
+  },
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
@@ -164,6 +168,7 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'date-fns', 'framer-motion', '@radix-ui/react-icons', '@radix-ui/react-popover'],
+    optimizeCss: true,
   },
 };
 
