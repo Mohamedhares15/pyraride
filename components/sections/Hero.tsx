@@ -70,7 +70,7 @@ export default function Hero() {
             fill
             priority
             fetchPriority="high"
-            unoptimized
+            quality={85}
             className="object-cover object-center"
             sizes="100vw"
           />
@@ -194,19 +194,21 @@ export default function Hero() {
                   <button
                     type="button"
                     onClick={() => {
-                      const input = document.getElementById('hero-date-input') as HTMLInputElement;
-                      if (input) {
-                        input.focus();
-                        if ('showPicker' in HTMLInputElement.prototype) {
-                          try {
-                            input.showPicker();
-                          } catch (e) {
+                      requestAnimationFrame(() => {
+                        const input = document.getElementById('hero-date-input') as HTMLInputElement;
+                        if (input) {
+                          input.focus();
+                          if ('showPicker' in HTMLInputElement.prototype) {
+                            try {
+                              input.showPicker();
+                            } catch (e) {
+                              input.click();
+                            }
+                          } else {
                             input.click();
                           }
-                        } else {
-                          input.click();
                         }
-                      }
+                      });
                     }}
                     className="flex !h-[56px] w-full cursor-pointer items-center justify-between rounded-2xl border border-white/30 bg-white/5 px-4 text-left text-base text-white transition-all duration-200 focus-within:border-white/70 focus-within:ring-2 focus-within:ring-white/60 md:!h-12 md:rounded-full md:border-white/50 md:bg-white/90 md:text-foreground md:focus-within:ring-ring"
                   >

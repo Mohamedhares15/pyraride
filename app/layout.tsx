@@ -1,11 +1,20 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import AuthProvider from "@/components/providers/AuthProvider";
-import ImageProtectionProvider from "@/components/providers/ImageProtectionProvider";
-import { LazyAIAgent } from "@/components/shared/LazyAIAgent";
-import CookieConsent from "@/components/shared/CookieConsent";
+import dynamic from 'next/dynamic';
+
+const LazyAIAgent = dynamic(() =>
+  import('@/components/shared/LazyAIAgent').then(mod => mod.LazyAIAgent),
+  { ssr: false }
+);
+const CookieConsent = dynamic(() => import('@/components/shared/CookieConsent'), { ssr: false });
+const OrientationLock = dynamic(() => import('@/components/shared/OrientationLock'), { ssr: false });
+const ImageProtectionProvider = dynamic(
+  () => import('@/components/providers/ImageProtectionProvider'),
+  { ssr: false }
+);
+
 import Footer from "@/components/shared/Footer";
-import OrientationLock from "@/components/shared/OrientationLock";
 import { OptimalCinematicWrapper } from "@/components/OptimalCinematicWrapper";
 import NotificationProvider from "@/components/providers/NotificationProvider";
 import { SpeedInsights } from "@vercel/speed-insights/next";
