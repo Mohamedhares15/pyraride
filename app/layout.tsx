@@ -130,7 +130,7 @@ export default function RootLayout({
   const isDriverRoute = pathname.startsWith("/dashboard/driver");
 
   return (
-    <html lang="en" dir="ltr" className="light">
+    <html lang="en" dir="ltr" className={isDriverRoute ? "dark bg-black" : "light"}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

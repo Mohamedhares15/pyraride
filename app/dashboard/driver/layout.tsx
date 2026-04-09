@@ -73,7 +73,9 @@ export default function DriverDashboardLayout({ children }: { children: ReactNod
   return (
     <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-[#0A0A0A] text-white">
       {/* ─── Top Status Bar ─── */}
-      <header className="flex h-[56px] shrink-0 items-center justify-between bg-[#0A0A0A] px-5 border-b border-white/[0.06]">
+      <header 
+        className="flex shrink-0 items-center justify-between bg-[#0A0A0A] px-5 border-b border-white/[0.06] pt-[max(0.75rem,var(--sat))] pb-3"
+      >
         <div className="flex items-center gap-3">
           <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#B8960C]">
             <svg className="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -103,7 +105,7 @@ export default function DriverDashboardLayout({ children }: { children: ReactNod
       </main>
 
       {/* ─── Bottom Navigation Dock ─── */}
-      <nav className="shrink-0 flex items-end justify-around bg-[#0A0A0A] border-t border-white/[0.06] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+      <nav className="shrink-0 flex items-end justify-around bg-[#0A0A0A] border-t border-white/[0.06] px-2 pt-1.5 pb-[max(0.5rem,var(--sab))]">
         {NAV_ITEMS.map((item) => {
           const active = isActive(item.href);
           return (
