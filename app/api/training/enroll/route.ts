@@ -13,11 +13,11 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { programId, startDate } = body;
+    const { programId, startDate, paymentMethod, paymentStructure } = body;
 
-    if (!programId || !startDate) {
+    if (!programId || !startDate || !paymentMethod || !paymentStructure) {
       return NextResponse.json(
-        { error: "programId and startDate are required" },
+        { error: "programId, startDate, paymentMethod, and paymentStructure are required" },
         { status: 400 }
       );
     }
@@ -56,6 +56,11 @@ export async function POST(request: Request) {
         { status: 409 }
       );
     }
+
+    // Payment Calculations
+    const totalPrice = Number(program.price);
+    const amountPaidStr = paymentStructure === "PARTIAL" ? (totalPrice * 0.15) : totalPrice;
+    const balanceDueStr = totalPrice - amountPaidStr;
 
     // Calculate dates
     const start = new Date(startDate);
@@ -125,6 +130,10 @@ export async function POST(request: Request) {
           startDate: start,
           expiryDate: expiry,
           totalPrice: program.price,
+          paymentMethod: paymentMethod === "VISA" ? "VISA" : "CASH",
+          paymentStructure: paymentStructure === "PARTIAL" ? "PARTIAL" : "FULL",
+          amountPaid: amountPaidStr,
+          balanceDue: balanceDueStr,
         },
       });
 

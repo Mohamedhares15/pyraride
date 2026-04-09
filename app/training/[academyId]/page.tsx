@@ -54,24 +54,7 @@ export default function AcademyDetailPage({ params }: { params: { academyId: str
 
     setEnrolling(programId);
     try {
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() + 1);
-
-      const res = await fetch("/api/training/enroll", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          programId,
-          startDate: startDate.toISOString().split("T")[0],
-        }),
-      });
-
-      if (res.ok) {
-        router.push("/dashboard/rider?tab=training");
-      } else {
-        const data = await res.json();
-        alert(data.error || "Failed to enroll");
-      }
+      router.push(`/training/${params.academyId}/checkout?programId=${programId}`);
     } catch (err) {
       console.error(err);
       alert("Something went wrong");

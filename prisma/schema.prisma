@@ -802,6 +802,16 @@ enum TrainingBookingStatus {
   expired
 }
 
+enum PaymentMethod {
+  CASH
+  VISA
+}
+
+enum PaymentStructure {
+  FULL
+  PARTIAL
+}
+
 enum TrainingSessionStatus {
   scheduled
   completed
@@ -892,9 +902,13 @@ model TrainingEnrollment {
   expiryDate        DateTime @db.Date // startDate + validityDays
 
   // Payment
-  totalPrice      Decimal  @db.Decimal(10, 2)
-  stripePaymentId String?  @unique
-  commission      Decimal? @db.Decimal(10, 2)
+  totalPrice       Decimal  @db.Decimal(10, 2)
+  amountPaid       Decimal  @default(0) @db.Decimal(10, 2)
+  balanceDue       Decimal  @default(0) @db.Decimal(10, 2)
+  paymentMethod    PaymentMethod @default(CASH)
+  paymentStructure PaymentStructure @default(FULL)
+  stripePaymentId  String?  @unique
+  commission       Decimal? @db.Decimal(10, 2)
 
   // Renewal
   renewedFromId String? // If renewed, points to previous enrollment

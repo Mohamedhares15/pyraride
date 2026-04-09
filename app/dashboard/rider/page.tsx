@@ -300,7 +300,7 @@ function RiderDashboardContent() {
                          </div>
 
                          <div className="flex gap-3">
-                           {enr.status === "active" && (
+                           {enr.status === "active" && enr.completedSessions < 2 && (
                              <button onClick={() => handleRenewCancelEnrollment(enr.id, "cancel")} className="text-xs uppercase tracking-widest text-gray-400 hover:text-red-400 transition-colors">Cancel</button>
                            )}
                            {(enr.status === "completed" || enr.status === "expired") && (
