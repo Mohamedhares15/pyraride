@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { packageId, date, startTime, ticketsCount, transportationZoneId } = body;
+    const { packageId, date, startTime, ticketsCount, transportationZoneId, pickupLocationUrl } = body;
 
     if (!packageId || !date || !startTime || !ticketsCount) {
       return NextResponse.json(
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     // Securely calculate transportation price
     let transportPrice = 0;
     let transportZoneName = "";
-    if (pkg.hasTransportation && transportationZoneId) {
+    if (pkg.hasTransportation && transportationZoneId && transportationZoneId !== "none") {
       const zone = await prisma.transportZone.findUnique({
         where: { id: transportationZoneId, isActive: true },
       });
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Calculate price
-    const unitPrice = pkg.price;
+    const unitPrice = Number(pkg.price);
     const finalTicketsCount = pkg.packageType === "PRIVATE" ? 1 : Number(ticketsCount);
     const totalPrice = (unitPrice * finalTicketsCount) + transportPrice;
 
@@ -99,6 +99,7 @@ export async function POST(req: NextRequest) {
         ticketsCount: finalTicketsCount,
         totalPrice: totalPrice,
         transportationZone: transportZoneName || null,
+        pickupLocationUrl: pickupLocationUrl || null,
         status: "confirmed",
         stripePaymentId: null, // Filled via webhook
         commission: totalPrice * 0.15, // standard 15% platform fee

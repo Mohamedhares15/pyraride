@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { ArrowLeft, Clock, Calendar as CalendarIcon, CheckCircle2, Ticket, Users, AlertTriangle, Car } from "lucide-react";
+import { ArrowLeft, Clock, Calendar as CalendarIcon, CheckCircle2, Ticket, Users, AlertTriangle, Car, Loader2 } from "lucide-react";
 
 interface TransportZone {
   id: string;
@@ -31,6 +31,8 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
     { id: "none", name: "I will arrange my own transportation (Meet at location)", price: 0 }
   ]);
   const [selectedZone, setSelectedZone] = useState<string>("none");
+  const [pickupLocationUrl, setPickupLocationUrl] = useState<string>("");
+  const [isLocating, setIsLocating] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
 
@@ -55,8 +57,8 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
   }, [pkg.hasTransportation]);
 
   const isPrivate = pkg.packageType === "PRIVATE";
-  const basePrice = isPrivate ? pkg.price : pkg.price * tickets;
-  const transportPrice = pkg.hasTransportation ? (transportZones.find(z => z.id === selectedZone)?.price || 0) : 0;
+  const basePrice = isPrivate ? Number(pkg.price) : Number(pkg.price) * tickets;
+  const transportPrice = pkg.hasTransportation ? Number(transportZones.find(z => z.id === selectedZone)?.price || 0) : 0;
   const finalPrice = basePrice + transportPrice;
 
   const minLeadTimeHours = pkg.minLeadTimeHours ?? 0;
@@ -134,6 +136,11 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
       }
     }
 
+    if (pkg.hasTransportation && selectedZone !== "none" && !pickupLocationUrl.trim()) {
+      toast.error("Please provide a pickup location Google Maps link.");
+      return;
+    }
+
     setIsProcessing(true);
     setError("");
 
@@ -144,11 +151,10 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
         body: JSON.stringify({
           packageId: pkg.id,
           date,
-          startTime: pkg.startTime || "18:00",
-          ticketsCount: isPrivate ? pkg.maxPeople : tickets,
-          transportationZoneId: pkg.hasTransportation && selectedZone !== "none" 
-            ? selectedZone 
-            : undefined,
+          startTime: pkg.startTime || "10:00",
+          ticketsCount: tickets,
+          transportationZoneId: selectedZone !== "none" ? selectedZone : undefined,
+          pickupLocationUrl: selectedZone !== "none" ? pickupLocationUrl : null,
         }),
       });
 
@@ -170,6 +176,29 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
       toast.error(err.message || "An error occurred during checkout.");
       setIsProcessing(false);
     }
+  };
+
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const mapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+        setPickupLocationUrl(mapsUrl);
+        setIsLocating(false);
+        toast.success("Location acquired successfully!");
+      },
+      (err) => {
+        setIsLocating(false);
+        toast.error("Unable to retrieve your location. Please ensure location permissions are enabled, or paste a Google Maps link manually.");
+      },
+      { timeout: 10000 }
+    );
   };
 
   return (
@@ -384,9 +413,46 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
                           <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                         </div>
                       </div>
-                      <p className="text-xs text-white/50 -mt-1">
+                      <p className="text-xs text-white/50 -mt-1 mb-4">
                         Select a zone to add round-trip transportation from your hotel or home in Cairo/Giza.
                       </p>
+
+                      {selectedZone !== "none" && (
+                        <div className="mt-4 space-y-3 p-4 rounded-xl border border-[rgb(218,165,32)]/30 bg-[rgb(218,165,32)]/5">
+                          <label className="block text-sm font-medium text-white mb-1">
+                            Exact Pickup Location *
+                          </label>
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <input
+                              type="url"
+                              placeholder="Paste Google Maps URL here (e.g. https://maps.app.goo.gl/...)"
+                              value={pickupLocationUrl}
+                              onChange={(e) => setPickupLocationUrl(e.target.value)}
+                              className="flex-1 w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-sm text-white focus:border-[rgb(218,165,32)] focus:ring-[rgb(218,165,32)] transition-colors"
+                            />
+                            <button
+                              onClick={handleGetLocation}
+                              disabled={isLocating}
+                              className="flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-white/10 hover:bg-white/20 px-4 py-3 text-sm font-medium text-white transition-colors border border-white/20"
+                            >
+                              {isLocating ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  Locating...
+                                </>
+                              ) : (
+                                <>
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                  Get My Location
+                                </>
+                              )}
+                            </button>
+                          </div>
+                          <p className="text-xs text-[rgb(218,165,32)]">
+                            Provide an exact location pin so our drivers can securely navigate directly to you.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
