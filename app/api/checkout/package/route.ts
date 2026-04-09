@@ -176,6 +176,28 @@ export async function POST(req: NextRequest) {
         console.error("Failed to create rider notification:", err);
       }
 
+      // 4. Create In-App Notification for Drivers if transport is requested
+      if (transportZoneName) {
+        try {
+          const drivers = await prisma.user.findMany({ where: { role: "driver" } });
+          const driverIdSet = drivers.map(d => ({
+            userId: d.id,
+            type: "system",
+            title: "New Transport Request!",
+            message: `A new VIP pickup request from ${packageBooking.transportationZone} is pending in the driver queue. Tap to accept!`,
+            data: { url: "/dashboard/driver" }
+          }));
+
+          if (driverIdSet.length > 0) {
+             await prisma.notification.createMany({
+                data: driverIdSet
+             });
+          }
+        } catch (err) {
+          console.error("Failed to notify driver pool:", err);
+        }
+      }
+
       // 4. Create In-App Notification for Stable Owner (if assigned)
       if (packageBooking.package.stable?.owner?.id) {
         try {

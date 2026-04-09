@@ -16,6 +16,7 @@ enum Role {
   admin
   cx_media
   captain
+  driver
 }
 
 enum GalleryItemStatus {
@@ -65,6 +66,14 @@ enum BookingStatus {
   completed
   cancelled
   rescheduled
+}
+
+enum TransportStatus {
+  pending
+  assigned
+  in_transit
+  arrived
+  completed
 }
 
 enum StableStatus {
@@ -141,8 +150,11 @@ model User {
   userPosts UserPost[] @relation("UserPosts")
   postLikes PostLike[]
 
-  // Notifications
+  // Sent notifications (Rider, Owner, Driver)
   notifications Notification[]
+  
+  // Appointed trips
+  driverBookings PackageBooking[] @relation("DriverBookings")
 
   // Academy / Training
   managedAcademy      Academy?             @relation("AcademyCaptain")
@@ -772,14 +784,21 @@ model PackageBooking {
   refundAmount       Decimal?
   stripeRefundId     String?
   refundReason       String?       @db.Text
+  
+  // Driver App relations
+  driverId           String?
+  driverStatus       TransportStatus @default(pending) // Track the physical state of the uber-like flow
+
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
   rider   User    @relation(fields: [riderId], references: [id])
   package Package @relation(fields: [packageId], references: [id])
+  driver  User?   @relation("DriverBookings", fields: [driverId], references: [id])
 
   @@index([riderId])
   @@index([packageId])
+  @@index([driverId])
   @@index([date])
 }
 

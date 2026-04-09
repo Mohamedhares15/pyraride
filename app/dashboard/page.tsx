@@ -30,6 +30,8 @@ export default function DashboardPage() {
       router.push("/dashboard/analytics");
     } else if (role === "cx_media") {
       router.push("/dashboard/cx-media");
+    } else if (role === "driver") {
+      router.push("/dashboard/driver");
     } else {
       // Default fallback
       router.push("/dashboard/rider");
