@@ -42,6 +42,7 @@ export async function GET(
     const [horses, stable, bookings] = await Promise.all([
       prisma.horse.findMany({
         where: { stableId: params.id, isActive: true },
+        select: { id: true, name: true }
       }),
       prisma.stable.findUnique({
         where: { id: params.id },

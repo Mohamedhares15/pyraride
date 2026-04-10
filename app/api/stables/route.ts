@@ -305,9 +305,9 @@ export async function GET(req: NextRequest) {
             horse.pricePerHour !== null && horse.pricePerHour !== undefined
               ? Number(horse.pricePerHour)
               : null,
-          stableId: horse.stable?.id ?? stable.id,
-          stableName: horse.stable?.name ?? stable.name,
-          stableLocation: horse.stable?.location ?? stable.location,
+          stableId: stable.id,
+          stableName: stable.name,
+          stableLocation: stable.location,
           rating:
             horseReviewCount > 0
               ? horseRating
@@ -395,9 +395,9 @@ export async function GET(req: NextRequest) {
             .map((horse: any) => {
               return {
                 type: "horse",
-                stableId: horse.stableId || stable.id,
-                stableName: horse.stableName || stable.name,
-                stableLocation: horse.stableLocation || stable.location,
+                stableId: stable.id,
+                stableName: stable.name,
+                stableLocation: stable.location,
                 distanceKm: horse.distanceKm || stable.distanceKm,
                 id: horse.id,
                 name: horse.name,
