@@ -34,10 +34,35 @@ export async function GET(
     // We auto-generate slots if NONE exist for this date to ensure availability shows up.
     // This respects the stable's operating hours (default 7-10 AM, 2-4 PM Egypt time).
 
-    // Fetch all active horses
-    const horses = await prisma.horse.findMany({
-      where: { stableId: params.id, isActive: true },
-    });
+    const startOfDay = new Date(queryDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(queryDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const [horses, stable, bookings] = await Promise.all([
+      prisma.horse.findMany({
+        where: { stableId: params.id, isActive: true },
+      }),
+      prisma.stable.findUnique({
+        where: { id: params.id },
+        select: { minLeadTimeHours: true },
+      }),
+      prisma.booking.findMany({
+        where: {
+          stableId: params.id,
+          startTime: { gte: startOfDay, lte: endOfDay },
+          status: { not: 'cancelled' },
+        },
+        select: {
+          id: true,
+          horseId: true,
+          startTime: true,
+          endTime: true,
+          status: true,
+          rider: { select: { fullName: true, email: true } },
+        },
+      }),
+    ]);
 
     // 1. Dynamic Slot Calculation
     // Build slots in memory using the dates and horses without writing to the database
@@ -77,42 +102,11 @@ export async function GET(
     // Instead of filtering out slots, we will mark them with a status.
     // Statuses: 'available', 'booked', 'blocked_session', 'blocked_lead_time'
 
-    // Fetch stable lead time (default 24h if not set)
-    const stable = await prisma.stable.findUnique({
-      where: { id: params.id },
-      select: { minLeadTimeHours: true } // in hours
-    });
     const leadTimeHours = stable?.minLeadTimeHours || 24;
     const minBookingTime = new Date(Date.now() + leadTimeHours * 60 * 60 * 1000);
 
     // Track booked sessions per horse
     const horseBookings = new Map<string, { am: boolean; pm: boolean }>();
-
-    // Fetch ACTUAL bookings for this date directly from Booking table
-    // This is more robust than relying on availabilitySlot.booking linkage
-    const startOfDay = new Date(queryDate);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(queryDate);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    const bookings = await prisma.booking.findMany({
-      where: {
-        stableId: params.id,
-        startTime: {
-          gte: startOfDay,
-          lte: endOfDay
-        },
-        status: { not: 'cancelled' }
-      },
-      select: {
-        id: true,
-        horseId: true,
-        startTime: true,
-        endTime: true,
-        status: true,
-        rider: { select: { fullName: true, email: true } }
-      }
-    });
 
     // Populate horseBookings map from actual bookings
     bookings.forEach(booking => {

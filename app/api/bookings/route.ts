@@ -307,23 +307,15 @@ export async function POST(req: NextRequest) {
     // Send email notifications to stable owners AND admins
     // Send email notifications to stable owners AND admins
     try {
-      const [owners, admins] = await Promise.all([
-        prisma.user.findMany({
-          where: {
-            stableId: stableId,
-            role: "stable_owner",
-          },
-          select: { email: true }
-        }),
-        prisma.user.findMany({
-          where: {
-            role: "admin",
-          },
-          select: { email: true }
-        })
-      ]);
-
-      const allRecipients = [...owners, ...admins];
+      const allRecipients = await prisma.user.findMany({
+        where: {
+          OR: [
+            { stableId: stableId, role: "stable_owner" },
+            { role: "admin" }
+          ]
+        },
+        select: { id: true, role: true, email: true }
+      });
 
       if (allRecipients.length > 0) {
         const { sendOwnerBookingNotification } = await import("@/lib/email");
@@ -361,15 +353,7 @@ export async function POST(req: NextRequest) {
 
       // Send Universal Notifications (In-App + Push)
       // We fetch all relevant users (owners + admins) to create in-app notifications for them
-      const notificationRecipients = await prisma.user.findMany({
-        where: {
-          OR: [
-            { stableId: stableId, role: "stable_owner" },
-            { role: "admin" }
-          ]
-        },
-        select: { id: true, role: true }
-      });
+      const notificationRecipients = allRecipients;
 
       if (notificationRecipients.length > 0) {
         const { createBulkNotifications } = await import("@/lib/notifications");
@@ -394,19 +378,7 @@ export async function POST(req: NextRequest) {
       // Don't fail the request if notifications fail
     }
 
-    return NextResponse.json({
-      bookings: createdBookings,
-      debug: {
-        riderTier: bookings[0]?.riderId ? await (async () => {
-          const r = await prisma.user.findUnique({ where: { id: bookings[0].riderId }, select: { rankPoints: true } });
-          return r ? (r.rankPoints >= 1701 ? "ADVANCED" : r.rankPoints >= 1301 ? "INTERMEDIATE" : "BEGINNER") : "UNKNOWN";
-        })() : "N/A",
-        horseLevel: bookings[0]?.horseId ? await (async () => {
-          const h = await prisma.horse.findUnique({ where: { id: bookings[0].horseId }, select: { skillLevel: true } });
-          return h?.skillLevel;
-        })() : "N/A"
-      }
-    }, { status: 201 });
+    return NextResponse.json({ bookings: createdBookings }, { status: 201 });
   } catch (error) {
     console.error("Error creating booking:", error);
 

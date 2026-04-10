@@ -14,23 +14,16 @@ export async function GET(req: Request) {
         const { searchParams } = new URL(req.url);
         const unreadOnly = searchParams.get("unreadOnly") === "true";
 
-        const notifications = await prisma.notification.findMany({
-            where: {
-                userId: session.user.id,
-                ...(unreadOnly ? { read: false } : {}),
-            },
-            orderBy: {
-                createdAt: "desc",
-            },
-            take: 50, // Limit to 50 most recent
-        });
-
-        const unreadCount = await prisma.notification.count({
-            where: {
-                userId: session.user.id,
-                read: false,
-            },
-        });
+        const [notifications, unreadCount] = await Promise.all([
+          prisma.notification.findMany({
+            where: { userId: session.user.id, ...(unreadOnly ? { read: false } : {}) },
+            orderBy: { createdAt: "desc" },
+            take: 50,
+          }),
+          prisma.notification.count({
+            where: { userId: session.user.id, read: false },
+          }),
+        ]);
 
         return NextResponse.json({ notifications, unreadCount });
     } catch (error) {

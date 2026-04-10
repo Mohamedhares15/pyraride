@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ensureAuthSchema } from "@/lib/ensure-auth-schema";
+
 
 const POSITIVE_KEYWORDS = [
   "amazing",
@@ -94,7 +94,7 @@ function computeAdjustedRating<T extends { [key: string]: any }>(
 
 export async function GET(req: NextRequest) {
   try {
-    await ensureAuthSchema();
+
 
     const session = await getServerSession();
     const searchParams = req.nextUrl.searchParams;
@@ -155,6 +155,8 @@ export async function GET(req: NextRequest) {
         },
         reviews: {
           select: {
+            stableId: true,
+            horseId: true,
             stableRating: true,
             horseRating: true,
             comment: true,
@@ -176,13 +178,7 @@ export async function GET(req: NextRequest) {
             skills: true,
             skillLevel: true,
             adminTier: true,
-            stable: {
-              select: {
-                id: true,
-                name: true,
-                location: true,
-              },
-            },
+
             _count: {
               select: {
                 bookings: true,
@@ -217,21 +213,6 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const reviews = await prisma.review.findMany({
-      where: {
-        stableId: {
-          in: stables.map((stable: any) => stable.id),
-        },
-      },
-      select: {
-        stableId: true,
-        horseId: true,
-        stableRating: true,
-        horseRating: true,
-        comment: true,
-      },
-    });
-
     const stableReviewsMap = new Map<
       string,
       { stableRating: number; comment?: string | null }[]
@@ -241,23 +222,25 @@ export async function GET(req: NextRequest) {
       { horseRating: number; comment?: string | null }[]
     >();
 
-    for (const review of reviews) {
-      if (review.stableId && typeof review.stableRating === "number") {
-        const existing = stableReviewsMap.get(review.stableId) ?? [];
-        existing.push({
-          stableRating: review.stableRating,
-          comment: review.comment,
-        });
-        stableReviewsMap.set(review.stableId, existing);
-      }
+    for (const stable of stables) {
+      for (const review of stable.reviews) {
+        if (review.stableId && typeof review.stableRating === "number") {
+          const existing = stableReviewsMap.get(review.stableId) ?? [];
+          existing.push({
+            stableRating: review.stableRating,
+            comment: review.comment,
+          });
+          stableReviewsMap.set(review.stableId, existing);
+        }
 
-      if (review.horseId && typeof review.horseRating === "number") {
-        const existing = horseReviewsMap.get(review.horseId) ?? [];
-        existing.push({
-          horseRating: review.horseRating,
-          comment: review.comment,
-        });
-        horseReviewsMap.set(review.horseId, existing);
+        if (review.horseId && typeof review.horseRating === "number") {
+          const existing = horseReviewsMap.get(review.horseId) ?? [];
+          existing.push({
+            horseRating: review.horseRating,
+            comment: review.comment,
+          });
+          horseReviewsMap.set(review.horseId, existing);
+        }
       }
     }
 
