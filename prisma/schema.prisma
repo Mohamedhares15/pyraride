@@ -206,7 +206,6 @@ model Stable {
   packages          Package[]
   reviews           Review[]
   blockedSlots      BlockedSlot[]
-  availabilitySlots AvailabilitySlot[]
   rideResults       RideResult[]
 }
 
@@ -247,7 +246,6 @@ model Horse {
   changeRequests        HorseChangeRequest[]
   rideResults           RideResult[]
   blockedSlots          BlockedSlot[]
-  availabilitySlots     AvailabilitySlot[]
   skillOverrideRequests SkillOverrideRequest[]
 }
 
@@ -267,26 +265,6 @@ model BlockedSlot {
   @@index([horseId])
 }
 
-model AvailabilitySlot {
-  id        String   @id @default(uuid())
-  stableId  String
-  horseId   String? // Optional: if null, applies to entire stable
-  date      DateTime @db.Date
-  startTime DateTime
-  endTime   DateTime
-  isBooked  Boolean  @default(false)
-  bookingId String?  @unique
-  createdAt DateTime @default(now())
-
-  stable  Stable   @relation(fields: [stableId], references: [id], onDelete: Cascade)
-  horse   Horse?   @relation(fields: [horseId], references: [id], onDelete: Cascade)
-  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
-
-  @@index([stableId])
-  @@index([horseId])
-  @@index([date])
-  @@map("availability_slots") // Force table creation
-}
 
 model RideResult {
   id           String   @id @default(uuid())
@@ -399,7 +377,6 @@ model Booking {
   review           Review? // A booking can have one review
   riderReview      RiderReview? // A booking can have one rider review from stable owner
   rideResult       RideResult?
-  availabilitySlot AvailabilitySlot? // The availability slot consumed by this booking
   promoCode        PromoCode?        @relation(fields: [promoCodeId], references: [id])
 }
 
