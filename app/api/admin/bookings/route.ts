@@ -14,59 +14,89 @@ export async function GET() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const bookings = await prisma.packageBooking.findMany({
-      include: {
-        package: {
-          include: {
-            stable: {
-              select: {
-                name: true,
-                address: true,
-              },
-            },
-          },
+    const [upcoming, past, stats] = await Promise.all([
+      prisma.packageBooking.findMany({
+        where: {
+          date: { gte: today },
+          status: { not: "cancelled" }
         },
-        rider: {
-          select: {
-            fullName: true,
-            email: true,
-            phoneNumber: true,
-            profileImageUrl: true,
+        include: {
+          package: {
+            select: {
+              title: true,
+              duration: true,
+              stable: { select: { name: true, address: true } }
+            }
           },
-        },
-        driver: {
-          select: {
-            fullName: true,
-            email: true,
-            phoneNumber: true,
+          rider: {
+            select: {
+              fullName: true,
+              email: true,
+              phoneNumber: true,
+              profileImageUrl: true
+            }
           },
+          driver: {
+            select: { fullName: true, email: true, phoneNumber: true }
+          }
         },
-      },
-      orderBy: {
-        date: "desc",
-      },
-    });
+        orderBy: { date: "asc" },
+        take: 100
+      }),
 
-    const upcoming = bookings.filter(
-      (b) => new Date(b.date) >= today && b.status !== "cancelled"
-    );
-    const past = bookings.filter(
-      (b) => new Date(b.date) < today || b.status === "cancelled"
+      prisma.packageBooking.findMany({
+        where: {
+          OR: [
+            { date: { lt: today } },
+            { status: "cancelled" }
+          ]
+        },
+        include: {
+          package: {
+            select: {
+              title: true,
+              duration: true,
+              stable: { select: { name: true, address: true } }
+            }
+          },
+          rider: {
+            select: {
+              fullName: true,
+              email: true,
+              phoneNumber: true,
+              profileImageUrl: true
+            }
+          },
+          driver: {
+            select: { fullName: true, email: true, phoneNumber: true }
+          }
+        },
+        orderBy: { date: "desc" },
+        take: 100
+      }),
+
+      prisma.packageBooking.groupBy({
+        by: ['status'],
+        _count: { status: true },
+        _sum: { totalPrice: true }
+      })
+    ]);
+
+    const statMap = Object.fromEntries(
+      stats.map(s => [s.status, { count: s._count.status, revenue: s._sum.totalPrice }])
     );
 
-    const stats = {
-      total: bookings.length,
+    const formattedStats = {
       upcoming: upcoming.length,
-      confirmed: bookings.filter((b) => b.status === "confirmed").length,
-      completed: bookings.filter((b) => b.status === "completed").length,
-      cancelled: bookings.filter((b) => b.status === "cancelled").length,
-      withTransport: bookings.filter((b) => b.transportationZone).length,
-      totalRevenue: bookings
-        .filter((b) => b.status !== "cancelled")
-        .reduce((sum, b) => sum + parseFloat(b.totalPrice.toString()), 0),
+      confirmed: statMap['confirmed']?.count ?? 0,
+      completed: statMap['completed']?.count ?? 0,
+      cancelled: statMap['cancelled']?.count ?? 0,
+      totalRevenue: Object.entries(statMap)
+        .filter(([key]) => key !== 'cancelled')
+        .reduce((sum, [, s]: [string, any]) => sum + parseFloat(s.revenue?.toString() ?? '0'), 0)
     };
 
-    return NextResponse.json({ bookings, upcoming, past, stats });
+    return NextResponse.json({ upcoming, past, stats: formattedStats });
   } catch (error) {
     console.error("Failed to fetch admin bookings", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

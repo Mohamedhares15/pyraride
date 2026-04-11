@@ -10,70 +10,75 @@ export async function GET(
     const session = await getServerSession();
     const userId = params.id;
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        profileImageUrl: true,
-        role: true,
-        bio: true,
-        createdAt: true,
-        _count: {
-          select: {
-            followers: true,
-            following: true,
-            userPosts: true,
-            bookings: { where: { status: "completed" } },
-            reviews: true,
-          }
-        },
-        userPosts: {
-          orderBy: { createdAt: "desc" },
-          take: 9,
-          select: {
-            id: true,
-            imageUrl: true,
-            caption: true,
-            _count: {
-              select: { likes: true }
-            },
-            likes: {
-              where: { userId: session?.user?.id || "0" }, // "0" to return empty if no session
-              select: { userId: true }
+    const [user, followRecord] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+          profileImageUrl: true,
+          role: true,
+          bio: true,
+          rankPoints: true,
+          createdAt: true,
+          _count: {
+            select: {
+              followers: true,
+              following: true,
+              userPosts: true,
+              bookings: { where: { status: "completed" } },
+              reviews: true,
+            }
+          },
+          userPosts: {
+            orderBy: { createdAt: "desc" },
+            take: 9,
+            select: {
+              id: true,
+              imageUrl: true,
+              caption: true,
+              _count: { select: { likes: true } },
+              likes: {
+                where: { userId: session?.user?.id || "no-session" },
+                select: { userId: true }
+              }
+            }
+          },
+          reviews: {
+            orderBy: { createdAt: "desc" },
+            take: 5,
+            select: {
+              id: true,
+              stableRating: true,
+              horseRating: true,
+              comment: true,
+              createdAt: true,
+              stable: { select: { name: true } },
+              reviewMedias: { select: { url: true } }
             }
           }
-        },
-        reviews: {
-          orderBy: { createdAt: "desc" },
-          take: 5,
-          include: {
-            stable: { select: { name: true } },
-            reviewMedias: true
-          }
         }
-      }
-    });
+      }),
+
+      session?.user?.id
+        ? prisma.userFollow.findUnique({
+            where: {
+              followerId_followingId: {
+                followerId: session.user.id,
+                followingId: userId
+              }
+            },
+            select: { followerId: true }
+          })
+        : Promise.resolve(null)
+    ]);
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Check if current user is following
-    let isFollowing = false;
-    if (session?.user?.id) {
-      const follow = await prisma.userFollow.findUnique({
-        where: {
-          followerId_followingId: {
-            followerId: session.user.id,
-            followingId: userId
-          }
-        }
-      });
-      isFollowing = !!follow;
-    }
-
+    const isFollowing = !!followRecord;
     const userData = user as any;
 
     return NextResponse.json({

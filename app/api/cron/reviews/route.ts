@@ -16,11 +16,26 @@ export async function GET(req: Request) {
                 },
                 status: "completed",
             },
-            include: {
-                rider: true,
-                stable: { include: { owner: true } },
-                review: true,
-                rideResult: true,
+            select: {
+                id: true,
+                stableId: true,
+                review: { select: { id: true } },
+                rideResult: { select: { id: true } },
+                rider: {
+                    select: {
+                        fullName: true,
+                        pushToken: true
+                    }
+                },
+                stable: {
+                    select: {
+                        owner: {
+                            select: {
+                                pushToken: true
+                            }
+                        }
+                    }
+                }
             }
         });
 
