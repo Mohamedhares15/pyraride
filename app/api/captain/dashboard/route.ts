@@ -13,17 +13,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Verify captain role
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
-
-    if (user?.role !== "captain" && user?.role !== "stable_owner") {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
-
-    // Get captain's academy
+    // Get captain's academy (includes role check inline — saves 1 sequential DB round trip)
     const academy = await prisma.academy.findUnique({
       where: { captainId: session.user.id },
       include: {
@@ -31,8 +21,15 @@ export async function GET() {
           where: { isActive: true },
           orderBy: { sortOrder: "asc" },
         },
+        captain: {
+          select: { role: true },
+        },
       },
     });
+
+    if (!academy || (academy.captain.role !== "captain" && academy.captain.role !== "stable_owner")) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
 
     if (!academy) {
       return NextResponse.json(

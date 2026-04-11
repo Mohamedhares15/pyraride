@@ -38,10 +38,20 @@ export async function GET() {
         },
         sessions: {
           orderBy: { sessionNumber: "asc" },
-          include: { review: true },
+          take: 50,
+          select: {
+            id: true,
+            sessionNumber: true,
+            date: true,
+            startTime: true,
+            endTime: true,
+            status: true,
+            review: { select: { id: true, performanceRating: true } },
+          },
         },
       },
       orderBy: { createdAt: "desc" },
+      take: 100,
     });
 
     return NextResponse.json(enrollments);
