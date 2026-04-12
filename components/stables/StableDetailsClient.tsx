@@ -325,7 +325,7 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
         router.push(`/booking?${bookingParams.toString()}`);
     };
 
-    // Fetch slots and bookings only (Stable data passed as prop)
+    // Fetch slots and bookings (initial load + when date changes)
     useEffect(() => {
         let isMounted = true;
         async function fetchSlotsAndBookings() {
@@ -333,96 +333,76 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                 setIsLoadingSlots(true);
                 const dateStr = selectedDate.toISOString().split("T")[0];
 
-                // Also fetch tomorrow's slots to power the accurate tomorrow preview
-                const tomorrowDate = new Date(selectedDate);
-                tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-                const tomorrowDateStr = tomorrowDate.toISOString().split("T")[0];
-
-                const [slotsRes, tomorrowSlotsRes, bookingRes] = await Promise.all([
-                    fetch(`/api/stables/${id}/slots?date=${dateStr}`, { cache: 'no-store' }),
-                    fetch(`/api/stables/${id}/slots?date=${tomorrowDateStr}`, { cache: 'no-store' }),
-                    session?.user?.id ? fetch(`/api/bookings?stableId=${id}&userId=${session.user.id}&status=confirmed`) : Promise.resolve(null)
+                // ONE combined request for today + tomorrow (was 2 separate requests)
+                const [slotsRes, bookingRes] = await Promise.all([
+                    fetch(`/api/stables/${id}/slots?date=${dateStr}&includeTomorrow=true`),
+                    session?.user?.id
+                        ? fetch(`/api/bookings?stableId=${id}&userId=${session.user.id}&status=confirmed`)
+                        : Promise.resolve(null),
                 ]);
 
                 // Check if user has a booking
                 if (bookingRes && bookingRes.ok) {
                     const bookingData = await bookingRes.json();
                     const bookings = Array.isArray(bookingData) ? bookingData : (bookingData.bookings || []);
-
                     if (Array.isArray(bookings)) {
                         const hasActiveBooking = bookings.some((b: any) =>
-                            b.status === 'confirmed' ||
-                            (b.status === 'completed' && new Date(b.endTime).getTime() > Date.now() - 24 * 60 * 60 * 1000)
+                            b.status === "confirmed" ||
+                            (b.status === "completed" && new Date(b.endTime).getTime() > Date.now() - 24 * 60 * 60 * 1000)
                         );
-
                         if (hasActiveBooking) {
                             setHasBookingWithStable(true);
                             const upcoming = bookings
                                 .filter((b: any) => new Date(b.startTime) > new Date())
                                 .sort((a: any, b: any) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())[0];
-
-                            if (upcoming) {
-                                setUserBookingDate(new Date(upcoming.startTime).toLocaleDateString());
-                            }
+                            if (upcoming) setUserBookingDate(new Date(upcoming.startTime).toLocaleDateString());
                         }
                     }
                 }
 
                 if (slotsRes.ok) {
-                    const slotsData = await slotsRes.json();
+                    // Parse combined response { today: slots[], tomorrow: slots[] }
+                    const data = await slotsRes.json();
+                    const todaySlotsData: any[] = data.today || [];
+                    const tomorrowSlotsData: any[] = data.tomorrow || [];
+
                     const newAvailable: Record<string, Record<string, string[]>> = { [dateStr]: {} };
                     const newTaken: Record<string, Record<string, any[]>> = { [dateStr]: {} };
-
                     initialStable.horses.forEach((horse: any) => {
                         newAvailable[dateStr][horse.id] = [];
                         newTaken[dateStr][horse.id] = [];
                     });
 
-                    slotsData.forEach((slot: any) => {
+                    todaySlotsData.forEach((slot: any) => {
                         const time = new Date(slot.startTime).toLocaleTimeString("en-US", {
                             hour: "numeric",
                             minute: "2-digit",
-                            hour12: true
+                            hour12: true,
                         });
-
                         const targetHorses = slot.horseId
                             ? [initialStable.horses.find((h: any) => h.id === slot.horseId)].filter(Boolean)
                             : initialStable.horses || [];
-
                         targetHorses.forEach((horse: any) => {
                             if (!horse) return;
-
-                            if (slot.booking) {
+                            if (slot.booking || slot.status === "booked") {
                                 if (!newTaken[dateStr][horse.id]) newTaken[dateStr][horse.id] = [];
                                 newTaken[dateStr][horse.id].push({ ...slot, startTime: slot.startTime });
-                            } else {
+                            } else if (slot.status === "available") {
                                 if (!newAvailable[dateStr][horse.id]) newAvailable[dateStr][horse.id] = [];
                                 newAvailable[dateStr][horse.id].push(time);
                             }
                         });
                     });
 
-                    if (isMounted) {
-                        setAvailableSlots(newAvailable);
-                        setTakenSlots(newTaken);
-                    }
-                }
-
-                // Process tomorrow's real slots
-                if (tomorrowSlotsRes.ok) {
-                    const tomorrowData = await tomorrowSlotsRes.json();
+                    // Process tomorrow data
                     const tomorrowAvail: Record<string, string[]> = {};
-
-                    initialStable.horses.forEach((horse: any) => {
-                        tomorrowAvail[horse.id] = [];
-                    });
-
-                    tomorrowData.forEach((slot: any) => {
-                        if (slot.status !== 'available') return; // Only track available slots
+                    initialStable.horses.forEach((horse: any) => { tomorrowAvail[horse.id] = []; });
+                    tomorrowSlotsData.forEach((slot: any) => {
+                        if (slot.status !== "available") return;
                         const time = new Date(slot.startTime).toLocaleTimeString("en-US", {
                             hour: "numeric",
                             minute: "2-digit",
-                            hour12: true
+                            hour12: true,
                         });
                         const targetHorses = slot.horseId
                             ? [initialStable.horses.find((h: any) => h.id === slot.horseId)].filter(Boolean)
@@ -435,15 +415,15 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                     });
 
                     if (isMounted) {
+                        setAvailableSlots(newAvailable);
+                        setTakenSlots(newTaken);
                         setTomorrowAvailableSlots(tomorrowAvail);
                     }
                 }
             } catch (error) {
                 console.error("Error fetching slots:", error);
             } finally {
-                if (isMounted) {
-                    setIsLoadingSlots(false);
-                }
+                if (isMounted) setIsLoadingSlots(false);
             }
         }
 
@@ -451,102 +431,144 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
         return () => { isMounted = false; };
     }, [id, session, selectedDate, initialStable]);
 
-    // Refresh slots every 15 seconds
+    // Polling: refresh slots every 15 seconds
+    // Pauses automatically when: tab is hidden, user inactive 2min
+    // Resumes immediately when: tab becomes visible again
     useEffect(() => {
         if (!id) return;
 
+        // Store last ETag to detect real changes (304 = nothing changed)
+        const lastETagRef = { current: "" };
+        // Track user activity for inactivity pause
+        const lastActivityRef = { current: Date.now() };
+        const INACTIVITY_MS = 2 * 60 * 1000; // 2 minutes
+
+        const updateActivity = () => { lastActivityRef.current = Date.now(); };
+        window.addEventListener("mousemove", updateActivity, { passive: true });
+        window.addEventListener("touchstart", updateActivity, { passive: true });
+        window.addEventListener("scroll", updateActivity, { passive: true });
+        window.addEventListener("click", updateActivity, { passive: true });
+
         const fetchSlots = async () => {
+            // Pause when tab is hidden (Instagram users background the tab)
+            if (document.hidden) return;
+            // Pause when user has been inactive for 2 minutes
+            if (Date.now() - lastActivityRef.current > INACTIVITY_MS) return;
+
             try {
                 const dateStr = selectedDate.toISOString().split("T")[0];
-                const tomorrowDate = new Date(selectedDate);
-                tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-                const tomorrowDateStr = tomorrowDate.toISOString().split("T")[0];
-
-                const [slotsRes, tomorrowSlotsRes] = await Promise.all([
-                    fetch(`/api/stables/${id}/slots?date=${dateStr}`, { cache: 'no-store' }),
-                    fetch(`/api/stables/${id}/slots?date=${tomorrowDateStr}`, { cache: 'no-store' })
-                ]);
-
-                if (slotsRes.ok) {
-                    const slotsData = await slotsRes.json();
-                    const newAvailable: Record<string, Record<string, string[]>> = { [dateStr]: {} };
-                    const newTaken: Record<string, Record<string, any[]>> = { [dateStr]: {} };
-                    const newBlocked: Record<string, Record<string, string[]>> = { [dateStr]: {} };
-
-                    stable?.horses.forEach(horse => {
-                        newAvailable[dateStr][horse.id] = [];
-                        newTaken[dateStr][horse.id] = [];
-                        newBlocked[dateStr][horse.id] = [];
-                    });
-
-                    slotsData.forEach((slot: any) => {
-                        const slotDate = new Date(slot.startTime);
-                        const hours = slotDate.getHours();
-                        const minutes = slotDate.getMinutes();
-                        const ampm = hours >= 12 ? 'PM' : 'AM';
-                        const displayHours = hours % 12 || 12;
-                        const time = `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
-
-                        const targetHorses = slot.horseId
-                            ? [stable?.horses.find(h => h.id === slot.horseId)].filter(Boolean)
-                            : stable?.horses || [];
-
-                        targetHorses.forEach(horse => {
-                            if (!horse) return;
-
-                            if (slot.status === 'booked') {
-                                if (!newTaken[dateStr][horse.id]) newTaken[dateStr][horse.id] = [];
-                                newTaken[dateStr][horse.id].push({ ...slot, startTime: slot.startTime });
-                            } else if (slot.status === 'available') {
-                                if (!newAvailable[dateStr][horse.id]) newAvailable[dateStr][horse.id] = [];
-                                newAvailable[dateStr][horse.id].push(time);
-                            }
-                        });
-                    });
-
-                    setAvailableSlots(newAvailable);
-                    setTakenSlots(newTaken);
-                    setBlockedSlots(newBlocked);
+                const headers: HeadersInit = { "Cache-Control": "no-cache" };
+                // Send ETag — server returns 304 if nothing changed (saves all bandwidth)
+                if (lastETagRef.current) {
+                    headers["If-None-Match"] = lastETagRef.current;
                 }
 
-                // Process tomorrow's real slots for the polling refresh too
-                if (tomorrowSlotsRes.ok) {
-                    const tomorrowData = await tomorrowSlotsRes.json();
-                    const tomorrowAvail: Record<string, string[]> = {};
+                // ONE request for both today and tomorrow
+                const slotsRes = await fetch(
+                    `/api/stables/${id}/slots?date=${dateStr}&includeTomorrow=true`,
+                    { headers }
+                );
 
-                    stable?.horses.forEach(horse => {
-                        tomorrowAvail[horse.id] = [];
+                // 304 = nothing changed since last poll — skip all processing
+                if (slotsRes.status === 304) return;
+
+                // Store new ETag for next poll
+                const newETag = slotsRes.headers.get("ETag");
+                if (newETag) lastETagRef.current = newETag;
+
+                if (!slotsRes.ok) return;
+
+                const data = await slotsRes.json();
+                const todaySlotsData: any[] = data.today || [];
+                const tomorrowSlotsData: any[] = data.tomorrow || [];
+
+                const newAvailable: Record<string, Record<string, string[]>> = { [dateStr]: {} };
+                const newTaken: Record<string, Record<string, any[]>> = { [dateStr]: {} };
+                const newBlocked: Record<string, Record<string, string[]>> = { [dateStr]: {} };
+
+                stable?.horses.forEach((horse) => {
+                    newAvailable[dateStr][horse.id] = [];
+                    newTaken[dateStr][horse.id] = [];
+                    newBlocked[dateStr][horse.id] = [];
+                });
+
+                todaySlotsData.forEach((slot: any) => {
+                    const slotDate = new Date(slot.startTime);
+                    const hours = slotDate.getHours();
+                    const minutes = slotDate.getMinutes();
+                    const ampm = hours >= 12 ? "PM" : "AM";
+                    const displayHours = hours % 12 || 12;
+                    const time = `${displayHours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
+
+                    const targetHorses = slot.horseId
+                        ? [stable?.horses.find((h) => h.id === slot.horseId)].filter(Boolean)
+                        : stable?.horses || [];
+
+                    targetHorses.forEach((horse) => {
+                        if (!horse) return;
+                        if (slot.status === "booked") {
+                            if (!newTaken[dateStr][horse.id]) newTaken[dateStr][horse.id] = [];
+                            newTaken[dateStr][horse.id].push({ ...slot, startTime: slot.startTime });
+                        } else if (slot.status === "available") {
+                            if (!newAvailable[dateStr][horse.id]) newAvailable[dateStr][horse.id] = [];
+                            newAvailable[dateStr][horse.id].push(time);
+                        }
                     });
+                });
 
-                    tomorrowData.forEach((slot: any) => {
-                        if (slot.status !== 'available') return;
-                        const slotDate = new Date(slot.startTime);
-                        const hours = slotDate.getHours();
-                        const minutes = slotDate.getMinutes();
-                        const ampm = hours >= 12 ? 'PM' : 'AM';
-                        const displayHours = hours % 12 || 12;
-                        const time = `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+                setAvailableSlots(newAvailable);
+                setTakenSlots(newTaken);
+                setBlockedSlots(newBlocked);
 
-                        const targetHorses = slot.horseId
-                            ? [stable?.horses.find(h => h.id === slot.horseId)].filter(Boolean)
-                            : stable?.horses || [];
-                        targetHorses.forEach(horse => {
-                            if (!horse) return;
-                            if (!tomorrowAvail[horse.id]) tomorrowAvail[horse.id] = [];
-                            tomorrowAvail[horse.id].push(time);
-                        });
+                // Update tomorrow data from combined response
+                const tomorrowAvail: Record<string, string[]> = {};
+                stable?.horses.forEach((horse) => { tomorrowAvail[horse.id] = []; });
+                tomorrowSlotsData.forEach((slot: any) => {
+                    if (slot.status !== "available") return;
+                    const slotDate = new Date(slot.startTime);
+                    const hours = slotDate.getHours();
+                    const minutes = slotDate.getMinutes();
+                    const ampm = hours >= 12 ? "PM" : "AM";
+                    const displayHours = hours % 12 || 12;
+                    const time = `${displayHours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
+                    const targetHorses = slot.horseId
+                        ? [stable?.horses.find((h) => h.id === slot.horseId)].filter(Boolean)
+                        : stable?.horses || [];
+                    targetHorses.forEach((horse) => {
+                        if (!horse) return;
+                        if (!tomorrowAvail[horse.id]) tomorrowAvail[horse.id] = [];
+                        tomorrowAvail[horse.id].push(time);
                     });
+                });
+                setTomorrowAvailableSlots(tomorrowAvail);
 
-                    setTomorrowAvailableSlots(tomorrowAvail);
-                }
             } catch (err) {
                 console.error("Error refreshing slots:", err);
             }
         };
 
-        fetchSlots();
+        // Page Visibility: resume immediately when user returns to tab
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                // User returned to tab — fetch immediately then resume polling
+                updateActivity();
+                fetchSlots();
+            }
+        };
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        // Start polling — NOTE: no immediate fetchSlots() here
+        // The initial load useEffect already fetched on mount
         const interval = setInterval(fetchSlots, 15000);
-        return () => clearInterval(interval);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+            window.removeEventListener("mousemove", updateActivity);
+            window.removeEventListener("touchstart", updateActivity);
+            window.removeEventListener("scroll", updateActivity);
+            window.removeEventListener("click", updateActivity);
+        };
     }, [id, stable, selectedDate]);
 
     // Scroll to horse hash anchor ONLY on initial load
