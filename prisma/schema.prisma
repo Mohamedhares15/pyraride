@@ -1,13 +1,739 @@
-// This is your Prisma schema file.
-// Learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") // Connects to Neon
+  url      = env("DATABASE_URL")
+}
+
+model GalleryItem {
+  id         String            @id @default(uuid())
+  url        String
+  caption    String?
+  status     GalleryItemStatus @default(pending)
+  uploadedBy String?
+  reviewedBy String?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  reviewer   User?             @relation("GalleryReviewer", fields: [reviewedBy], references: [id])
+
+  @@index([status])
+}
+
+model Location {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id                     String                      @id @default(uuid())
+  email                  String                      @unique
+  phoneNumber            String?                     @unique
+  passwordHash           String
+  profileImageUrl        String?
+  fullName               String?
+  role                   Role                        @default(rider)
+  hasPremiumAI           Boolean                     @default(false)
+  premiumAIExpiresAt     DateTime?
+  createdAt              DateTime                    @default(now())
+  stableId               String?
+  rankPoints             Int                         @default(1000)
+  rankId                 String?
+  currentLeagueId        String?
+  gender                 Gender?
+  profilePhoto           String?
+  isTrustedRider         Boolean                     @default(false)
+  bio                    String?
+  pushToken              String?
+  managedAcademy         Academy?                    @relation("AcademyCaptain")
+  priceChangeRequests    AcademyPriceChangeRequest[] @relation("CaptainPriceChanges")
+  priceChangeReviews     AcademyPriceChangeRequest[] @relation("AdminPriceChangeReviewer")
+  bookings               Booking[]
+  friendRequestsReceived Friend[]                    @relation("FriendsReceived")
+  friendRequestsSent     Friend[]                    @relation("FriendsSent")
+  reviewedGalleryItems   GalleryItem[]               @relation("GalleryReviewer")
+  horseChangeReviews     HorseChangeRequest[]        @relation("HorseChangeReviewer")
+  leagueStandings        LeagueStanding[]
+  messages               Message[]                   @relation("MessageSender")
+  notifications          Notification[]
+  driverBookings         PackageBooking[]            @relation("DriverBookings")
+  packageBookings        PackageBooking[]
+  passwordResetTokens    PasswordResetToken[]
+  postLikes              PostLike[]
+  reviews                Review[]
+  rideResults            RideResult[]
+  riderReviewsGiven      RiderReview[]               @relation("StableOwnerReviews")
+  riderReviewsReceived   RiderReview[]               @relation("RiderReviews")
+  sessionReviewsGiven    SessionReview[]             @relation("CaptainSessionReviews")
+  skillOverrideRequests  SkillOverrideRequest[]      @relation("RiderSkillRequests")
+  ownedStables           Stable[]                    @relation("StableOwner")
+  trainingEnrollments    TrainingEnrollment[]        @relation("TraineeEnrollments")
+  currentLeague          League?                     @relation("RiderLeague", fields: [currentLeagueId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rank                   RiderRank?                  @relation(fields: [rankId], references: [id])
+  stable                 Stable?                     @relation("StableOwners", fields: [stableId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  following              UserFollow[]                @relation("Followers")
+  followers              UserFollow[]                @relation("Following")
+  userPosts              UserPost[]                  @relation("UserPosts")
+  conversations          Conversation[]              @relation("ConversationParticipants")
+}
+
+model RiderRank {
+  id        String  @id @default(uuid())
+  name      String  @unique
+  minPoints Int
+  maxPoints Int
+  icon      String?
+  users     User[]
+}
+
+model HorseTier {
+  id        String  @id @default(uuid())
+  name      String  @unique
+  minPoints Int
+  maxPoints Int
+  icon      String?
+  horses    Horse[]
+}
+
+model Stable {
+  id               String        @id @default(uuid())
+  name             String
+  description      String
+  location         String
+  address          String
+  imageUrl         String?
+  status           StableStatus  @default(pending_approval)
+  isHidden         Boolean       @default(false)
+  commissionRate   Decimal       @default(0.15) @db.Decimal(5, 4)
+  minLeadTimeHours Int           @default(8)
+  createdAt        DateTime      @default(now())
+  ownerId          String
+  blockedSlots     BlockedSlot[]
+  bookings         Booking[]
+  horses           Horse[]
+  packages         Package[]
+  reviews          Review[]
+  rideResults      RideResult[]
+  owner            User          @relation("StableOwner", fields: [ownerId], references: [id], onUpdate: Restrict)
+  owners           User[]        @relation("StableOwners")
+}
+
+model Horse {
+  id                    String                 @id @default(uuid())
+  stableId              String
+  name                  String
+  description           String
+  imageUrls             String[]
+  pricePerHour          Decimal?               @db.Decimal(10, 2)
+  age                   Int?
+  skills                String[]               @default([])
+  isActive              Boolean                @default(true)
+  availabilityStatus    AvailabilityStatus?    @default(available)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime?              @updatedAt
+  rankPoints            Int                    @default(1400)
+  tierId                String?
+  adminTier             String?
+  firstTimeFriendly     Boolean?
+  skillLevel            SkillLevel             @default(BEGINNER)
+  color                 String?
+  blockedSlots          BlockedSlot[]
+  bookings              Booking[]
+  stable                Stable                 @relation(fields: [stableId], references: [id], onDelete: Cascade)
+  tier                  HorseTier?             @relation(fields: [tierId], references: [id])
+  changeRequests        HorseChangeRequest[]
+  media                 HorseMedia[]
+  reviews               Review[]
+  rideResults           RideResult[]
+  skillOverrideRequests SkillOverrideRequest[]
+}
+
+model BlockedSlot {
+  id        String   @id @default(uuid())
+  stableId  String
+  horseId   String?
+  startTime DateTime
+  endTime   DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+  horse     Horse?   @relation(fields: [horseId], references: [id], onDelete: Cascade)
+  stable    Stable   @relation(fields: [stableId], references: [id], onDelete: Cascade)
+
+  @@index([stableId])
+  @@index([horseId])
+}
+
+model RideResult {
+  id           String   @id @default(uuid())
+  bookingId    String   @unique
+  riderId      String
+  horseId      String
+  stableId     String
+  rps          Int
+  pointsChange Int
+  timestamp    DateTime @default(now())
+  booking      Booking  @relation(fields: [bookingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  horse        Horse    @relation(fields: [horseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rider        User     @relation(fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  stable       Stable   @relation(fields: [stableId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([riderId])
+  @@index([stableId])
+}
+
+model HorseChangeRequest {
+  id                   String                   @id @default(uuid())
+  horseId              String
+  status               HorseChangeRequestStatus @default(pending)
+  proposedName         String?
+  proposedDescription  String?
+  proposedPricePerHour Decimal?                 @db.Decimal(10, 2)
+  proposedImageUrls    String[]
+  reviewedBy           String?
+  reviewedAt           DateTime?
+  rejectionReason      String?
+  requestedAt          DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+  proposedColor        String?
+  horse                Horse                    @relation(fields: [horseId], references: [id], onDelete: Cascade)
+  reviewer             User?                    @relation("HorseChangeReviewer", fields: [reviewedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([status])
+  @@index([horseId])
+}
+
+model HorseMedia {
+  id           String         @id @default(uuid())
+  horseId      String
+  type         HorseMediaType
+  url          String
+  thumbnailUrl String?
+  sortOrder    Int?
+  createdAt    DateTime       @default(now())
+  horse        Horse          @relation(fields: [horseId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  id                 String        @id @default(uuid())
+  riderId            String
+  stableId           String
+  horseId            String
+  startTime          DateTime
+  endTime            DateTime
+  totalPrice         Decimal
+  commission         Decimal
+  status             BookingStatus @default(confirmed)
+  stripePaymentId    String?       @unique
+  refundStatus       String?
+  refundAmount       Decimal?
+  stripeRefundId     String?
+  refundReason       String?
+  cancellationReason String?
+  rescheduledFrom    DateTime?
+  rescheduledTo      DateTime?
+  isRescheduled      Boolean       @default(false)
+  cancelledBy        String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  promoCodeId        String?
+  groupDiscount      Decimal?      @db.Decimal(10, 2)
+  groupSize          Int           @default(1)
+  reminderSent       Boolean       @default(false)
+  horse              Horse         @relation(fields: [horseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  promoCode          PromoCode?    @relation(fields: [promoCodeId], references: [id])
+  rider              User          @relation(fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  stable             Stable        @relation(fields: [stableId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  review             Review?
+  rideResult         RideResult?
+  riderReview        RiderReview?
+}
+
+model Review {
+  id           String        @id @default(uuid())
+  bookingId    String        @unique
+  riderId      String
+  stableId     String
+  horseId      String
+  stableRating Int
+  horseRating  Int
+  comment      String
+  createdAt    DateTime      @default(now())
+  photos       String[]
+  booking      Booking       @relation(fields: [bookingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  horse        Horse         @relation(fields: [horseId], references: [id])
+  rider        User          @relation(fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  stable       Stable        @relation(fields: [stableId], references: [id])
+  reviewMedias ReviewMedia[]
+}
+
+model RiderReview {
+  id               String   @id @default(uuid())
+  bookingId        String   @unique
+  riderId          String
+  ownerId          String
+  ridingSkillLevel Int
+  behaviorRating   Int
+  comment          String?
+  createdAt        DateTime @default(now())
+  booking          Booking  @relation(fields: [bookingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  stableOwner      User     @relation("StableOwnerReviews", fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rider            User     @relation("RiderReviews", fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model NewsletterSubscriber {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  subscribedAt DateTime @default(now())
+  status       String   @default("active")
+  source       String?
+}
+
+model LoyaltyPoints {
+  id           String              @id @default(uuid())
+  userId       String              @unique
+  points       Int                 @default(0)
+  tier         String              @default("bronze")
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  transactions PointsTransaction[]
+}
+
+model PointsTransaction {
+  id              String        @id @default(uuid())
+  loyaltyPointsId String
+  amount          Int
+  type            String
+  description     String?
+  createdAt       DateTime      @default(now())
+  loyaltyPoints   LoyaltyPoints @relation(fields: [loyaltyPointsId], references: [id], onDelete: Cascade)
+
+  @@index([loyaltyPointsId])
+}
+
+model SystemConfig {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model Subscription {
+  id             String   @id @default(uuid())
+  userId         String
+  planType       String
+  ridesRemaining Int?
+  ridesUsed      Int      @default(0)
+  startDate      DateTime @default(now())
+  endDate        DateTime
+  isActive       Boolean  @default(true)
+  price          Decimal  @db.Decimal(10, 2)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model League {
+  id              String           @id @default(uuid())
+  name            LeagueName
+  startDate       DateTime
+  endDate         DateTime
+  status          LeagueStatus     @default(active)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  nextLeagueId    String?
+  nextLeague      League?          @relation("LeaguePromotion", fields: [nextLeagueId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  previousLeagues League[]         @relation("LeaguePromotion")
+  standings       LeagueStanding[]
+  riders          User[]           @relation("RiderLeague")
+
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+}
+
+model LeagueStanding {
+  id         String   @id @default(uuid())
+  leagueId   String
+  riderId    String
+  rankPoints Int
+  finalRank  Int?
+  promoted   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  league     League   @relation(fields: [leagueId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rider      User     @relation(fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([leagueId, riderId])
+  @@index([leagueId])
+  @@index([riderId])
+  @@index([finalRank])
+}
+
+model PromoCode {
+  id             String    @id @default(uuid())
+  code           String    @unique
+  discountType   String    @default("percentage")
+  discountAmount Decimal   @db.Decimal(10, 2)
+  expiresAt      DateTime?
+  maxUses        Int?
+  currentUses    Int       @default(0)
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  bookings       Booking[]
+}
+
+model Friend {
+  id         String       @id @default(uuid())
+  senderId   String
+  receiverId String
+  status     FriendStatus @default(pending)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  receiver   User         @relation("FriendsReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User         @relation("FriendsSent", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([status])
+}
+
+model Conversation {
+  id           String    @id @default(uuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  messages     Message[]
+  participants User[]    @relation("ConversationParticipants")
+
+  @@index([updatedAt])
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  content        String
+  createdAt      DateTime     @default(now())
+  read           Boolean      @default(false)
+  senderId       String
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+model SkillOverrideRequest {
+  id        String             @id @default(uuid())
+  riderId   String
+  horseId   String
+  stableId  String
+  reason    String?
+  status    SkillRequestStatus @default(pending)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  horse     Horse              @relation(fields: [horseId], references: [id], onDelete: Cascade)
+  rider     User               @relation("RiderSkillRequests", fields: [riderId], references: [id], onDelete: Cascade)
+
+  @@index([riderId])
+  @@index([horseId])
+  @@index([stableId])
+  @@index([status])
+}
+
+model UserFollow {
+  id          String   @id @default(uuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  follower    User     @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model UserPost {
+  id        String     @id @default(uuid())
+  userId    String
+  imageUrl  String
+  caption   String?
+  createdAt DateTime   @default(now())
+  likes     PostLike[]
+  user      User       @relation("UserPosts", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model PostLike {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  post      UserPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model ReviewMedia {
+  id        String   @id @default(uuid())
+  reviewId  String
+  url       String
+  createdAt DateTime @default(now())
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  data      Json?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([createdAt])
+}
+
+model Package {
+  id                 String           @id @default(uuid())
+  title              String
+  description        String
+  price              Float
+  duration           Float
+  maxPeople          Int
+  included           String[]
+  highlights         String[]
+  imageUrl           String
+  isActive           Boolean          @default(true)
+  isFeatured         Boolean          @default(false)
+  sortOrder          Int              @default(0)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  availableDays      String[]
+  hasDancingShow     Boolean          @default(false)
+  hasFood            Boolean          @default(false)
+  hasHorseRide       Boolean          @default(true)
+  hasParty           Boolean          @default(false)
+  hasTransportation  Boolean          @default(false)
+  minPeople          Int              @default(1)
+  originalPrice      Float?
+  packageType        String           @default("PRIVATE")
+  startTime          String?
+  transportationType String?
+  stableId           String?
+  minLeadTimeHours   Int              @default(8)
+  stable             Stable?          @relation(fields: [stableId], references: [id])
+  bookings           PackageBooking[]
+
+  @@index([isActive])
+  @@index([isFeatured])
+  @@index([sortOrder])
+  @@index([packageType])
+  @@index([stableId])
+}
+
+model PackageBooking {
+  id                 String          @id @default(uuid())
+  riderId            String
+  packageId          String
+  date               DateTime        @db.Date
+  startTime          String
+  ticketsCount       Int             @default(1)
+  totalPrice         Decimal
+  status             BookingStatus   @default(confirmed)
+  stripePaymentId    String?         @unique
+  commission         Decimal?
+  refundStatus       String?
+  refundAmount       Decimal?
+  stripeRefundId     String?
+  refundReason       String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  transportationZone String?
+  pickupLocationUrl  String?
+  driverId           String?
+  driverStatus       TransportStatus @default(pending)
+  driver             User?           @relation("DriverBookings", fields: [driverId], references: [id])
+  package            Package         @relation(fields: [packageId], references: [id])
+  rider              User            @relation(fields: [riderId], references: [id])
+
+  @@index([riderId])
+  @@index([packageId])
+  @@index([driverId])
+  @@index([date])
+}
+
+model TransportZone {
+  id        String   @id @default(uuid())
+  name      String
+  price     Decimal
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Academy {
+  id            String                      @id @default(uuid())
+  name          String
+  description   String
+  location      String
+  address       String
+  imageUrl      String?
+  isActive      Boolean                     @default(true)
+  isHidden      Boolean                     @default(false)
+  captainId     String                      @unique
+  createdAt     DateTime                    @default(now())
+  updatedAt     DateTime                    @updatedAt
+  googleMapsUrl String?
+  captain       User                        @relation("AcademyCaptain", fields: [captainId], references: [id], onUpdate: Restrict)
+  priceChanges  AcademyPriceChangeRequest[]
+  enrollments   TrainingEnrollment[]
+  programs      TrainingProgram[]
+
+  @@index([isActive])
+  @@index([location])
+}
+
+model TrainingProgram {
+  id              String               @id @default(uuid())
+  academyId       String
+  name            String
+  description     String
+  skillLevel      SkillLevel           @default(BEGINNER)
+  price           Decimal              @db.Decimal(10, 2)
+  totalSessions   Int
+  sessionDuration Float                @default(1)
+  validityDays    Int                  @default(60)
+  availableDays   String[]
+  startTime       String?
+  isActive        Boolean              @default(true)
+  sortOrder       Int                  @default(0)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  enrollments     TrainingEnrollment[]
+  academy         Academy              @relation(fields: [academyId], references: [id], onDelete: Cascade)
+
+  @@index([academyId])
+  @@index([isActive])
+  @@index([skillLevel])
+}
+
+model TrainingEnrollment {
+  id                String                @id @default(uuid())
+  riderId           String
+  academyId         String
+  programId         String
+  status            TrainingBookingStatus @default(active)
+  totalSessions     Int
+  completedSessions Int                   @default(0)
+  startDate         DateTime              @db.Date
+  expiryDate        DateTime              @db.Date
+  totalPrice        Decimal               @db.Decimal(10, 2)
+  stripePaymentId   String?               @unique
+  commission        Decimal?              @db.Decimal(10, 2)
+  renewedFromId     String?
+  isRenewed         Boolean               @default(false)
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  amountPaid        Decimal               @default(0) @db.Decimal(10, 2)
+  balanceDue        Decimal               @default(0) @db.Decimal(10, 2)
+  paymentMethod     PaymentMethod         @default(CASH)
+  paymentStructure  PaymentStructure      @default(FULL)
+  academy           Academy               @relation(fields: [academyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  program           TrainingProgram       @relation(fields: [programId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rider             User                  @relation("TraineeEnrollments", fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sessions          TrainingSession[]
+
+  @@index([riderId])
+  @@index([academyId])
+  @@index([programId])
+  @@index([status])
+}
+
+model TrainingSession {
+  id                String                @id @default(uuid())
+  enrollmentId      String
+  sessionNumber     Int
+  date              DateTime              @db.Date
+  startTime         String
+  endTime           String
+  status            TrainingSessionStatus @default(scheduled)
+  originalDate      DateTime?             @db.Date
+  originalStartTime String?
+  rescheduledAt     DateTime?
+  rescheduleReason  String?
+  completedAt       DateTime?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  review            SessionReview?
+  enrollment        TrainingEnrollment    @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@index([enrollmentId])
+  @@index([date])
+  @@index([status])
+}
+
+model SessionReview {
+  id                String          @id @default(uuid())
+  sessionId         String          @unique
+  captainId         String
+  performanceRating Int
+  techniqueRating   Int
+  attitudeRating    Int
+  comment           String?
+  improvements      String?
+  createdAt         DateTime        @default(now())
+  captain           User            @relation("CaptainSessionReviews", fields: [captainId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  session           TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model AcademyPriceChangeRequest {
+  id              String                   @id @default(uuid())
+  academyId       String
+  captainId       String
+  programId       String
+  currentPrice    Decimal                  @db.Decimal(10, 2)
+  proposedPrice   Decimal                  @db.Decimal(10, 2)
+  reason          String?
+  status          AcademyPriceChangeStatus @default(pending)
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  rejectionReason String?
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  academy         Academy                  @relation(fields: [academyId], references: [id], onDelete: Cascade)
+  captain         User                     @relation("CaptainPriceChanges", fields: [captainId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  reviewer        User?                    @relation("AdminPriceChangeReviewer", fields: [reviewedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([academyId])
+  @@index([status])
 }
 
 enum Role {
@@ -23,21 +749,6 @@ enum GalleryItemStatus {
   pending
   approved
   rejected
-}
-
-model GalleryItem {
-  id         String            @id @default(uuid())
-  url        String
-  caption    String?
-  status     GalleryItemStatus @default(pending)
-  uploadedBy String? // Optional: if we want to track who uploaded it (could be public/anonymous initially)
-  reviewedBy String?
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
-
-  reviewer User? @relation("GalleryReviewer", fields: [reviewedBy], references: [id])
-
-  @@index([status])
 }
 
 enum Gender {
@@ -82,248 +793,10 @@ enum StableStatus {
   rejected
 }
 
-model Location {
-  id        String   @id @default(uuid())
-  name      String   @unique // "Giza", "Saqqara"
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model User {
-  id                 String    @id @default(uuid())
-  email              String    @unique
-  phoneNumber        String?   @unique
-  passwordHash       String
-  profileImageUrl    String?
-  profilePhoto       String? // Profile photo URL for chat/friends
-  fullName           String?
-  pushToken          String? // FCM Push Token for notifications
-  bio                String?   @db.Text
-  role               Role      @default(rider)
-  gender             Gender? // Male or Female
-  hasPremiumAI       Boolean   @default(false) // Premium AI subscription (admins can grant to stable owners)
-  premiumAIExpiresAt DateTime? // Subscription expiration date
-  createdAt          DateTime  @default(now())
-
-  //Multi-Owner Support: A user belongs to a stable
-  stableId     String?
-  stable       Stable?  @relation("StableOwners", fields: [stableId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  ownedStables Stable[] @relation("StableOwner")
-
-  // Cash Privilege
-  isTrustedRider Boolean @default(false)
-
-  //Leaderboard & Ranking
-  rankPoints      Int        @default(1000) // Will be set based on initial tier selection
-  rankId          String?
-  rank            RiderRank? @relation(fields: [rankId], references: [id])
-  currentLeagueId String? // Current league the rider is in
-  currentLeague   League?    @relation("RiderLeague", fields: [currentLeagueId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  // Relations
-  bookings             Booking[]
-  packageBookings      PackageBooking[]
-  reviews              Review[]
-  passwordResetTokens  PasswordResetToken[]
-  riderReviewsGiven    RiderReview[]        @relation("StableOwnerReviews")
-  riderReviewsReceived RiderReview[]        @relation("RiderReviews")
-  horseChangeReviews   HorseChangeRequest[] @relation("HorseChangeReviewer")
-  rideResults          RideResult[]
-  leagueStandings      LeagueStanding[]
-  reviewedGalleryItems GalleryItem[]        @relation("GalleryReviewer")
-
-  // Friends & Chat relations
-  friendRequestsSent     Friend[]       @relation("FriendsSent")
-  friendRequestsReceived Friend[]       @relation("FriendsReceived")
-  messages               Message[]      @relation("MessageSender")
-  conversations          Conversation[] @relation("ConversationParticipants")
-
-  // Skill Override Requests
-  skillOverrideRequests SkillOverrideRequest[] @relation("RiderSkillRequests")
-
-  // Instagram-style Follow System
-  followers UserFollow[] @relation("Following")
-  following UserFollow[] @relation("Followers")
-
-  // User Posts
-  userPosts UserPost[] @relation("UserPosts")
-  postLikes PostLike[]
-
-  // Sent notifications (Rider, Owner, Driver)
-  notifications Notification[]
-  
-  // Appointed trips
-  driverBookings PackageBooking[] @relation("DriverBookings")
-
-  // Academy / Training
-  managedAcademy      Academy?             @relation("AcademyCaptain")
-  trainingEnrollments TrainingEnrollment[] @relation("TraineeEnrollments")
-  sessionReviewsGiven SessionReview[]      @relation("CaptainSessionReviews")
-  priceChangeRequests AcademyPriceChangeRequest[] @relation("CaptainPriceChanges")
-  priceChangeReviews  AcademyPriceChangeRequest[] @relation("AdminPriceChangeReviewer")
-}
-
-model RiderRank {
-  id        String  @id @default(uuid())
-  name      String  @unique // Beginner (0-1300), Intermediate (1301-1700), Advanced (1701+)
-  minPoints Int
-  maxPoints Int
-  icon      String?
-  users     User[]
-}
-
-model HorseTier {
-  id        String  @id @default(uuid())
-  name      String  @unique // Tier 1, Tier 2, etc.
-  minPoints Int
-  maxPoints Int
-  icon      String?
-  horses    Horse[]
-}
-
-model Stable {
-  id               String       @id @default(uuid())
-  // ownerId removed in favor of User.stableId for multi-owner support
-  // But we keep a primary contact or just rely on users with this stableId
-  name             String
-  description      String       @db.Text
-  location         String // "Giza" or "Saqqara" - validated against Location model in app logic
-  address          String
-  imageUrl         String? // Stable card image
-  status           StableStatus @default(pending_approval)
-  isHidden         Boolean      @default(false) // Admin can hide/show stables individually
-  commissionRate   Decimal      @default(0.15) @db.Decimal(5, 4) // Commission rate (0.15 = 15%), can be customized per stable
-  minLeadTimeHours Int          @default(8) //Minimum hours before booking (Feature 5)
-  createdAt        DateTime     @default(now())
-  ownerId          String // Primary owner
-
-  // Relations
-  owner             User               @relation("StableOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  owners            User[]             @relation("StableOwners")
-  horses            Horse[]
-  bookings          Booking[]
-  packages          Package[]
-  reviews           Review[]
-  blockedSlots      BlockedSlot[]
-  rideResults       RideResult[]
-}
-
 enum SkillLevel {
   BEGINNER
   INTERMEDIATE
   ADVANCED
-}
-
-model Horse {
-  id                 String              @id @default(uuid())
-  stableId           String
-  name               String
-  description        String              @db.Text
-  imageUrls          String[]
-  pricePerHour       Decimal?            @db.Decimal(10, 2)
-  age                Int?
-  color              String?
-  skillLevel         SkillLevel          @default(BEGINNER)
-  skills             String[]            @default([])
-  isActive           Boolean             @default(true)
-  availabilityStatus AvailabilityStatus? @default(available)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime?           @updatedAt
-
-  // Leaderboard - Admin-locked tier (cannot be changed by stable owners)
-  adminTier         String? // "Beginner", "Intermediate", "Advanced" - Only editable by admins
-  firstTimeFriendly Boolean? // true = First Time Friendly, false = Not First Time Friendly, null = not set (only applicable when adminTier = "Beginner")
-  rankPoints        Int        @default(1400)
-  tierId            String?
-  tier              HorseTier? @relation(fields: [tierId], references: [id])
-
-  // Relations
-  stable                Stable                 @relation(fields: [stableId], references: [id], onDelete: Cascade)
-  bookings              Booking[]
-  reviews               Review[]
-  media                 HorseMedia[]
-  changeRequests        HorseChangeRequest[]
-  rideResults           RideResult[]
-  blockedSlots          BlockedSlot[]
-  skillOverrideRequests SkillOverrideRequest[]
-}
-
-model BlockedSlot {
-  id        String   @id @default(uuid())
-  stableId  String
-  horseId   String? // Optional: if null, blocks entire stable
-  startTime DateTime
-  endTime   DateTime
-  reason    String?
-  createdAt DateTime @default(now())
-
-  stable Stable @relation(fields: [stableId], references: [id], onDelete: Cascade)
-  horse  Horse? @relation(fields: [horseId], references: [id], onDelete: Cascade)
-
-  @@index([stableId])
-  @@index([horseId])
-}
-
-
-model RideResult {
-  id           String   @id @default(uuid())
-  bookingId    String   @unique
-  riderId      String
-  horseId      String
-  stableId     String
-  rps          Int // Rider Performance Score (1-10)
-  pointsChange Int // Calculated points
-  timestamp    DateTime @default(now())
-
-  booking Booking @relation(fields: [bookingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  rider   User    @relation(fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  horse   Horse   @relation(fields: [horseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  stable  Stable  @relation(fields: [stableId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([riderId])
-  @@index([stableId])
-}
-
-model HorseChangeRequest {
-  id      String                   @id @default(uuid())
-  horseId String
-  status  HorseChangeRequestStatus @default(pending)
-
-  // Proposed changes
-  proposedName         String?
-  proposedDescription  String?  @db.Text
-  proposedPricePerHour Decimal? @db.Decimal(10, 2)
-  proposedImageUrls    String[]
-  proposedColor        String?
-
-  // Reviewer info
-  reviewedBy      String?
-  reviewedAt      DateTime?
-  rejectionReason String?   @db.Text
-
-  // Timestamps
-  requestedAt DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  horse    Horse @relation(fields: [horseId], references: [id], onDelete: Cascade)
-  reviewer User? @relation("HorseChangeReviewer", fields: [reviewedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([status])
-  @@index([horseId])
-}
-
-model HorseMedia {
-  id           String         @id @default(uuid())
-  horseId      String
-  type         HorseMediaType
-  url          String
-  thumbnailUrl String?
-  sortOrder    Int?
-  createdAt    DateTime       @default(now())
-
-  horse Horse @relation(fields: [horseId], references: [id], onDelete: Cascade)
 }
 
 enum HorseMediaType {
@@ -343,454 +816,17 @@ enum HorseChangeRequestStatus {
   rejected
 }
 
-model Booking {
-  id                 String        @id @default(uuid())
-  riderId            String
-  stableId           String
-  horseId            String
-  startTime          DateTime
-  endTime            DateTime
-  totalPrice         Decimal
-  commission         Decimal // (e.g., 20% of total)
-  status             BookingStatus @default(confirmed)
-  stripePaymentId    String?       @unique
-  refundStatus       String? // "requested", "approved", "rejected", "processed"
-  refundAmount       Decimal?
-  stripeRefundId     String?
-  refundReason       String?       @db.Text
-  cancellationReason String?       @db.Text
-  rescheduledFrom    DateTime?
-  rescheduledTo      DateTime?
-  isRescheduled      Boolean       @default(false)
-  cancelledBy        String? // "rider", "owner", "admin"
-  promoCodeId        String?
-  groupSize          Int           @default(1) // Number of riders (1 = solo, 5+ = group discount)
-  groupDiscount      Decimal?      @db.Decimal(10, 2) // Discount applied for groups
-  reminderSent       Boolean       @default(false) // Whether 5-hour reminder email was sent
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-
-  // Relations
-  rider            User              @relation(fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  stable           Stable            @relation(fields: [stableId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  horse            Horse             @relation(fields: [horseId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  review           Review? // A booking can have one review
-  riderReview      RiderReview? // A booking can have one rider review from stable owner
-  rideResult       RideResult?
-  promoCode        PromoCode?        @relation(fields: [promoCodeId], references: [id])
-}
-
-model Review {
-  id           String   @id @default(uuid())
-  bookingId    String   @unique // One review per booking
-  riderId      String
-  stableId     String
-  horseId      String
-  stableRating Int // 1-5
-  horseRating  Int // 1-5
-  comment      String   @db.Text
-  photos       String[] // Array of photo URLs
-  createdAt    DateTime @default(now())
-
-  // Relations
-  booking      Booking       @relation(fields: [bookingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  rider        User          @relation(fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  stable       Stable        @relation(fields: [stableId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  horse        Horse         @relation(fields: [horseId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  reviewMedias ReviewMedia[]
-}
-
-// Stable Owner reviews Riders
-model RiderReview {
-  id               String   @id @default(uuid())
-  bookingId        String   @unique // One review per booking from owner
-  riderId          String // Rider being reviewed
-  ownerId          String // Stable owner writing review
-  ridingSkillLevel Int // 1-10 scale for future ranking system
-  behaviorRating   Int // 1-5 stars (kindness, helpfulness, respectfulness)
-  comment          String?  @db.Text
-  createdAt        DateTime @default(now())
-
-  // Relations
-  booking     Booking @relation(fields: [bookingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  rider       User    @relation("RiderReviews", fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  stableOwner User    @relation("StableOwnerReviews", fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model NewsletterSubscriber {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  subscribedAt DateTime @default(now())
-  status       String   @default("active") // "active", "unsubscribed"
-  source       String? // "homepage", "footer", "checkout", etc.
-}
-
-model LoyaltyPoints {
-  id           String              @id @default(uuid())
-  userId       String              @unique
-  points       Int                 @default(0)
-  tier         String              @default("bronze") // "bronze", "silver", "gold", "platinum"
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-  transactions PointsTransaction[]
-}
-
-model PointsTransaction {
-  id              String        @id @default(uuid())
-  loyaltyPointsId String
-  loyaltyPoints   LoyaltyPoints @relation(fields: [loyaltyPointsId], references: [id], onDelete: Cascade)
-  amount          Int // positive = earned, negative = redeemed
-  type            String // "booking", "review", "referral", "redemption"
-  description     String?
-  createdAt       DateTime      @default(now())
-
-  @@index([loyaltyPointsId])
-}
-
-model SystemConfig {
-  id        String   @id @default(uuid())
-  key       String   @unique // e.g., "CASH_RESTRICTION_ENABLED"
-  value     String // "true" or "false"
-  updatedAt DateTime @updatedAt
-}
-
-model Subscription {
-  id             String   @id @default(uuid())
-  userId         String
-  planType       String // "monthly", "annual", "family"
-  ridesRemaining Int? // null = unlimited
-  ridesUsed      Int      @default(0)
-  startDate      DateTime @default(now())
-  endDate        DateTime
-  isActive       Boolean  @default(true)
-  price          Decimal  @db.Decimal(10, 2)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  @@index([userId])
-  @@index([isActive])
-}
-
-model PasswordResetToken {
-  id        String   @id @default(uuid())
-  token     String   @unique
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-}
-
-// League System - Chess.com style leagues
-model League {
-  id        String       @id @default(uuid())
-  name      LeagueName // Wood, Bronze, Silver, Gold, Platinum, Elite, Champion
-  startDate DateTime
-  endDate   DateTime // 2 weeks after startDate
-  status    LeagueStatus @default(active)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-
-  // Relations
-  riders          User[]           @relation("RiderLeague")
-  standings       LeagueStanding[]
-  nextLeagueId    String? // ID of the next league (for promotion)
-  nextLeague      League?          @relation("LeaguePromotion", fields: [nextLeagueId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  previousLeagues League[]         @relation("LeaguePromotion")
-
-  @@index([status])
-  @@index([startDate])
-  @@index([endDate])
-}
-
-model LeagueStanding {
-  id         String   @id @default(uuid())
-  leagueId   String
-  riderId    String
-  rankPoints Int // Rider's rank points at the end of this league period
-  finalRank  Int? // Final rank in this league (1, 2, 3, etc.)
-  promoted   Boolean  @default(false) // Whether rider was promoted to next league
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  // Relations
-  league League @relation(fields: [leagueId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  rider  User   @relation(fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([leagueId, riderId])
-  @@index([leagueId])
-  @@index([riderId])
-  @@index([finalRank])
-}
-
-model PromoCode {
-  id             String    @id @default(uuid())
-  code           String    @unique
-  discountType   String    @default("percentage") // "percentage" or "fixed"
-  discountAmount Decimal   @db.Decimal(10, 2)
-  expiresAt      DateTime?
-  maxUses        Int? // Null = unlimited
-  currentUses    Int       @default(0)
-  isActive       Boolean   @default(true)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  bookings Booking[]
-}
-
-// Friends System
 enum FriendStatus {
   pending
   accepted
   rejected
 }
 
-model Friend {
-  id         String       @id @default(uuid())
-  senderId   String
-  receiverId String
-  status     FriendStatus @default(pending)
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-
-  sender   User @relation("FriendsSent", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver User @relation("FriendsReceived", fields: [receiverId], references: [id], onDelete: Cascade)
-
-  @@unique([senderId, receiverId])
-  @@index([senderId])
-  @@index([receiverId])
-  @@index([status])
-}
-
-// Chat/Messaging System
-model Conversation {
-  id           String    @id @default(uuid())
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  participants User[]    @relation("ConversationParticipants")
-  messages     Message[]
-
-  @@index([updatedAt])
-}
-
-model Message {
-  id             String   @id @default(uuid())
-  content        String   @db.Text
-  createdAt      DateTime @default(now())
-  read           Boolean  @default(false)
-  senderId       String
-  conversationId String
-
-  sender       User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
-  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-
-  @@index([conversationId])
-  @@index([senderId])
-  @@index([createdAt])
-}
-
-// Skill Override Request - When rider wants to book a horse above their skill level
 enum SkillRequestStatus {
   pending
   approved
   rejected
 }
-
-model SkillOverrideRequest {
-  id        String             @id @default(uuid())
-  riderId   String
-  horseId   String
-  stableId  String
-  reason    String?            @db.Text
-  status    SkillRequestStatus @default(pending)
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-
-  rider User  @relation("RiderSkillRequests", fields: [riderId], references: [id], onDelete: Cascade)
-  horse Horse @relation(fields: [horseId], references: [id], onDelete: Cascade)
-
-  @@index([riderId])
-  @@index([horseId])
-  @@index([stableId])
-  @@index([status])
-}
-
-// Instagram-style Follow System
-model UserFollow {
-  id          String   @id @default(uuid())
-  followerId  String
-  followingId String
-  createdAt   DateTime @default(now())
-
-  follower  User @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade)
-  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
-
-  @@unique([followerId, followingId])
-  @@index([followerId])
-  @@index([followingId])
-}
-
-// User Posts for Instagram-style profile
-model UserPost {
-  id        String   @id @default(uuid())
-  userId    String
-  imageUrl  String
-  caption   String?  @db.Text
-  createdAt DateTime @default(now())
-
-  user  User       @relation("UserPosts", fields: [userId], references: [id], onDelete: Cascade)
-  likes PostLike[]
-
-  @@index([userId])
-  @@index([createdAt])
-}
-
-model PostLike {
-  id        String   @id @default(uuid())
-  postId    String
-  userId    String
-  createdAt DateTime @default(now())
-
-  post UserPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, userId])
-  @@index([postId])
-  @@index([userId])
-}
-
-// Review Media - Photos attached to reviews
-model ReviewMedia {
-  id        String   @id @default(uuid())
-  reviewId  String
-  url       String
-  createdAt DateTime @default(now())
-
-  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-
-  @@index([reviewId])
-}
-
-model Notification {
-  id        String   @id @default(uuid())
-  userId    String
-  type      String // "booking_confirmed", "booking_completed", "new_message", "review_received", etc.
-  title     String
-  message   String   @db.Text
-  data      Json? // Additional data (booking ID, user ID, etc.)
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, read])
-  @@index([createdAt])
-}
-
-model Package {
-  id          String @id @default(uuid())
-  title       String
-  description String @db.Text
-
-  // Pricing
-  price         Float
-  originalPrice Float? // If set, 'price' is discounted price, 'originalPrice' gets crossed out
-
-  // Package Core Types
-  packageType String @default("PRIVATE") // "PRIVATE" | "GROUP_EVENT"
-
-  // Capacity constraints
-  minPeople Int @default(1)
-  maxPeople Int
-
-  // Timing
-  duration      Float // duration in hours
-  availableDays String[] // e.g. ["Monday", "Tuesday"] or ["Everyday"]
-  startTime     String? // e.g. "14:00"
-
-  // Amenities toggles
-  hasHorseRide   Boolean @default(true)
-  hasFood        Boolean @default(false)
-  hasDancingShow Boolean @default(false)
-  hasParty       Boolean @default(false)
-
-  // Transportation
-  hasTransportation  Boolean @default(false)
-  transportationType String? // "HOME_PICKUP" | "MEETING_POINT"
-
-  // Display/Content
-  included   String[] // array of custom included items
-  highlights String[] // array of custom key highlights
-  imageUrl   String
-
-  // State
-  isActive         Boolean  @default(true)
-  isFeatured       Boolean  @default(false)
-  sortOrder        Int      @default(0)
-  minLeadTimeHours Int      @default(8) // Minimum hours before booking is allowed
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  // Stable Assignment (Optional)
-  stableId String?
-  stable   Stable? @relation(fields: [stableId], references: [id])
-
-  // Bookings
-  bookings PackageBooking[]
-
-  @@index([isActive])
-  @@index([isFeatured])
-  @@index([sortOrder])
-  @@index([packageType])
-  @@index([stableId])
-}
-
-model PackageBooking {
-  id                 String        @id @default(uuid())
-  riderId            String
-  packageId          String
-  date               DateTime      @db.Date
-  startTime          String // E.g. "14:00"
-  ticketsCount       Int           @default(1) // Number of people included in this order
-  totalPrice         Decimal
-  transportationZone String? // Optional selected pickup zone
-  pickupLocationUrl  String? // Optional Google Maps URL for rider pickup
-  status             BookingStatus @default(confirmed)
-  stripePaymentId    String?       @unique
-  commission         Decimal? // Admin commission
-  refundStatus       String? // "requested", "approved", "rejected", "processed"
-  refundAmount       Decimal?
-  stripeRefundId     String?
-  refundReason       String?       @db.Text
-  
-  // Driver App relations
-  driverId           String?
-  driverStatus       TransportStatus @default(pending) // Track the physical state of the uber-like flow
-
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-
-  rider   User    @relation(fields: [riderId], references: [id])
-  package Package @relation(fields: [packageId], references: [id])
-  driver  User?   @relation("DriverBookings", fields: [driverId], references: [id])
-
-  @@index([riderId])
-  @@index([packageId])
-  @@index([driverId])
-  @@index([date])
-}
-
-model TransportZone {
-  id        String   @id @default(uuid())
-  name      String // E.g. "Zone 1: Giza, Haram, Dokki"
-  price     Decimal // E.g. 400
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ============================================================================
-// PYRARIDES ACADEMY — Training System
-// ============================================================================
 
 enum TrainingBookingStatus {
   active
@@ -820,191 +856,4 @@ enum AcademyPriceChangeStatus {
   pending
   approved
   rejected
-}
-
-// Academy — Physical training location managed by a Captain
-model Academy {
-  id          String  @id @default(uuid())
-  name        String // "PyraRides Academy - New Cairo"
-  description String  @db.Text
-  location    String // "New Cairo", "Saqqara", "Nasr City"
-  address       String
-  imageUrl      String?
-  googleMapsUrl String? 
-  isActive      Boolean @default(true)
-  isHidden      Boolean @default(false)
-
-  // Captain (manager)
-  captainId String @unique
-  captain   User   @relation("AcademyCaptain", fields: [captainId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  programs     TrainingProgram[]
-  enrollments  TrainingEnrollment[]
-  priceChanges AcademyPriceChangeRequest[]
-
-  @@index([isActive])
-  @@index([location])
-}
-
-// TrainingProgram — A plan offered at an academy (Beginner 4 sessions, etc.)
-model TrainingProgram {
-  id          String @id @default(uuid())
-  academyId   String
-  name        String // "Beginner Foundations"
-  description String @db.Text
-  skillLevel  SkillLevel @default(BEGINNER)
-
-  // Pricing & Structure
-  price          Decimal @db.Decimal(10, 2) // Total price for the program
-  totalSessions  Int // Number of sessions included (e.g. 4, 8, 12)
-  sessionDuration Float @default(1) // Duration of each session in hours
-  validityDays   Int @default(60) // How many days the enrollment is valid
-
-  // Schedule
-  availableDays String[] // ["Saturday", "Tuesday", "Thursday"]
-  startTime     String? // Default start time e.g. "10:00"
-
-  // State
-  isActive  Boolean  @default(true)
-  sortOrder Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  academy     Academy              @relation(fields: [academyId], references: [id], onDelete: Cascade)
-  enrollments TrainingEnrollment[]
-
-  @@index([academyId])
-  @@index([isActive])
-  @@index([skillLevel])
-}
-
-// TrainingEnrollment — A rider's subscription to a training program
-model TrainingEnrollment {
-  id        String                @id @default(uuid())
-  riderId   String
-  academyId String
-  programId String
-  status    TrainingBookingStatus @default(active)
-
-  // Subscription tracking
-  totalSessions     Int // Copied from program at enrollment time
-  completedSessions Int @default(0)
-  startDate         DateTime @db.Date
-  expiryDate        DateTime @db.Date // startDate + validityDays
-
-  // Payment
-  totalPrice       Decimal  @db.Decimal(10, 2)
-  amountPaid       Decimal  @default(0) @db.Decimal(10, 2)
-  balanceDue       Decimal  @default(0) @db.Decimal(10, 2)
-  paymentMethod    PaymentMethod @default(CASH)
-  paymentStructure PaymentStructure @default(FULL)
-  stripePaymentId  String?  @unique
-  commission       Decimal? @db.Decimal(10, 2)
-
-  // Renewal
-  renewedFromId String? // If renewed, points to previous enrollment
-  isRenewed     Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  rider    User             @relation("TraineeEnrollments", fields: [riderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  academy  Academy          @relation(fields: [academyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  program  TrainingProgram  @relation(fields: [programId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  sessions TrainingSession[]
-
-  @@index([riderId])
-  @@index([academyId])
-  @@index([programId])
-  @@index([status])
-}
-
-// TrainingSession — Individual session slot within an enrollment
-model TrainingSession {
-  id           String                @id @default(uuid())
-  enrollmentId String
-  sessionNumber Int // 1, 2, 3... up to totalSessions
-  date         DateTime              @db.Date
-  startTime    String // "10:00"
-  endTime      String // "11:00"
-  status       TrainingSessionStatus @default(scheduled)
-
-  // Reschedule tracking
-  originalDate      DateTime? @db.Date
-  originalStartTime String?
-  rescheduledAt     DateTime?
-  rescheduleReason  String?   @db.Text
-
-  // Completion
-  completedAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  enrollment TrainingEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  review     SessionReview?
-
-  @@index([enrollmentId])
-  @@index([date])
-  @@index([status])
-}
-
-// SessionReview — Captain's feedback after each completed session
-model SessionReview {
-  id        String @id @default(uuid())
-  sessionId String @unique
-  captainId String
-
-  // Ratings
-  performanceRating Int // 1-10 scale
-  techniqueRating   Int // 1-10 scale
-  attitudeRating    Int // 1-5 stars
-
-  // Feedback
-  comment     String?  @db.Text
-  improvements String? @db.Text // Suggested areas for improvement
-
-  createdAt DateTime @default(now())
-
-  // Relations
-  session TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  captain User            @relation("CaptainSessionReviews", fields: [captainId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-// AcademyPriceChangeRequest — Captain requests price change, admin approves
-model AcademyPriceChangeRequest {
-  id         String                   @id @default(uuid())
-  academyId  String
-  captainId  String
-  programId  String // Which program's price to change
-
-  // Proposed changes
-  currentPrice  Decimal @db.Decimal(10, 2)
-  proposedPrice Decimal @db.Decimal(10, 2)
-  reason        String? @db.Text
-
-  // Review
-  status          AcademyPriceChangeStatus @default(pending)
-  reviewedBy      String?
-  reviewedAt      DateTime?
-  rejectionReason String? @db.Text
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  academy  Academy @relation(fields: [academyId], references: [id], onDelete: Cascade)
-  captain  User    @relation("CaptainPriceChanges", fields: [captainId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  reviewer User?   @relation("AdminPriceChangeReviewer", fields: [reviewedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([academyId])
-  @@index([status])
 }

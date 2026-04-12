@@ -187,63 +187,146 @@ const withPWA = withPWAInit({
   workboxOptions: {
     disableDevLogs: true,
     runtimeCaching: [
+      // Fonts — CacheFirst, never change
       {
         urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
         handler: "CacheFirst",
         options: {
           cacheName: "google-fonts",
-          expiration: {
-            maxEntries: 10,
-            maxAgeSeconds: 365 * 24 * 60 * 60, // 1 year
-          },
+          expiration: { maxEntries: 10, maxAgeSeconds: 365 * 24 * 60 * 60 },
         },
       },
+      // Static font files
       {
         urlPattern: /\.(?:eot|otf|ttc|ttf|woff|woff2|font.css)$/i,
         handler: "StaleWhileRevalidate",
         options: {
           cacheName: "static-fonts",
-          expiration: {
-            maxEntries: 10,
-            maxAgeSeconds: 7 * 24 * 60 * 60, // 1 week
-          },
+          expiration: { maxEntries: 10, maxAgeSeconds: 7 * 24 * 60 * 60 },
         },
       },
+      // Images
       {
         urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
         handler: "StaleWhileRevalidate",
         options: {
           cacheName: "static-images",
-          expiration: {
-            maxEntries: 64,
-            maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-          },
+          expiration: { maxEntries: 64, maxAgeSeconds: 30 * 24 * 60 * 60 },
         },
       },
+      // JS and CSS
       {
         urlPattern: /\.(?:js|css)$/i,
         handler: "StaleWhileRevalidate",
         options: {
           cacheName: "static-resources",
-          expiration: {
-            maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
-          },
+          expiration: { maxEntries: 32, maxAgeSeconds: 24 * 60 * 60 },
         },
       },
+
+      // ===== API ROUTES — SPLIT BY SAFETY =====
+
+      // Slots — ALWAYS real-time, never cache
       {
-        urlPattern: /^https:\/\/api\..*$/i,
+        urlPattern: /\/api\/stables\/[^/]+\/slots/,
+        handler: "NetworkOnly",
+      },
+      // Bookings — ALWAYS real-time, never cache
+      {
+        urlPattern: /\/api\/bookings/,
+        handler: "NetworkOnly",
+      },
+      // Checkout — ALWAYS real-time
+      {
+        urlPattern: /\/api\/checkout/,
+        handler: "NetworkOnly",
+      },
+      // Auth — ALWAYS real-time
+      {
+        urlPattern: /\/api\/auth/,
+        handler: "NetworkOnly",
+      },
+      // Push token — ALWAYS real-time
+      {
+        urlPattern: /\/api\/user\/push-token/,
+        handler: "NetworkOnly",
+      },
+
+      // Stables list — safe to serve stale for 5 minutes
+      {
+        urlPattern: /\/api\/stables(\?|$)/,
+        handler: "StaleWhileRevalidate",
+        options: {
+          cacheName: "stables-list",
+          expiration: { maxEntries: 5, maxAgeSeconds: 300 },
+        },
+      },
+      // Individual stable detail — safe to serve stale for 1 hour
+      {
+        urlPattern: /\/api\/stables\/[^/]+(\?|$)/,
+        handler: "StaleWhileRevalidate",
+        options: {
+          cacheName: "stable-detail",
+          expiration: { maxEntries: 30, maxAgeSeconds: 3600 },
+        },
+      },
+      // Packages — rarely change, 2 hour cache
+      {
+        urlPattern: /\/api\/packages/,
+        handler: "StaleWhileRevalidate",
+        options: {
+          cacheName: "packages",
+          expiration: { maxEntries: 10, maxAgeSeconds: 7200 },
+        },
+      },
+      // Notifications — 30 second stale acceptable
+      {
+        urlPattern: /\/api\/notifications/,
+        handler: "StaleWhileRevalidate",
+        options: {
+          cacheName: "notifications",
+          expiration: { maxEntries: 2, maxAgeSeconds: 30 },
+        },
+      },
+      // Leaderboard — 10 minute cache
+      {
+        urlPattern: /\/api\/leaderboard/,
+        handler: "StaleWhileRevalidate",
+        options: {
+          cacheName: "leaderboard",
+          expiration: { maxEntries: 5, maxAgeSeconds: 600 },
+        },
+      },
+      // Transport zones — almost never change
+      {
+        urlPattern: /\/api\/transport-zones/,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "transport-zones",
+          expiration: { maxEntries: 5, maxAgeSeconds: 86400 },
+        },
+      },
+      // Locations — almost never change
+      {
+        urlPattern: /\/api\/locations/,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "locations",
+          expiration: { maxEntries: 5, maxAgeSeconds: 86400 },
+        },
+      },
+
+      // Everything else — NetworkFirst with short timeout
+      {
+        urlPattern: /\/api\//,
         handler: "NetworkFirst",
         options: {
-          cacheName: "api-cache",
-          networkTimeoutSeconds: 10,
-          expiration: {
-            maxEntries: 16,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
-          },
+          cacheName: "api-fallback",
+          networkTimeoutSeconds: 5,
+          expiration: { maxEntries: 16, maxAgeSeconds: 60 },
         },
       },
-    ],
+    ]
   },
 });
 
