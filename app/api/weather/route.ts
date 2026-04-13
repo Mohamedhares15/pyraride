@@ -92,8 +92,7 @@ export async function GET(request: NextRequest) {
     url.searchParams.set("timezone", "Africa/Cairo");
 
     const response = await fetch(url.toString(), {
-      next: { revalidate: 300 },
-      cache: "no-store",
+      next: { revalidate: 600 },
     });
 
     const fallbackResponse = {
@@ -131,6 +130,10 @@ export async function GET(request: NextRequest) {
       weatherCode: weatherCode ?? null,
       location: locationName,
       locationKey: resolvedLocationKey,
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=60',
+      }
     });
   } catch (error) {
     console.error("Weather fetch error:", error);

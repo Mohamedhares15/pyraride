@@ -66,6 +66,16 @@ const nextConfig = {
           },
         ],
       },
+      // Explicit cache rule for icon.png
+      {
+        source: '/icon.png',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
       // Cache public static files (images, fonts)
       {
         source: '/(.*)\\.(webp|png|jpg|jpeg|svg|ico|woff|woff2)',

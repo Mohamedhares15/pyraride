@@ -14,9 +14,7 @@ export async function GET() {
 
         return NextResponse.json(locations, {
             headers: {
-                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0',
+                'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=3600',
             },
         });
     } catch (error) {
