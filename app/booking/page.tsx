@@ -487,8 +487,17 @@ function BookingContent() {
         router.push(`/payment/paymob?bookingId=${primaryBookingId}`);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create booking");
-      toast.error(err instanceof Error ? err.message : "Failed to create booking");
+      const errorMessage = err instanceof Error ? err.message : "Failed to create booking";
+      if (errorMessage.includes("already booked") || errorMessage.includes("welfare limit")) {
+        toast.error("This slot was just taken", {
+          description: "Another rider booked this horse a moment ago. We've refreshed the availability — please choose another time.",
+          duration: 5000,
+        });
+        router.back();
+      } else {
+        setError(errorMessage);
+        toast.error(errorMessage);
+      }
     } finally {
       setIsSubmitting(false);
     }

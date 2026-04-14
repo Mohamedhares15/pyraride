@@ -431,143 +431,72 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
         return () => { isMounted = false; };
     }, [id, session, selectedDate, initialStable]);
 
-    // Polling: refresh slots every 15 seconds
-    // Pauses automatically when: tab is hidden, user inactive 2min
-    // Resumes immediately when: tab becomes visible again
+    // Refresh slots when user returns to tab — replaces polling
     useEffect(() => {
-        if (!id) return;
-
-        // Store last ETag to detect real changes (304 = nothing changed)
-        const lastETagRef = { current: "" };
-        // Track user activity for inactivity pause
-        const lastActivityRef = { current: Date.now() };
-        const INACTIVITY_MS = 2 * 60 * 1000; // 2 minutes
-
-        const updateActivity = () => { lastActivityRef.current = Date.now(); };
-        window.addEventListener("mousemove", updateActivity, { passive: true });
-        window.addEventListener("touchstart", updateActivity, { passive: true });
-        window.addEventListener("scroll", updateActivity, { passive: true });
-        window.addEventListener("click", updateActivity, { passive: true });
-
-        const fetchSlots = async () => {
-            // Pause when tab is hidden (Instagram users background the tab)
+        const handleFocus = () => {
+            // Only refresh if tab was hidden for more than 30 seconds
             if (document.hidden) return;
-            // Pause when user has been inactive for 2 minutes
-            if (Date.now() - lastActivityRef.current > INACTIVITY_MS) return;
+            const dateStr = selectedDate.toISOString().split("T")[0];
+            const tomorrowDate = new Date(selectedDate);
+            tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+            const tomorrowDateStr = tomorrowDate.toISOString().split("T")[0];
 
-            try {
-                const dateStr = selectedDate.toISOString().split("T")[0];
-                const headers: HeadersInit = { "Cache-Control": "no-cache" };
-                // Send ETag — server returns 304 if nothing changed (saves all bandwidth)
-                if (lastETagRef.current) {
-                    headers["If-None-Match"] = lastETagRef.current;
-                }
-
-                // ONE request for both today and tomorrow
-                const slotsRes = await fetch(
-                    `/api/stables/${id}/slots?date=${dateStr}&includeTomorrow=true`,
-                    { headers }
-                );
-
-                // 304 = nothing changed since last poll — skip all processing
-                if (slotsRes.status === 304) return;
-
-                // Store new ETag for next poll
-                const newETag = slotsRes.headers.get("ETag");
-                if (newETag) lastETagRef.current = newETag;
-
-                if (!slotsRes.ok) return;
-
-                const data = await slotsRes.json();
-                const todaySlotsData: any[] = data.today || [];
-                const tomorrowSlotsData: any[] = data.tomorrow || [];
-
-                const newAvailable: Record<string, Record<string, string[]>> = { [dateStr]: {} };
-                const newTaken: Record<string, Record<string, any[]>> = { [dateStr]: {} };
-                const newBlocked: Record<string, Record<string, string[]>> = { [dateStr]: {} };
-
-                stable?.horses.forEach((horse) => {
-                    newAvailable[dateStr][horse.id] = [];
-                    newTaken[dateStr][horse.id] = [];
-                    newBlocked[dateStr][horse.id] = [];
-                });
-
-                todaySlotsData.forEach((slot: any) => {
-                    const slotDate = new Date(slot.startTime);
-                    const hours = slotDate.getHours();
-                    const minutes = slotDate.getMinutes();
-                    const ampm = hours >= 12 ? "PM" : "AM";
-                    const displayHours = hours % 12 || 12;
-                    const time = `${displayHours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
-
-                    const targetHorses = slot.horseId
-                        ? [stable?.horses.find((h) => h.id === slot.horseId)].filter(Boolean)
-                        : stable?.horses || [];
-
-                    targetHorses.forEach((horse) => {
-                        if (!horse) return;
-                        if (slot.status === "booked") {
-                            if (!newTaken[dateStr][horse.id]) newTaken[dateStr][horse.id] = [];
-                            newTaken[dateStr][horse.id].push({ ...slot, startTime: slot.startTime });
-                        } else if (slot.status === "available") {
-                            if (!newAvailable[dateStr][horse.id]) newAvailable[dateStr][horse.id] = [];
-                            newAvailable[dateStr][horse.id].push(time);
-                        }
+            fetch(`/api/stables/${id}/slots?date=${dateStr}&includeTomorrow=true`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.today) return;
+                    const newAvailable: Record<string, Record<string, string[]>> = { [dateStr]: {} };
+                    const newTaken: Record<string, Record<string, any[]>> = { [dateStr]: {} };
+                    stable?.horses.forEach(horse => {
+                        newAvailable[dateStr][horse.id] = [];
+                        newTaken[dateStr][horse.id] = [];
                     });
-                });
-
-                setAvailableSlots(newAvailable);
-                setTakenSlots(newTaken);
-                setBlockedSlots(newBlocked);
-
-                // Update tomorrow data from combined response
-                const tomorrowAvail: Record<string, string[]> = {};
-                stable?.horses.forEach((horse) => { tomorrowAvail[horse.id] = []; });
-                tomorrowSlotsData.forEach((slot: any) => {
-                    if (slot.status !== "available") return;
-                    const slotDate = new Date(slot.startTime);
-                    const hours = slotDate.getHours();
-                    const minutes = slotDate.getMinutes();
-                    const ampm = hours >= 12 ? "PM" : "AM";
-                    const displayHours = hours % 12 || 12;
-                    const time = `${displayHours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
-                    const targetHorses = slot.horseId
-                        ? [stable?.horses.find((h) => h.id === slot.horseId)].filter(Boolean)
-                        : stable?.horses || [];
-                    targetHorses.forEach((horse) => {
-                        if (!horse) return;
-                        if (!tomorrowAvail[horse.id]) tomorrowAvail[horse.id] = [];
-                        tomorrowAvail[horse.id].push(time);
+                    data.today.forEach((slot: any) => {
+                        const slotDate = new Date(slot.startTime);
+                        const hours = slotDate.getHours();
+                        const minutes = slotDate.getMinutes();
+                        const ampm = hours >= 12 ? "PM" : "AM";
+                        const displayHours = hours % 12 || 12;
+                        const time = `${displayHours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
+                        const targetHorses = slot.horseId ? [stable?.horses.find(h => h.id === slot.horseId)].filter(Boolean) : stable?.horses || [];
+                        targetHorses.forEach((horse: any) => {
+                            if (!horse) return;
+                            if (slot.status === "booked") {
+                                newTaken[dateStr][horse.id].push({ ...slot });
+                            } else if (slot.status === "available") {
+                                newAvailable[dateStr][horse.id].push(time);
+                            }
+                        });
                     });
-                });
-                setTomorrowAvailableSlots(tomorrowAvail);
-
-            } catch (err) {
-                console.error("Error refreshing slots:", err);
-            }
+                    setAvailableSlots(newAvailable);
+                    setTakenSlots(newTaken);
+                    // Update tomorrow slots
+                    const tomorrowAvail: Record<string, string[]> = {};
+                    stable?.horses.forEach(horse => { tomorrowAvail[horse.id] = []; });
+                    (data.tomorrow || []).forEach((slot: any) => {
+                        if (slot.status !== "available") return;
+                        const slotDate = new Date(slot.startTime);
+                        const hours = slotDate.getHours();
+                        const minutes = slotDate.getMinutes();
+                        const ampm = hours >= 12 ? "PM" : "AM";
+                        const displayHours = hours % 12 || 12;
+                        const time = `${displayHours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
+                        const targetHorses = slot.horseId ? [stable?.horses.find(h => h.id === slot.horseId)].filter(Boolean) : stable?.horses || [];
+                        targetHorses.forEach((horse: any) => {
+                            if (!horse) return;
+                            tomorrowAvail[horse.id].push(time);
+                        });
+                    });
+                    setTomorrowAvailableSlots(tomorrowAvail);
+                })
+                .catch(err => console.error("Focus refresh failed:", err));
         };
 
-        // Page Visibility: resume immediately when user returns to tab
-        const handleVisibilityChange = () => {
-            if (!document.hidden) {
-                // User returned to tab — fetch immediately then resume polling
-                updateActivity();
-                fetchSlots();
-            }
-        };
-        document.addEventListener("visibilitychange", handleVisibilityChange);
-
-        // Start polling — NOTE: no immediate fetchSlots() here
-        // The initial load useEffect already fetched on mount
-        const interval = setInterval(fetchSlots, 15000);
-
+        document.addEventListener("visibilitychange", handleFocus);
+        window.addEventListener("focus", handleFocus);
         return () => {
-            clearInterval(interval);
-            document.removeEventListener("visibilitychange", handleVisibilityChange);
-            window.removeEventListener("mousemove", updateActivity);
-            window.removeEventListener("touchstart", updateActivity);
-            window.removeEventListener("scroll", updateActivity);
-            window.removeEventListener("click", updateActivity);
+            document.removeEventListener("visibilitychange", handleFocus);
+            window.removeEventListener("focus", handleFocus);
         };
     }, [id, stable, selectedDate]);
 

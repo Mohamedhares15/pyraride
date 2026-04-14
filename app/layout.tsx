@@ -21,7 +21,7 @@ const FirebaseNotifications = dynamic(
 import Footer from "@/components/shared/Footer";
 import { OptimalCinematicWrapper } from "@/components/OptimalCinematicWrapper";
 import NotificationProvider from "@/components/providers/NotificationProvider";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+
 import Script from "next/script";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { WebVitals } from "@/components/analytics/WebVitals";
@@ -181,7 +181,7 @@ export default function RootLayout({
                     <OrientationLock />
                     <main id="main-content" className="pb-0">{children}</main>
                     <Footer />
-                    <SpeedInsights />
+
                     <WebVitals />
                     <FirebaseNotifications />
                   </OptimalCinematicWrapper>

@@ -172,7 +172,7 @@ export default function DynamicAvailability({ grouped, blocked, horseId, onSlotC
 
                 <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
-                    <span>Updated every 30 seconds</span>
+                    <span>Tap a slot to book instantly</span>
                 </div>
             </div>
         </div>
