@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getLocationMeta } from "@/lib/location-coordinates";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 300; // Revalidate every 5 minutes
+export const revalidate = 0;
+
+// In-memory cache keyed by location string — Fly.io has no CDN
+// Weather changes slowly, 10 minute TTL is safe
+const weatherCache = new Map<string, { data: any; expiresAt: number }>();
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 const WEATHER_CODE_DESCRIPTIONS: Record<number, string> = {
   0: "Clear sky",
@@ -58,6 +63,20 @@ export async function GET(request: NextRequest) {
   const locationMeta = getLocationMeta(locationParam ?? undefined);
   const latParam = searchParams.get("lat");
   const lonParam = searchParams.get("lon");
+
+  // Build a cache key from the resolved location
+  const cacheKey = `${locationParam || 'default'}_${latParam || ''}_${lonParam || ''}`;
+
+  // Serve from memory cache if valid
+  const cached = weatherCache.get(cacheKey);
+  if (cached && Date.now() < cached.expiresAt) {
+    return NextResponse.json(cached.data, {
+      headers: {
+        'Cache-Control': 'public, max-age=600',
+        'X-Cache': 'HIT',
+      },
+    });
+  }
 
   try {
     const {
@@ -121,7 +140,7 @@ export async function GET(request: NextRequest) {
 
     const weatherCode = current.weather_code as number | undefined;
 
-    return NextResponse.json({
+    const result = {
       temperature: coerceNumber(current.temperature_2m, fallbackResponse.temperature),
       condition: getWeatherDescription(weatherCode),
       humidity: coerceNumber(current.relative_humidity_2m, fallbackResponse.humidity),
@@ -130,10 +149,16 @@ export async function GET(request: NextRequest) {
       weatherCode: weatherCode ?? null,
       location: locationName,
       locationKey: resolvedLocationKey,
-    }, {
+    };
+
+    // Store in memory cache
+    weatherCache.set(cacheKey, { data: result, expiresAt: Date.now() + CACHE_TTL_MS });
+
+    return NextResponse.json(result, {
       headers: {
-        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=60',
-      }
+        'Cache-Control': 'public, max-age=600',
+        'X-Cache': 'MISS',
+      },
     });
   } catch (error) {
     console.error("Weather fetch error:", error);
@@ -155,4 +180,3 @@ export async function GET(request: NextRequest) {
     });
   }
 }
-

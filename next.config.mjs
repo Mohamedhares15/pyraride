@@ -198,6 +198,22 @@ const withPWA = withPWAInit({
   workboxOptions: {
     disableDevLogs: true,
     runtimeCaching: [
+      // Slots — NEVER cache or intercept, always direct to network
+      {
+        urlPattern: /\/api\/stables\/.*\/slots/,
+        handler: 'NetworkOnly',
+        options: {
+          cacheName: 'slots-no-cache',
+        },
+      },
+      // ALL API routes — NEVER cache via ServiceWorker
+      {
+        urlPattern: /\/api\/.*/,
+        handler: 'NetworkOnly',
+        options: {
+          cacheName: 'api-no-cache',
+        },
+      },
       // Fonts — CacheFirst, never change
       {
         urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
