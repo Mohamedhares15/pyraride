@@ -181,7 +181,7 @@ function buildApplicationEmail(d: PartnerApplication): string {
         <!-- Footer -->
         <tr><td style="padding:40px 32px;border-top:1px solid rgba(255,255,255,.08);margin-top:32px;">
           <p style="margin:0;font-size:11px;color:rgba(255,255,255,.3);text-align:center;">
-            This application was submitted via pyrarides.com/join
+            This application was submitted via pyrarides.com/partner
           </p>
         </td></tr>
 
