@@ -8,7 +8,7 @@ primary_region = 'cdg'
 
 [checks.health]
 grace_period = "10s"
-interval = "30s"
+interval = "5m"
 method = "get"
 path = "/api/health"
 port = 3_000

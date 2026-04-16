@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+// In-memory cache — Fly.io has no CDN, so we cache in the Node process
+// Stables list rarely changes, 1 hour TTL is safe
+const stablesListCache = new Map<string, { data: any; expiresAt: number }>();
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
 
 const POSITIVE_KEYWORDS = [
   "amazing",
@@ -94,10 +99,23 @@ function computeAdjustedRating<T extends { [key: string]: any }>(
 
 export async function GET(req: NextRequest) {
   try {
+    // Build cache key from query params (ownerOnly requests bypass cache)
+    const searchParams = req.nextUrl.searchParams;
+    const ownerOnly = searchParams.get("ownerOnly") === "true";
+    const cacheKey = req.nextUrl.search || "?";
+
+    // Serve from memory cache if valid (skip cache for owner-specific requests)
+    if (!ownerOnly) {
+      const cached = stablesListCache.get(cacheKey);
+      if (cached && Date.now() < cached.expiresAt) {
+        return NextResponse.json(cached.data, {
+          headers: { 'Cache-Control': 'public, max-age=3600', 'X-Cache': 'HIT' },
+        });
+      }
+    }
 
 
     const session = await getServerSession();
-    const searchParams = req.nextUrl.searchParams;
     const location = searchParams.get("location");
     const search = searchParams.get("search");
     const minRating = searchParams.get("minRating");
@@ -106,7 +124,6 @@ export async function GET(req: NextRequest) {
     const color = searchParams.get("color");
     const skillsParam = searchParams.get("skills");
     const skills = skillsParam ? skillsParam.split(",") : null;
-    const ownerOnly = searchParams.get("ownerOnly") === "true"; // Get only owner's stable
     const sort = searchParams.get("sort") || "recommended";
     const isAdmin = session?.user?.role === "admin";
 
@@ -424,13 +441,15 @@ export async function GET(req: NextRequest) {
           : b.pricePerHour - a.pricePerHour
       );
 
-      return NextResponse.json({
-        stables: horseEntries,
-        mode: "horse",
-      }, {
-        headers: {
-          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
-        }
+      const horseResult = { stables: horseEntries, mode: "horse" };
+
+      // Store in cache (skip for owner-only requests)
+      if (!ownerOnly) {
+        stablesListCache.set(cacheKey, { data: horseResult, expiresAt: Date.now() + CACHE_TTL_MS });
+      }
+
+      return NextResponse.json(horseResult, {
+        headers: { 'Cache-Control': 'public, max-age=3600', 'X-Cache': 'MISS' },
       });
     }
 
@@ -460,13 +479,15 @@ export async function GET(req: NextRequest) {
         );
     }
 
-    return NextResponse.json({
-      stables: sortedStables,
-      mode: "stable",
-    }, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
-      }
+    const stableResult = { stables: sortedStables, mode: "stable" };
+
+    // Store in cache (skip for owner-only requests)
+    if (!ownerOnly) {
+      stablesListCache.set(cacheKey, { data: stableResult, expiresAt: Date.now() + CACHE_TTL_MS });
+    }
+
+    return NextResponse.json(stableResult, {
+      headers: { 'Cache-Control': 'public, max-age=3600', 'X-Cache': 'MISS' },
     });
   } catch (error) {
     console.error("Error fetching stables:", error);

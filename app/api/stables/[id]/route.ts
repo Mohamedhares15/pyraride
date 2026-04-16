@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+// In-memory cache — Fly.io has no CDN, so we cache in the Node process
+// Stable details rarely change, 1 hour TTL is safe
+const stableDetailCache = new Map<string, { data: any; expiresAt: number }>();
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +14,19 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-
-
     const session = await getServerSession();
     const isAdmin = session?.user?.role === "admin";
+    const isOwner = session?.user?.role === "stable_owner";
+
+    // Serve from memory cache if valid (skip cache for admin/owner)
+    if (!isAdmin && !isOwner) {
+      const cached = stableDetailCache.get(params.id);
+      if (cached && Date.now() < cached.expiresAt) {
+        return NextResponse.json(cached.data, {
+          headers: { 'Cache-Control': 'public, max-age=3600', 'X-Cache': 'HIT' },
+        });
+      }
+    }
 
     // First, get the stable without the hidden filter
     const stable = await prisma.stable.findFirst({
@@ -102,8 +115,8 @@ export async function GET(
     }
 
     // Check if stable is hidden (unless admin or stable owner viewing their own stable)
-    const isOwner = session?.user?.role === "stable_owner" && stable.ownerId === session.user.id;
-    if (stable.isHidden && !isAdmin && !isOwner) {
+    const isActualOwner = session?.user?.role === "stable_owner" && stable.ownerId === session.user.id;
+    if (stable.isHidden && !isAdmin && !isActualOwner) {
       return NextResponse.json(
         { error: "Stable not found" },
         { status: 404 }
@@ -128,12 +141,21 @@ export async function GET(
       media: Array.isArray(horse.media) ? horse.media : [],
     }));
 
-    return NextResponse.json({
+    const result = {
       ...stable,
       horses,
       rating: Number(avgStableRating.toFixed(1)),
       totalBookings: stable._count.bookings,
       totalReviews: stable._count.reviews,
+    };
+
+    // Store in cache (only for public requests)
+    if (!isAdmin && !isActualOwner) {
+      stableDetailCache.set(params.id, { data: result, expiresAt: Date.now() + CACHE_TTL_MS });
+    }
+
+    return NextResponse.json(result, {
+      headers: { 'Cache-Control': 'public, max-age=3600', 'X-Cache': 'MISS' },
     });
   } catch (error) {
     console.error("Error fetching stable:", error);

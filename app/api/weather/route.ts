@@ -7,7 +7,7 @@ export const revalidate = 0;
 // In-memory cache keyed by location string — Fly.io has no CDN
 // Weather changes slowly, 10 minute TTL is safe
 const weatherCache = new Map<string, { data: any; expiresAt: number }>();
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 const WEATHER_CODE_DESCRIPTIONS: Record<number, string> = {
   0: "Clear sky",
