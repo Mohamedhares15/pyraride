@@ -12,7 +12,7 @@ function processDateSlots(
   bookings: any[],
   horseIdFilter: string | null
 ): any[] {
-  const amHours = [5, 6, 7, 8, 9, 10];
+  const amHours = [5, 7, 8, 9, 10];
   const pmHours = [15, 16, 17];
   const desiredHours = [...amHours, ...pmHours];
   // Egypt offset is typically +2 hours from UTC. 
