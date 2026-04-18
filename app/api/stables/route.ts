@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
       const cached = stablesListCache.get(cacheKey);
       if (cached && Date.now() < cached.expiresAt) {
         return NextResponse.json(cached.data, {
-          headers: { 'Cache-Control': 'public, max-age=3600', 'X-Cache': 'HIT' },
+          headers: { 'Cache-Control': 'private, no-cache, no-store, max-age=0, must-revalidate', 'X-Cache': 'HIT' },
         });
       }
     }
@@ -453,7 +453,7 @@ export async function GET(req: NextRequest) {
       }
 
       return NextResponse.json(horseResult, {
-        headers: { 'Cache-Control': 'public, max-age=3600', 'X-Cache': 'MISS' },
+        headers: { 'Cache-Control': 'private, no-cache, no-store, max-age=0, must-revalidate', 'X-Cache': 'MISS' },
       });
     }
 
@@ -491,7 +491,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(stableResult, {
-      headers: { 'Cache-Control': 'public, max-age=3600', 'X-Cache': 'MISS' },
+      headers: { 'Cache-Control': 'private, no-cache, no-store, max-age=0, must-revalidate', 'X-Cache': 'MISS' },
     });
   } catch (error) {
     console.error("Error fetching stables:", error);

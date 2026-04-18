@@ -15,6 +15,11 @@ function processDateSlots(
   const amHours = [5, 6, 7, 8, 9, 10];
   const pmHours = [13, 15, 16, 17];
   const desiredHours = [...amHours, ...pmHours];
+  // Egypt offset is typically +2 hours from UTC. 
+  // We want the slots generated in UTC to represent the exact hour strings in Egypt.
+  // The safest way is to generate strings localized to Egypt time, or use Date.UTC adjusted for Egypt's offset.
+  // Instead of guessing DST, let's create string representations:
+  const offset = 2; // Egypt is UTC+2
   const slots: any[] = [];
   const y = queryDate.getFullYear();
   const m = queryDate.getMonth();
@@ -23,8 +28,11 @@ function processDateSlots(
   for (const horse of horses) {
     if (horseIdFilter && horseIdFilter !== "all" && horse.id !== horseIdFilter) continue;
     for (const hour of desiredHours) {
-      const start = new Date(Date.UTC(y, m, d, hour, 0, 0));
-      const end = new Date(Date.UTC(y, m, d, hour + 1, 0, 0));
+      // Create a date object that corresponds to 'hour' in Egypt Time.
+      // E.g. if hour is 10, we want 10 AM Egypt time, which is 8 AM UTC.
+      const utcHour = hour - offset; 
+      const start = new Date(Date.UTC(y, m, d, utcHour, 0, 0));
+      const end = new Date(Date.UTC(y, m, d, utcHour + 1, 0, 0));
       slots.push({ id: `v-slot-${horse.id}-${start.getTime()}`, stableId: queryDate.toString(), horseId: horse.id, date: queryDate, startTime: start, endTime: end, booking: null });
     }
   }

@@ -9,7 +9,7 @@ export const revalidate = 3600; // Revalidate every hour
 
 export async function generateStaticParams() {
   const stables = await prisma.stable.findMany({
-    where: { status: "approved" },
+    where: { status: "approved", isHidden: false },
     select: { id: true },
   });
 
@@ -44,6 +44,7 @@ async function getStable(id: string) {
     where: {
       id,
       status: "approved",
+      isHidden: false,
     },
     include: {
       owner: {

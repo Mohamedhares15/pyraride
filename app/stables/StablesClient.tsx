@@ -90,6 +90,8 @@ export default function StablesClient() {
       if (color && color !== "all") params.append("color", color);
       if (skills && skills.length > 0) params.append("skills", skills.join(","));
 
+      // Append cache buster to bypass poisoned browser cache
+      params.append("_t", Date.now().toString());
       const response = await fetch(`/api/stables?${params.toString()}`);
 
       if (!response.ok) {

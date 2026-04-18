@@ -23,7 +23,7 @@ export async function GET(
       const cached = stableDetailCache.get(params.id);
       if (cached && Date.now() < cached.expiresAt) {
         return NextResponse.json(cached.data, {
-          headers: { 'Cache-Control': 'public, max-age=3600', 'X-Cache': 'HIT' },
+          headers: { 'Cache-Control': 'private, no-cache, no-store, max-age=0, must-revalidate', 'X-Cache': 'HIT' },
         });
       }
     }
@@ -155,7 +155,7 @@ export async function GET(
     }
 
     return NextResponse.json(result, {
-      headers: { 'Cache-Control': 'public, max-age=3600', 'X-Cache': 'MISS' },
+      headers: { 'Cache-Control': 'private, no-cache, no-store, max-age=0, must-revalidate', 'X-Cache': 'MISS' },
     });
   } catch (error) {
     console.error("Error fetching stable:", error);
