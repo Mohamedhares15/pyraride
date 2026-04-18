@@ -46,10 +46,10 @@ interface HorseMediaItem {
 interface Horse {
     id: string;
     name: string;
-    description: string;
     imageUrls: string[];
     isActive: boolean;
     pricePerHour?: number | null;
+    discountPercent?: number | null;
     color?: string | null;
     skills?: string[];
     skillLevel?: string;
@@ -215,6 +215,7 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
 
     const [userRankPoints, setUserRankPoints] = useState<number | null>(null);
     const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+    const [selectedSlotHorse, setSelectedSlotHorse] = useState<string | null>(null);
 
     useEffect(() => {
         if (session?.user?.id) {
@@ -754,32 +755,16 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                 <div className="grid gap-8 md:grid-cols-3 items-start max-w-full">
                     {/* Main Content */}
                     <div className="md:col-span-2 space-y-8 w-full min-w-0">
-                        {/* Horses — MOVED TO TOP for instant booking access */}
+                        {/* Horses */}
                         <div id="horses-section">
                             <h2 className="mb-6 font-display text-2xl font-bold">Our Horses</h2>
                             {stable.horses.length > 0 ? (
-                                <div className="space-y-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     {stable.horses.map((horse) => {
                                         const dateStr = selectedDate.toISOString().split("T")[0];
                                         const horseSlots = takenSlots[dateStr]?.[horse.id] || [];
                                         const availableTimes = availableSlots[dateStr]?.[horse.id] || [];
 
-                                        const takenTimes = horseSlots.map((slot: any) =>
-                                            new Date(slot.startTime).toLocaleTimeString("en-US", {
-                                                hour: "numeric",
-                                                minute: "2-digit",
-                                            })
-                                        );
-
-                                        const horsePriceLabel =
-                                            horse.pricePerHour !== null && horse.pricePerHour !== undefined
-                                                ? `EGP ${Number(horse.pricePerHour).toFixed(0)}/hour`
-                                                : "Contact for pricing";
-                                        const horseColor = horse.color || "Unknown";
-                                        const horseSkills =
-                                            horse.skills && horse.skills.length > 0
-                                                ? horse.skills
-                                                : ["Beginner Friendly", "Tour Guide", "Desert Expert"];
                                         const portfolioItems = horse.media?.filter(
                                             (item) => typeof item?.url === "string"
                                         ) ?? [];
@@ -797,148 +782,205 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                                             heroImage && galleryItems.every((item) => item.url !== heroImage)
                                                 ? [{ type: "image" as const, url: heroImage }, ...galleryItems]
                                                 : galleryItems;
+                                        const totalImages = modalItems.length;
+
+                                        const SKILL_LABELS: Record<string, string> = {
+                                            "Adab": "Well-Mannered",
+                                            "Levade": "Trained Dancer",
+                                            "Impulsion": "Energetic",
+                                            "Mettle": "Confident",
+                                            "Bolt": "Fast Runner",
+                                            "Nerve": "Fearless",
+                                            "Impeccable Manners": "Gentle",
+                                            "Beginner Friendly": "Beginner Friendly"
+                                        };
+                                        const horseSkills = horse.skills && horse.skills.length > 0 ? horse.skills : [];
+                                        const isSlotOpen = selectedSlotHorse === horse.id;
+
+                                        // Discount calculation
+                                        const originalPrice = horse.pricePerHour;
+                                        const discount = horse.discountPercent;
+                                        const discountedPrice = originalPrice && discount
+                                            ? Math.round(originalPrice * (1 - discount / 100))
+                                            : null;
+
+                                        // Tier color
+                                        const tierColor =
+                                            horse.adminTier === 'Advanced' ? 'bg-red-500' :
+                                            horse.adminTier === 'Intermediate' ? 'bg-amber-500' :
+                                            'bg-emerald-500';
 
                                         return (
-                                            <Card key={horse.id} id={`horse-${horse.id}`} className="overflow-hidden">
-                                                <div className="grid gap-0 md:grid-cols-2">
-                                                    {/* Horse Image */}
+                                            <div
+                                                key={horse.id}
+                                                id={`horse-${horse.id}`}
+                                                className="rounded-2xl overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow duration-200"
+                                            >
+                                                {/* Image Section */}
+                                                <div className="relative">
                                                     <button
                                                         type="button"
-                                                        className="group relative h-64 w-full overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary md:h-auto"
+                                                        className="group relative block w-full overflow-hidden bg-muted"
+                                                        style={{ aspectRatio: '4/3' }}
                                                         onClick={() => openPortfolio(horse.name, modalItems, 0)}
-                                                        aria-label={`Open ${horse.name} portfolio`}
+                                                        aria-label={`View ${horse.name} photos`}
                                                     >
                                                         {heroImage ? (
                                                             // eslint-disable-next-line @next/next/no-img-element
                                                             <img
                                                                 src={heroImage}
-                                                                alt={`${horse.name} - Horse available for riding at ${stable.name} in ${stable.location}, Egypt. ${horse.description ? horse.description.substring(0, 80) : 'Professional horse with excellent training.'}`}
-                                                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                                                alt={`${horse.name} at ${stable.name}`}
+                                                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                                                                 draggable={false}
                                                                 loading="lazy"
                                                             />
                                                         ) : (
-                                                            <div className="absolute inset-0 flex items-center justify-center">
-                                                                <div className="text-center">
-                                                                    <div className="mx-auto mb-2 text-5xl">🐴</div>
-                                                                    <p className="text-sm text-muted-foreground">{horse.name}</p>
-                                                                </div>
+                                                            <div className="absolute inset-0 flex items-center justify-center text-5xl">🐴</div>
+                                                        )}
+                                                        {/* Carousel dots */}
+                                                        {totalImages > 1 && (
+                                                            <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
+                                                                {Array.from({ length: Math.min(totalImages, 5) }).map((_, i) => (
+                                                                    <div
+                                                                        key={i}
+                                                                        className={`rounded-full transition-all duration-200 ${
+                                                                            i === 0
+                                                                                ? 'w-5 h-1.5 bg-white'
+                                                                                : 'w-1.5 h-1.5 bg-white/60'
+                                                                        }`}
+                                                                    />
+                                                                ))}
                                                             </div>
                                                         )}
-                                                        <span className="absolute bottom-4 right-4 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white shadow-lg transition-opacity group-hover:opacity-100">
-                                                            View Photos
-                                                        </span>
-                                                    </button>
-
-                                                    {/* Horse Info */}
-                                                    <div className="p-6">
-                                                        <div className="mb-4">
-                                                            <div className="flex items-center justify-between mb-2">
-                                                                <h3 className="font-semibold text-2xl">{horse.name}</h3>
-                                                                <Badge className={`${(horse.adminTier === 'Advanced') ? 'bg-red-500 hover:bg-red-600' :
-                                                                    (horse.adminTier === 'Intermediate') ? 'bg-yellow-500 hover:bg-yellow-600' :
-                                                                        'bg-green-500 hover:bg-green-600'
-                                                                    } text-white border-0`}>
-                                                                    {horse.adminTier || 'Beginner'}
-                                                                </Badge>
-                                                            </div>
-                                                            <p className="text-sm text-muted-foreground mb-4">{horse.description}</p>
+                                                        {/* Tier badge */}
+                                                        <div className="absolute top-3 left-3">
+                                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold text-white shadow ${tierColor}`}>
+                                                                {horse.adminTier || 'Beginner'}
+                                                            </span>
                                                         </div>
+                                                        {/* Discount badge */}
+                                                        {discount && discount > 0 && (
+                                                            <div className="absolute top-3 right-3">
+                                                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold text-white bg-primary shadow">
+                                                                    -{discount}%
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </button>
+                                                </div>
 
-                                                        {/* Horse Details Footer */}
-                                                        <div className="space-y-3 border-t pt-4">
-                                                            <div className="flex items-center justify-between text-sm">
-                                                                <span className="text-muted-foreground">Color:</span>
-                                                                <span className="font-medium">{horseColor}</span>
-                                                            </div>
-                                                            <div className="flex items-start justify-between text-sm">
-                                                                <span className="text-muted-foreground">Skills:</span>
-                                                                <div className="flex flex-wrap gap-1 justify-end">
-                                                                    {horseSkills.map((skill, idx) => {
-                                                                        const SKILL_LABELS: Record<string, string> = {
-                                                                            "Adab": "Well-Mannered",
-                                                                            "Levade": "Trained Dancer",
-                                                                            "Impulsion": "Energetic",
-                                                                            "Mettle": "Confident",
-                                                                            "Bolt": "Fast Runner",
-                                                                            "Nerve": "Fearless",
-                                                                            "Impeccable Manners": "Gentle",
-                                                                            "Beginner Friendly": "Beginner Friendly"
-                                                                        };
-                                                                        return (
-                                                                            <Badge key={idx} variant="outline" className="text-xs">
-                                                                                {SKILL_LABELS[skill as string] || skill}
-                                                                            </Badge>
-                                                                        );
-                                                                    })}
-                                                                </div>
-                                                            </div>
-                                                            {/* Price Per Hour */}
-                                                            {horse.pricePerHour && (
-                                                                <div className="flex items-center justify-between text-sm">
-                                                                    <span className="text-muted-foreground">Price:</span>
-                                                                    <span className="font-semibold text-lg text-primary">
-                                                                        {horse.pricePerHour.toLocaleString()} EGP/hr
-                                                                    </span>
-                                                                </div>
+                                                {/* Info Section */}
+                                                <div className="p-4">
+                                                    {/* Name + rating row */}
+                                                    <div className="flex items-start justify-between mb-1.5">
+                                                        <h3 className="font-semibold text-base leading-tight">{horse.name}</h3>
+                                                        {horse.color && (
+                                                            <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0 ml-2">
+                                                                <span className="inline-block w-2.5 h-2.5 rounded-full bg-amber-700/60 border border-border" />
+                                                                {horse.color}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Skills chips */}
+                                                    {horseSkills.length > 0 && (
+                                                        <div className="flex flex-wrap gap-1 mb-3">
+                                                            {horseSkills.slice(0, 3).map((skill, idx) => (
+                                                                <span
+                                                                    key={idx}
+                                                                    className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-muted text-muted-foreground border border-border"
+                                                                >
+                                                                    {SKILL_LABELS[skill] || skill}
+                                                                </span>
+                                                            ))}
+                                                            {horseSkills.length > 3 && (
+                                                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-muted text-muted-foreground border border-border">
+                                                                    +{horseSkills.length - 3}
+                                                                </span>
                                                             )}
                                                         </div>
+                                                    )}
 
-                                                        {/* Next Available Rides */}
-                                                        <div className="mt-6 border-t pt-4">
+                                                    {/* Price + Book button */}
+                                                    <div className="flex items-center justify-between mt-2">
+                                                        <div className="flex flex-col">
+                                                            {originalPrice ? (
+                                                                <>
+                                                                    {discountedPrice ? (
+                                                                        <>
+                                                                            <span className="text-[11px] text-muted-foreground line-through">
+                                                                                {originalPrice.toLocaleString()} EGP
+                                                                            </span>
+                                                                            <span className="font-bold text-base text-primary">
+                                                                                {discountedPrice.toLocaleString()} EGP<span className="font-normal text-xs text-muted-foreground">/hr</span>
+                                                                            </span>
+                                                                        </>
+                                                                    ) : (
+                                                                        <span className="font-bold text-base">
+                                                                            {originalPrice.toLocaleString()} EGP<span className="font-normal text-xs text-muted-foreground">/hr</span>
+                                                                        </span>
+                                                                    )}
+                                                                </>
+                                                            ) : (
+                                                                <span className="text-sm text-muted-foreground">Contact for pricing</span>
+                                                            )}
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setSelectedSlotHorse(isSlotOpen ? null : horse.id)}
+                                                            className="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background text-sm font-semibold px-5 py-2 shadow hover:opacity-80 active:scale-95 transition-all duration-150"
+                                                        >
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                                                            {isSlotOpen ? 'Close' : 'Book Ride'}
+                                                        </button>
+                                                    </div>
+
+                                                    {/* Slot Picker — expands inline */}
+                                                    {isSlotOpen && (
+                                                        <div className="mt-4 pt-4 border-t border-border">
                                                             <div className="flex items-center justify-between mb-3">
-                                                                <h4 className="text-sm font-semibold">Available Rides</h4>
-                                                                <div className="flex items-center gap-2">
-                                                                    <Button
-                                                                        variant="outline"
-                                                                        size="icon"
-                                                                        className="h-8 w-8"
+                                                                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Pick a slot</span>
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="h-7 w-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40"
                                                                         onClick={() => {
                                                                             const prevDate = new Date(selectedDate);
                                                                             prevDate.setDate(prevDate.getDate() - 1);
-                                                                            // Prevent going before today
-                                                                            const today = new Date();
-                                                                            today.setHours(0, 0, 0, 0);
-                                                                            if (prevDate >= today) {
-                                                                                setSelectedDate(prevDate);
-                                                                            }
+                                                                            const today = new Date(); today.setHours(0, 0, 0, 0);
+                                                                            if (prevDate >= today) setSelectedDate(prevDate);
                                                                         }}
                                                                         disabled={(() => {
                                                                             const prevDate = new Date(selectedDate);
                                                                             prevDate.setDate(prevDate.getDate() - 1);
-                                                                            const today = new Date();
-                                                                            today.setHours(0, 0, 0, 0);
+                                                                            const today = new Date(); today.setHours(0, 0, 0, 0);
                                                                             return prevDate < today;
                                                                         })()}
                                                                     >
-                                                                        <ChevronLeft className="h-4 w-4" />
-                                                                    </Button>
-                                                                    <span className="text-xs font-medium min-w-[80px] text-center">
+                                                                        <ChevronLeft className="h-3.5 w-3.5" />
+                                                                    </button>
+                                                                    <span className="text-xs font-medium min-w-[72px] text-center">
                                                                         {selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                                                     </span>
-                                                                    <Button
-                                                                        variant="outline"
-                                                                        size="icon"
-                                                                        className="h-8 w-8"
+                                                                    <button
+                                                                        type="button"
+                                                                        className="h-7 w-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
                                                                         onClick={() => {
                                                                             const nextDate = new Date(selectedDate);
                                                                             nextDate.setDate(nextDate.getDate() + 1);
                                                                             setSelectedDate(nextDate);
                                                                         }}
                                                                     >
-                                                                        <ChevronRight className="h-4 w-4" />
-                                                                    </Button>
+                                                                        <ChevronRight className="h-3.5 w-3.5" />
+                                                                    </button>
                                                                 </div>
                                                             </div>
-                                                            <div className="min-h-[140px] relative">
-                                                                {isLoadingSlots ? (
-                                                                    <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-10 rounded-md">
-                                                                        <div className="flex flex-col items-center gap-2">
-                                                                            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                                                                            <span className="text-xs text-muted-foreground font-medium">Loading availability...</span>
-                                                                        </div>
+                                                            <div className="min-h-[120px] relative">
+                                                                {isLoadingSlots && (
+                                                                    <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm z-10 rounded-md">
+                                                                        <Loader2 className="h-5 w-5 animate-spin text-primary" />
                                                                     </div>
-                                                                ) : null}
+                                                                )}
                                                                 <DynamicAvailability
                                                                     grouped={groupedSlots[horse.id]}
                                                                     blocked={groupedBlockedSlots[horse.id]}
@@ -949,16 +991,16 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                                                                 />
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    )}
                                                 </div>
-                                            </Card>
+                                            </div>
                                         );
                                     })}
                                 </div>
                             ) : (
-                                <Card className="p-8 text-center">
+                                <div className="rounded-2xl border border-dashed border-border p-12 text-center">
                                     <p className="text-muted-foreground">No horses listed yet.</p>
-                                </Card>
+                                </div>
                             )}
                         </div>
 

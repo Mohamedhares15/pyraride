@@ -6,7 +6,6 @@ export const dynamic = "force-dynamic";
 
 interface HorseData {
   name: string;
-  description: string;
   pricePerHour?: number;
   age?: number;
   skills?: string[];
@@ -89,11 +88,11 @@ export async function POST(req: NextRequest) {
       for (const horseData of stableData.horses) {
         try {
           // Validate required fields
-          if (!horseData.name || !horseData.description || !horseData.imageUrls || horseData.imageUrls.length === 0) {
+          if (!horseData.name || !horseData.imageUrls || horseData.imageUrls.length === 0) {
             results.errors.push({
               stable: stableData.stableName,
               horse: horseData.name || "Unknown",
-              error: "Missing required fields (name, description, or imageUrls)",
+              error: "Missing required fields (name or imageUrls)",
             });
             continue;
           }
@@ -128,7 +127,6 @@ export async function POST(req: NextRequest) {
           const horse = await prisma.horse.create({
             data: {
               name: horseData.name.trim(),
-              description: horseData.description.trim(),
               imageUrls: validImageUrls,
               stableId: stableId,
               pricePerHour: horseData.pricePerHour ? parseFloat(horseData.pricePerHour.toString()) : null,

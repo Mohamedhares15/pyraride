@@ -60,9 +60,10 @@ async function getStable(id: string) {
         select: {
           id: true,
           name: true,
-          description: true,
           imageUrls: true,
           pricePerHour: true,
+          discountPercent: true,
+          color: true,
           age: true,
           skills: true,
           adminTier: true,
@@ -138,6 +139,8 @@ async function getStable(id: string) {
       horse.pricePerHour !== null && horse.pricePerHour !== undefined
         ? Number(horse.pricePerHour)
         : null,
+    discountPercent: horse.discountPercent ?? null,
+    color: horse.color ?? null,
     skills: horse.skills ?? [],
     skillLevel: horse.adminTier || "Beginner",
     media: Array.isArray(horse.media) ? horse.media : [],

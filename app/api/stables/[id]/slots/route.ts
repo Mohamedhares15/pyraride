@@ -13,7 +13,7 @@ function processDateSlots(
   horseIdFilter: string | null
 ): any[] {
   const amHours = [5, 6, 7, 8, 9, 10];
-  const pmHours = [12, 13, 14];
+  const pmHours = [13, 15, 16, 17];
   const desiredHours = [...amHours, ...pmHours];
   const slots: any[] = [];
   const y = queryDate.getFullYear();

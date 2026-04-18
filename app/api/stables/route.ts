@@ -188,7 +188,7 @@ export async function GET(req: NextRequest) {
           select: {
             id: true,
             name: true,
-            description: true,
+            discountPercent: true,
             imageUrls: true,
             pricePerHour: true,
             color: true,
@@ -340,7 +340,7 @@ export async function GET(req: NextRequest) {
           skills: horse.skills,
           skillLevel: horse.skillLevel,
           adminTier: horse.adminTier,
-          description: horse.description,
+          discountPercent: horse.discountPercent,
         };
       });
 
@@ -425,7 +425,7 @@ export async function GET(req: NextRequest) {
                 rating: horse.rating ?? stable.rating,
                 totalBookings: horse.totalBookings ?? stable.totalBookings,
                 reviewCount: horse.reviewCount ?? 0,
-                description: horse.description,
+                discountPercent: horse.discountPercent,
                 skills: horse.skills,
                 skillLevel: horse.skillLevel,
                 adminTier: horse.adminTier,

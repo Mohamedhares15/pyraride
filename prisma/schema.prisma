@@ -126,9 +126,9 @@ model Horse {
   id                    String                 @id @default(uuid())
   stableId              String
   name                  String
-  description           String
   imageUrls             String[]
   pricePerHour          Decimal?               @db.Decimal(10, 2)
+  discountPercent       Int?                   @db.Integer
   age                   Int?
   skills                String[]               @default([])
   isActive              Boolean                @default(true)
@@ -190,7 +190,6 @@ model HorseChangeRequest {
   horseId              String
   status               HorseChangeRequestStatus @default(pending)
   proposedName         String?
-  proposedDescription  String?
   proposedPricePerHour Decimal?                 @db.Decimal(10, 2)
   proposedImageUrls    String[]
   reviewedBy           String?

@@ -77,15 +77,15 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { name, description, imageUrls, pricePerHour, color, skills, availabilityStatus } = body;
+    const { name, imageUrls, pricePerHour, discountPercent, color, skills, availabilityStatus } = body;
 
     const ALLOWED_COLORS = ["Adham", "Azra2", "Ashkar", "Ahmar", "Pure White", "Palomino", "Pinto"];
     const ALLOWED_SKILLS = ["Adab", "Levade", "Impulsion", "Mettle", "Bolt", "Nerve", "Impeccable Manners", "Beginner Friendly"];
 
     // Validate required fields
-    if (!name || !description) {
+    if (!name) {
       return NextResponse.json(
-        { error: "Name and description are required" },
+        { error: "Name is required" },
         { status: 400 }
       );
     }
@@ -126,14 +126,13 @@ export async function PATCH(
       );
     }
 
-    // Check if price or description changed (these need admin approval)
+    // Check if price changed (needs admin approval)
     const priceChanged = pricePerHour !== undefined &&
       (horse.pricePerHour === null ||
         Math.abs(Number(pricePerHour) - Number(horse.pricePerHour)) > 0.01);
-    const descriptionChanged = description && description.trim() !== horse.description.trim();
 
-    // If price or description changed, create a change request instead of direct update
-    if (priceChanged || descriptionChanged) {
+    // If price changed, create a change request instead of direct update
+    if (priceChanged) {
       // Close any existing pending change requests for this horse
       await prisma.horseChangeRequest.updateMany({
         where: {
@@ -150,8 +149,6 @@ export async function PATCH(
       const changeRequest = await prisma.horseChangeRequest.create({
         data: {
           horseId: params.id,
-          proposedName: name.trim() !== horse.name ? name.trim() : null,
-          proposedDescription: descriptionChanged ? description.trim() : null,
           proposedPricePerHour: priceChanged && pricePerHour ? parseFloat(pricePerHour.toString()) : null,
           proposedImageUrls: imageUrls && imageUrls.length > 0 ? imageUrls : [],
           status: "pending",
@@ -199,7 +196,7 @@ export async function PATCH(
         horse: updatedHorse,
         changeRequestCreated: true,
         changeRequestId: changeRequest.id,
-        message: "Horse updated. Price/description changes are pending admin approval."
+        message: "Horse updated. Price changes are pending admin approval."
       });
     }
 
@@ -208,9 +205,9 @@ export async function PATCH(
       where: { id: params.id },
       data: {
         name: name.trim(),
-        description: description.trim(),
         imageUrls: imageUrls || horse.imageUrls,
-        pricePerHour: pricePerHour ? parseFloat(pricePerHour.toString()) : null,
+        pricePerHour: pricePerHour ? parseFloat(pricePerHour.toString()) : horse.pricePerHour,
+        discountPercent: discountPercent !== undefined ? (discountPercent ? parseInt(discountPercent.toString()) : null) : horse.discountPercent,
         color: color || null,
         skills: skills,
         availabilityStatus: availabilityStatus || horse.availabilityStatus || "available",

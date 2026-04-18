@@ -35,10 +35,10 @@ import { convertGoogleDriveUrls } from "@/lib/google-drive-utils";
 interface Horse {
   id: string;
   name: string;
-  description: string;
   imageUrls: string[];
   isActive: boolean;
   pricePerHour?: number | null;
+  discountPercent?: number | null;
   color?: string | null;
   skills?: string[];
   availabilityStatus?: "available" | "injured" | "unavailable";
@@ -63,8 +63,8 @@ export default function ManageHorsesPage() {
 
   const [formData, setFormData] = useState({
     name: "",
-    description: "",
     pricePerHour: "",
+    discountPercent: "",
     color: "",
     skills: [] as string[],
     imageUrls: [] as string[],
@@ -167,13 +167,6 @@ export default function ManageHorsesPage() {
         return;
       }
 
-      // Validate description length
-      if (formData.description.trim().length < 10) {
-        alert("⚠️ Description must be at least 10 characters long");
-        setIsSubmitting(false);
-        return;
-      }
-
       // Validate price if provided
       if (formData.pricePerHour && parseFloat(formData.pricePerHour) < 0) {
         alert("⚠️ Price cannot be negative");
@@ -194,8 +187,8 @@ export default function ManageHorsesPage() {
         body: JSON.stringify({
           stableId,
           name: formData.name.trim(),
-          description: formData.description.trim(),
           pricePerHour: formData.pricePerHour ? parseFloat(formData.pricePerHour) : null,
+          discountPercent: formData.discountPercent ? parseInt(formData.discountPercent) : null,
           color: formData.color || null,
           skills: formData.skills,
           imageUrls,
@@ -215,8 +208,8 @@ export default function ManageHorsesPage() {
       // Reset form
       setFormData({
         name: "",
-        description: "",
         pricePerHour: "",
+        discountPercent: "",
         color: "",
         skills: [],
         imageUrls: [],
@@ -315,8 +308,8 @@ export default function ManageHorsesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.name.trim(),
-          description: formData.description.trim(),
           pricePerHour: formData.pricePerHour ? parseFloat(formData.pricePerHour) : null,
+          discountPercent: formData.discountPercent ? parseInt(formData.discountPercent) : null,
           color: formData.color || null,
           skills: formData.skills,
           imageUrls,
@@ -336,8 +329,8 @@ export default function ManageHorsesPage() {
       // Reset form
       setFormData({
         name: "",
-        description: "",
         pricePerHour: "",
+        discountPercent: "",
         color: "",
         skills: [],
         imageUrls: [],
@@ -564,8 +557,8 @@ export default function ManageHorsesPage() {
                             setEditingHorse(horse);
                             setFormData({
                               name: horse.name,
-                              description: horse.description,
                               pricePerHour: horse.pricePerHour?.toString() || "",
+                              discountPercent: horse.discountPercent?.toString() || "",
                               color: horse.color || "",
                               skills: horse.skills || [],
                               imageUrls: [],
@@ -587,9 +580,6 @@ export default function ManageHorsesPage() {
                         </Button>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {horse.description}
-                    </p>
                   </div>
                 </Card>
               </motion.div>
@@ -602,15 +592,15 @@ export default function ManageHorsesPage() {
       <Dialog open={isDialogOpen} onOpenChange={(open) => {
         if (!open && !isSubmitting) {
           // Confirm if user has entered data
-          const hasData = formData.name || formData.description || formData.googleDriveUrls || imagePreviews.length > 0;
+          const hasData = formData.name || formData.googleDriveUrls || imagePreviews.length > 0;
           if (hasData) {
             const confirmed = window.confirm("Are you sure you want to close? All entered data will be lost.");
             if (!confirmed) return;
           }
           setFormData({
             name: "",
-            description: "",
             pricePerHour: "",
+            discountPercent: "",
             color: "",
             skills: [],
             imageUrls: [],
@@ -643,22 +633,7 @@ export default function ManageHorsesPage() {
                 />
               </div>
 
-              {/* Description */}
-              <div>
-                <Label htmlFor="description">Description *</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  required
-                  rows={4}
-                  placeholder="Describe the horse's temperament, experience, and special features..."
-                />
-              </div>
-
-              {/* Price & Color Row */}
+              {/* Price & Color & Discount Row */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="pricePerHour">Price Per Hour (EGP)</Label>
@@ -851,15 +826,15 @@ export default function ManageHorsesPage() {
                 variant="outline"
                 onClick={() => {
                   // Confirm if user has entered data
-                  const hasData = formData.name || formData.description || formData.googleDriveUrls || imagePreviews.length > 0;
+                  const hasData = formData.name || formData.googleDriveUrls || imagePreviews.length > 0;
                   if (hasData) {
                     const confirmed = window.confirm("Are you sure you want to cancel? All entered data will be lost.");
                     if (!confirmed) return;
                   }
                   setFormData({
                     name: "",
-                    description: "",
                     pricePerHour: "",
+                    discountPercent: "",
                     color: "",
                     skills: [],
                     imageUrls: [],
@@ -897,8 +872,8 @@ export default function ManageHorsesPage() {
         if (!open && !isSubmitting) {
           setFormData({
             name: "",
-            description: "",
             pricePerHour: "",
+            discountPercent: "",
             color: "",
             skills: [],
             imageUrls: [],
@@ -932,22 +907,7 @@ export default function ManageHorsesPage() {
                 />
               </div>
 
-              {/* Description */}
-              <div>
-                <Label htmlFor="edit-description">Description *</Label>
-                <Textarea
-                  id="edit-description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  required
-                  rows={4}
-                  placeholder="Describe the horse's temperament, experience, and special features..."
-                />
-              </div>
-
-              {/* Price & Age Row */}
+              {/* Price & Discount Row */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="edit-pricePerHour">Price Per Hour (EGP)</Label>
@@ -1077,8 +1037,8 @@ export default function ManageHorsesPage() {
                 onClick={() => {
                   setFormData({
                     name: "",
-                    description: "",
                     pricePerHour: "",
+                    discountPercent: "",
                     color: "",
                     skills: [],
                     imageUrls: [],

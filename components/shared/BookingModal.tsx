@@ -25,7 +25,8 @@ import DirectionsArrowSVG from '@/components/icons/DirectionsArrowSVG';
 interface Horse {
   id: string;
   name: string;
-  description: string;
+  discountPercent?: number | null;
+  color?: string | null;
   imageUrls: string[];
   isActive: boolean;
   pricePerHour?: number | null;
@@ -315,12 +316,19 @@ export default function BookingModal({
                         <CheckCircle className="h-5 w-5 text-primary" />
                       )}
                     </div>
-                    <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                      {horse.description}
-                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {horse.color && (
+                        <Badge variant="outline" className="text-xs">
+                          {horse.color}
+                        </Badge>
+                      )}
+                    </div>
                     {horse.pricePerHour && (
                       <p className="mt-2 text-sm font-semibold text-primary">
                         EGP {horse.pricePerHour}/hour
+                        {horse.discountPercent && horse.discountPercent > 0 && (
+                           <span className="ml-2 text-xs text-red-500 font-normal">(-{horse.discountPercent}%)</span>
+                        )}
                       </p>
                     )}
                   </div>

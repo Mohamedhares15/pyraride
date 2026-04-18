@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { stableId, name, description, imageUrls, pricePerHour, color, skills, availabilityStatus } = body;
+    const { stableId, name, imageUrls, pricePerHour, discountPercent, color, skills, availabilityStatus } = body;
 
     const ALLOWED_COLORS = ["Adham", "Azra2", "Ashkar", "Ahmar", "Pure White", "Palomino", "Pinto"];
     const ALLOWED_SKILLS = ["Adab", "Levade", "Impulsion", "Mettle", "Bolt", "Nerve", "Impeccable Manners", "Beginner Friendly"];
@@ -62,9 +62,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate required fields
-    if (!name || !description || !stableId) {
+    if (!name || !stableId) {
       return NextResponse.json(
-        { error: "Missing required fields: name, description, and stable ID are required" },
+        { error: "Missing required fields: name and stable ID are required" },
         { status: 400 }
       );
     }
@@ -77,13 +77,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate description length
-    if (description.trim().length < 10) {
-      return NextResponse.json(
-        { error: "Description must be at least 10 characters to help riders understand the horse better" },
-        { status: 400 }
-      );
-    }
 
     // Require at least one image
     if (!imageUrls || imageUrls.length === 0) {
@@ -143,9 +136,9 @@ export async function POST(req: NextRequest) {
     const horse = await prisma.horse.create({
       data: {
         name: name.trim(),
-        description: description.trim(),
         imageUrls: validImageUrls,
         pricePerHour: pricePerHour ? parseFloat(pricePerHour.toString()) : null,
+        discountPercent: discountPercent ? parseInt(discountPercent.toString()) : null,
         color: color || null,
         skills: skills,
         availabilityStatus: availabilityStatus || "available",

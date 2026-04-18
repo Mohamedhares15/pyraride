@@ -44,10 +44,7 @@ export async function POST(
     // Update the horse with approved changes
     const updateData: any = {};
     
-    if (changeRequest.proposedDescription) {
-      updateData.description = changeRequest.proposedDescription;
-    }
-    
+
     if (changeRequest.proposedPricePerHour !== null && changeRequest.proposedPricePerHour !== undefined) {
       updateData.pricePerHour = changeRequest.proposedPricePerHour;
     }

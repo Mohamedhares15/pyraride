@@ -49,7 +49,7 @@ export async function GET(
           select: {
             id: true,
             name: true,
-            description: true,
+            discountPercent: true,
             imageUrls: true,
             pricePerHour: true,
             age: true,
