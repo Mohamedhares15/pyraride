@@ -13,7 +13,7 @@ function processDateSlots(
   horseIdFilter: string | null
 ): any[] {
   const amHours = [5, 6, 7, 8, 9, 10];
-  const pmHours = [13, 15, 16, 17];
+  const pmHours = [15, 16, 17];
   const desiredHours = [...amHours, ...pmHours];
   // Egypt offset is typically +2 hours from UTC. 
   // We want the slots generated in UTC to represent the exact hour strings in Egypt.
