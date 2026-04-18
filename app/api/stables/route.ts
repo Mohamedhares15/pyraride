@@ -104,8 +104,11 @@ export async function GET(req: NextRequest) {
     const ownerOnly = searchParams.get("ownerOnly") === "true";
     const cacheKey = req.nextUrl.search || "?";
 
-    // Serve from memory cache if valid (skip cache for owner-specific requests)
-    if (!ownerOnly) {
+    const session = await getServerSession();
+    const isAdmin = session?.user?.role === "admin";
+
+    // Serve from memory cache if valid (skip cache for owner-specific requests and admins)
+    if (!ownerOnly && !isAdmin) {
       const cached = stablesListCache.get(cacheKey);
       if (cached && Date.now() < cached.expiresAt) {
         return NextResponse.json(cached.data, {
@@ -115,7 +118,6 @@ export async function GET(req: NextRequest) {
     }
 
 
-    const session = await getServerSession();
     const location = searchParams.get("location");
     const search = searchParams.get("search");
     const minRating = searchParams.get("minRating");
@@ -125,22 +127,24 @@ export async function GET(req: NextRequest) {
     const skillsParam = searchParams.get("skills");
     const skills = skillsParam ? skillsParam.split(",") : null;
     const sort = searchParams.get("sort") || "recommended";
-    const isAdmin = session?.user?.role === "admin";
+
+    const isStableOwner = session?.user?.role === "stable_owner";
 
     // Build where clause
     const where: any = {
       status: "approved",
     };
 
-    // Hide stables marked as hidden (unless admin viewing)
-    if (!isAdmin && !ownerOnly) {
-      where.isHidden = false;
-    }
-
-    // If ownerOnly is true and user is logged in as stable owner, return only their stable
-    if (ownerOnly && session?.user?.role === "stable_owner") {
-      // Filter stables owned by this user
+    // Set up security filters
+    if (isAdmin) {
+      // Admins can see everything, no hidden filter needed
+    } else if (ownerOnly && isStableOwner) {
+      // Stable owner viewing their own dashboard
       where.ownerId = session.user.id;
+      // They can see their own hidden stables, so no isHidden = false filter needed
+    } else {
+      // Public users (or unauthorized ownerOnly requests) cannot see hidden stables
+      where.isHidden = false;
     }
 
     // Filter by location
@@ -443,8 +447,8 @@ export async function GET(req: NextRequest) {
 
       const horseResult = { stables: horseEntries, mode: "horse" };
 
-      // Store in cache (skip for owner-only requests)
-      if (!ownerOnly) {
+      // Store in cache (skip for owner-only requests and admins)
+      if (!ownerOnly && !isAdmin) {
         stablesListCache.set(cacheKey, { data: horseResult, expiresAt: Date.now() + CACHE_TTL_MS });
       }
 
@@ -481,8 +485,8 @@ export async function GET(req: NextRequest) {
 
     const stableResult = { stables: sortedStables, mode: "stable" };
 
-    // Store in cache (skip for owner-only requests)
-    if (!ownerOnly) {
+    // Store in cache (skip for owner-only requests and admins)
+    if (!ownerOnly && !isAdmin) {
       stablesListCache.set(cacheKey, { data: stableResult, expiresAt: Date.now() + CACHE_TTL_MS });
     }
 
