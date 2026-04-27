@@ -13,10 +13,10 @@ function processDateSlots(
   blockedSlots: any[],
   horseIdFilter: string | null
 ): any[] {
-  const amHours = [5, 7, 8, 9, 10];
+  const amHours = [7, 8, 9, 10, 11];
   const pmHours = [15, 16, 17];
   const desiredHours = [...amHours, ...pmHours];
-  const offset = 2; // Egypt UTC+2
+  const offset = 3; // Egypt UTC+3
   const slots: any[] = [];
   const y = queryDate.getFullYear();
   const m = queryDate.getMonth();

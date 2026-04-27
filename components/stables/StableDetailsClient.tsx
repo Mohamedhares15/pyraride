@@ -159,6 +159,7 @@ function groupSlotsByDayAndPeriod(
 
 interface StableDetailsClientProps {
     initialStable: Stable;
+    isIsolated?: boolean;
 }
 
 function HorseImageCarousel({ modalItems, horseName, tierColor, adminTier, totalImages, openPortfolio }: any) {
@@ -219,7 +220,7 @@ function HorseImageCarousel({ modalItems, horseName, tierColor, adminTier, total
     );
 }
 
-export default function StableDetailsClient({ initialStable }: StableDetailsClientProps) {
+export default function StableDetailsClient({ initialStable, isIsolated = false }: StableDetailsClientProps) {
     const params = useParams();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -320,7 +321,7 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
         const y = date.getFullYear();
         const m = date.getMonth();
         const d = date.getDate();
-        const utcHour = hours - 2; // Egypt is UTC+2
+        const utcHour = hours - 3; // Egypt is UTC+3
         const startTime = new Date(Date.UTC(y, m, d, utcHour, 0, 0)).toISOString();
         const endTime = new Date(Date.UTC(y, m, d, utcHour + 1, 0, 0)).toISOString();
         const slotKey = `${horseId}-${startTime}`;
@@ -859,17 +860,19 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
 
     return (
         <div className="min-h-screen bg-background">
-            {/* Back Button */}
-            <div className="border-b border-border bg-card/50 pb-4 pt-[calc(1rem+env(safe-area-inset-top))] backdrop-blur-lg">
-                <div className="mx-auto max-w-5xl px-4 md:px-8">
-                    <Link href="/stables">
-                        <Button variant="ghost" size="sm" className="gap-2">
-                            <ArrowLeft className="h-4 w-4" />
-                            Back to Stables
-                        </Button>
-                    </Link>
+            {/* Back Button (Hidden if isolated) */}
+            {!isIsolated && (
+                <div className="border-b border-border bg-card/50 pb-4 pt-[calc(1rem+env(safe-area-inset-top))] backdrop-blur-lg">
+                    <div className="mx-auto max-w-5xl px-4 md:px-8">
+                        <Link href="/stables">
+                            <Button variant="ghost" size="sm" className="gap-2">
+                                <ArrowLeft className="h-4 w-4" />
+                                Back to Stables
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Announcement Banner (shown if the stable owner set one) */}
             {announcementBanner && (
@@ -1131,7 +1134,7 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                                                                 )}
                                                                 <DynamicAvailability
                                                                     grouped={groupedSlots[horse.id]}
-                                                                    blocked={groupedBlockedSlots[horse.id]}
+                                                                    blocked={!isOwnerOfStable ? undefined : groupedBlockedSlots[horse.id]}
                                                                     horseId={horse.id}
                                                                     onSlotClick={handleSlotClick}
                                                                     isLocked={isHorseLocked(horse)}

@@ -106,5 +106,5 @@ export default async function StableBySlugPage({ params }: StablePageProps) {
     })),
   };
 
-  return <StableDetailsClient initialStable={initialStable} />;
+  return <StableDetailsClient initialStable={initialStable} isIsolated={true} />;
 }
