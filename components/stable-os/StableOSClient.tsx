@@ -60,6 +60,7 @@ interface Stable {
   name: string;
   location: string;
   announcementBanner?: string | null;
+  slug?: string | null;
   horses: Horse[];
 }
 
@@ -249,7 +250,7 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
   };
 
   const copyShareLink = () => {
-    navigator.clipboard.writeText(`https://www.pyrarides.com/s/${stableId}`);
+    navigator.clipboard.writeText(`https://www.pyrarides.com/${stable?.slug || `s/${stableId}`}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -574,7 +575,7 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
                   </p>
                   <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/50 px-3.5 py-2.5">
                     <span className="text-sm flex-1 truncate text-muted-foreground">
-                      pyrarides.com/s/{stableId}
+                      pyrarides.com/{stable?.slug || `s/${stableId}`}
                     </span>
                     <button
                       onClick={copyShareLink}
@@ -585,7 +586,7 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
                     </button>
                   </div>
                   <Link
-                    href={`/s/${stableId}`}
+                    href={`/${stable?.slug || `s/${stableId}`}`}
                     target="_blank"
                     className="mt-3 inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
                   >

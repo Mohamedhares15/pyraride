@@ -55,6 +55,7 @@ export async function GET(
       include: {
         horse: {
           select: {
+            id: true,
             name: true,
           },
         },

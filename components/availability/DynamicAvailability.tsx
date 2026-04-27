@@ -24,9 +24,10 @@ interface DynamicAvailabilityProps {
     onSlotClick: (horseId: string, time: string, isTomorrow?: boolean) => void;
     isLocked?: boolean;
     selectedDate?: Date;
+    ownerToggledSlots?: Set<string>;
 }
 
-export default function DynamicAvailability({ grouped, blocked, horseId, onSlotClick, isLocked, selectedDate }: DynamicAvailabilityProps) {
+export default function DynamicAvailability({ grouped, blocked, horseId, onSlotClick, isLocked, selectedDate, ownerToggledSlots }: DynamicAvailabilityProps) {
     // SSR Safety: Early return with defensive checks
     if (!grouped || typeof grouped !== 'object') {
         return <p className="text-xs text-muted-foreground">No available slots</p>;
@@ -81,12 +82,18 @@ export default function DynamicAvailability({ grouped, blocked, horseId, onSlotC
 
         if (times.length === 0 && blockedTimes.length === 0) return null;
 
-        try {
-            // Combine and sort times with error handling
-            const allTimes = [
-                ...times.map(t => ({ time: String(t), blocked: false })),
-                ...blockedTimes.map(t => ({ time: String(t), blocked: true }))
-            ];
+            // Combine, sort, and apply optimistic toggles
+            let allTimes: { time: string, blocked: boolean }[] = [];
+
+            times.forEach(t => {
+                const optKey = `${horseId}-${Boolean(isTomorrow)}-${t}`;
+                allTimes.push({ time: String(t), blocked: ownerToggledSlots?.has(optKey) ? true : false });
+            });
+
+            blockedTimes.forEach(t => {
+                const optKey = `${horseId}-${Boolean(isTomorrow)}-${t}`;
+                allTimes.push({ time: String(t), blocked: ownerToggledSlots?.has(optKey) ? false : true });
+            });
 
             allTimes.sort((a, b) => {
                 try {
@@ -116,7 +123,8 @@ export default function DynamicAvailability({ grouped, blocked, horseId, onSlotC
                                     : "bg-green-500/10 text-green-700 border-green-500/30 hover:bg-green-500/20 hover:text-green-800"
                                     }`}
                                 onClick={(e) => {
-                                    if (!blocked && !isLocked && onSlotClick) {
+                                    // Removed blocked check to allow owners to click blocked slots and unblock them
+                                    if (!isLocked && onSlotClick) {
                                         e.stopPropagation();
                                         onSlotClick(horseId, time, isTomorrow);
                                     }
@@ -128,12 +136,8 @@ export default function DynamicAvailability({ grouped, blocked, horseId, onSlotC
                     </div>
                 </div>
             );
-        } catch (error) {
-            // Graceful degradation if rendering fails
-            console.error('Error rendering period:', error);
-            return null;
-        }
     };
+
 
     const formatDate = (date: Date) => {
         return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });

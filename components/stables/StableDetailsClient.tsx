@@ -323,13 +323,14 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
         const startTime = new Date(Date.UTC(y, m, d, utcHour, 0, 0)).toISOString();
         const endTime = new Date(Date.UTC(y, m, d, utcHour + 1, 0, 0)).toISOString();
         const slotKey = `${horseId}-${startTime}`;
+        const optKey = `${horseId}-${Boolean(isTomorrow)}-${timeStr}`;
 
         setSlotToggling(slotKey);
         // Optimistic toggle
         setOwnerToggledSlots(prev => {
             const next = new Set(prev);
-            if (next.has(slotKey)) next.delete(slotKey);
-            else next.add(slotKey);
+            if (next.has(optKey)) next.delete(optKey);
+            else next.add(optKey);
             return next;
         });
 
@@ -343,8 +344,8 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
             // Revert on failure
             setOwnerToggledSlots(prev => {
                 const next = new Set(prev);
-                if (next.has(slotKey)) next.delete(slotKey);
-                else next.add(slotKey);
+                if (next.has(optKey)) next.delete(optKey);
+                else next.add(optKey);
                 return next;
             });
         } finally {
@@ -1091,6 +1092,7 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                                                                     onSlotClick={handleSlotClick}
                                                                     isLocked={isHorseLocked(horse)}
                                                                     selectedDate={selectedDate}
+                                                                    ownerToggledSlots={ownerToggledSlots}
                                                                 />
                                                             </div>
                                                         </div>
