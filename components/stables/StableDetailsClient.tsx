@@ -277,6 +277,9 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
     const [isLoadingSlots, setIsLoadingSlots] = useState(false);
     const [selectedSlotHorse, setSelectedSlotHorse] = useState<string | null>(null);
     const [announcementBanner, setAnnouncementBanner] = useState<string | null>(null);
+    // Owner slot management: locally toggled blocked slots (key = `${horseId}-${startISO}`)
+    const [ownerToggledSlots, setOwnerToggledSlots] = useState<Set<string>>(new Set());
+    const [slotToggling, setSlotToggling] = useState<string | null>(null);
 
     // Fetch announcement banner for this stable
     useEffect(() => {
@@ -296,6 +299,58 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                 .catch(err => console.error("Failed to fetch user rank", err));
         }
     }, [session?.user?.id]);
+
+    const isOwnerOfStable = session?.user?.role === "stable_owner" && stable?.owner?.id === session?.user?.id;
+
+    // Owner: toggle a slot blocked/unblocked by calling the API
+    const handleOwnerSlotToggle = async (horseId: string, timeStr: string, isTomorrow?: boolean) => {
+        const date = new Date(selectedDate);
+        if (isTomorrow) date.setDate(date.getDate() + 1);
+
+        const timeParts = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (!timeParts) return;
+        let hours = parseInt(timeParts[1]);
+        const minutes = parseInt(timeParts[2]);
+        const ampm = timeParts[3].toUpperCase();
+        if (ampm === "PM" && hours < 12) hours += 12;
+        if (ampm === "AM" && hours === 12) hours = 0;
+
+        // Build UTC ISO times matching what the API generates (offset = 2)
+        const y = date.getFullYear();
+        const m = date.getMonth();
+        const d = date.getDate();
+        const utcHour = hours - 2; // Egypt is UTC+2
+        const startTime = new Date(Date.UTC(y, m, d, utcHour, 0, 0)).toISOString();
+        const endTime = new Date(Date.UTC(y, m, d, utcHour + 1, 0, 0)).toISOString();
+        const slotKey = `${horseId}-${startTime}`;
+
+        setSlotToggling(slotKey);
+        // Optimistic toggle
+        setOwnerToggledSlots(prev => {
+            const next = new Set(prev);
+            if (next.has(slotKey)) next.delete(slotKey);
+            else next.add(slotKey);
+            return next;
+        });
+
+        try {
+            await fetch(`/api/stables/${id}/slots`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ horseId, startTime, endTime }),
+            });
+        } catch {
+            // Revert on failure
+            setOwnerToggledSlots(prev => {
+                const next = new Set(prev);
+                if (next.has(slotKey)) next.delete(slotKey);
+                else next.add(slotKey);
+                return next;
+            });
+        } finally {
+            setSlotToggling(null);
+        }
+    };
 
     const getRiderTier = (points: number) => {
         if (points >= 1701) return "ADVANCED";
@@ -319,8 +374,15 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
     };
 
     const handleSlotClick = (horseId: string, timeStr: string, isTomorrow?: boolean) => {
+        // ── OWNER MODE: toggle block/unblock ──────────────────────────────
+        if (isOwnerOfStable) {
+            handleOwnerSlotToggle(horseId, timeStr, isTomorrow);
+            return;
+        }
+
+        // ── RIDER MODE: existing booking flow ────────────────────────────
         // 1. Lead Time Validation
-        const date = new Date(selectedDate); // Use selected date
+        const date = new Date(selectedDate);
         if (isTomorrow) {
             date.setDate(date.getDate() + 1);
         }

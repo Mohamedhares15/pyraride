@@ -102,6 +102,7 @@ model HorseTier {
 model Stable {
   id                 String        @id @default(uuid())
   name               String
+  slug               String?       @unique
   description        String
   location           String
   address            String

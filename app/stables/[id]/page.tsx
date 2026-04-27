@@ -3,20 +3,7 @@ import { prisma } from "@/lib/prisma";
 import StableDetailsClient from "@/components/stables/StableDetailsClient";
 import { Metadata } from "next";
 
-// Force static generation for these paths
-export const dynamic = "force-static";
-export const revalidate = 3600; // Revalidate every hour
-
-export async function generateStaticParams() {
-  const stables = await prisma.stable.findMany({
-    where: { status: "approved", isHidden: false },
-    select: { id: true },
-  });
-
-  return stables.map((stable) => ({
-    id: stable.id,
-  }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const stable = await prisma.stable.findUnique({
