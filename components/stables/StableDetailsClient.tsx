@@ -259,6 +259,7 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
     const [groupedSlots, setGroupedSlots] = useState<Record<string, DayGroupedSlots>>({});
     // Tomorrow's REAL available slots fetched from the API (used to filter out ghost slots)
     const [tomorrowAvailableSlots, setTomorrowAvailableSlots] = useState<Record<string, string[]>>({});
+    const [tomorrowBlockedSlots, setTomorrowBlockedSlots] = useState<Record<string, string[]>>({});
     const [groupedBlockedSlots, setGroupedBlockedSlots] = useState<Record<string, DayGroupedSlots>>({});
 
     const [portfolioViewer, setPortfolioViewer] = useState<PortfolioViewerState | null>(null);
@@ -501,9 +502,11 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
 
                     const newAvailable: Record<string, Record<string, string[]>> = { [dateStr]: {} };
                     const newTaken: Record<string, Record<string, any[]>> = { [dateStr]: {} };
+                    const newBlocked: Record<string, Record<string, string[]>> = { [dateStr]: {} };
                     initialStable.horses.forEach((horse: any) => {
                         newAvailable[dateStr][horse.id] = [];
                         newTaken[dateStr][horse.id] = [];
+                        newBlocked[dateStr][horse.id] = [];
                     });
 
                     todaySlotsData.forEach((slot: any) => {
@@ -520,6 +523,9 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                             if (slot.booking || slot.status === "booked") {
                                 if (!newTaken[dateStr][horse.id]) newTaken[dateStr][horse.id] = [];
                                 newTaken[dateStr][horse.id].push({ ...slot, startTime: slot.startTime });
+                            } else if (slot.status === "blocked" || slot.status === "blocked_session") {
+                                if (!newBlocked[dateStr][horse.id]) newBlocked[dateStr][horse.id] = [];
+                                newBlocked[dateStr][horse.id].push(time);
                             } else if (slot.status === "available") {
                                 if (!newAvailable[dateStr][horse.id]) newAvailable[dateStr][horse.id] = [];
                                 newAvailable[dateStr][horse.id].push(time);
@@ -529,9 +535,12 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
 
                     // Process tomorrow data
                     const tomorrowAvail: Record<string, string[]> = {};
-                    initialStable.horses.forEach((horse: any) => { tomorrowAvail[horse.id] = []; });
+                    const tomorrowBlocked: Record<string, string[]> = {};
+                    initialStable.horses.forEach((horse: any) => {
+                        tomorrowAvail[horse.id] = [];
+                        tomorrowBlocked[horse.id] = [];
+                    });
                     tomorrowSlotsData.forEach((slot: any) => {
-                        if (slot.status !== "available") return;
                         const time = new Date(slot.startTime).toLocaleTimeString("en-US", {
                             hour: "numeric",
                             minute: "2-digit",
@@ -542,15 +551,22 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                             : initialStable.horses || [];
                         targetHorses.forEach((horse: any) => {
                             if (!horse) return;
-                            if (!tomorrowAvail[horse.id]) tomorrowAvail[horse.id] = [];
-                            tomorrowAvail[horse.id].push(time);
+                            if (slot.status === "blocked" || slot.status === "blocked_session") {
+                                if (!tomorrowBlocked[horse.id]) tomorrowBlocked[horse.id] = [];
+                                tomorrowBlocked[horse.id].push(time);
+                            } else if (slot.status === "available") {
+                                if (!tomorrowAvail[horse.id]) tomorrowAvail[horse.id] = [];
+                                tomorrowAvail[horse.id].push(time);
+                            }
                         });
                     });
 
                     if (isMounted) {
                         setAvailableSlots(newAvailable);
                         setTakenSlots(newTaken);
+                        setBlockedSlots(newBlocked);
                         setTomorrowAvailableSlots(tomorrowAvail);
+                        setTomorrowBlockedSlots(tomorrowBlocked);
                     }
                 }
             } catch (error) {
@@ -580,9 +596,11 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                     if (!data.today) return;
                     const newAvailable: Record<string, Record<string, string[]>> = { [dateStr]: {} };
                     const newTaken: Record<string, Record<string, any[]>> = { [dateStr]: {} };
+                    const newBlocked: Record<string, Record<string, string[]>> = { [dateStr]: {} };
                     stable?.horses.forEach(horse => {
                         newAvailable[dateStr][horse.id] = [];
                         newTaken[dateStr][horse.id] = [];
+                        newBlocked[dateStr][horse.id] = [];
                     });
                     data.today.forEach((slot: any) => {
                         const slotDate = new Date(slot.startTime);
@@ -596,6 +614,8 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                             if (!horse) return;
                             if (slot.status === "booked") {
                                 newTaken[dateStr][horse.id].push({ ...slot });
+                            } else if (slot.status === "blocked" || slot.status === "blocked_session") {
+                                newBlocked[dateStr][horse.id].push(time);
                             } else if (slot.status === "available") {
                                 newAvailable[dateStr][horse.id].push(time);
                             }
@@ -603,11 +623,15 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                     });
                     setAvailableSlots(newAvailable);
                     setTakenSlots(newTaken);
+                    setBlockedSlots(newBlocked);
                     // Update tomorrow slots
                     const tomorrowAvail: Record<string, string[]> = {};
-                    stable?.horses.forEach(horse => { tomorrowAvail[horse.id] = []; });
+                    const tomorrowBlocked: Record<string, string[]> = {};
+                    stable?.horses.forEach(horse => {
+                        tomorrowAvail[horse.id] = [];
+                        tomorrowBlocked[horse.id] = [];
+                    });
                     (data.tomorrow || []).forEach((slot: any) => {
-                        if (slot.status !== "available") return;
                         const slotDate = new Date(slot.startTime);
                         const hours = slotDate.getHours();
                         const minutes = slotDate.getMinutes();
@@ -617,10 +641,15 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                         const targetHorses = slot.horseId ? [stable?.horses.find(h => h.id === slot.horseId)].filter(Boolean) : stable?.horses || [];
                         targetHorses.forEach((horse: any) => {
                             if (!horse) return;
-                            tomorrowAvail[horse.id].push(time);
+                            if (slot.status === "blocked" || slot.status === "blocked_session") {
+                                tomorrowBlocked[horse.id].push(time);
+                            } else if (slot.status === "available") {
+                                tomorrowAvail[horse.id].push(time);
+                            }
                         });
                     });
                     setTomorrowAvailableSlots(tomorrowAvail);
+                    setTomorrowBlockedSlots(tomorrowBlocked);
                 })
                 .catch(err => console.error("Focus refresh failed:", err));
         };
@@ -704,11 +733,26 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                 currentDate,
                 false
             );
+            
+            // Fix: groupSlotsByDayAndPeriod doesn't put "tomorrow" slots into the tomorrow bucket 
+            // when allowShift is false. We must manually group the real tomorrow blocked slots.
+            const realTomorrowBlocked = tomorrowBlockedSlots[horse.id] || [];
+            if (realTomorrowBlocked.length > 0) {
+                const tomorrowDate = new Date(currentDate);
+                tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+                const groupedRealTomorrowBlocked = groupSlotsByDayAndPeriod(
+                    realTomorrowBlocked,
+                    leadTimeHours,
+                    tomorrowDate,
+                    false
+                );
+                newGroupedBlockedSlots[horse.id].tomorrow = groupedRealTomorrowBlocked.today;
+            }
         });
 
         setGroupedSlots(newGroupedSlots);
         setGroupedBlockedSlots(newGroupedBlockedSlots);
-    }, [availableSlots, blockedSlots, tomorrowAvailableSlots, stable, selectedDate]);
+    }, [availableSlots, blockedSlots, tomorrowAvailableSlots, tomorrowBlockedSlots, stable, selectedDate]);
 
     const openPortfolio = (horseName: string, items: HorseMediaItem[], startIndex = 0) => {
         if (!items || items.length === 0) return;
