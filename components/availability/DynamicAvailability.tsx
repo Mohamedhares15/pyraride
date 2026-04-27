@@ -117,7 +117,7 @@ export default function DynamicAvailability({ grouped, blocked, horseId, onSlotC
                                 key={time}
                                 variant="outline"
                                 size="sm"
-                                disabled={blocked || isLocked}
+                                disabled={isLocked}
                                 className={`h-6 text-xs px-2 ${blocked
                                     ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
                                     : "bg-green-500/10 text-green-700 border-green-500/30 hover:bg-green-500/20 hover:text-green-800"

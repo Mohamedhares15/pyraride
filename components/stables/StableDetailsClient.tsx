@@ -376,7 +376,7 @@ export default function StableDetailsClient({ initialStable, isIsolated = false 
         return !canBook;
     };
 
-    const handleSlotClick = (horseId: string, timeStr: string, isTomorrow?: boolean) => {
+    const handleSlotClick = async (horseId: string, timeStr: string, isTomorrow?: boolean) => {
         // ── OWNER MODE: toggle block/unblock ──────────────────────────────
         if (isOwnerOfStable) {
             handleOwnerSlotToggle(horseId, timeStr, isTomorrow);
@@ -437,6 +437,38 @@ export default function StableDetailsClient({ initialStable, isIsolated = false 
         // Default 1 hour duration
         const endHours = (hours + 1) % 24;
         const endTime = `${endHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+        // 3. Real-time availability verification
+        setIsLoadingSlots(true);
+        try {
+            const dateStrTarget = date.toISOString().split("T")[0];
+            const verifyRes = await fetch(`/api/stables/${id}/slots?date=${dateStrTarget}`);
+            if (verifyRes.ok) {
+                const data = await verifyRes.json();
+                const slotTargetTime = new Date(date);
+                slotTargetTime.setUTCHours(hours - 3, minutes, 0, 0); // Egypt UTC+3 offset
+                
+                const foundSlot = data.find((s: any) => 
+                     s.horseId === horseId && new Date(s.startTime).getTime() === slotTargetTime.getTime()
+                );
+                
+                if (foundSlot && foundSlot.status !== "available") {
+                    const { toast } = require("sonner");
+                    toast.error("Slot No Longer Available", {
+                        description: "Sorry, this slot was just booked or blocked while you were viewing the page.",
+                        duration: 4000,
+                    });
+                    
+                    // Trigger a silent background refresh
+                    window.dispatchEvent(new Event("focus"));
+                    setIsLoadingSlots(false);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.error("Slot verification failed:", e);
+        }
+        setIsLoadingSlots(false);
 
         // Redirect to booking page with booking details in URL params
         const bookingParams = new URLSearchParams({
