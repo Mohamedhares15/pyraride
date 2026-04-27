@@ -19,6 +19,8 @@ import {
     ChevronRight,
     X,
     Loader2,
+    Settings,
+    Megaphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -274,6 +276,15 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
     const [userRankPoints, setUserRankPoints] = useState<number | null>(null);
     const [isLoadingSlots, setIsLoadingSlots] = useState(false);
     const [selectedSlotHorse, setSelectedSlotHorse] = useState<string | null>(null);
+    const [announcementBanner, setAnnouncementBanner] = useState<string | null>(null);
+
+    // Fetch announcement banner for this stable
+    useEffect(() => {
+        fetch(`/api/stables/${id}/announce`)
+            .then((r) => r.ok ? r.json() : null)
+            .then((data) => { if (data?.banner) setAnnouncementBanner(data.banner); })
+            .catch(() => {});
+    }, [id]);
 
     useEffect(() => {
         if (session?.user?.id) {
@@ -752,6 +763,31 @@ export default function StableDetailsClient({ initialStable }: StableDetailsClie
                     </Link>
                 </div>
             </div>
+
+            {/* Announcement Banner (shown if the stable owner set one) */}
+            {announcementBanner && (
+                <div className="bg-amber-50 border-b border-amber-200">
+                    <div className="mx-auto max-w-5xl px-4 py-2.5 flex items-center gap-2">
+                        <Megaphone className="h-4 w-4 text-amber-600 shrink-0" />
+                        <p className="text-sm text-amber-800 font-medium">{announcementBanner}</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Owner Toolbar — only visible to the stable owner */}
+            {session?.user?.role === "stable_owner" && stable.owner.id === session.user.id && (
+                <div className="bg-black/90 border-b border-white/10">
+                    <div className="mx-auto max-w-5xl px-4 py-2.5 flex items-center justify-between">
+                        <span className="text-xs text-white/60 font-semibold uppercase tracking-widest">🏇 Owner View</span>
+                        <Link href="/dashboard/stable/os">
+                            <button className="inline-flex items-center gap-2 rounded-full bg-white text-black text-xs font-bold px-4 py-2 shadow hover:bg-white/90 transition-colors">
+                                <Settings className="h-3.5 w-3.5" />
+                                Manage Stable OS
+                            </button>
+                        </Link>
+                    </div>
+                </div>
+            )}
 
             {/* Hero Image */}
             <div className="relative h-[400px] w-full overflow-hidden" role="img" aria-label={`${stable.name} - Horse riding stable in ${stable.location}, Egypt`}>

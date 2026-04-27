@@ -100,56 +100,59 @@ model HorseTier {
 }
 
 model Stable {
-  id               String        @id @default(uuid())
-  name             String
-  description      String
-  location         String
-  address          String
-  imageUrl         String?
-  status           StableStatus  @default(pending_approval)
-  isHidden         Boolean       @default(false)
-  commissionRate   Decimal       @default(0.15) @db.Decimal(5, 4)
-  minLeadTimeHours Int           @default(8)
-  createdAt        DateTime      @default(now())
-  ownerId          String
-  blockedSlots     BlockedSlot[]
-  bookings         Booking[]
-  horses           Horse[]
-  packages         Package[]
-  reviews          Review[]
-  rideResults      RideResult[]
-  owner            User          @relation("StableOwner", fields: [ownerId], references: [id], onUpdate: Restrict)
-  owners           User[]        @relation("StableOwners")
+  id                 String        @id @default(uuid())
+  name               String
+  description        String
+  location           String
+  address            String
+  imageUrl           String?
+  status             StableStatus  @default(pending_approval)
+  isHidden           Boolean       @default(false)
+  commissionRate     Decimal       @default(0.15) @db.Decimal(5, 4)
+  minLeadTimeHours   Int           @default(8)
+  announcementBanner String?
+  createdAt          DateTime      @default(now())
+  ownerId            String
+  blockedSlots       BlockedSlot[]
+  bookings           Booking[]
+  horses             Horse[]
+  packages           Package[]
+  reviews            Review[]
+  rideResults        RideResult[]
+  owner              User          @relation("StableOwner", fields: [ownerId], references: [id], onUpdate: Restrict)
+  owners             User[]        @relation("StableOwners")
 }
 
 model Horse {
-  id                    String                 @id @default(uuid())
-  stableId              String
-  name                  String
-  imageUrls             String[]
-  pricePerHour          Decimal?               @db.Decimal(10, 2)
-  discountPercent       Int?                   @db.Integer
-  age                   Int?
-  skills                String[]               @default([])
-  isActive              Boolean                @default(true)
-  availabilityStatus    AvailabilityStatus?    @default(available)
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime?              @updatedAt
-  rankPoints            Int                    @default(1400)
-  tierId                String?
-  adminTier             String?
-  firstTimeFriendly     Boolean?
-  skillLevel            SkillLevel             @default(BEGINNER)
-  color                 String?
-  blockedSlots          BlockedSlot[]
-  bookings              Booking[]
-  stable                Stable                 @relation(fields: [stableId], references: [id], onDelete: Cascade)
-  tier                  HorseTier?             @relation(fields: [tierId], references: [id])
-  changeRequests        HorseChangeRequest[]
-  media                 HorseMedia[]
-  reviews               Review[]
-  rideResults           RideResult[]
-  skillOverrideRequests SkillOverrideRequest[]
+  id                       String                 @id @default(uuid())
+  stableId                 String
+  name                     String
+  imageUrls                String[]
+  pricePerHour             Decimal?               @db.Decimal(10, 2)
+  discountPercent          Int?                   @db.Integer
+  age                      Int?
+  skills                   String[]               @default([])
+  isActive                 Boolean                @default(true)
+  availabilityStatus       AvailabilityStatus?    @default(available)
+  createdAt                DateTime               @default(now())
+  updatedAt                DateTime?              @updatedAt
+  rankPoints               Int                    @default(1400)
+  tierId                   String?
+  adminTier                String?
+  firstTimeFriendly        Boolean?
+  skillLevel               SkillLevel             @default(BEGINNER)
+  color                    String?
+  ownerNotes               String?
+  isTemporarilyUnavailable Boolean                @default(false)
+  blockedSlots             BlockedSlot[]
+  bookings                 Booking[]
+  stable                   Stable                 @relation(fields: [stableId], references: [id], onDelete: Cascade)
+  tier                     HorseTier?             @relation(fields: [tierId], references: [id])
+  changeRequests           HorseChangeRequest[]
+  media                    HorseMedia[]
+  reviews                  Review[]
+  rideResults              RideResult[]
+  skillOverrideRequests    SkillOverrideRequest[]
 }
 
 model BlockedSlot {
