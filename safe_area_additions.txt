@@ -1,4 +1,4 @@
-﻿    
+    
     /* Shorthand Variables (Developer-Friendly) */
     --sat: var(--safe-top);
     --sab: var(--safe-bottom);
