@@ -79,9 +79,8 @@ export default defineConfig({
     },
     proxy: {
       "/api": {
-        target: "https://pyraride.fly.dev",
+        target: "http://localhost:8080",
         changeOrigin: true,
-        secure: true,
         cookieDomainRewrite: "",
       },
     },
