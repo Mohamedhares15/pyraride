@@ -73,6 +73,7 @@ export async function signIn(
   return { ok: response.ok, error: data.error };
 }
 
+import React from "react";
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-  return children as any;
+  return React.createElement(React.Fragment, null, children);
 }

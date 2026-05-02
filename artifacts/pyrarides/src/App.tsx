@@ -62,6 +62,17 @@ const DriverActivePage = lazy(() => import("@/pages/dashboard/driver/active/page
 const DriverHistoryPage = lazy(() => import("@/pages/dashboard/driver/history/page"));
 const DriverAccountPage = lazy(() => import("@/pages/dashboard/driver/account/page"));
 
+const CxMediaPage = lazy(() => import("@/pages/dashboard/cx-media/page"));
+const CxMediaGalleryPage = lazy(() => import("@/pages/dashboard/cx-media/gallery/page"));
+const CxMediaSupportPage = lazy(() => import("@/pages/dashboard/cx-media/support/page"));
+
+const LoyaltyPage = lazy(() => import("@/pages/dashboard/loyalty/page"));
+const StableOsPage = lazy(() => import("@/pages/dashboard/stable/os/page"));
+
+const AdminPackagesBookingsPage = lazy(() => import("@/pages/dashboard/admin/packages/bookings/page"));
+
+const TrainingCheckoutPage = lazy(() => import("@/pages/training/[academyId]/checkout/page"));
+
 const CheckoutPackagePage = lazy(() => import("@/pages/checkout/package/[id]/page"));
 const TrainingAcademyPage = lazy(() => import("@/pages/training/[academyId]/page"));
 
@@ -91,6 +102,7 @@ function Router() {
           <Route path="/privacy" component={PrivacyPage} />
           <Route path="/terms" component={TermsPage} />
           <Route path="/offline" component={OfflinePage} />
+          <Route path="/training/:academyId/checkout" component={TrainingCheckoutPage} />
           <Route path="/checkout/package/:id" component={CheckoutPackagePage} />
           <Route path="/dashboard/rider" component={RiderDashboard} />
           <Route path="/dashboard/stable" component={StableDashboard} />
@@ -103,6 +115,12 @@ function Router() {
           <Route path="/dashboard/stable/horses" component={StableHorsesPage} />
           <Route path="/dashboard/stable/schedule" component={StableSchedulePage} />
           <Route path="/dashboard/stable/manage" component={StableManagePage} />
+          <Route path="/dashboard/stable/os" component={StableOsPage} />
+          <Route path="/dashboard/cx-media/gallery" component={CxMediaGalleryPage} />
+          <Route path="/dashboard/cx-media/support" component={CxMediaSupportPage} />
+          <Route path="/dashboard/cx-media" component={CxMediaPage} />
+          <Route path="/dashboard/loyalty" component={LoyaltyPage} />
+          <Route path="/dashboard/admin/packages/bookings" component={AdminPackagesBookingsPage} />
           <Route path="/dashboard/admin/stables" component={AdminStablesPage} />
           <Route path="/dashboard/admin/horses" component={AdminHorsesPage} />
           <Route path="/dashboard/admin/packages" component={AdminPackagesPage} />
