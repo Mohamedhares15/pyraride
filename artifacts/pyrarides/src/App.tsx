@@ -38,6 +38,25 @@ const TermsPage = lazy(() => import("@/pages/TermsPage"));
 const OfflinePage = lazy(() => import("@/pages/OfflinePage"));
 const NotFoundPage = lazy(() => import("@/pages/not-found"));
 
+const RiderDashboard = lazy(() => import("@/pages/dashboard/rider/page"));
+const StableDashboard = lazy(() => import("@/pages/dashboard/stable/page"));
+const CaptainDashboard = lazy(() => import("@/pages/dashboard/captain/page"));
+const DriverDashboard = lazy(() => import("@/pages/dashboard/driver/page"));
+const AnalyticsDashboard = lazy(() => import("@/pages/dashboard/analytics/page"));
+
+const AdminStablesPage = lazy(() => import("@/pages/dashboard/admin/stables/page"));
+const AdminHorsesPage = lazy(() => import("@/pages/dashboard/admin/horses/page"));
+const AdminPackagesPage = lazy(() => import("@/pages/dashboard/admin/packages/page"));
+const AdminAcademiesPage = lazy(() => import("@/pages/dashboard/admin/academies/page"));
+const AdminLocationsPage = lazy(() => import("@/pages/dashboard/admin/locations/page"));
+const AdminPremiumPage = lazy(() => import("@/pages/dashboard/admin/premium/page"));
+const AdminTransportPage = lazy(() => import("@/pages/dashboard/admin/transport-zones/page"));
+const AdminHorseChangesPage = lazy(() => import("@/pages/dashboard/admin/horse-changes/page"));
+const AdminInstantBookingPage = lazy(() => import("@/pages/dashboard/admin/instant-booking/page"));
+
+const CheckoutPackagePage = lazy(() => import("@/pages/checkout/package/[id]/page"));
+const TrainingAcademyPage = lazy(() => import("@/pages/training/[academyId]/page"));
+
 function Router() {
   return (
     <SiteLayout>
@@ -57,13 +76,29 @@ function Router() {
           <Route path="/forgot-password" component={ForgotPasswordPage} />
           <Route path="/reset-password" component={ResetPasswordPage} />
           <Route path="/booking" component={BookingPage} />
-          <Route path="/dashboard/:rest*" component={DashboardPage} />
           <Route path="/pricing" component={PricingPage} />
           <Route path="/leaderboard" component={LeaderboardPage} />
+          <Route path="/training/:academyId" component={TrainingAcademyPage} />
           <Route path="/training" component={TrainingPage} />
           <Route path="/privacy" component={PrivacyPage} />
           <Route path="/terms" component={TermsPage} />
           <Route path="/offline" component={OfflinePage} />
+          <Route path="/checkout/package/:id" component={CheckoutPackagePage} />
+          <Route path="/dashboard/rider" component={RiderDashboard} />
+          <Route path="/dashboard/stable" component={StableDashboard} />
+          <Route path="/dashboard/captain" component={CaptainDashboard} />
+          <Route path="/dashboard/driver" component={DriverDashboard} />
+          <Route path="/dashboard/analytics" component={AnalyticsDashboard} />
+          <Route path="/dashboard/admin/stables" component={AdminStablesPage} />
+          <Route path="/dashboard/admin/horses" component={AdminHorsesPage} />
+          <Route path="/dashboard/admin/packages" component={AdminPackagesPage} />
+          <Route path="/dashboard/admin/academies" component={AdminAcademiesPage} />
+          <Route path="/dashboard/admin/locations" component={AdminLocationsPage} />
+          <Route path="/dashboard/admin/premium" component={AdminPremiumPage} />
+          <Route path="/dashboard/admin/transport-zones" component={AdminTransportPage} />
+          <Route path="/dashboard/admin/horse-changes" component={AdminHorseChangesPage} />
+          <Route path="/dashboard/admin/instant-booking" component={AdminInstantBookingPage} />
+          <Route path="/dashboard" component={DashboardPage} />
           <Route component={NotFoundPage} />
         </Switch>
       </Suspense>

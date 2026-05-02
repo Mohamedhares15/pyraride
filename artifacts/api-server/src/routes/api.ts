@@ -12,6 +12,14 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   return next();
 }
 
+function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  const sid = req.cookies?.sid as string | undefined;
+  const user = sid ? sessions.get(sid) : undefined;
+  if (!user) return res.status(401).json({ error: "Authentication required" });
+  if (user.role !== "admin") return res.status(403).json({ error: "Admin access required" });
+  return next();
+}
+
 const router = Router();
 
 const LOCATIONS = [
@@ -515,7 +523,7 @@ router.get("/analytics", (_req, res) => {
   res.json({ pageViews: 0, bookings: 0, revenue: 0 });
 });
 
-router.use("/admin", requireAuth);
+router.use("/admin", requireAdmin);
 
 router.get("/admin/stables", (_req, res) => {
   res.json({ stables: STABLES, total: STABLES.length });
