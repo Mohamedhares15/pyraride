@@ -13,20 +13,6 @@ interface OptimalCinematicWrapperProps {
     children: ReactNode
 }
 
-/**
- * OptimalCinematicWrapper - Performance-optimized wrapper
- * 
- * Only loads CinematicWrapper (smooth scroll + film grain) on:
- * - Desktop devices (width > 1024px)
- * - Good network connections (4g or better)
- * - After initial page load (doesn't block critical rendering)
- * 
- * Performance Benefits:
- * - Reduces initial bundle by ~5KB (Lenis + effects)
- * - Eliminates smooth scroll calculations on mobile
- * - Improves TBT by 2,000-3,000ms on mobile
- * - Better mobile battery life
- */
 export function OptimalCinematicWrapper({ children }: OptimalCinematicWrapperProps) {
     const [showEffects, setShowEffects] = useState(false)
     const [isChecking, setIsChecking] = useState(true)

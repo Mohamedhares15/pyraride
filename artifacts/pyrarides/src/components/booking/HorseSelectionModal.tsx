@@ -51,10 +51,6 @@ export default function HorseSelectionModal({
         setIsLoading(true);
         setError("");
         try {
-            // Fetch horses for the stable
-            // Note: Ideally we should have an endpoint that filters by availability for the specific time slot
-            // For now, we'll fetch all horses and filter client-side based on the excluded list
-            // In a real production app, the API should handle availability checking
             const res = await fetch(`/api/stables/${stableId}`);
             if (!res.ok) throw new Error("Failed to fetch horses");
             const data = await res.json();

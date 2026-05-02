@@ -31,10 +31,7 @@ export default function MessageBubble({ message, isMe, onSwipeReply }: MessageBu
                 isMe ? "justify-end" : "justify-start"
             )}
         >
-            {/* Reply Icon Indicator (Hidden by default, shown on drag) */}
-            <div className="absolute left-[-40px] top-1/2 -translate-y-1/2 text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                {/* Could add an icon here if we want visual feedback during drag */}
-            </div>
+            <div className="absolute left-[-40px] top-1/2 -translate-y-1/2 text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity" />
 
             <div
                 className={cn(
