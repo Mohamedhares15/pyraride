@@ -98,7 +98,8 @@ export default function ManageStablePage() {
     try {
       const res = await fetch(`/api/stables/${stableId}/owners`);
       if (res.ok) {
-        setOwners(await res.json());
+        const data = await res.json();
+        setOwners(Array.isArray(data) ? data : (data.owners ?? []));
       }
     } catch (err) {
       console.error("Error fetching owners:", err);

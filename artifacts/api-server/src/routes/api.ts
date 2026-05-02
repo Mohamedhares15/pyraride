@@ -317,6 +317,13 @@ router.get("/stables/:id", (req, res) => {
   return res.json(stable);
 });
 
+router.put("/stables/:id", requireAuth, (req, res) => {
+  const idx = STABLES.findIndex(s => s.id === req.params.id);
+  if (idx === -1) { res.status(404).json({ error: "Stable not found" }); return; }
+  (STABLES[idx] as any) = { ...STABLES[idx], ...req.body, id: req.params.id };
+  res.json({ success: true, stable: STABLES[idx] });
+});
+
 router.get("/stables/:id/coordinates", (req, res) => {
   const stable = STABLES.find(s => s.id === req.params.id);
   if (!stable) return res.status(404).json({ error: "Not found" });
@@ -367,10 +374,29 @@ router.get("/horses", (req, res) => {
   const { stableId } = req.query;
   let results = [...HORSES];
   if (stableId) {
-    const stable = STABLES.find(s => s.id === String(stableId));
-    results = stable ? stable.horses : [];
+    const stable = STABLES.find(s => s.id === String(stableId)) as any;
+    results = stable ? (stable.horses ?? []) : [];
   }
-  res.json(results);
+  res.json({ horses: results, total: results.length });
+});
+
+router.post("/horses", requireAuth, (req, res) => {
+  const horse = { id: "horse-" + Date.now(), isActive: true, media: [], ...req.body };
+  HORSES.push(horse as any);
+  res.json({ success: true, horse });
+});
+
+router.patch("/horses/:id", requireAuth, (req, res) => {
+  const idx = HORSES.findIndex((h: any) => h.id === req.params.id);
+  if (idx === -1) { res.status(404).json({ error: "Horse not found" }); return; }
+  (HORSES[idx] as any) = { ...HORSES[idx], ...req.body };
+  res.json({ success: true, horse: HORSES[idx] });
+});
+
+router.delete("/horses/:id", requireAuth, (req, res) => {
+  const idx = HORSES.findIndex((h: any) => h.id === req.params.id);
+  if (idx !== -1) HORSES.splice(idx, 1);
+  res.json({ success: true });
 });
 
 router.get("/academies", (req, res) => {
@@ -425,11 +451,13 @@ router.post("/auth/signout", async (req, res) => {
 });
 
 router.post("/auth/register", async (req, res) => {
-  const { email, phoneNumber, password, fullName } = req.body;
+  const { email, phoneNumber, password, fullName, role } = req.body;
   if (!email && !phoneNumber) return res.status(400).json({ error: "Email or phone required" });
   if (!password) return res.status(400).json({ error: "Password required" });
+  const allowedRoles = ["rider", "stable_owner", "captain", "driver"];
+  const userRole = allowedRoles.includes(role) ? role : "rider";
   try {
-    const dbUser = await createUser({ email, phoneNumber, password, fullName, role: "rider" });
+    const dbUser = await createUser({ email, phoneNumber, password, fullName, role: userRole });
     const sid = await createSession(dbUser.id);
     res.cookie("sid", sid, { httpOnly: true, sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000 });
     return res.json({ user: { id: dbUser.id, email: dbUser.email, fullName: dbUser.full_name, role: dbUser.role, profileImageUrl: dbUser.profile_image_url } });
@@ -898,8 +926,10 @@ router.get("/horses/:id", (req, res) => {
   return res.json(horse);
 });
 
-router.put("/horses/:id", (req, res) => {
-  res.json({ success: true, id: req.params.id, ...req.body });
+router.put("/horses/:id", requireAuth, (req, res) => {
+  const idx = HORSES.findIndex((h: any) => h.id === req.params.id);
+  if (idx !== -1) (HORSES[idx] as any) = { ...HORSES[idx], ...req.body };
+  res.json({ success: true, id: req.params.id, ...(idx !== -1 ? HORSES[idx] : req.body) });
 });
 
 router.get("/training", (_req, res) => {
@@ -1001,7 +1031,7 @@ router.get("/stables/:id/bookings", requireAuth, async (req, res) => {
 router.get("/stables/:id/owners", requireAuth, (req, res) => {
   const stable = STABLES.find((s) => s.id === req.params.id) as any;
   if (!stable) { res.status(404).json({ error: "Stable not found" }); return; }
-  res.json({ owners: stable.owner ? [stable.owner] : [] });
+  res.json(stable.owner ? [stable.owner] : []);
 });
 
 router.post("/stables/:id/owners", requireAdmin, (req, res) => {
