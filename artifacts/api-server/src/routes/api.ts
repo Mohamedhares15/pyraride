@@ -287,7 +287,7 @@ router.get("/stables/:id/coordinates", (req, res) => {
 });
 
 router.get("/stables/:id/slots", (_req, res) => {
-  res.json({ slots: [] });
+  res.json([]);
 });
 
 router.get("/stables/:id/announce", (_req, res) => {
@@ -351,9 +351,18 @@ router.get("/auth/session", (req, res) => {
 
 router.post("/auth/signin", (req, res) => {
   const identifier: string | undefined = req.body.email ?? req.body.identifier;
+  const password: string | undefined = req.body.password;
   if (!identifier) return res.status(400).json({ error: "Email or phone required" });
+  if (!password) return res.status(400).json({ error: "Password required" });
+  const id = identifier.toLowerCase();
+  let role = "rider";
+  let fullName = "Rider User";
+  if (id.includes("admin")) { role = "admin"; fullName = "Admin User"; }
+  else if (id.includes("stable") || id.includes("owner")) { role = "stable_owner"; fullName = "Stable Owner"; }
+  else if (id.includes("captain")) { role = "captain"; fullName = "Captain User"; }
+  else if (id.includes("driver")) { role = "driver"; fullName = "Driver User"; }
   const sid = randomBytes(24).toString("hex");
-  const user: SessionUser = { id: "user-" + sid.slice(0, 8), email: identifier, fullName: "Guest User", role: "rider", profileImageUrl: null };
+  const user: SessionUser = { id: "user-" + sid.slice(0, 8), email: identifier, fullName, role, profileImageUrl: null };
   sessions.set(sid, user);
   res.cookie("sid", sid, { httpOnly: true, sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000 });
   return res.json({ user });

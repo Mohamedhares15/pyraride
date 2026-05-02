@@ -54,6 +54,14 @@ const AdminTransportPage = lazy(() => import("@/pages/dashboard/admin/transport-
 const AdminHorseChangesPage = lazy(() => import("@/pages/dashboard/admin/horse-changes/page"));
 const AdminInstantBookingPage = lazy(() => import("@/pages/dashboard/admin/instant-booking/page"));
 
+const StableHorsesPage = lazy(() => import("@/pages/dashboard/stable/horses/page"));
+const StableSchedulePage = lazy(() => import("@/pages/dashboard/stable/schedule/page"));
+const StableManagePage = lazy(() => import("@/pages/dashboard/stable/manage/page"));
+
+const DriverActivePage = lazy(() => import("@/pages/dashboard/driver/active/page"));
+const DriverHistoryPage = lazy(() => import("@/pages/dashboard/driver/history/page"));
+const DriverAccountPage = lazy(() => import("@/pages/dashboard/driver/account/page"));
+
 const CheckoutPackagePage = lazy(() => import("@/pages/checkout/package/[id]/page"));
 const TrainingAcademyPage = lazy(() => import("@/pages/training/[academyId]/page"));
 
@@ -88,7 +96,13 @@ function Router() {
           <Route path="/dashboard/stable" component={StableDashboard} />
           <Route path="/dashboard/captain" component={CaptainDashboard} />
           <Route path="/dashboard/driver" component={DriverDashboard} />
+          <Route path="/dashboard/driver/active" component={DriverActivePage} />
+          <Route path="/dashboard/driver/history" component={DriverHistoryPage} />
+          <Route path="/dashboard/driver/account" component={DriverAccountPage} />
           <Route path="/dashboard/analytics" component={AnalyticsDashboard} />
+          <Route path="/dashboard/stable/horses" component={StableHorsesPage} />
+          <Route path="/dashboard/stable/schedule" component={StableSchedulePage} />
+          <Route path="/dashboard/stable/manage" component={StableManagePage} />
           <Route path="/dashboard/admin/stables" component={AdminStablesPage} />
           <Route path="/dashboard/admin/horses" component={AdminHorsesPage} />
           <Route path="/dashboard/admin/packages" component={AdminPackagesPage} />
