@@ -1,0 +1,58 @@
+"use client";
+
+import React, { ReactNode, Component, ErrorInfo } from "react";
+import dynamic from '@/shims/next-dynamic';
+import { ReactLenis } from "@studio-freight/react-lenis";
+
+// Dynamically import canvas component with SSR disabled to prevent hydration errors
+const FilmGrainCanvas = dynamic(() => import("./FilmGrainCanvas"), {
+    ssr: false,
+});
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+    constructor(props: { children: ReactNode }) {
+        super(props);
+        this.state = { hasError: false };
+    }
+
+    static getDerivedStateFromError(_: Error) {
+        return { hasError: true };
+    }
+
+    componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+        console.error("CinematicWrapper Error:", error, errorInfo);
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return null;
+        }
+        return this.props.children;
+    }
+}
+
+interface CinematicWrapperProps {
+    children: ReactNode;
+}
+
+const ReactLenisAny = ReactLenis as any;
+
+export default function CinematicWrapper({ children }: CinematicWrapperProps) {
+    return (
+        <ReactLenisAny
+            root
+            options={{
+                lerp: 0.1,
+                duration: 1.5,
+                smoothWheel: true,
+                wheelMultiplier: 1,
+                touchMultiplier: 2,
+            }}
+        >
+            <ErrorBoundary>
+                <FilmGrainCanvas />
+            </ErrorBoundary>
+            {children}
+        </ReactLenisAny>
+    );
+}
