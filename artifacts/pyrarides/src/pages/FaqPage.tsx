@@ -1,115 +1,252 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Search, ChevronDown } from "lucide-react";
-import Breadcrumbs from "@/components/shared/Breadcrumbs";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, Plus, Minus } from "lucide-react";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
+import { Reveal } from "@/components/shared/Motion";
+import heroImg from "@/assets/hero-pyramids.jpg";
 
 const faqData = [
   {
-    category: "Booking Questions",
+    category: "Booking",
     items: [
-      { question: "How do I book a horse riding experience?", answer: "Booking is simple: Browse available stables, compare reviews, select your preferred stable and horse, choose your date and time, and confirm. You receive instant email confirmation." },
-      { question: "How far in advance should I book?", answer: "We recommend booking at least 48 hours in advance, especially during peak seasons (October-April). For sunrise rides or specific horses, booking 3-7 days ahead is ideal." },
-      { question: "Can I modify or cancel my booking?", answer: "Cancellation policy: 48+ hours before: 100% refund. 24-48 hours before: 50% refund. Less than 24 hours: No refund. Modifications are free if made 48+ hours in advance." },
+      {
+        question: "How do I book a horse riding experience?",
+        answer: "Browse our verified stables, compare packages and reviews, select your preferred option, choose a date and party size, then confirm. You receive instant email confirmation. The entire process takes under 5 minutes."
+      },
+      {
+        question: "How far in advance should I book?",
+        answer: "We recommend booking at least 48 hours in advance — especially during peak season (October–April). For sunrise rides, private sessions, or specific horses, 3–7 days ahead is ideal. Last-minute availability is occasionally available via our concierge."
+      },
+      {
+        question: "Can I modify or cancel my booking?",
+        answer: "48+ hours before your ride: 100% refund. 24–48 hours before: 50% refund. Less than 24 hours: no refund. Modifications are free if made 48+ hours in advance. All changes must be made through the PyraRides platform."
+      },
+      {
+        question: "Can I book for a group?",
+        answer: "Yes — most packages accommodate 1–12 guests. For larger groups (weddings, corporate events, film productions), contact our concierge team at support@pyrarides.com for a bespoke arrangement."
+      },
     ]
   },
   {
-    category: "Payment & Pricing",
+    category: "Payments",
     items: [
-      { question: "What payment methods do you accept?", answer: "We accept major credit cards (Visa, Mastercard), debit cards, and some local payment methods." },
-      { question: "Are there any hidden fees?", answer: "No hidden fees. The price shown is the final price you pay. Optional extras are clearly marked as additional services." },
+      {
+        question: "What payment methods do you accept?",
+        answer: "We accept Visa, Mastercard, and major debit cards. Local Egyptian payment options are being added. All payments are processed securely via our certified payment partners — PyraRides never stores your card details."
+      },
+      {
+        question: "Are prices shown in EGP?",
+        answer: "Yes. All prices are in Egyptian Pounds (EGP) unless otherwise specified. There are no hidden fees — the price shown at checkout is the final price you pay."
+      },
+      {
+        question: "When am I charged?",
+        answer: "You are charged at the time of booking confirmation. In the event of a cancelled session by the stable or a force-majeure cancellation by PyraRides, a full refund is issued within 5 business days."
+      },
     ]
   },
   {
-    category: "Safety & Requirements",
+    category: "Safety",
     items: [
-      { question: "Is horse riding safe for beginners?", answer: "Yes! All our verified stables provide safety helmets, professional guides, gentle well-trained horses, and a safety briefing before each ride." },
-      { question: "Are there age restrictions?", answer: "Children: Usually 6+ years old (must be accompanied by an adult). Teenagers: 13-17 (parental consent required). Adults: No upper age limit if physically fit." },
+      {
+        question: "Is horse riding safe for complete beginners?",
+        answer: "Absolutely. All PyraRides partner stables provide certified safety helmets, well-trained gentle horses matched to your experience level, a mandatory safety briefing before each ride, and a qualified guide throughout your journey."
+      },
+      {
+        question: "Are there age or weight restrictions?",
+        answer: "Children aged 6 and above are welcome, accompanied by a guardian. Riders aged 13–17 require signed parental consent. There is no upper age limit for adults who are physically fit. Weight limits (typically 110 kg / 240 lbs) may apply per stable — displayed on the booking page."
+      },
+      {
+        question: "What should I wear?",
+        answer: "Closed-toe shoes or boots are required. Long trousers are strongly recommended to prevent saddle chafing. Helmets are provided free of charge. For sunrise or early rides, bring a light jacket — the desert can be cool before 8 AM."
+      },
     ]
   },
   {
-    category: "Location & Logistics",
+    category: "Logistics",
     items: [
-      { question: "Where are the stables located?", answer: "PyraRides stables are in two main areas: Giza Plateau (near the Great Pyramids and Sphinx) and Saqqara Desert (near the Step Pyramid complex)." },
-      { question: "What time should I arrive?", answer: "Please arrive 15-20 minutes before your scheduled ride time for check-in, safety briefing, and equipment fitting." },
+      {
+        question: "Where are the stables located?",
+        answer: "Our stables are concentrated in two areas: the Giza Plateau (a short walk from the Great Pyramid and the Sphinx) and the Saqqara Desert (near the Step Pyramid complex, approximately 30 km south of Cairo). Exact locations with maps are shown on each stable's page."
+      },
+      {
+        question: "Is transport from Cairo or Giza hotels available?",
+        answer: "Yes. Many of our packages include hotel pickup from central Cairo and Giza. Alternatively, our concierge team can arrange private transfers. Contact us at support@pyrarides.com with your hotel name and preferred pick-up time."
+      },
+      {
+        question: "What time should I arrive?",
+        answer: "Please arrive 15–20 minutes before your scheduled ride for check-in, helmet fitting, and safety briefing. Late arrivals may result in a shortened ride, as stables operate on strict schedules to manage horse welfare."
+      },
+    ]
+  },
+  {
+    category: "Circle Loyalty",
+    items: [
+      {
+        question: "How does the Circle Loyalty programme work?",
+        answer: "Every EGP 100 spent earns you points. Progress through four tiers: Bronze (0–500 pts), Silver (500–1,500 pts), Gold (1,500–3,500 pts), and Platinum (3,500+ pts). Higher tiers unlock priority booking, exclusive packages, and complimentary upgrades."
+      },
+      {
+        question: "Do points expire?",
+        answer: "Points are valid for 24 months from the date they were earned. Your tier status is reviewed quarterly. If activity drops below a tier threshold for two consecutive quarters, your tier may be adjusted. You'll receive a notice before any change takes effect."
+      },
     ]
   },
 ];
 
 export default function FaqPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [openItems, setOpenItems] = useState<string[]>([]);
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  const toggleItem = (key: string) => {
-    setOpenItems((prev) => prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]);
-  };
+  const filtered = faqData
+    .map((cat) => ({
+      ...cat,
+      items: cat.items.filter(
+        (item) =>
+          (!query || item.question.toLowerCase().includes(query.toLowerCase()) || item.answer.toLowerCase().includes(query.toLowerCase())) &&
+          (!activeCategory || cat.category === activeCategory)
+      ),
+    }))
+    .filter((cat) => cat.items.length > 0);
 
-  const filteredData = faqData.map((cat) => ({
-    ...cat,
-    items: cat.items.filter(
-      (item) =>
-        !searchQuery ||
-        item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.answer.toLowerCase().includes(searchQuery.toLowerCase())
-    ),
-  })).filter((cat) => cat.items.length > 0);
+  const toggle = (key: string) => setOpen((prev) => (prev === key ? null : key));
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <Navbar />
-      <div className="relative h-[300px] w-full overflow-hidden mt-16">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#2D4A6E]/20 to-black/90 z-10" />
-        <img src="/hero-bg.webp" alt="FAQ" className="absolute inset-0 w-full h-full object-cover opacity-30" />
-        <div className="relative z-20 container mx-auto px-4 h-full flex flex-col justify-end pb-12">
-          <Breadcrumbs items={[{ label: "FAQ" }]} />
-          <h1 className="text-4xl md:text-5xl font-bold text-white mt-4">Frequently Asked Questions</h1>
-          <p className="text-white/60 mt-2">Everything you need to know about PyraRides</p>
-        </div>
-      </div>
 
-      <div className="mx-auto max-w-4xl px-4 py-12 md:px-8">
-        <div className="relative mb-8">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
-          <input
-            type="text"
-            placeholder="Search questions..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-12 pl-12 pr-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-[#2D4A6E]/50"
-          />
+      {/* Hero */}
+      <section className="relative h-[55vh] min-h-[380px] overflow-hidden">
+        <img src={heroImg} alt="Pyramids" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-foreground/50 via-foreground/30 to-background" />
+        <div className="relative h-full container flex flex-col justify-end pb-16">
+          <motion.p
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-[11px] tracking-luxury uppercase text-background/70 mb-4"
+          >
+            PyraRides · Help
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.1 }}
+            className="font-display text-5xl md:text-7xl text-background leading-[0.95]"
+          >
+            Frequently<br />asked
+          </motion.h1>
         </div>
+      </section>
 
-        <div className="space-y-10">
-          {filteredData.map((category) => (
-            <div key={category.category}>
-              <h2 className="text-xl font-bold text-white mb-4 border-b border-white/10 pb-2">{category.category}</h2>
-              <div className="space-y-3">
-                {category.items.map((item, idx) => {
-                  const key = `${category.category}-${idx}`;
-                  const isOpen = openItems.includes(key);
-                  return (
-                    <Card key={idx} className="bg-white/5 border-white/10 overflow-hidden">
-                      <button className="w-full flex items-center justify-between p-5 text-left" onClick={() => toggleItem(key)}>
-                        <span className="font-medium text-white pr-4">{item.question}</span>
-                        <ChevronDown className={`h-5 w-5 text-white/60 flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
-                      </button>
-                      {isOpen && (
-                        <div className="px-5 pb-5 text-white/70 text-sm leading-relaxed border-t border-white/10 pt-4">
-                          {item.answer}
+      {/* Search + filters */}
+      <section className="container py-12">
+        <Reveal>
+          <div className="relative mb-8 max-w-xl">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-ink-muted" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search questions…"
+              className="w-full pl-12 pr-4 py-4 bg-transparent border hairline text-base focus:outline-none focus:border-foreground transition-colors placeholder:text-ink-muted/50"
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setActiveCategory(null)}
+              className={`px-4 py-1.5 text-[11px] tracking-luxury uppercase border transition-colors ${!activeCategory ? "bg-foreground text-background border-foreground" : "border-hairline text-ink-muted hover:border-foreground hover:text-foreground"}`}
+            >
+              All
+            </button>
+            {faqData.map((cat) => (
+              <button
+                key={cat.category}
+                onClick={() => setActiveCategory((p) => p === cat.category ? null : cat.category)}
+                className={`px-4 py-1.5 text-[11px] tracking-luxury uppercase border transition-colors ${activeCategory === cat.category ? "bg-foreground text-background border-foreground" : "border-hairline text-ink-muted hover:border-foreground hover:text-foreground"}`}
+              >
+                {cat.category}
+              </button>
+            ))}
+          </div>
+        </Reveal>
+      </section>
+
+      {/* FAQ list */}
+      <section className="container pb-32 max-w-4xl">
+        {filtered.length === 0 ? (
+          <div className="py-20 text-center text-ink-muted">
+            <p className="font-display text-3xl mb-3">No results found.</p>
+            <p className="text-sm">Try a different search or browse all categories above.</p>
+          </div>
+        ) : (
+          <div className="space-y-14">
+            {filtered.map((cat) => (
+              <div key={cat.category}>
+                <Reveal>
+                  <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-6 border-t hairline pt-8">{cat.category}</p>
+                </Reveal>
+                <div className="space-y-0">
+                  {cat.items.map((item, idx) => {
+                    const key = `${cat.category}-${idx}`;
+                    const isOpen = open === key;
+                    return (
+                      <Reveal key={key} delay={idx * 0.04}>
+                        <div className="border-b hairline">
+                          <button
+                            onClick={() => toggle(key)}
+                            className="w-full flex items-start justify-between gap-6 py-6 text-left group"
+                          >
+                            <span className="font-display text-xl md:text-2xl leading-snug group-hover:opacity-70 transition-opacity">
+                              {item.question}
+                            </span>
+                            <span className="flex-shrink-0 mt-1">
+                              {isOpen ? <Minus className="size-4 text-ink-muted" /> : <Plus className="size-4 text-ink-muted" />}
+                            </span>
+                          </button>
+                          <AnimatePresence initial={false}>
+                            {isOpen && (
+                              <motion.div
+                                key="answer"
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                                className="overflow-hidden"
+                              >
+                                <p className="pb-6 text-ink-soft leading-relaxed text-pretty pr-10">{item.answer}</p>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </div>
-                      )}
-                    </Card>
-                  );
-                })}
+                      </Reveal>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
-          {filteredData.length === 0 && (
-            <div className="text-center py-16 text-white/40">No questions found matching "{searchQuery}"</div>
-          )}
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Still need help */}
+      <section className="bg-foreground text-background">
+        <div className="container py-16 grid md:grid-cols-12 gap-8 items-center">
+          <div className="md:col-span-8">
+            <p className="text-[11px] tracking-luxury uppercase text-background/60 mb-3">Still need help?</p>
+            <h3 className="font-display text-3xl md:text-4xl">Our concierge team is always available.</h3>
+          </div>
+          <div className="md:col-span-4 md:text-right">
+            <a
+              href="/contact"
+              className="inline-flex items-center gap-2 px-6 py-3 border border-background/30 text-background text-[11px] tracking-luxury uppercase hover:bg-background hover:text-foreground transition-colors"
+            >
+              Contact us
+            </a>
+          </div>
         </div>
-      </div>
+      </section>
+
       <Footer />
     </div>
   );

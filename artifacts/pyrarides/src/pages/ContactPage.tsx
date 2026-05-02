@@ -1,102 +1,223 @@
-import { Mail, Clock, Zap, Headphones } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import Breadcrumbs from "@/components/shared/Breadcrumbs";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Mail, Clock, Globe, MessageSquare, ArrowRight } from "lucide-react";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
+import { Reveal } from "@/components/shared/Motion";
+import { toast } from "sonner";
+import heroImg from "@/assets/hero-pyramids.jpg";
+
+const INQUIRY_TYPES = [
+  "Booking question",
+  "Cancellation / refund",
+  "Payment issue",
+  "Stable information",
+  "Partnership enquiry",
+  "Feedback / complaint",
+  "Other",
+];
 
 export default function ContactPage() {
+  const [form, setForm] = useState({ name: "", email: "", phone: "", type: "", message: "" });
+  const [sending, setSending] = useState(false);
+
+  const update = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSending(true);
+    await new Promise((r) => setTimeout(r, 900));
+    setSending(false);
+    setForm({ name: "", email: "", phone: "", type: "", message: "" });
+    toast.success("Message received.", { description: "We'll respond within 4 hours." });
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <Navbar />
-      <div className="relative h-[300px] w-full overflow-hidden mt-16">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#2D4A6E]/20 to-black/90 z-10" />
-        <img src="/hero-bg.webp" alt="Contact" className="absolute inset-0 w-full h-full object-cover opacity-30" />
-        <div className="relative z-20 container mx-auto px-4 h-full flex flex-col justify-end pb-12">
-          <Breadcrumbs items={[{ label: "Contact Us" }]} />
-          <h1 className="text-4xl md:text-5xl font-bold text-white mt-4">Get In Touch</h1>
-          <p className="text-white/60 mt-2 max-w-2xl">We're here to help you plan your perfect pyramid adventure.</p>
-        </div>
-      </div>
 
-      <div className="border-y border-white/10 bg-white/5">
-        <div className="mx-auto max-w-6xl px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-            {[
-              { icon: Zap, title: "Average Response", sub: "Under 4 hours" },
-              { icon: Clock, title: "Available 7 Days", sub: "9 AM - 6 PM EET" },
-              { icon: Headphones, title: "Multilingual", sub: "English & Arabic" },
-            ].map(({ icon: Icon, title, sub }, idx) => (
-              <div key={idx} className="flex items-center justify-center md:justify-start gap-4">
-                <div className="p-3 rounded-full bg-[#2D4A6E]/20"><Icon className="h-6 w-6 text-[#2D4A6E]" /></div>
-                <div><p className="font-bold text-white">{title}</p><p className="text-sm text-white/60">{sub}</p></div>
+      {/* Hero */}
+      <section className="relative h-[55vh] min-h-[380px] overflow-hidden">
+        <img src={heroImg} alt="Pyramids" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-foreground/50 via-foreground/30 to-background" />
+        <div className="relative h-full container flex flex-col justify-end pb-16">
+          <motion.p
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-[11px] tracking-luxury uppercase text-background/70 mb-4"
+          >
+            PyraRides · Concierge
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.1 }}
+            className="font-display text-5xl md:text-7xl text-background leading-[0.95]"
+          >
+            Get in<br />touch
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="mt-4 text-background/60 text-sm max-w-lg"
+          >
+            Our concierge team responds within 4 hours, every day of the year.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* Stats bar */}
+      <div className="border-b hairline bg-surface/40">
+        <div className="container py-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {[
+            { icon: Clock, label: "Response time", value: "Under 4 hours" },
+            { icon: Globe, label: "Languages", value: "English & Arabic" },
+            { icon: MessageSquare, label: "Available", value: "Every day, 8 AM – 8 PM EET" },
+          ].map(({ icon: Icon, label, value }) => (
+            <div key={label} className="flex items-center gap-4">
+              <div className="size-10 flex-shrink-0 border hairline flex items-center justify-center">
+                <Icon className="size-4 text-ink-muted" />
               </div>
-            ))}
-          </div>
+              <div>
+                <p className="text-[10px] tracking-luxury uppercase text-ink-muted">{label}</p>
+                <p className="font-medium text-sm">{value}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 py-16 md:px-8">
-        <div className="grid gap-12 lg:grid-cols-2">
-          <section>
-            <h2 className="mb-2 text-2xl font-bold text-white">Send us a message</h2>
-            <p className="text-white/60 mb-6">We typically respond within 4 hours</p>
-            <Card className="p-6 bg-white/5 border-white/10">
-              <form className="space-y-6">
-                <div className="space-y-2"><Label htmlFor="name" className="text-white">Full Name *</Label><Input id="name" placeholder="John Doe" required className="bg-white/5 border-white/10 text-white placeholder:text-white/30" /></div>
-                <div className="space-y-2"><Label htmlFor="email" className="text-white">Email Address *</Label><Input id="email" type="email" placeholder="your@email.com" required className="bg-white/5 border-white/10 text-white placeholder:text-white/30" /></div>
-                <div className="space-y-2"><Label htmlFor="phone" className="text-white">Phone Number (optional)</Label><Input id="phone" type="tel" placeholder="+20 123 456 7890" className="bg-white/5 border-white/10 text-white placeholder:text-white/30" /></div>
-                <div className="space-y-2">
-                  <Label htmlFor="inquiry-type" className="text-white">Inquiry Type *</Label>
-                  <select id="inquiry-type" className="flex h-10 w-full rounded-md border border-white/10 bg-black/50 px-3 py-2 text-sm text-white" required>
-                    <option value="">Select a topic</option>
-                    <option value="booking">Booking Question</option>
-                    <option value="cancellation">Cancellation / Refund</option>
-                    <option value="payment">Payment Issue</option>
-                    <option value="stable">Stable Information</option>
-                    <option value="partnership">Partnership Inquiry</option>
-                    <option value="feedback">Feedback / Complaint</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div className="space-y-2"><Label htmlFor="message" className="text-white">Message *</Label><Textarea id="message" rows={6} placeholder="Please provide as much detail as possible..." required className="bg-white/5 border-white/10 text-white placeholder:text-white/30" /></div>
-                <Button type="submit" className="w-full bg-[#2D4A6E] hover:bg-[#2D4A6E]/90 text-white" size="lg">Send Message</Button>
-              </form>
-            </Card>
-          </section>
+      {/* Main content */}
+      <section className="container py-24 grid lg:grid-cols-12 gap-16">
+        {/* Form */}
+        <div className="lg:col-span-7">
+          <Reveal>
+            <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-3">Send a message</p>
+            <h2 className="font-display text-4xl md:text-5xl mb-8 leading-tight">We're here to help.</h2>
+          </Reveal>
 
-          <section className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div>
+                <label className="text-[11px] tracking-luxury uppercase text-ink-muted block mb-2">Full Name *</label>
+                <input
+                  value={form.name} onChange={update("name")} required
+                  placeholder="Ahmed Al-Rashid"
+                  className="w-full bg-transparent border-b hairline pb-3 text-base focus:outline-none focus:border-foreground transition-colors placeholder:text-ink-muted/50"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] tracking-luxury uppercase text-ink-muted block mb-2">Email Address *</label>
+                <input
+                  type="email" value={form.email} onChange={update("email")} required
+                  placeholder="your@email.com"
+                  className="w-full bg-transparent border-b hairline pb-3 text-base focus:outline-none focus:border-foreground transition-colors placeholder:text-ink-muted/50"
+                />
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div>
+                <label className="text-[11px] tracking-luxury uppercase text-ink-muted block mb-2">Phone (optional)</label>
+                <input
+                  type="tel" value={form.phone} onChange={update("phone")}
+                  placeholder="+20 xxx xxx xxxx"
+                  className="w-full bg-transparent border-b hairline pb-3 text-base focus:outline-none focus:border-foreground transition-colors placeholder:text-ink-muted/50"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] tracking-luxury uppercase text-ink-muted block mb-2">Enquiry type *</label>
+                <select
+                  value={form.type} onChange={update("type") as any} required
+                  className="w-full bg-transparent border-b hairline pb-3 text-base focus:outline-none focus:border-foreground transition-colors text-foreground"
+                >
+                  <option value="" className="bg-background">Select a topic</option>
+                  {INQUIRY_TYPES.map((t) => <option key={t} value={t} className="bg-background">{t}</option>)}
+                </select>
+              </div>
+            </div>
+
             <div>
-              <h2 className="mb-2 text-2xl font-bold text-white">Contact Information</h2>
-              <p className="text-white/60 mb-6">You can reach us anytime via email</p>
-              <Card className="p-6 bg-white/5 border-white/10 hover:border-[#2D4A6E]/50 transition-colors group">
+              <label className="text-[11px] tracking-luxury uppercase text-ink-muted block mb-2">Message *</label>
+              <textarea
+                value={form.message} onChange={update("message")} required rows={6}
+                placeholder="Tell us how we can help..."
+                className="w-full bg-transparent border hairline p-4 text-sm focus:outline-none focus:border-foreground transition-colors resize-none placeholder:text-ink-muted/50"
+              />
+            </div>
+
+            <button
+              type="submit" disabled={sending}
+              className="inline-flex items-center gap-3 px-7 py-4 bg-foreground text-background text-[12px] tracking-[0.2em] uppercase hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {sending ? "Sending…" : (<>Send message <ArrowRight className="size-4" /></>)}
+            </button>
+          </form>
+        </div>
+
+        {/* Contact info */}
+        <div className="lg:col-span-4 lg:col-start-9 space-y-10">
+          <Reveal delay={0.2}>
+            <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-5">Contact details</p>
+
+            <div className="space-y-8">
+              <div className="border-t hairline pt-6">
                 <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-lg bg-[#2D4A6E]/10"><Mail className="h-6 w-6 text-[#2D4A6E]" /></div>
+                  <Mail className="size-4 text-ink-muted mt-0.5 flex-shrink-0" />
                   <div>
-                    <h3 className="font-semibold text-white mb-1">Email Support</h3>
-                    <p className="text-sm text-white/60 mb-2">Best for: General inquiries, booking support</p>
-                    <a href="mailto:support@pyrarides.com" className="text-[#2D4A6E] hover:text-[#2D4A6E]/80 font-medium">support@pyrarides.com</a>
-                    <p className="text-xs text-white/40 mt-2">⚡ Response time: 2-4 hours</p>
+                    <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-1">General support</p>
+                    <a href="mailto:support@pyrarides.com" className="text-sm hover:opacity-70 transition-opacity">support@pyrarides.com</a>
                   </div>
                 </div>
-              </Card>
-            </div>
-            <Card className="bg-gradient-to-br from-[#2D4A6E]/20 to-black border-[#2D4A6E]/30">
-              <CardContent className="pt-6 pb-6">
-                <h3 className="font-bold text-white mb-4 flex items-center gap-2"><Clock className="h-5 w-5 text-[#2D4A6E]" />Business Hours</h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between border-b border-white/10 pb-2"><span className="text-white/60">Monday - Sunday</span><span className="font-semibold text-white">9:00 AM - 6:00 PM EET</span></div>
-                  <div className="flex justify-between border-b border-white/10 pb-2"><span className="text-white/60">Emergency Support</span><span className="font-semibold text-[#2D4A6E]">Available 24/7</span></div>
-                  <div className="flex justify-between"><span className="text-white/60">Average Response</span><span className="font-semibold text-green-400">Under 4 hours</span></div>
+              </div>
+
+              <div className="border-t hairline pt-6">
+                <div className="flex items-start gap-4">
+                  <Mail className="size-4 text-ink-muted mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-1">Stable partnerships</p>
+                    <a href="mailto:stables@pyrarides.com" className="text-sm hover:opacity-70 transition-opacity">stables@pyrarides.com</a>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </section>
+              </div>
+
+              <div className="border-t hairline pt-6">
+                <div className="flex items-start gap-4">
+                  <Mail className="size-4 text-ink-muted mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-1">Privacy & legal</p>
+                    <a href="mailto:privacy@pyrarides.com" className="text-sm hover:opacity-70 transition-opacity">privacy@pyrarides.com</a>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t hairline pt-6">
+                <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-3">Business hours</p>
+                <div className="space-y-2 text-sm text-ink-soft">
+                  <div className="flex justify-between">
+                    <span>Monday – Sunday</span>
+                    <span>8:00 AM – 8:00 PM EET</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Emergency line</span>
+                    <span className="text-foreground">24 / 7</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t hairline pt-6">
+                <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-2">Address</p>
+                <p className="text-sm text-ink-soft leading-relaxed">
+                  PyraRides Egypt LLC<br />
+                  Giza Plateau Road, Nazlet Al-Semman<br />
+                  Giza Governorate, Egypt
+                </p>
+              </div>
+            </div>
+          </Reveal>
         </div>
-      </div>
+      </section>
+
       <Footer />
     </div>
   );

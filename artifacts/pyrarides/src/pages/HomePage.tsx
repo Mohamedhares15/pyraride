@@ -1,10 +1,21 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "wouter";
-import { ArrowUpRight, MapPin, Loader2 } from "lucide-react";
+import { ArrowUpRight, MapPin, Loader2, Star, Quote } from "lucide-react";
 import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import heroImg from "@/assets/hero-pyramids.jpg";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
+
+interface Review {
+  id: string;
+  title: string;
+  body: string;
+  rating: number;
+  authorName: string;
+  packageName?: string;
+  stableName?: string;
+  createdAt: string;
+}
 
 interface Stable {
   id: string;
@@ -33,6 +44,44 @@ const fmtDuration = (mins: number) => {
   return m === 0 ? `${h}h` : `${h}h ${m}min`;
 };
 
+const FALLBACK_REVIEWS: Review[] = [
+  {
+    id: "r1",
+    title: "An hour outside of time",
+    body: "The sunrise over the Great Pyramid from horseback is something I will carry for the rest of my life. Yara and the PyraRides team handled every detail — I only had to show up.",
+    rating: 5,
+    authorName: "Isabelle M.",
+    packageName: "Sunrise at Giza",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "r2",
+    title: "Utterly unlike anything else",
+    body: "As a seasoned rider, I was particular about my horse and my route. The stable team listened, matched me perfectly, and guided me past the Sphinx at golden hour. Exceptional.",
+    rating: 5,
+    authorName: "James K.",
+    packageName: "Desert Trail",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "r3",
+    title: "The finest way to see Egypt",
+    body: "We booked the private family package for six. From transfer coordination to the ride itself, every moment was curated with quiet elegance. We are already planning our return.",
+    rating: 5,
+    authorName: "Fatima Al-Hassan",
+    packageName: "Private Family Journey",
+    createdAt: new Date().toISOString(),
+  },
+];
+
+const StarRow = ({ rating }: { rating: number }) => (
+  <div className="flex items-center gap-0.5">
+    {[1, 2, 3, 4, 5].map((i) => (
+      <Star key={i} className={`size-3 ${i <= rating ? "fill-current" : "fill-transparent"}`} />
+    ))}
+  </div>
+);
+
 const HomePage = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
@@ -50,8 +99,14 @@ const HomePage = () => {
     queryFn: () => fetch("/api/packages").then((r) => r.json()),
   });
 
+  const { data: reviewsData } = useQuery<{ reviews: Review[] }>({
+    queryKey: ["featured-reviews"],
+    queryFn: () => fetch("/api/reviews?limit=3").then((r) => r.json()),
+  });
+
   const stables = stablesData?.stables?.slice(0, 3) ?? [];
   const packages = packagesData?.slice(0, 3) ?? [];
+  const reviews = reviewsData?.reviews?.slice(0, 3) ?? FALLBACK_REVIEWS;
 
   return (
     <>
@@ -206,6 +261,40 @@ const HomePage = () => {
             ))}
           </StaggerGroup>
         )}
+      </section>
+
+      {/* GUEST LETTERS */}
+      <section className="container py-32 md:py-44">
+        <div className="flex items-end justify-between mb-16 border-b hairline pb-6">
+          <div>
+            <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-3">Guest letters</p>
+            <h2 className="font-display text-4xl md:text-6xl leading-none">In their own words.</h2>
+          </div>
+          <Link to="/stables" className="hidden sm:inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-ink-muted hover:text-foreground transition-colors">
+            All reviews <ArrowUpRight className="size-3.5" />
+          </Link>
+        </div>
+
+        <StaggerGroup className="grid gap-px md:grid-cols-3 border hairline" gap={0.1}>
+          {reviews.map((r) => (
+            <StaggerItem key={r.id}>
+              <div className="p-8 md:p-10 flex flex-col gap-6 h-full bg-background hover:bg-surface transition-colors duration-500">
+                <Quote className="size-5 text-ink-muted/40 flex-shrink-0" />
+                <div className="flex-1">
+                  <StarRow rating={r.rating} />
+                  <h3 className="font-display text-xl md:text-2xl mt-4 leading-snug">{r.title}</h3>
+                  <p className="mt-3 text-ink-soft text-sm leading-relaxed text-pretty line-clamp-4">{r.body}</p>
+                </div>
+                <div className="border-t hairline pt-5">
+                  <p className="font-medium text-sm">{r.authorName}</p>
+                  {r.packageName && (
+                    <p className="text-[10px] tracking-luxury uppercase text-ink-muted mt-0.5">{r.packageName}</p>
+                  )}
+                </div>
+              </div>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
       </section>
 
       {/* CTA */}

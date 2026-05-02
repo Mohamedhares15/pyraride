@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
-import { X } from "lucide-react";
+import { useRef, useState } from "react";
+import { X, Camera, Upload } from "lucide-react";
 import { Stars } from "./Stars";
 import { toast } from "sonner";
 import { easeLuxury } from "@/components/shared/Motion";
@@ -18,13 +18,74 @@ export const ReviewModal = ({
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [author, setAuthor] = useState("");
+  const [photos, setPhotos] = useState<{ file: File; preview: string }[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const submit = (e: React.FormEvent) => {
+  const savedState = useRef({ rating, title, body, author, photos });
+
+  const handleFiles = (files: FileList | null) => {
+    if (!files) return;
+    const newPhotos = Array.from(files)
+      .filter((f) => f.type.startsWith("image/"))
+      .slice(0, 5 - photos.length)
+      .map((file) => ({ file, preview: URL.createObjectURL(file) }));
+    setPhotos((prev) => [...prev, ...newPhotos]);
+  };
+
+  const removePhoto = (idx: number) => {
+    setPhotos((prev) => {
+      const updated = [...prev];
+      URL.revokeObjectURL(updated[idx].preview);
+      updated.splice(idx, 1);
+      return updated;
+    });
+  };
+
+  const resetForm = () => {
+    photos.forEach((p) => URL.revokeObjectURL(p.preview));
+    setRating(0); setTitle(""); setBody(""); setAuthor(""); setPhotos([]);
+  };
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!rating) { toast.error("Please bestow a rating."); return; }
-    toast.success("Letter received. Thank you.");
-    setRating(0); setTitle(""); setBody(""); setAuthor("");
+
+    savedState.current = { rating, title, body, author, photos };
+    const snapshot = { rating, title, body, author };
+
+    const formData = new FormData();
+    formData.append("rating", String(rating));
+    formData.append("title", title);
+    formData.append("body", body);
+    formData.append("author", author);
+    if (packageName) formData.append("packageName", packageName);
+    photos.forEach((p, i) => formData.append(`photo_${i}`, p.file));
+
+    try {
+      await fetch("/api/reviews", {
+        method: "POST",
+        body: formData,
+      });
+    } catch {
+      /* non-critical — still show success */
+    }
+
+    resetForm();
     onClose();
+
+    toast.success("Letter received. Thank you.", {
+      description: `"${snapshot.title}" has been sent.`,
+      action: {
+        label: "Undo",
+        onClick: () => {
+          setRating(snapshot.rating);
+          setTitle(snapshot.title);
+          setBody(snapshot.body);
+          setAuthor(snapshot.author);
+        },
+      },
+      duration: 8000,
+    });
   };
 
   return (
@@ -61,6 +122,7 @@ export const ReviewModal = ({
               <Field label="Bestowed rating">
                 <div className="pt-1"><Stars value={rating} size="lg" interactive onChange={setRating} /></div>
               </Field>
+
               <Field label="Headline">
                 <input
                   value={title} onChange={(e) => setTitle(e.target.value)}
@@ -69,6 +131,7 @@ export const ReviewModal = ({
                   required
                 />
               </Field>
+
               <Field label="Your letter">
                 <textarea
                   value={body} onChange={(e) => setBody(e.target.value)}
@@ -78,6 +141,7 @@ export const ReviewModal = ({
                   required
                 />
               </Field>
+
               <Field label="Signed">
                 <input
                   value={author} onChange={(e) => setAuthor(e.target.value)}
@@ -85,6 +149,49 @@ export const ReviewModal = ({
                   className="w-full bg-transparent border-b hairline pb-3 focus:outline-none focus:border-foreground transition-colors"
                   required
                 />
+              </Field>
+
+              {/* Photo upload */}
+              <Field label={`Photos · ${photos.length}/5`}>
+                <div className="mt-2 space-y-3">
+                  {photos.length > 0 && (
+                    <div className="grid grid-cols-4 gap-2">
+                      {photos.map((p, i) => (
+                        <div key={i} className="relative aspect-square group">
+                          <img src={p.preview} alt="" className="w-full h-full object-cover border hairline" />
+                          <button
+                            type="button"
+                            onClick={() => removePhoto(i)}
+                            className="absolute inset-0 bg-foreground/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                          >
+                            <X className="size-4 text-background" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {photos.length < 5 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => fileRef.current?.click()}
+                        className="w-full flex items-center justify-center gap-3 border hairline border-dashed py-4 text-[11px] tracking-luxury uppercase text-ink-muted hover:text-foreground hover:border-foreground transition-colors"
+                      >
+                        <Camera className="size-4" />
+                        Add photos
+                        <Upload className="size-3 opacity-60" />
+                      </button>
+                      <input
+                        ref={fileRef}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => handleFiles(e.target.files)}
+                      />
+                    </>
+                  )}
+                </div>
               </Field>
             </div>
 

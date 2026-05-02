@@ -57,6 +57,26 @@ function requireAdmin(req: Request, res: Response, next: NextFunction): void {
   });
 }
 
+function requireStableOwnerOrAdmin(req: Request, res: Response, next: NextFunction): void {
+  const sid = req.cookies?.sid as string | undefined;
+  if (!sid) { res.status(401).json({ error: "Authentication required" }); return; }
+  findSessionUser(sid).then((user) => {
+    if (!user) { res.status(401).json({ error: "Authentication required" }); return; }
+    if (user.role === "admin") { req.sessionUser = user; next(); return; }
+    if (user.role !== "stable_owner") { res.status(403).json({ error: "Stable owner or admin access required" }); return; }
+    const stableId = req.params.id || req.params.stableId || req.body?.stableId;
+    if (stableId) {
+      const owned = (STABLES as any[]).find((s: any) => s.id === stableId && (s.ownerId === user.id || s.owner_id === user.id));
+      if (!owned) { res.status(403).json({ error: "You do not own this stable" }); return; }
+    }
+    req.sessionUser = user;
+    next();
+  }).catch((err: unknown) => {
+    console.error("requireStableOwnerOrAdmin error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  });
+}
+
 const router = Router();
 
 const TRANSPORT_ZONES: any[] = [
@@ -317,7 +337,7 @@ router.get("/stables/:id", (req, res) => {
   return res.json(stable);
 });
 
-router.put("/stables/:id", requireAuth, (req, res) => {
+router.put("/stables/:id", requireStableOwnerOrAdmin, (req, res) => {
   const idx = STABLES.findIndex(s => s.id === req.params.id);
   if (idx === -1) { res.status(404).json({ error: "Stable not found" }); return; }
   (STABLES[idx] as any) = { ...STABLES[idx], ...req.body, id: req.params.id };
@@ -380,20 +400,20 @@ router.get("/horses", (req, res) => {
   res.json({ horses: results, total: results.length });
 });
 
-router.post("/horses", requireAuth, (req, res) => {
+router.post("/horses", requireStableOwnerOrAdmin, (req, res) => {
   const horse = { id: "horse-" + Date.now(), isActive: true, media: [], ...req.body };
   HORSES.push(horse as any);
   res.json({ success: true, horse });
 });
 
-router.patch("/horses/:id", requireAuth, (req, res) => {
+router.patch("/horses/:id", requireStableOwnerOrAdmin, (req, res) => {
   const idx = HORSES.findIndex((h: any) => h.id === req.params.id);
   if (idx === -1) { res.status(404).json({ error: "Horse not found" }); return; }
   (HORSES[idx] as any) = { ...HORSES[idx], ...req.body };
   res.json({ success: true, horse: HORSES[idx] });
 });
 
-router.delete("/horses/:id", requireAuth, (req, res) => {
+router.delete("/horses/:id", requireStableOwnerOrAdmin, (req, res) => {
   const idx = HORSES.findIndex((h: any) => h.id === req.params.id);
   if (idx !== -1) HORSES.splice(idx, 1);
   res.json({ success: true });
@@ -792,7 +812,7 @@ SUGGESTIONS: ["suggestion 1", "suggestion 2", "suggestion 3"]`;
     ];
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-5-mini",
+      model: "gpt-4o-mini",
       max_completion_tokens: 400,
       messages,
     });
@@ -1010,7 +1030,7 @@ router.patch("/admin/stables/:id/commission", requireAdmin, (req, res) => {
   res.json({ success: true, stableId: req.params.id, commissionRate });
 });
 
-router.get("/stables/:id/bookings", requireAuth, async (req, res) => {
+router.get("/stables/:id/bookings", requireStableOwnerOrAdmin, async (req, res) => {
   try {
     const { rows } = await (await import("@workspace/db")).pool.query(
       `SELECT b.id, b.horse_id, b.date, b.start_time, b.end_time, b.status, b.created_at,
