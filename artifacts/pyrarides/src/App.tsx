@@ -1,20 +1,20 @@
-import { Switch, Route, Router as WouterRouter, Link, useLocation } from "wouter";
+import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
+import { SiteLayout } from "@/components/shared/SiteLayout";
 
 const queryClient = new QueryClient();
 
 function LoadingSpinner() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black">
-      <Loader2 className="h-12 w-12 animate-spin text-[#D4AF37]" />
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <Loader2 className="h-10 w-10 animate-spin text-foreground/30" />
     </div>
   );
 }
 
-// Lazy page imports
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const StablesPage = lazy(() => import("@/pages/StablesPage"));
 const StableDetailPage = lazy(() => import("@/pages/StableDetailPage"));
@@ -39,31 +39,33 @@ const NotFoundPage = lazy(() => import("@/pages/not-found"));
 
 function Router() {
   return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <Switch>
-        <Route path="/" component={HomePage} />
-        <Route path="/stables" component={StablesPage} />
-        <Route path="/stables/:id" component={StableDetailPage} />
-        <Route path="/packages" component={PackagesPage} />
-        <Route path="/gallery" component={GalleryPage} />
-        <Route path="/about" component={AboutPage} />
-        <Route path="/contact" component={ContactPage} />
-        <Route path="/faq" component={FaqPage} />
-        <Route path="/signin" component={SignInPage} />
-        <Route path="/signup" component={SignUpPage} />
-        <Route path="/forgot-password" component={ForgotPasswordPage} />
-        <Route path="/reset-password" component={ResetPasswordPage} />
-        <Route path="/booking" component={BookingPage} />
-        <Route path="/dashboard/:rest*" component={DashboardPage} />
-        <Route path="/pricing" component={PricingPage} />
-        <Route path="/leaderboard" component={LeaderboardPage} />
-        <Route path="/training" component={TrainingPage} />
-        <Route path="/privacy" component={PrivacyPage} />
-        <Route path="/terms" component={TermsPage} />
-        <Route path="/offline" component={OfflinePage} />
-        <Route component={NotFoundPage} />
-      </Switch>
-    </Suspense>
+    <SiteLayout>
+      <Suspense fallback={<LoadingSpinner />}>
+        <Switch>
+          <Route path="/" component={HomePage} />
+          <Route path="/stables" component={StablesPage} />
+          <Route path="/stables/:id" component={StableDetailPage} />
+          <Route path="/packages" component={PackagesPage} />
+          <Route path="/gallery" component={GalleryPage} />
+          <Route path="/about" component={AboutPage} />
+          <Route path="/contact" component={ContactPage} />
+          <Route path="/faq" component={FaqPage} />
+          <Route path="/signin" component={SignInPage} />
+          <Route path="/signup" component={SignUpPage} />
+          <Route path="/forgot-password" component={ForgotPasswordPage} />
+          <Route path="/reset-password" component={ResetPasswordPage} />
+          <Route path="/booking" component={BookingPage} />
+          <Route path="/dashboard/:rest*" component={DashboardPage} />
+          <Route path="/pricing" component={PricingPage} />
+          <Route path="/leaderboard" component={LeaderboardPage} />
+          <Route path="/training" component={TrainingPage} />
+          <Route path="/privacy" component={PrivacyPage} />
+          <Route path="/terms" component={TermsPage} />
+          <Route path="/offline" component={OfflinePage} />
+          <Route component={NotFoundPage} />
+        </Switch>
+      </Suspense>
+    </SiteLayout>
   );
 }
 
