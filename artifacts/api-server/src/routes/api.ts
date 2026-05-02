@@ -1,5 +1,16 @@
 import { Router, Request, Response, NextFunction } from "express";
 import type { DbUser } from "../lib/auth-db";
+import {
+  getUserBookings,
+  createBooking,
+  createPackageBooking,
+  getUserPackageBookings,
+  createTrainingEnrollment,
+  getUserEnrollments,
+  createReview,
+  getStableReviews,
+  getUserLoyalty,
+} from "../lib/extended-db";
 
 declare global {
   namespace Express {
@@ -448,12 +459,32 @@ router.get("/weather", (req, res) => {
   });
 });
 
-router.get("/bookings", (_req, res) => {
-  res.json({ bookings: [], total: 0 });
+router.get("/bookings", requireAuth, async (req, res) => {
+  try {
+    const bookings = await getUserBookings(req.sessionUser!.id);
+    res.json({ bookings, total: bookings.length });
+  } catch (err: unknown) {
+    console.error("GET /bookings error:", err);
+    res.status(500).json({ error: "Failed to fetch bookings" });
+  }
 });
 
-router.post("/bookings", (req, res) => {
-  res.json({ success: true, booking: { id: "booking-new", ...req.body, status: "pending", createdAt: new Date().toISOString() } });
+router.post("/bookings", requireAuth, async (req, res) => {
+  const { stableId, horseId, date, startTime, endTime, durationHrs, notes } = req.body;
+  if (!stableId || !date || !startTime) {
+    res.status(400).json({ error: "stableId, date, and startTime are required" });
+    return;
+  }
+  try {
+    const booking = await createBooking({
+      userId: req.sessionUser!.id,
+      stableId, horseId, date, startTime, endTime, durationHrs, notes,
+    });
+    res.json({ success: true, booking });
+  } catch (err: unknown) {
+    console.error("POST /bookings error:", err);
+    res.status(500).json({ error: "Failed to create booking" });
+  }
 });
 
 router.get("/bookings/:id", (req, res) => {
@@ -476,8 +507,26 @@ router.post("/checkout", (req, res) => {
   res.json({ success: true, bookingId: "booking-" + Date.now(), ...req.body });
 });
 
-router.post("/checkout/package", (req, res) => {
-  res.json({ success: true, bookingId: "pkg-booking-" + Date.now(), ...req.body });
+router.post("/checkout/package", requireAuth, async (req, res) => {
+  const { packageId, date, startTime, ticketsCount, transportationZoneId, pickupLocationUrl } = req.body;
+  if (!packageId || !date) {
+    res.status(400).json({ error: "packageId and date are required" });
+    return;
+  }
+  try {
+    const booking = await createPackageBooking({
+      userId: req.sessionUser!.id,
+      packageId, date,
+      startTime: startTime ?? "10:00",
+      ticketsCount: ticketsCount ?? 1,
+      transportZoneId: transportationZoneId ?? undefined,
+      pickupLocationUrl: pickupLocationUrl ?? undefined,
+    });
+    res.json({ success: true, bookingId: booking.id, booking });
+  } catch (err: unknown) {
+    console.error("POST /checkout/package error:", err);
+    res.status(500).json({ error: "Failed to create package booking" });
+  }
 });
 
 router.get("/notifications", (_req, res) => {
@@ -496,8 +545,14 @@ router.get("/leaderboard", (_req, res) => {
   res.json({ riders: [], total: 0 });
 });
 
-router.get("/loyalty", (_req, res) => {
-  res.json({ points: 0, tier: "bronze", history: [] });
+router.get("/loyalty", requireAuth, async (req, res) => {
+  try {
+    const data = await getUserLoyalty(req.sessionUser!.id);
+    res.json(data);
+  } catch (err: unknown) {
+    console.error("GET /loyalty error:", err);
+    res.status(500).json({ error: "Failed to fetch loyalty data" });
+  }
 });
 
 router.get("/friends", (_req, res) => {
@@ -761,12 +816,41 @@ router.post("/notifications/video-call", (_req, res) => {
   res.json({ success: true });
 });
 
-router.get("/reviews", (_req, res) => {
+router.get("/reviews", async (req, res) => {
+  const { stableId } = req.query;
+  if (stableId) {
+    try {
+      const reviews = await getStableReviews(String(stableId));
+      res.json({ reviews, total: reviews.length });
+      return;
+    } catch (err: unknown) {
+      console.error("GET /reviews error:", err);
+      res.status(500).json({ error: "Failed to fetch reviews" });
+      return;
+    }
+  }
   res.json([]);
 });
 
-router.post("/reviews", (req, res) => {
-  res.json({ success: true, review: { id: "review-" + Date.now(), ...req.body } });
+router.post("/reviews", requireAuth, async (req, res) => {
+  const { bookingId, stableId, stableRating, horseRating, comment, photos } = req.body;
+  if (!stableId || !stableRating) {
+    res.status(400).json({ error: "stableId and stableRating are required" });
+    return;
+  }
+  try {
+    const review = await createReview({
+      userId: req.sessionUser!.id,
+      bookingId, stableId,
+      stableRating: Number(stableRating),
+      horseRating: Number(horseRating ?? stableRating),
+      comment, photos,
+    });
+    res.json({ success: true, review });
+  } catch (err: unknown) {
+    console.error("POST /reviews error:", err);
+    res.status(500).json({ error: "Failed to create review" });
+  }
 });
 
 router.get("/chat/conversations", (_req, res) => {
@@ -794,9 +878,16 @@ router.get("/admin/reviews", (_req, res) => {
   res.json({ reviews: [], total: 0 });
 });
 
-router.get("/stables/:id/reviews", (req, res) => {
-  const stable = STABLES.find(s => s.id === req.params.id);
-  res.json({ reviews: stable?.reviews || [], total: stable?.reviews?.length || 0 });
+router.get("/stables/:id/reviews", async (req, res) => {
+  try {
+    const reviews = await getStableReviews(req.params.id);
+    const fallbackStable = STABLES.find(s => s.id === req.params.id);
+    const merged = reviews.length > 0 ? reviews : (fallbackStable?.reviews ?? []);
+    res.json({ reviews: merged, total: merged.length });
+  } catch (err: unknown) {
+    console.error("GET /stables/:id/reviews error:", err);
+    res.status(500).json({ error: "Failed to fetch reviews" });
+  }
 });
 
 router.get("/horses/:id", (req, res) => {
@@ -813,12 +904,34 @@ router.get("/training", (_req, res) => {
   res.json(ACADEMIES);
 });
 
-router.get("/training/enrollments", (_req, res) => {
-  res.json([]);
+router.get("/training/enrollments", requireAuth, async (req, res) => {
+  try {
+    const enrollments = await getUserEnrollments(req.sessionUser!.id);
+    res.json(enrollments);
+  } catch (err: unknown) {
+    console.error("GET /training/enrollments error:", err);
+    res.status(500).json({ error: "Failed to fetch enrollments" });
+  }
 });
 
-router.post("/training/enroll", (req, res) => {
-  res.json({ success: true, enrollmentId: "enroll-" + Date.now(), ...req.body });
+router.post("/training/enroll", requireAuth, async (req, res) => {
+  const { programId, startDate, paymentMethod, paymentStructure } = req.body;
+  const academyId = req.body.academyId ?? req.body.academy_id;
+  if (!programId || !startDate) {
+    res.status(400).json({ error: "programId and startDate are required" });
+    return;
+  }
+  try {
+    const enrollment = await createTrainingEnrollment({
+      userId: req.sessionUser!.id,
+      academyId: academyId ?? "unknown",
+      programId, startDate, paymentMethod, paymentStructure,
+    });
+    res.json({ success: true, enrollmentId: enrollment.id, enrollment });
+  } catch (err: unknown) {
+    console.error("POST /training/enroll error:", err);
+    res.status(500).json({ error: "Failed to create enrollment" });
+  }
 });
 
 router.get("/stable-os/dashboard", (_req, res) => {

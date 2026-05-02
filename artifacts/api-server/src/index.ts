@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { initAuthSchema, seedAdminUser } from "./lib/auth-db";
+import { initExtendedSchema } from "./lib/extended-db";
 
 const rawPort = process.env["PORT"];
 
@@ -18,11 +19,21 @@ if (Number.isNaN(port) || port <= 0) {
 
 async function bootstrap() {
   await initAuthSchema();
-  await seedAdminUser({
-    email: "admin@pyrarides.com",
-    password: "Admin@2026",
-    fullName: "Admin User",
-  });
+  await initExtendedSchema();
+
+  const seedEmail = process.env["SEED_ADMIN_EMAIL"];
+  const seedPassword = process.env["SEED_ADMIN_PASSWORD"];
+
+  if (seedEmail && seedPassword) {
+    await seedAdminUser({
+      email: seedEmail,
+      password: seedPassword,
+      fullName: process.env["SEED_ADMIN_FULLNAME"] ?? "Admin",
+    });
+    logger.info("Admin seed: completed (idempotent)");
+  } else {
+    logger.info("Admin seed: skipped (SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD not set)");
+  }
 }
 
 bootstrap()
