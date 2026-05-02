@@ -1,4 +1,16 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
+import { randomBytes } from "crypto";
+
+type SessionUser = { id: string; email: string; fullName: string; role: string; profileImageUrl: null };
+const sessions = new Map<string, SessionUser>();
+
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  const sid = req.cookies?.sid as string | undefined;
+  if (!sid || !sessions.has(sid)) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  return next();
+}
 
 const router = Router();
 
@@ -323,24 +335,37 @@ router.get("/academies/:id", (req, res) => {
   return res.json(academy);
 });
 
-router.get("/auth/session", (_req, res) => {
-  res.json({ user: null });
+router.get("/auth/session", (req, res) => {
+  const sid = req.cookies?.sid as string | undefined;
+  const user = sid ? sessions.get(sid) ?? null : null;
+  res.json({ user });
 });
 
 router.post("/auth/signin", (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ error: "Email required" });
-  return res.json({ user: { id: "guest", email, fullName: "Guest User", role: "rider", profileImageUrl: null } });
+  const identifier: string | undefined = req.body.email ?? req.body.identifier;
+  if (!identifier) return res.status(400).json({ error: "Email or phone required" });
+  const sid = randomBytes(24).toString("hex");
+  const user: SessionUser = { id: "user-" + sid.slice(0, 8), email: identifier, fullName: "Guest User", role: "rider", profileImageUrl: null };
+  sessions.set(sid, user);
+  res.cookie("sid", sid, { httpOnly: true, sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000 });
+  return res.json({ user });
 });
 
-router.post("/auth/signout", (_req, res) => {
+router.post("/auth/signout", (req, res) => {
+  const sid = req.cookies?.sid as string | undefined;
+  if (sid) sessions.delete(sid);
+  res.clearCookie("sid");
   res.json({ success: true });
 });
 
 router.post("/auth/register", (req, res) => {
   const { email, fullName } = req.body;
   if (!email) return res.status(400).json({ error: "Email required" });
-  return res.json({ user: { id: "new-user", email, fullName: fullName || "New User", role: "rider", profileImageUrl: null } });
+  const sid = randomBytes(24).toString("hex");
+  const user: SessionUser = { id: "user-" + sid.slice(0, 8), email, fullName: fullName ?? "New User", role: "rider", profileImageUrl: null };
+  sessions.set(sid, user);
+  res.cookie("sid", sid, { httpOnly: true, sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000 });
+  return res.json({ user });
 });
 
 router.post("/auth/forgot-password", (_req, res) => {
@@ -489,6 +514,8 @@ router.get("/driver/orders/:id", (req, res) => {
 router.get("/analytics", (_req, res) => {
   res.json({ pageViews: 0, bookings: 0, revenue: 0 });
 });
+
+router.use("/admin", requireAuth);
 
 router.get("/admin/stables", (_req, res) => {
   res.json({ stables: STABLES, total: STABLES.length });
