@@ -264,7 +264,7 @@ export default function LoyaltyPage() {
               <div className="h-px w-full bg-foreground/10 overflow-hidden">
                 <motion.div
                   className="h-full"
-                  style={{ background: tier => `linear-gradient(90deg, ${currentTier.color}, ${nextTierData?.color ?? currentTier.color})` }}
+                  style={{ background: `linear-gradient(90deg, ${currentTier.color}, ${nextTierData?.color ?? currentTier.color})` }}
                   initial={{ width: "0%" }}
                   animate={{ width: `${tierProgress * 100}%` }}
                   transition={{ duration: 1.6, delay: 0.5, ease: [0.4, 0, 0.2, 1] }}
