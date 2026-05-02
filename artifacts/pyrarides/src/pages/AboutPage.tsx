@@ -1,122 +1,210 @@
-import { MapPin, Shield, Users, Award, Heart, Target, Globe, CheckCircle, Star, Linkedin } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import Breadcrumbs from "@/components/shared/Breadcrumbs";
-import Navbar from "@/components/shared/Navbar";
-import Footer from "@/components/shared/Footer";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import { Link } from "wouter";
+import { Reveal, StaggerGroup, StaggerItem } from "@/components/shared/Motion";
+import founder from "@/assets/founder-portrait.jpg";
+import courtyard from "@/assets/stable-courtyard.jpg";
+import desertRide from "@/assets/desert-ride.jpg";
+import masterRider from "@/assets/master-rider.jpg";
 
-export default function AboutPage() {
-  const team = [
-    { name: "Mohamed Hares", role: "Founder & CEO", bio: "Passionate about connecting travelers with authentic Egyptian experiences.", linkedin: "https://www.linkedin.com/in/mohamed-hares-015b92234" },
-    { name: "Seif Askalany", role: "Co-Founder", bio: "Driven by a vision to create seamless digital experiences.", linkedin: "https://www.linkedin.com/in/seif-askalany-5811a3384" }
-  ];
-  const milestones = [
-    { year: "2024", title: "PyraRides Founded", description: "Launched with a mission to digitize the pyramid horse riding experience." },
-    { year: "2024", title: "First Partnerships", description: "Partnered with top-rated stables in Giza and Saqqara." },
-    { year: "2025", title: "Platform Growth", description: "Expanded to serve thousands of riders with verified, safe bookings." },
-  ];
-  const stats = [
-    { value: "1000+", label: "Happy Riders", icon: Users },
-    { value: "50+", label: "Verified Horses", icon: Shield },
-    { value: "4.9/5", label: "Average Rating", icon: Star },
-    { value: "100%", label: "Safety Record", icon: Heart },
-  ];
+const PILLARS = [
+  { n: "01", title: "By reservation, only.", body: "We accept a small number of riders each day. The desert deserves stillness; our horses deserve rest." },
+  { n: "02", title: "Every horse, by name.", body: "We do not rotate strangers. You will be matched with one horse, introduced before the saddle." },
+  { n: "03", title: "Our families, our stables.", body: "We work with seven heritage stables, each independently owned by Egyptian families across four generations." },
+  { n: "04", title: "Quiet, by design.", body: "No microphones, no theatre, no upsells in the saddle. The journey is the offer." },
+];
+
+const TIMELINE = [
+  { year: "1924", title: "The first courtyard", body: "Sheikh Mahmoud Al-Nasr breaks ground on a stable within sight of the Great Pyramid." },
+  { year: "1962", title: "A second generation", body: "His son Karim formalises the breeding programme for purebred Egyptian Arabians." },
+  { year: "1998", title: "The concierge model", body: "Six allied families agree on a shared standard of care, hospitality, and reservation." },
+  { year: "2024", title: "PyraRides, in name", body: "A century in, we open quietly to a wider readership of riders. Same stables. Same hands." },
+];
+
+const NUMBERS = [
+  { v: "1000+", l: "Happy riders" },
+  { v: "7", l: "Heritage stables" },
+  { v: "50+", l: "Verified horses" },
+  { v: "12", l: "Riders per day, max" },
+];
+
+const AboutPage = () => {
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
 
   return (
-    <div className="min-h-screen bg-black safe-area-black text-white">
-      <Navbar />
-      <div className="relative h-[500px] w-full overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black z-10" />
-        <img src="/hero-bg.webp" alt="Pyramids" className="absolute inset-0 w-full h-full object-cover opacity-50" />
-        <div className="relative z-20 container mx-auto px-4 h-full flex flex-col justify-center items-center text-center">
-          <h1 className="font-sans text-4xl md:text-6xl font-bold tracking-tight text-white mb-6">Transforming Pyramid <br /><span className="text-[#2D4A6E]">Horse Riding</span></h1>
-          <p className="mt-4 text-xl text-white/90 font-light max-w-2xl">The Pyramids, Unforgettable. The Ride, Uncomplicated.</p>
+    <div className="pb-32">
+      {/* Hero */}
+      <section ref={heroRef} className="relative h-[92vh] min-h-[640px] overflow-hidden bg-foreground text-background">
+        <motion.div style={{ y }} className="absolute inset-0">
+          <img src={courtyard} alt="" className="absolute inset-0 w-full h-full object-cover opacity-55" />
+        </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-b from-foreground/30 via-transparent to-foreground/80" />
+        <div className="relative h-full container flex flex-col justify-end pb-20">
+          <Reveal>
+            <p className="text-[11px] tracking-luxury uppercase opacity-80 mb-6">The House · Est. 1924</p>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <h1 className="font-display text-[clamp(3rem,10vw,9rem)] leading-[0.92] max-w-5xl text-balance">
+              Heritage, written in <em className="italic">hoofprints</em>.
+            </h1>
+          </Reveal>
+          <Reveal delay={0.25}>
+            <p className="mt-8 max-w-lg text-background/85 text-pretty leading-relaxed">
+              PyraRides is the quiet alliance of Egyptian families who have raised horses
+              within sight of the Pyramids of Giza for generations. We are Egypt's first online marketplace
+              for verified, safe pyramid horse riding experiences.
+            </p>
+          </Reveal>
         </div>
-      </div>
+      </section>
 
-      <div className="border-y border-white/10 bg-white/5">
-        <div className="mx-auto max-w-6xl px-4 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {stats.map((stat, idx) => {
-              const Icon = stat.icon;
-              return (
-                <div key={idx} className="space-y-2 group">
-                  <div className="p-3 rounded-full bg-[#2D4A6E]/10 w-fit mx-auto"><Icon className="h-6 w-6 text-[#2D4A6E]" /></div>
-                  <div className="text-3xl font-bold text-white">{stat.value}</div>
-                  <div className="text-sm text-white/60">{stat.label}</div>
-                </div>
-              );
-            })}
+      {/* Numbers */}
+      <section className="container mt-24">
+        <StaggerGroup className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 border-y hairline py-12">
+          {NUMBERS.map((n) => (
+            <StaggerItem key={n.l} className="text-center md:text-left">
+              <p className="font-display text-6xl md:text-7xl leading-none">{n.v}</p>
+              <p className="mt-3 text-[10px] tracking-luxury uppercase text-ink-muted">{n.l}</p>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
+      </section>
+
+      {/* Founder portrait + opening letter */}
+      <section className="container mt-32 grid md:grid-cols-12 gap-10 md:gap-16 items-start">
+        <Reveal className="md:col-span-5">
+          <div className="aspect-[4/5] overflow-hidden bg-surface">
+            <img src={founder} alt="Founder" loading="lazy" className="w-full h-full object-cover" />
           </div>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-6xl px-4 py-12 md:py-16 md:px-8 space-y-24">
-        <section>
-          <div className="text-center mb-12"><h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Our Story</h2></div>
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6 text-lg text-white/80 leading-relaxed">
-              <p>PyraRides was founded with a simple yet powerful vision: to bring trust, transparency, and technology to one of the world's most iconic experiences—horse riding at the Pyramids of Giza.</p>
-              <p>For too long, visitors faced uncertainty with haggling, unverified operators, and safety concerns. We saw an opportunity to change that. By partnering with only the most reputable, ethical stables, we've created a platform where safety and quality are guaranteed.</p>
+          <p className="mt-4 text-[10px] tracking-luxury uppercase text-ink-muted">
+            Mohamed Hares · Founder · 2024
+          </p>
+        </Reveal>
+        <div className="md:col-span-6 md:col-start-7">
+          <Reveal>
+            <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-6">A letter from the house</p>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <p className="font-display text-3xl md:text-4xl leading-[1.2] text-balance">
+              "We built PyraRides with a simple mission: bring trust, transparency, and technology to one of the world's most iconic experiences."
+            </p>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <div className="mt-8 space-y-5 text-ink-soft leading-relaxed text-pretty">
+              <p>
+                For too long, visitors faced uncertainty — haggling, unverified operators, safety concerns.
+                We saw an opportunity to change that. By partnering with only the most reputable, ethical stables,
+                we have created a platform where safety and quality are guaranteed.
+              </p>
+              <p>
+                What we offer, if we must call it that, is restraint. A short list of stables, a short list of riders,
+                a long memory between us.
+              </p>
             </div>
-            <Card className="overflow-hidden border-white/10 bg-white/5">
-              <div className="aspect-square flex items-center justify-center p-8 text-center bg-gradient-to-br from-[#2D4A6E]/20 to-black">
-                <div><Globe className="h-20 w-20 mx-auto mb-6 text-[#2D4A6E]" /><p className="text-2xl font-bold text-white mb-2">Connecting Cultures</p><p className="text-white/60">Through the Magic of Horse Riding</p></div>
-              </div>
-            </Card>
-          </div>
-        </section>
+          </Reveal>
+          <Reveal delay={0.3}>
+            <p className="mt-10 text-[11px] tracking-luxury uppercase text-ink-muted">
+              — Mohamed Hares · Founder, PyraRides
+            </p>
+          </Reveal>
+        </div>
+      </section>
 
-        <section>
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card className="border border-[#2D4A6E]/30 bg-gradient-to-br from-[#2D4A6E]/10 to-black">
-              <CardContent className="pt-8 pb-8"><Target className="h-12 w-12 text-[#2D4A6E] mb-6" /><h3 className="text-2xl font-bold mb-4 text-white">Our Mission</h3><p className="text-white/70 text-lg leading-relaxed">To provide travelers with <strong>safe, authentic, and unforgettable</strong> horse riding experiences at Egypt's most iconic landmarks, while supporting local communities and championing <strong>animal welfare</strong>.</p></CardContent>
-            </Card>
-            <Card className="border border-[#2D4A6E]/30 bg-gradient-to-br from-[#2D4A6E]/10 to-black">
-              <CardContent className="pt-8 pb-8"><Globe className="h-12 w-12 text-[#2D4A6E] mb-6" /><h3 className="text-2xl font-bold mb-4 text-white">Our Vision</h3><p className="text-white/70 text-lg leading-relaxed">To become the <strong>global standard</strong> for adventure tourism booking platforms, expanding to iconic destinations worldwide while maintaining our commitment to <strong>trust, quality, and sustainability</strong>.</p></CardContent>
-            </Card>
-          </div>
-        </section>
+      {/* Pillars */}
+      <section className="container mt-32">
+        <Reveal>
+          <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-6">Four standards</p>
+          <h2 className="font-display text-4xl md:text-6xl leading-[1.05] max-w-3xl text-balance">
+            What we agree on, before we agree on anything else.
+          </h2>
+        </Reveal>
+        <div className="mt-16 grid md:grid-cols-2 gap-px bg-hairline border hairline">
+          {PILLARS.map((p, i) => (
+            <Reveal key={p.n} delay={i * 0.05} className="bg-background p-10 md:p-14">
+              <p className="text-[10px] tracking-luxury uppercase text-ink-muted">{p.n}</p>
+              <h3 className="font-display text-3xl mt-4 leading-tight">{p.title}</h3>
+              <p className="mt-4 text-ink-soft text-pretty leading-relaxed">{p.body}</p>
+            </Reveal>
+          ))}
+        </div>
+      </section>
 
-        <section>
-          <div className="text-center mb-12"><h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Our Core Values</h2></div>
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              { icon: Shield, title: "Trust & Safety", desc: "Every stable undergoes rigorous verification. We personally inspect facilities and validate safety protocols." },
-              { icon: Heart, title: "Animal Welfare", desc: "Horse health comes first. We monitor welfare standards continuously." },
-              { icon: Award, title: "Excellence", desc: "We only work with the top 10% of stables. If it's on PyraRides, it's guaranteed to be exceptional." },
-              { icon: MapPin, title: "Transparency", desc: "Real reviews. Clear pricing. No hidden fees. Honest communication at every step." },
-            ].map(({ icon: Icon, title, desc }, idx) => (
-              <Card key={idx} className="p-6 bg-white/5 border-white/10 hover:border-[#2D4A6E]/50 transition-all">
-                <Icon className="mb-4 h-10 w-10 text-[#2D4A6E]" />
-                <h3 className="mb-2 text-lg font-bold text-white">{title}</h3>
-                <p className="text-sm text-white/60">{desc}</p>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <div className="text-center mb-16"><h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Meet Our Founders</h2></div>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {team.map((member, idx) => (
-              <Card key={idx} className="overflow-hidden bg-white/5 border-white/10 hover:border-[#2D4A6E]/50 transition-all group">
-                <CardContent className="p-0">
-                  <div className="flex flex-col sm:flex-row h-full">
-                    <div className="relative w-full sm:w-40 h-48 sm:h-auto bg-gradient-to-br from-[#2D4A6E]/20 to-black flex-shrink-0 flex items-center justify-center"><Users className="h-16 w-16 text-[#2D4A6E]/40" /></div>
-                    <div className="p-6 flex-1 flex flex-col justify-center">
-                      <h3 className="text-xl font-bold mb-1 text-white">{member.name}</h3>
-                      <p className="text-[#2D4A6E] font-semibold mb-3">{member.role}</p>
-                      <p className="text-sm text-white/60 mb-4">{member.bio}</p>
-                      <a href={member.linkedin} className="inline-flex items-center gap-2 text-sm text-white hover:text-[#2D4A6E] transition-colors" target="_blank" rel="noopener noreferrer"><Linkedin className="h-4 w-4" />Connect on LinkedIn</a>
-                    </div>
+      {/* Timeline */}
+      <section className="container mt-32">
+        <Reveal>
+          <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-6">A story, briefly told</p>
+          <h2 className="font-display text-4xl md:text-6xl leading-[1.05] max-w-3xl text-balance">
+            One hundred years. Four generations. The same courtyard.
+          </h2>
+        </Reveal>
+        <div className="mt-16 relative">
+          <div className="absolute left-[22px] md:left-1/2 top-2 bottom-2 w-px bg-hairline" />
+          <div className="space-y-16">
+            {TIMELINE.map((t, i) => (
+              <Reveal key={t.year} delay={i * 0.05}>
+                <div className={`grid md:grid-cols-2 gap-8 items-start ${i % 2 ? "md:[direction:rtl]" : ""}`}>
+                  <div className="relative pl-14 md:pl-0 md:[direction:ltr] md:text-right md:pr-12">
+                    <span className="absolute left-[15px] md:left-auto md:right-[-7px] top-3 w-3.5 h-3.5 rounded-full bg-foreground ring-4 ring-background" />
+                    <p className="font-display text-5xl md:text-6xl leading-none">{t.year}</p>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="pl-14 md:pl-12 md:[direction:ltr]">
+                    <h3 className="font-display text-2xl">{t.title}</h3>
+                    <p className="mt-3 text-ink-soft text-pretty leading-relaxed">{t.body}</p>
+                  </div>
+                </div>
+              </Reveal>
             ))}
           </div>
-        </section>
-      </div>
-      <Footer />
+        </div>
+      </section>
+
+      {/* People */}
+      <section className="container mt-32 grid md:grid-cols-12 gap-10 items-center">
+        <Reveal className="md:col-span-7 order-2 md:order-1">
+          <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-6">The people</p>
+          <h2 className="font-display text-4xl md:text-5xl leading-[1.05] text-balance">
+            Riders, breeders, grooms, and one quiet concierge.
+          </h2>
+          <p className="mt-6 text-ink-soft leading-relaxed max-w-lg text-pretty">
+            Behind every reservation is a small team — our master riders, the stable families who have kept
+            these horses for generations, and a concierge who answers within the hour.
+          </p>
+          <Link
+            to="/training"
+            className="inline-block mt-10 text-[12px] tracking-[0.2em] uppercase border-b hairline pb-1 hover:border-foreground transition-colors"
+          >
+            Meet the master rider →
+          </Link>
+        </Reveal>
+        <Reveal delay={0.1} className="md:col-span-5 order-1 md:order-2">
+          <div className="aspect-[4/5] overflow-hidden bg-surface">
+            <img src={masterRider} alt="Master rider" loading="lazy" className="w-full h-full object-cover" />
+          </div>
+        </Reveal>
+      </section>
+
+      {/* Closing */}
+      <section className="container mt-32">
+        <div className="relative bg-foreground text-background p-12 md:p-20 overflow-hidden">
+          <img src={desertRide} alt="" className="absolute inset-0 w-full h-full object-cover opacity-25" />
+          <div className="relative max-w-2xl">
+            <p className="text-[11px] tracking-luxury uppercase opacity-80 mb-6">An invitation</p>
+            <h2 className="font-display text-4xl md:text-6xl leading-[1.05] text-balance">
+              When you are ready, the courtyard is open.
+            </h2>
+            <Link
+              to="/booking"
+              className="inline-block mt-10 text-[12px] tracking-[0.22em] uppercase border-b border-background/40 pb-1 hover:border-background transition-colors"
+            >
+              Reserve a morning →
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
-}
+};
+
+export default AboutPage;

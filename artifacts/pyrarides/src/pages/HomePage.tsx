@@ -1,10 +1,37 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "wouter";
-import { ArrowUpRight, MapPin } from "lucide-react";
+import { ArrowUpRight, MapPin, Loader2 } from "lucide-react";
 import { useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import heroImg from "@/assets/hero-pyramids.jpg";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
-import { stables, packages } from "@/data/mock";
+
+interface Stable {
+  id: string;
+  name: string;
+  location: string;
+  description: string;
+  imageUrl?: string;
+  rating: number;
+  totalBookings: number;
+}
+
+interface Package {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  minPeople: number;
+  maxPeople: number;
+  duration: number;
+  stable: { id: string; name: string };
+}
+
+const fmtDuration = (mins: number) => {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m === 0 ? `${h}h` : `${h}h ${m}min`;
+};
 
 const HomePage = () => {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -12,6 +39,19 @@ const HomePage = () => {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0.3]);
+
+  const { data: stablesData } = useQuery<{ stables: Stable[] }>({
+    queryKey: ["featured-stables"],
+    queryFn: () => fetch("/api/stables?limit=3").then((r) => r.json()),
+  });
+
+  const { data: packagesData } = useQuery<Package[]>({
+    queryKey: ["featured-packages"],
+    queryFn: () => fetch("/api/packages").then((r) => r.json()),
+  });
+
+  const stables = stablesData?.stables?.slice(0, 3) ?? [];
+  const packages = packagesData?.slice(0, 3) ?? [];
 
   return (
     <>
@@ -82,42 +122,46 @@ const HomePage = () => {
         <div className="flex items-end justify-between mb-12 md:mb-16 border-b hairline pb-6">
           <div>
             <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-3">The stables</p>
-            <h2 className="font-display text-4xl md:text-6xl leading-none">Three estates. One plateau.</h2>
+            <h2 className="font-display text-4xl md:text-6xl leading-none">Our estates.</h2>
           </div>
           <Link to="/stables" className="hidden sm:inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-ink-muted hover:text-foreground transition-colors">
             View all <ArrowUpRight className="size-3.5" />
           </Link>
         </div>
 
-        <StaggerGroup className="grid gap-6 md:grid-cols-3" gap={0.12}>
-          {stables.map((s) => (
-            <StaggerItem key={s.id}>
-              <Link to={`/stables/${s.id}`} className="group block">
-                <motion.div layoutId={`stable-image-${s.id}`} className="relative aspect-[4/5] overflow-hidden bg-surface">
-                  <motion.img
-                    src={s.image} alt={s.name}
-                    loading="lazy"
-                    className="h-full w-full object-cover"
-                    whileHover={{ scale: 1.04 }}
-                    transition={{ duration: 1.2, ease: easeLuxury }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                  <div className="absolute top-4 left-4 text-[10px] tracking-luxury uppercase text-background/90">Est. {s.established}</div>
-                </motion.div>
-                <div className="pt-5 flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="font-display text-2xl leading-tight">{s.name}</h3>
-                    <p className="mt-1.5 text-xs tracking-[0.14em] uppercase text-ink-muted inline-flex items-center gap-1.5">
-                      <MapPin className="size-3" /> {s.location}
-                    </p>
+        {stables.length === 0 ? (
+          <div className="flex justify-center py-20"><Loader2 className="size-6 animate-spin text-ink-muted" /></div>
+        ) : (
+          <StaggerGroup className="grid gap-6 md:grid-cols-3" gap={0.12}>
+            {stables.map((s) => (
+              <StaggerItem key={s.id}>
+                <Link to={`/stables/${s.id}`} className="group block">
+                  <motion.div className="relative aspect-[4/5] overflow-hidden bg-surface">
+                    <motion.img
+                      src={s.imageUrl || "/hero-bg.webp"} alt={s.name}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                      whileHover={{ scale: 1.04 }}
+                      transition={{ duration: 1.2, ease: easeLuxury }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                    <div className="absolute top-4 left-4 text-[10px] tracking-luxury uppercase text-background/90">{s.location}</div>
+                  </motion.div>
+                  <div className="pt-5 flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="font-display text-2xl leading-tight">{s.name}</h3>
+                      <p className="mt-1.5 text-xs tracking-[0.14em] uppercase text-ink-muted inline-flex items-center gap-1.5">
+                        <MapPin className="size-3" /> {s.location}
+                      </p>
+                    </div>
+                    <ArrowUpRight className="size-4 text-ink-muted transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
                   </div>
-                  <ArrowUpRight className="size-4 text-ink-muted transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
-                </div>
-                <p className="mt-3 text-sm text-ink-soft text-pretty">{s.description}</p>
-              </Link>
-            </StaggerItem>
-          ))}
-        </StaggerGroup>
+                  <p className="mt-3 text-sm text-ink-soft text-pretty line-clamp-2">{s.description}</p>
+                </Link>
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
+        )}
       </section>
 
       {/* SIGNATURE PACKAGES */}
@@ -128,36 +172,40 @@ const HomePage = () => {
             <h2 className="font-display text-4xl md:text-6xl leading-[1] text-balance">Curated, never crowded.</h2>
           </Reveal>
           <Reveal className="md:col-span-6 md:col-start-7 self-end" delay={0.15}>
-            <p className="text-ink-soft text-pretty">Three signature experiences, each limited to a small party. Every detail — from your horse's lineage to the linen on the table — is arranged before you arrive.</p>
+            <p className="text-ink-soft text-pretty">Each experience is limited to a small party. Every detail — from your horse to the first sunrise — is arranged before you arrive.</p>
           </Reveal>
         </div>
 
-        <StaggerGroup className="space-y-4" gap={0.08}>
-          {packages.map((p, i) => (
-            <StaggerItem key={p.id}>
-              <Link to={`/packages/${p.id}`} className="group grid md:grid-cols-12 gap-8 items-center py-8 border-t hairline last:border-b">
-                <div className="md:col-span-1 text-[11px] tracking-luxury uppercase text-ink-muted">№ {String(i + 1).padStart(2, "0")}</div>
-                <div className="md:col-span-5">
-                  <h3 className="font-display text-3xl md:text-4xl leading-tight">{p.name}</h3>
-                  <p className="mt-2 text-ink-muted">{p.tagline}</p>
-                </div>
-                <div className="md:col-span-3 text-sm text-ink-soft">
-                  <p>{p.duration}</p>
-                  <p className="text-ink-muted">{p.minPeople}–{p.maxPeople} guests</p>
-                </div>
-                <div className="md:col-span-2 text-sm">
-                  <p className="text-ink-muted text-[11px] tracking-luxury uppercase">From</p>
-                  <p className="font-display text-2xl">${p.price}</p>
-                </div>
-                <div className="md:col-span-1 flex justify-end">
-                  <span className="inline-flex size-10 items-center justify-center border hairline rounded-full transition-all duration-500 group-hover:bg-foreground group-hover:text-background group-hover:border-foreground">
-                    <ArrowUpRight className="size-4" />
-                  </span>
-                </div>
-              </Link>
-            </StaggerItem>
-          ))}
-        </StaggerGroup>
+        {packages.length === 0 ? (
+          <div className="flex justify-center py-12"><Loader2 className="size-6 animate-spin text-ink-muted" /></div>
+        ) : (
+          <StaggerGroup className="space-y-4" gap={0.08}>
+            {packages.map((p, i) => (
+              <StaggerItem key={p.id}>
+                <Link to={`/packages/${p.id}`} className="group grid md:grid-cols-12 gap-8 items-center py-8 border-t hairline last:border-b">
+                  <div className="md:col-span-1 text-[11px] tracking-luxury uppercase text-ink-muted">№ {String(i + 1).padStart(2, "0")}</div>
+                  <div className="md:col-span-5">
+                    <h3 className="font-display text-3xl md:text-4xl leading-tight">{p.title}</h3>
+                    <p className="mt-2 text-ink-muted line-clamp-1">{p.stable?.name}</p>
+                  </div>
+                  <div className="md:col-span-3 text-sm text-ink-soft">
+                    <p>{fmtDuration(p.duration)}</p>
+                    <p className="text-ink-muted">{p.minPeople}–{p.maxPeople} guests</p>
+                  </div>
+                  <div className="md:col-span-2 text-sm">
+                    <p className="text-ink-muted text-[11px] tracking-luxury uppercase">From</p>
+                    <p className="font-display text-2xl">EGP {p.price.toLocaleString()}</p>
+                  </div>
+                  <div className="md:col-span-1 flex justify-end">
+                    <span className="inline-flex size-10 items-center justify-center border hairline rounded-full transition-all duration-500 group-hover:bg-foreground group-hover:text-background group-hover:border-foreground">
+                      <ArrowUpRight className="size-4" />
+                    </span>
+                  </div>
+                </Link>
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
+        )}
       </section>
 
       {/* CTA */}

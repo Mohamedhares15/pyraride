@@ -1,8 +1,30 @@
+import { useEffect, useState } from "react";
 import { Link, Redirect, useParams } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowUpRight, Check, Clock, Coffee, Music, Users, Car } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Check, Clock, Coffee, Music, Users, Car, Loader2 } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
-import { packages, stables } from "@/data/mock";
+
+interface Package {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  originalPrice?: number | null;
+  minPeople: number;
+  maxPeople: number;
+  duration: number;
+  imageUrl?: string;
+  hasHorseRide: boolean;
+  hasFood: boolean;
+  hasDancingShow: boolean;
+  hasParty: boolean;
+  hasTransportation: boolean;
+  included?: string[];
+  highlights?: string[];
+  startTime?: string;
+  availableDays?: string[];
+  stable: { id: string; name: string; location: string };
+}
 
 const ITINERARY = [
   { time: "Pre-dawn", title: "Concierge transfer", body: "A driver collects you from your residence in a dark sedan, ninety minutes before first light." },
@@ -12,13 +34,40 @@ const ITINERARY = [
   { time: "Return", title: "Back to the estate", body: "A slow walk home, the horses calm, the morning entirely yours." },
 ];
 
+const fmtDuration = (mins: number) => {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m === 0 ? `${h}h` : `${h}h ${m}min`;
+};
+
 const PackageDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const pkg = packages.find((p) => p.id === id);
-  if (!pkg) return <Redirect to="/packages" />;
-  const stable = stables.find((s) => s.id === pkg.stableId)!;
+  const [pkg, setPkg] = useState<Package | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  const inclusions: { icon: typeof Coffee; label: string; on: boolean }[] = [
+  useEffect(() => {
+    if (!id) return;
+    fetch(`/api/packages/${id}`)
+      .then((r) => {
+        if (r.status === 404) { setNotFound(true); return null; }
+        return r.json();
+      })
+      .then((data) => { if (data) setPkg(data); })
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="size-10 animate-spin text-ink-muted" />
+      </div>
+    );
+  }
+
+  if (notFound || !pkg) return <Redirect to="/packages" />;
+
+  const inclusions = [
     { icon: Coffee, label: "Linen tea & dining", on: pkg.hasFood },
     { icon: ArrowUpRight, label: "Private horseback ride", on: pkg.hasHorseRide },
     { icon: Car, label: "Concierge transfer", on: pkg.hasTransportation },
@@ -30,7 +79,7 @@ const PackageDetailPage = () => {
       {/* HERO */}
       <section className="relative h-[80svh] min-h-[600px] overflow-hidden">
         <motion.div initial={{ scale: 1.08 }} animate={{ scale: 1 }} transition={{ duration: 1.6, ease: easeLuxury }} className="absolute inset-0">
-          <img src={pkg.image} alt={pkg.name} className="h-full w-full object-cover" />
+          <img src={pkg.imageUrl || "/hero-bg.webp"} alt={pkg.title} className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-foreground/20 via-foreground/10 to-background" />
         </motion.div>
         <div className="relative h-full container flex flex-col justify-end pb-20 md:pb-28">
@@ -41,14 +90,14 @@ const PackageDetailPage = () => {
           </motion.div>
           <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: easeLuxury, delay: 0.6 }}
             className="text-[11px] tracking-luxury uppercase text-background/85">
-            {stable.name} · {pkg.duration}
+            {pkg.stable?.name} · {fmtDuration(pkg.duration)}
           </motion.p>
           <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.1, ease: easeLuxury, delay: 0.75 }}
             className="mt-4 font-display text-background text-[12vw] sm:text-[8vw] md:text-[6vw] leading-[0.95] max-w-5xl text-balance">
-            {pkg.name}
+            {pkg.title}
           </motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.9, delay: 1, ease: easeLuxury }}
-            className="mt-4 text-background/85 max-w-xl text-pretty">{pkg.tagline}</motion.p>
+            className="mt-4 text-background/85 max-w-xl text-pretty line-clamp-2">{pkg.description}</motion.p>
         </div>
       </section>
 
@@ -56,10 +105,10 @@ const PackageDetailPage = () => {
       <Reveal className="border-y hairline bg-surface/40">
         <div className="container py-6 grid grid-cols-2 md:grid-cols-4 gap-6">
           {[
-            { icon: Clock, label: "Duration", value: pkg.duration },
+            { icon: Clock, label: "Duration", value: fmtDuration(pkg.duration) },
             { icon: Users, label: "Party", value: `${pkg.minPeople}–${pkg.maxPeople} guests` },
-            { icon: ArrowUpRight, label: "Estate", value: stable.name },
-            { icon: Coffee, label: "From", value: `$${pkg.price} / guest` },
+            { icon: ArrowUpRight, label: "Estate", value: pkg.stable?.name ?? "—" },
+            { icon: Coffee, label: "From", value: `EGP ${pkg.price.toLocaleString()} / guest` },
           ].map((m) => (
             <div key={m.label} className="flex items-start gap-3">
               <m.icon className="size-4 mt-1 text-ink-muted shrink-0" />
@@ -75,13 +124,15 @@ const PackageDetailPage = () => {
       {/* CONTENT */}
       <section className="container py-32 md:py-40 grid lg:grid-cols-12 gap-16">
         <div className="lg:col-span-8 space-y-32">
+          {/* Story */}
           <Reveal>
             <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-5">The journey</p>
             <p className="font-display text-3xl md:text-4xl leading-[1.2] text-balance">
-              An unhurried morning at the foot of antiquity. You ride the same sand the pharaohs rode, with a master rider at your shoulder and a linen breakfast waiting in the dunes.
+              {pkg.description}
             </p>
           </Reveal>
 
+          {/* Inclusions */}
           <div>
             <Reveal>
               <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-3">What is included</p>
@@ -102,8 +153,23 @@ const PackageDetailPage = () => {
                 </StaggerItem>
               ))}
             </StaggerGroup>
+
+            {pkg.included && pkg.included.length > 0 && (
+              <div className="mt-8">
+                <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-4">Also included</p>
+                <ul className="grid sm:grid-cols-2 gap-3">
+                  {pkg.included.map((item) => (
+                    <li key={item} className="flex items-center gap-3 text-sm text-ink-soft">
+                      <Check className="size-3.5 text-foreground shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
+          {/* Itinerary */}
           <div>
             <Reveal>
               <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-3">The itinerary</p>
@@ -132,29 +198,32 @@ const PackageDetailPage = () => {
         {/* RESERVE PANEL */}
         <aside className="lg:col-span-4">
           <div className="lg:sticky lg:top-28 border hairline bg-surface-elevated/60 p-8">
-            <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-3">{stable.name}</p>
-            <h3 className="font-display text-3xl leading-tight">{pkg.name}</h3>
+            <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-3">{pkg.stable?.name}</p>
+            <h3 className="font-display text-3xl leading-tight">{pkg.title}</h3>
 
             <div className="mt-8 pt-6 border-t hairline space-y-3 text-sm">
-              <Row label="Duration" value={pkg.duration} />
+              <Row label="Duration" value={fmtDuration(pkg.duration)} />
               <Row label="Party" value={`${pkg.minPeople}–${pkg.maxPeople} guests`} />
-              <Row label="From" value={`$${pkg.price} / guest`} />
+              <Row label="From" value={`EGP ${pkg.price.toLocaleString()} / guest`} />
+              {pkg.startTime && <Row label="Start time" value={pkg.startTime} />}
             </div>
 
             <Link
-              to={`/checkout/package/${pkg.id}`}
+              to={`/booking?package=${pkg.id}`}
               className="mt-8 w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-foreground text-background text-[12px] tracking-[0.2em] uppercase group"
             >
               Begin reservation
               <ArrowUpRight className="size-4 transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </Link>
 
-            <Link
-              to={`/stables/${stable.id}`}
-              className="mt-4 w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 border hairline text-[12px] tracking-[0.2em] uppercase hover:bg-foreground hover:text-background hover:border-foreground transition-colors"
-            >
-              Visit the estate
-            </Link>
+            {pkg.stable?.id && (
+              <Link
+                to={`/stables/${pkg.stable.id}`}
+                className="mt-4 w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 border hairline text-[12px] tracking-[0.2em] uppercase hover:bg-foreground hover:text-background hover:border-foreground transition-colors"
+              >
+                Visit the estate
+              </Link>
+            )}
 
             <p className="mt-6 text-xs text-ink-muted text-pretty">
               No charge until your concierge confirms availability within 24 hours.
