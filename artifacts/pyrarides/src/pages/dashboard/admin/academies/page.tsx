@@ -32,7 +32,6 @@ export default function AdminAcademiesPage() {
 
   const handlePriceChangeApproval = async (requestId: string, action: "approve" | "reject") => {
     if (!confirm(`Are you sure you want to ${action} this price change?`)) return;
-
     try {
       const res = await fetch(`/api/admin/academies/price-requests/${requestId}`, {
         method: "PATCH",
@@ -45,68 +44,82 @@ export default function AdminAcademiesPage() {
         const errorData = await res.json();
         alert(errorData.error || "Failed to process request");
       }
-    } catch (err) {
+    } catch {
       alert("Error submitting request");
     }
   };
 
   if (loading) {
-    return <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-[#D4AF37]" /></div>;
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground" />
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="p-8 text-red-500 flex items-center gap-2"><AlertCircle className="w-5 h-5" /> {error}</div>;
+    return (
+      <div className="p-8 flex items-center gap-3 border border-red-200 bg-red-50">
+        <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+        <p className="text-red-700 text-sm">{error}</p>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-display text-white mb-2">Academy Management</h1>
-          <p className="text-neutral-400">Oversee PyraRides training academies and approve price changes.</p>
+          <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-2">Admin</p>
+          <h1 className="font-display text-3xl font-light">Academy Management</h1>
+          <p className="text-sm text-ink-soft mt-1">Oversee PyraRides training academies and approve price changes.</p>
         </div>
-        <button 
+        <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="bg-[#D4AF37] text-black hover:bg-[#C49A2F] active:scale-95 px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 transition-all"
+          className="flex items-center gap-2 bg-foreground text-background px-6 py-3 text-[11px] uppercase tracking-luxury hover:bg-foreground/90 transition-colors whitespace-nowrap"
         >
-          <Plus className="w-5 h-5" /> Add Academy
+          <Plus className="w-4 h-4" /> Add Academy
         </button>
       </div>
 
-      {/* Price Change Requests (Pending) */}
+      {/* Price Change Requests */}
       <CardSection title="Pending Price Changes" count={data.pendingRequests?.length || 0}>
         {!data.pendingRequests || data.pendingRequests.length === 0 ? (
-          <p className="text-neutral-500 italic p-4 text-sm">No pending requests.</p>
+          <p className="text-ink-muted italic text-sm p-4">No pending requests.</p>
         ) : (
-          <div className="grid gap-4">
+          <div className="divide-y divide-foreground/8">
             {data.pendingRequests.map((req: any) => (
-              <div key={req.id} className="p-5 bg-white/[0.02] border border-white/10 rounded-xl flex flex-col md:flex-row justify-between gap-4">
+              <div key={req.id} className="p-5 flex flex-col md:flex-row justify-between gap-4">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[#D4AF37] font-semibold">{req.academy.name}</span>
-                    <Badge variant="outline" className="text-xs uppercase tracking-widest text-neutral-400 border-white/10">Requested by {req.requestedBy.fullName}</Badge>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="font-medium text-foreground">{req.academy.name}</span>
+                    <span className="text-[10px] uppercase tracking-luxury text-ink-muted border hairline px-2 py-0.5">
+                      Requested by {req.requestedBy.fullName}
+                    </span>
                   </div>
-                  <p className="text-white mb-2">Change <span className="font-semibold">{req.program.name}</span> price</p>
+                  <p className="text-sm text-foreground mb-2">
+                    Change <span className="font-medium">{req.program.name}</span> price
+                  </p>
                   <div className="flex items-center gap-4 text-sm">
-                    <span className="text-neutral-500 line-through">EGP {req.oldPrice}</span>
-                    <span className="text-[#D4AF37] font-bold">EGP {req.newPrice}</span>
+                    <span className="text-ink-muted line-through">EGP {req.oldPrice}</span>
+                    <span className="font-display text-lg text-foreground">EGP {req.newPrice}</span>
                   </div>
-                  <p className="text-xs text-neutral-500 mt-2">"{req.reason}"</p>
-                  <p className="text-[10px] text-neutral-600 mt-1">{format(new Date(req.createdAt), 'PPp')}</p>
+                  <p className="text-xs text-ink-muted mt-2 italic">"{req.reason}"</p>
+                  <p className="text-[10px] text-ink-muted mt-1">{format(new Date(req.createdAt), "PPp")}</p>
                 </div>
                 <div className="flex gap-2 items-start">
-                   <button 
-                     onClick={() => handlePriceChangeApproval(req.id, "approve")}
-                     className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors"
-                   >
-                     <CheckCircle className="w-4 h-4" /> Approve
-                   </button>
-                   <button 
-                     onClick={() => handlePriceChangeApproval(req.id, "reject")}
-                     className="bg-red-500/10 text-red-500 hover:bg-red-500/20 px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors"
-                   >
-                     <XCircle className="w-4 h-4" /> Reject
-                   </button>
+                  <button
+                    onClick={() => handlePriceChangeApproval(req.id, "approve")}
+                    className="flex items-center gap-1.5 border border-emerald-200 bg-emerald-50 text-emerald-700 px-4 py-2 text-xs uppercase tracking-luxury hover:bg-emerald-100 transition-colors"
+                  >
+                    <CheckCircle className="w-3.5 h-3.5" /> Approve
+                  </button>
+                  <button
+                    onClick={() => handlePriceChangeApproval(req.id, "reject")}
+                    className="flex items-center gap-1.5 border border-red-200 bg-red-50 text-red-600 px-4 py-2 text-xs uppercase tracking-luxury hover:bg-red-100 transition-colors"
+                  >
+                    <XCircle className="w-3.5 h-3.5" /> Reject
+                  </button>
                 </div>
               </div>
             ))}
@@ -116,57 +129,59 @@ export default function AdminAcademiesPage() {
 
       {/* Academies List */}
       <CardSection title="Active Academies" count={data.academies?.length || 0}>
-         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-           {data.academies?.map((academy: any) => (
-             <div key={academy.id} className="bg-white/[0.02] border border-white/10 rounded-2xl overflow-hidden">
-               <div className="relative h-32 w-full">
-<NextImage src={academy.imageUrl || "/hero-bg.webp"} alt={academy.name} fill className="object-cover" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                 <div className="absolute bottom-4 left-4">
-                   <h3 className="font-display text-xl text-white">{academy.name}</h3>
-                   <p className="text-xs text-neutral-300">{academy.location}</p>
-                 </div>
-               </div>
-               <div className="p-5">
-                 <div className="flex justify-between items-center mb-4">
-                   <div className="text-sm">
-                     <p className="text-neutral-500 text-[10px] uppercase tracking-widest">Captain</p>
-                     <p className="text-white">{academy.captain?.fullName || "Unassigned"}</p>
-                   </div>
-                   <Badge className={academy.isActive ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-neutral-800 text-neutral-400"}>
-                     {academy.isActive ? "Active" : "Inactive"}
-                   </Badge>
-                 </div>
-                 
-                 <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-4">
-                    <div>
-                      <p className="text-neutral-500 text-[10px] uppercase tracking-widest">Programs</p>
-                      <p className="text-white text-lg">{academy._count.programs}</p>
-                    </div>
-                    <div>
-                      <p className="text-neutral-500 text-[10px] uppercase tracking-widest">Enrollments</p>
-                      <p className="text-white text-lg">{academy._count.enrollments}</p>
-                    </div>
-                 </div>
-               </div>
-                  <button 
-                    onClick={() => setAddProgramAcademyId(academy.id)}
-                    className="mt-4 w-full border border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/10 py-2 rounded-lg text-xs tracking-widest uppercase transition-colors flex items-center justify-center gap-2"
-                  >
-                    <BookOpen className="w-3.5 h-3.5" /> Add Program
-                  </button>
-             </div>
-           ))}
-         </div>
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5 p-5">
+          {data.academies?.map((academy: any) => (
+            <div key={academy.id} className="border hairline bg-surface overflow-hidden">
+              <div className="relative h-32 w-full">
+                <NextImage src={academy.imageUrl || "/hero-bg.webp"} alt={academy.name} fill className="object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
+                <div className="absolute bottom-3 left-4">
+                  <h3 className="font-display text-xl text-background">{academy.name}</h3>
+                  <p className="text-xs text-background/70">{academy.location}</p>
+                </div>
+              </div>
+              <div className="p-5">
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-luxury text-ink-muted">Captain</p>
+                    <p className="text-foreground text-sm">{academy.captain?.fullName || "Unassigned"}</p>
+                  </div>
+                  <span className={`text-[10px] uppercase tracking-luxury px-2.5 py-1 border ${
+                    academy.isActive
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                      : "border-foreground/20 text-ink-muted"
+                  }`}>
+                    {academy.isActive ? "Active" : "Inactive"}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 border-t hairline pt-4 mb-5">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-luxury text-ink-muted">Programs</p>
+                    <p className="font-display text-xl font-light">{academy._count.programs}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-luxury text-ink-muted">Enrollments</p>
+                    <p className="font-display text-xl font-light">{academy._count.enrollments}</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setAddProgramAcademyId(academy.id)}
+                  className="w-full border hairline text-foreground py-2.5 text-[11px] uppercase tracking-luxury hover:bg-foreground hover:text-background transition-colors flex items-center justify-center gap-2"
+                >
+                  <BookOpen className="w-3.5 h-3.5" /> Add Program
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </CardSection>
 
       {isCreateModalOpen && (
-        <CreateAcademyModal 
-          onClose={() => setIsCreateModalOpen(false)} 
-          onSuccess={() => {
-            setIsCreateModalOpen(false);
-            fetchAdminAcademyData();
-          }} 
+        <CreateAcademyModal
+          onClose={() => setIsCreateModalOpen(false)}
+          onSuccess={() => { setIsCreateModalOpen(false); fetchAdminAcademyData(); }}
         />
       )}
 
@@ -174,10 +189,7 @@ export default function AdminAcademiesPage() {
         <AddProgramModal
           academyId={addProgramAcademyId}
           onClose={() => setAddProgramAcademyId(null)}
-          onSuccess={() => {
-            setAddProgramAcademyId(null);
-            fetchAdminAcademyData();
-          }}
+          onSuccess={() => { setAddProgramAcademyId(null); fetchAdminAcademyData(); }}
         />
       )}
     </div>
@@ -186,11 +198,11 @@ export default function AdminAcademiesPage() {
 
 function CardSection({ title, count, children }: { title: string; count?: number; children: React.ReactNode }) {
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <h2 className="text-xl font-display text-white">{title}</h2>
+    <div className="border hairline bg-surface">
+      <div className="flex items-center gap-3 px-6 py-4 border-b hairline">
+        <p className="text-[11px] uppercase tracking-luxury text-ink-muted">{title}</p>
         {count !== undefined && (
-          <span className="bg-[#D4AF37]/20 text-[#D4AF37] px-2.5 py-0.5 rounded-full text-xs font-semibold">
+          <span className="border hairline bg-surface-elevated text-foreground px-2 py-0.5 text-xs">
             {count}
           </span>
         )}
@@ -200,22 +212,16 @@ function CardSection({ title, count, children }: { title: string; count?: number
   );
 }
 
-function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void; }) {
+function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
   const [users, setUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [customLocation, setCustomLocation] = useState("");
-
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    location: "saqqara",
-    address: "",
-    captainId: "",
-    imageUrl: "",
-    googleMapsUrl: "",
+    name: "", description: "", location: "saqqara", address: "",
+    captainId: "", imageUrl: "", googleMapsUrl: "",
   });
 
   useEffect(() => {
@@ -225,101 +231,78 @@ function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuc
         setUsers(data.users ? data.users.filter((u: any) => u.role !== "admin") : []);
         setLoadingUsers(false);
       })
-      .catch((err) => {
-        console.error(err);
-        setLoadingUsers(false);
-      });
+      .catch(() => setLoadingUsers(false));
   }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError(`${file.name} is too large (max 5MB)`);
-      return;
-    }
-
+    if (file.size > 5 * 1024 * 1024) { setError(`${file.name} is too large (max 5MB)`); return; }
     setIsUploading(true);
     setError("");
-
     try {
       const reader = new FileReader();
       reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          setFormData(prev => ({ ...prev, imageUrl: reader.result as string }));
-        }
+        if (typeof reader.result === "string") setFormData(prev => ({ ...prev, imageUrl: reader.result as string }));
         setIsUploading(false);
       };
-      reader.onerror = () => {
-        setError("Failed to process image.");
-        setIsUploading(false);
-      };
+      reader.onerror = () => { setError("Failed to process image."); setIsUploading(false); };
       reader.readAsDataURL(file);
-    } catch (err) {
-      setError("Failed to upload image. Please try again.");
-      setIsUploading(false);
-    } finally {
-      e.target.value = "";
-    }
+    } catch { setError("Failed to upload image."); setIsUploading(false); }
+    finally { e.target.value = ""; }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setError("");
-
-    // Use custom location text if "other" is selected
-    const finalLocation = formData.location === "other" && customLocation.trim() !== ""
-      ? customLocation.trim()
-      : formData.location;
-
+    const finalLocation = formData.location === "other" && customLocation.trim()
+      ? customLocation.trim() : formData.location;
     try {
       const res = await fetch("/api/admin/academies", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, location: finalLocation }),
       });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Failed to create academy");
-      }
-
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Failed to create academy"); }
       onSuccess();
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
+    } catch (err: any) { setError(err.message); }
+    finally { setSaving(false); }
   };
 
+  const inputCls = "w-full bg-surface border hairline text-foreground p-3 focus:outline-none focus:ring-1 focus:ring-foreground text-sm";
+  const labelCls = "text-[10px] uppercase tracking-luxury text-ink-muted block mb-1.5";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto relative p-6 my-auto">
-        <button onClick={onClose} className="absolute top-6 right-6 text-neutral-400 hover:text-white transition-colors">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/40 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-background border hairline w-full max-w-xl max-h-[90vh] overflow-y-auto relative p-8 my-auto">
+        <button onClick={onClose} className="absolute top-6 right-6 text-ink-muted hover:text-foreground transition-colors">
           <X className="w-5 h-5" />
         </button>
-        
-        <h2 className="text-2xl font-display text-white mb-6">Add New Academy</h2>
-        
-        {error && <div className="p-3 mb-6 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg text-sm">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Academy Name</label>
-            <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="e.g PyraRides Academy - Saqqara" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+        <p className="text-[11px] uppercase tracking-luxury text-ink-muted mb-2">Admin</p>
+        <h2 className="font-display text-2xl font-light mb-6">Add New Academy</h2>
+
+        {error && <div className="p-3 mb-5 border border-red-200 bg-red-50 text-red-700 text-sm">{error}</div>}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className={labelCls}>Academy Name</label>
+            <input required type="text" className={inputCls} placeholder="e.g PyraRides Academy - Saqqara"
+              value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Description</label>
-            <textarea required className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37] min-h-[80px]" placeholder="Brief description of this academy..." value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+          <div>
+            <label className={labelCls}>Description</label>
+            <textarea required className={`${inputCls} min-h-[80px]`} placeholder="Brief description of this academy..."
+              value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Region/Location</label>
-              <select required className="w-full bg-neutral-900 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })}>
+            <div>
+              <label className={labelCls}>Region / Location</label>
+              <select required className={inputCls} value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}>
                 <option value="saqqara">Saqqara</option>
                 <option value="nazlet">Nazlet</option>
                 <option value="abousir">Abousir</option>
@@ -327,60 +310,67 @@ function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuc
                 <option value="newcairo">New Cairo</option>
                 <option value="other">Other (Custom)</option>
               </select>
-              
               {formData.location === "other" && (
-                <input required type="text" className="w-full bg-white/5 border border-[#D4AF37] rounded-lg p-3 text-white focus:outline-none mt-2 placeholder-neutral-500" placeholder="Type custom location..." value={customLocation} onChange={(e) => setCustomLocation(e.target.value)} />
+                <input required type="text" className={`${inputCls} mt-2`} placeholder="Type custom location..."
+                  value={customLocation} onChange={(e) => setCustomLocation(e.target.value)} />
               )}
             </div>
-            
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Address</label>
-              <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="Physical address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
+            <div>
+              <label className={labelCls}>Address</label>
+              <input required type="text" className={inputCls} placeholder="Physical address"
+                value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Google Maps Link (Optional)</label>
-            <input type="url" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="https://maps.google.com/..." value={formData.googleMapsUrl} onChange={(e) => setFormData({ ...formData, googleMapsUrl: e.target.value })} />
-            <p className="text-[10px] text-neutral-500 px-1 mt-1">This will display a clickable directions button on public pages and rider dashboards.</p>
+          <div>
+            <label className={labelCls}>Google Maps Link (Optional)</label>
+            <input type="url" className={inputCls} placeholder="https://maps.google.com/..."
+              value={formData.googleMapsUrl} onChange={(e) => setFormData({ ...formData, googleMapsUrl: e.target.value })} />
+            <p className="text-[10px] text-ink-muted mt-1">Displays a clickable directions button on public pages.</p>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Academy Image</label>
+          <div>
+            <label className={labelCls}>Academy Image</label>
             <div className="flex items-center gap-4">
-              <label className="flex-shrink-0 cursor-pointer group">
-                <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp,image/heic" onChange={handleImageUpload} className="hidden" disabled={isUploading} />
-                <div className="h-20 w-20 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-white/20 bg-white/5 group-hover:bg-white/10 group-hover:border-[#D4AF37] transition-all">
-                  {isUploading ? <Loader2 className="h-6 w-6 text-[#D4AF37] animate-spin" /> : (
+              <label className="cursor-pointer">
+                <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp,image/heic"
+                  onChange={handleImageUpload} className="hidden" disabled={isUploading} />
+                <div className="h-20 w-20 flex flex-col items-center justify-center border hairline bg-surface hover:bg-surface-elevated transition-colors">
+                  {isUploading ? <Loader2 className="h-6 w-6 animate-spin text-foreground opacity-40" /> : (
                     <>
-                      <Camera className="h-6 w-6 text-neutral-400 group-hover:text-[#D4AF37] mb-1" />
-                      <span className="text-[10px] text-neutral-400 group-hover:text-[#D4AF37]">{formData.imageUrl ? "Change" : "Upload"}</span>
+                      <Camera className="h-6 w-6 text-foreground opacity-30 mb-1" />
+                      <span className="text-[10px] text-ink-muted">{formData.imageUrl ? "Change" : "Upload"}</span>
                     </>
                   )}
                 </div>
               </label>
               {formData.imageUrl && (
-                <div className="h-20 flex-1 relative rounded-lg overflow-hidden border border-white/10">
+                <div className="h-20 flex-1 relative border hairline overflow-hidden">
                   <img src={formData.imageUrl} alt="Academy preview" className="h-full w-full object-cover" />
                 </div>
               )}
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Assign Captain</label>
-            <select required className="w-full bg-neutral-900 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" value={formData.captainId} onChange={(e) => setFormData({ ...formData, captainId: e.target.value })}>
+          <div>
+            <label className={labelCls}>Assign Captain</label>
+            <select required className={inputCls} value={formData.captainId}
+              onChange={(e) => setFormData({ ...formData, captainId: e.target.value })}>
               <option value="" disabled>Select a user to assign as Captain</option>
-              {loadingUsers ? <option value="" disabled>Loading users...</option> : users.map(u => (
-                <option key={u.id} value={u.id}>{u.fullName} ({u.email}) - {u.role}</option>
+              {loadingUsers ? <option value="" disabled>Loading users…</option> : users.map(u => (
+                <option key={u.id} value={u.id}>{u.fullName} ({u.email}) — {u.role}</option>
               ))}
             </select>
-            <p className="text-[10px] text-neutral-500 px-1 mt-1">This user will automatically be promoted to the 'captain' role upon saving.</p>
+            <p className="text-[10px] text-ink-muted mt-1">This user will be promoted to the 'captain' role upon saving.</p>
           </div>
 
-          <div className="pt-4 flex justify-end gap-3 mt-4">
-            <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-lg text-white font-semibold hover:bg-white/10 transition-colors">Cancel</button>
-            <button type="submit" disabled={saving} className="bg-[#D4AF37] px-6 py-2.5 rounded-lg text-black font-semibold disabled:opacity-50 hover:bg-[#C49A2F] transition-colors flex items-center gap-2">
+          <div className="flex justify-end gap-3 pt-4 border-t hairline">
+            <button type="button" onClick={onClose}
+              className="px-6 py-2.5 border hairline text-[11px] uppercase tracking-luxury text-foreground hover:bg-surface transition-colors">
+              Cancel
+            </button>
+            <button type="submit" disabled={saving}
+              className="flex items-center gap-2 bg-foreground text-background px-6 py-2.5 text-[11px] uppercase tracking-luxury hover:bg-foreground/90 transition-colors disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Create Academy
             </button>
           </div>
@@ -390,19 +380,13 @@ function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuc
   );
 }
 
-function AddProgramModal({ academyId, onClose, onSuccess }: { academyId: string; onClose: () => void; onSuccess: () => void; }) {
+function AddProgramModal({ academyId, onClose, onSuccess }: { academyId: string; onClose: () => void; onSuccess: () => void }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
-    name: "",
-    description: "",
-    skillLevel: "BEGINNER",
-    price: "",
-    totalSessions: "",
-    sessionDuration: "1",
-    validityDays: "60",
-    startTime: "10:00",
-    availableDays: [] as string[],
+    name: "", description: "", skillLevel: "BEGINNER", price: "",
+    totalSessions: "", sessionDuration: "1", validityDays: "60",
+    startTime: "10:00", availableDays: [] as string[],
   });
 
   const allDays = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -418,107 +402,113 @@ function AddProgramModal({ academyId, onClose, onSuccess }: { academyId: string;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.availableDays.length === 0) {
-      setError("Please select at least one available day.");
-      return;
-    }
+    if (form.availableDays.length === 0) { setError("Please select at least one available day."); return; }
     setSaving(true);
     setError("");
-
     try {
       const res = await fetch("/api/admin/academies/programs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, academyId }),
       });
-
-      if (!res.ok) {
-        const d = await res.json();
-        throw new Error(d.error || "Failed to create program");
-      }
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Failed to create program"); }
       onSuccess();
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
+    } catch (err: any) { setError(err.message); }
+    finally { setSaving(false); }
   };
 
+  const inputCls = "w-full bg-surface border hairline text-foreground p-3 focus:outline-none focus:ring-1 focus:ring-foreground text-sm";
+  const labelCls = "text-[10px] uppercase tracking-luxury text-ink-muted block mb-1.5";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto relative p-6 my-auto">
-        <button onClick={onClose} className="absolute top-6 right-6 text-neutral-400 hover:text-white transition-colors">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/40 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-background border hairline w-full max-w-xl max-h-[90vh] overflow-y-auto relative p-8 my-auto">
+        <button onClick={onClose} className="absolute top-6 right-6 text-ink-muted hover:text-foreground transition-colors">
           <X className="w-5 h-5" />
         </button>
-        
-        <h2 className="text-2xl font-display text-white mb-6">Add Training Program</h2>
-        
-        {error && <div className="p-3 mb-6 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg text-sm">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Program Name</label>
-            <input required type="text" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="e.g. Beginner Foundations" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+        <p className="text-[11px] uppercase tracking-luxury text-ink-muted mb-2">Academy</p>
+        <h2 className="font-display text-2xl font-light mb-6">Add Training Program</h2>
+
+        {error && <div className="p-3 mb-5 border border-red-200 bg-red-50 text-red-700 text-sm">{error}</div>}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className={labelCls}>Program Name</label>
+            <input required type="text" className={inputCls} placeholder="e.g. Beginner Foundations"
+              value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Description</label>
-            <textarea required className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37] min-h-[60px]" placeholder="What trainees will learn..." value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          <div>
+            <label className={labelCls}>Description</label>
+            <textarea required className={`${inputCls} min-h-[60px]`} placeholder="What trainees will learn..."
+              value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Skill Level</label>
-              <select className="w-full bg-neutral-900 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" value={form.skillLevel} onChange={(e) => setForm({ ...form, skillLevel: e.target.value })}>
+            <div>
+              <label className={labelCls}>Skill Level</label>
+              <select className={inputCls} value={form.skillLevel}
+                onChange={(e) => setForm({ ...form, skillLevel: e.target.value })}>
                 <option value="BEGINNER">Beginner</option>
                 <option value="INTERMEDIATE">Intermediate</option>
                 <option value="ADVANCED">Advanced</option>
               </select>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Price (EGP)</label>
-              <input required type="number" min="1" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="e.g. 2500" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+            <div>
+              <label className={labelCls}>Price (EGP)</label>
+              <input required type="number" min="1" className={inputCls} placeholder="e.g. 2500"
+                value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Total Sessions</label>
-              <input required type="number" min="1" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="e.g. 8" value={form.totalSessions} onChange={(e) => setForm({ ...form, totalSessions: e.target.value })} />
+            <div>
+              <label className={labelCls}>Total Sessions</label>
+              <input required type="number" min="1" className={inputCls} placeholder="e.g. 8"
+                value={form.totalSessions} onChange={(e) => setForm({ ...form, totalSessions: e.target.value })} />
             </div>
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Duration (hrs)</label>
-              <input required type="number" min="0.5" step="0.5" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="1" value={form.sessionDuration} onChange={(e) => setForm({ ...form, sessionDuration: e.target.value })} />
+            <div>
+              <label className={labelCls}>Duration (hrs)</label>
+              <input required type="number" min="0.5" step="0.5" className={inputCls} placeholder="1"
+                value={form.sessionDuration} onChange={(e) => setForm({ ...form, sessionDuration: e.target.value })} />
             </div>
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Validity (days)</label>
-              <input required type="number" min="7" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" placeholder="60" value={form.validityDays} onChange={(e) => setForm({ ...form, validityDays: e.target.value })} />
+            <div>
+              <label className={labelCls}>Validity (days)</label>
+              <input required type="number" min="7" className={inputCls} placeholder="60"
+                value={form.validityDays} onChange={(e) => setForm({ ...form, validityDays: e.target.value })} />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Start Time</label>
-            <input required type="time" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} />
+          <div>
+            <label className={labelCls}>Start Time</label>
+            <input required type="time" className={inputCls}
+              value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })} />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Available Days</label>
+          <div>
+            <label className={labelCls}>Available Days</label>
             <div className="flex flex-wrap gap-2">
               {allDays.map(day => (
-                <button key={day} type="button" onClick={() => toggleDay(day)} className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                  form.availableDays.includes(day)
-                    ? "bg-[#D4AF37] text-black"
-                    : "bg-white/5 text-neutral-400 border border-white/10 hover:border-[#D4AF37]/40"
-                }`}>
+                <button key={day} type="button" onClick={() => toggleDay(day)}
+                  className={`px-3 py-1.5 text-[11px] uppercase tracking-luxury transition-colors ${
+                    form.availableDays.includes(day)
+                      ? "bg-foreground text-background"
+                      : "border hairline text-ink-muted hover:text-foreground"
+                  }`}>
                   {day.slice(0, 3)}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="pt-4 flex justify-end gap-3 mt-4">
-            <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-lg text-white font-semibold hover:bg-white/10 transition-colors">Cancel</button>
-            <button type="submit" disabled={saving} className="bg-[#D4AF37] px-6 py-2.5 rounded-lg text-black font-semibold disabled:opacity-50 hover:bg-[#C49A2F] transition-colors flex items-center gap-2">
+          <div className="flex justify-end gap-3 pt-4 border-t hairline">
+            <button type="button" onClick={onClose}
+              className="px-6 py-2.5 border hairline text-[11px] uppercase tracking-luxury text-foreground hover:bg-surface transition-colors">
+              Cancel
+            </button>
+            <button type="submit" disabled={saving}
+              className="flex items-center gap-2 bg-foreground text-background px-6 py-2.5 text-[11px] uppercase tracking-luxury hover:bg-foreground/90 transition-colors disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Create Program
             </button>
           </div>

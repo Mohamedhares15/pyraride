@@ -15,11 +15,8 @@ import {
   Edit2,
   Trash2,
   ArrowLeft,
-  ChevronRight,
   TrendingUp,
-  MapPin,
 } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import ReviewModal from "@/components/shared/ReviewModal";
@@ -59,15 +56,12 @@ function RiderDashboardContent() {
   const [activeTab, setActiveTab] = useState<"rides" | "training">(activeTabQuery as "rides" | "training");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
-  
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [cancelRescheduleModalOpen, setCancelRescheduleModalOpen] = useState(false);
   const [cancelRescheduleMode, setCancelRescheduleMode] = useState<"cancel" | "reschedule">("cancel");
-
   const [selectedEnrollmentToCancel, setSelectedEnrollmentToCancel] = useState<Enrollment | null>(null);
   const [cancelEnrollmentModalOpen, setCancelEnrollmentModalOpen] = useState(false);
 
@@ -75,7 +69,6 @@ function RiderDashboardContent() {
     if (status === "loading") return;
     if (!session) { router.push("/"); return; }
     if (session.user?.role !== "rider") { router.push("/dashboard"); return; }
-
     fetchData();
   }, [session, status, router, activeTab]);
 
@@ -103,9 +96,6 @@ function RiderDashboardContent() {
   }
 
   const handleRenewCancelEnrollment = async (enrollmentId: string, action: "renew" | "cancel") => {
-    // Note: 'cancel' is now handled through the dedicated CancelEnrollmentModal component onConfirm callback.
-    // 'renew' logic remains here or could be expanded.
-    
     try {
       const res = await fetch(`/api/training/enrollments/${enrollmentId}`, {
         method: "PATCH",
@@ -140,108 +130,144 @@ function RiderDashboardContent() {
   };
 
   const getStatusBadge = (status: string) => {
-    if (status === "confirmed" || status === "active") 
-      return <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 px-3 py-1"><CheckCircle className="mr-1.5 h-3.5 w-3.5" />{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>;
-    if (status === "completed") 
-      return <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 px-3 py-1"><CheckCircle className="mr-1.5 h-3.5 w-3.5" />Completed</Badge>;
-    if (status === "cancelled") 
-      return <Badge className="bg-red-500/10 text-red-400 border-red-500/20 px-3 py-1"><XCircle className="mr-1.5 h-3.5 w-3.5" />Cancelled</Badge>;
-    if (status === "expired") 
-      return <Badge className="bg-gray-500/10 text-gray-400 border-gray-500/20 px-3 py-1">Expired</Badge>;
+    if (status === "confirmed" || status === "active")
+      return <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 px-3 py-1"><CheckCircle className="mr-1.5 h-3.5 w-3.5" />{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>;
+    if (status === "completed")
+      return <Badge className="bg-blue-50 text-blue-700 border-blue-200 px-3 py-1"><CheckCircle className="mr-1.5 h-3.5 w-3.5" />Completed</Badge>;
+    if (status === "cancelled")
+      return <Badge className="bg-red-50 text-red-700 border-red-200 px-3 py-1"><XCircle className="mr-1.5 h-3.5 w-3.5" />Cancelled</Badge>;
+    if (status === "expired")
+      return <Badge className="bg-stone-50 text-stone-500 border-stone-200 px-3 py-1">Expired</Badge>;
     return null;
   };
 
   if (status === "loading") {
-    return <div className="flex min-h-screen items-center justify-center bg-black"><div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground" />
+          <span className="text-[11px] tracking-luxury uppercase text-ink-muted">Loading…</span>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-20 custom-scrollbar">
+    <div className="min-h-screen bg-background text-foreground pb-20">
       {/* Header */}
-      <div className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur-xl pt-[var(--header-total-height)]">
+      <div className="sticky top-0 z-40 border-b hairline bg-background/95 backdrop-blur-xl pt-[var(--header-total-height)]">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-6 md:px-8">
           <div>
-            <h1 className="font-display text-3xl font-light tracking-tight text-white md:text-4xl">
+            <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-1">Rider Portal</p>
+            <h1 className="font-display text-3xl font-light md:text-4xl">
               Dashboard
             </h1>
-            <p className="mt-2 text-sm text-neutral-400">
+            <p className="mt-1 text-sm text-ink-soft">
               Welcome back, {session?.user?.name}
             </p>
           </div>
-          <Button asChild variant="outline" className="border-white/10 bg-white/5 text-white hover:bg-white/10">
+          <Button asChild variant="outline" className="border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
             <Link href="/"><ArrowLeft className="mr-2 h-4 w-4" /> Home</Link>
           </Button>
         </div>
 
         {/* Tabs */}
         <div className="mx-auto max-w-7xl px-4 md:px-8 flex gap-8">
-          <button 
+          <button
             onClick={() => { setActiveTab("rides"); router.push("/dashboard/rider?tab=rides", { scroll: false }); }}
-            className={`pb-4 text-sm font-semibold uppercase tracking-widest relative transition-colors ${activeTab === 'rides' ? 'text-[#D4AF37]' : 'text-gray-500 hover:text-white'}`}
+            className={`pb-4 text-[11px] uppercase tracking-luxury relative transition-colors ${activeTab === 'rides' ? 'text-foreground' : 'text-ink-muted hover:text-foreground'}`}
           >
             My Rides
-            {activeTab === 'rides' && <div className="absolute bottom-[-1px] left-0 w-full h-[2px] bg-[#D4AF37]" />}
+            {activeTab === 'rides' && <div className="absolute bottom-[-1px] left-0 w-full h-[1px] bg-foreground" />}
           </button>
-          <button 
+          <button
             onClick={() => { setActiveTab("training"); router.push("/dashboard/rider?tab=training", { scroll: false }); }}
-            className={`pb-4 text-sm font-semibold uppercase tracking-widest relative transition-colors ${activeTab === 'training' ? 'text-[#D4AF37]' : 'text-gray-500 hover:text-white'}`}
+            className={`pb-4 text-[11px] uppercase tracking-luxury relative transition-colors ${activeTab === 'training' ? 'text-foreground' : 'text-ink-muted hover:text-foreground'}`}
           >
             My Training
-            {activeTab === 'training' && <div className="absolute bottom-[-1px] left-0 w-full h-[2px] bg-[#D4AF37]" />}
+            {activeTab === 'training' && <div className="absolute bottom-[-1px] left-0 w-full h-[1px] bg-foreground" />}
           </button>
         </div>
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         {isLoading ? (
-          <div className="flex justify-center p-12"><div className="w-8 h-8 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin" /></div>
+          <div className="flex justify-center p-16">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground" />
+          </div>
         ) : error ? (
-          <Card className="border-red-500/20 bg-red-500/5 p-8 text-center"><AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" /><h3 className="mb-2 text-lg font-semibold text-red-500">Failed to load</h3><p className="mb-6 text-neutral-400">{error}</p><Button onClick={fetchData} variant="outline" className="border-red-500/20 hover:bg-red-500/10">Try Again</Button></Card>
+          <div className="border hairline bg-red-50 p-10 text-center">
+            <AlertCircle className="mx-auto mb-4 h-10 w-10 text-red-500 opacity-60" />
+            <h3 className="mb-2 font-display text-xl text-red-700">Failed to load</h3>
+            <p className="mb-6 text-red-600/70 text-sm">{error}</p>
+            <Button onClick={fetchData} variant="outline" className="border-foreground/20 text-foreground">Try Again</Button>
+          </div>
         ) : activeTab === "rides" ? (
           /* Bookings Tab */
           bookings.length === 0 ? (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex min-h-[400px] flex-col items-center justify-center rounded-3xl border border-white/10 bg-white/[0.02] p-12 text-center backdrop-blur-sm">
-              <div className="mb-6 rounded-full bg-white/5 p-6 ring-1 ring-white/10"><span className="text-4xl">🐴</span></div>
-              <h2 className="mb-3 font-display text-2xl font-light text-white">No Bookings Yet</h2>
-              <p className="mb-8 max-w-md text-neutral-400">Start your journey by exploring our curated selection of premium stables.</p>
-              <Button asChild size="lg" className="bg-[#D4AF37] text-black hover:bg-[#C49A2F] uppercase tracking-[0.2em] font-semibold rounded-full"><Link href="/stables">Explore Stables</Link></Button>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              className="flex min-h-[400px] flex-col items-center justify-center border hairline bg-surface p-16 text-center"
+            >
+              <div className="mb-6 text-5xl">🐴</div>
+              <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-3">No bookings yet</p>
+              <h2 className="mb-3 font-display text-3xl font-light">Start Your Journey</h2>
+              <p className="mb-8 max-w-md text-ink-soft text-sm">Explore our curated selection of premium stables across the Giza Plateau.</p>
+              <Link href="/stables" className="inline-block bg-foreground text-background px-10 py-4 text-[11px] uppercase tracking-luxury hover:bg-foreground/90 transition-colors">
+                Explore Stables
+              </Link>
             </motion.div>
           ) : (
-            <div className="grid gap-6">
+            <div className="grid gap-4">
               {bookings.map((booking, index) => (
-                <motion.div key={booking.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
-                  <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] transition-all hover:border-white/20 hover:bg-white/[0.04]">
+                <motion.div key={booking.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
+                  <div className="border hairline bg-surface transition-colors hover:bg-surface-elevated">
                     <div className="flex flex-col md:flex-row">
-                      <div className={`h-1.5 w-full md:h-auto md:w-1.5 ${booking.status === 'confirmed' ? 'bg-emerald-500' : booking.status === 'completed' ? 'bg-blue-500' : 'bg-red-500'}`} />
-                      <div className="flex flex-1 flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between">
+                      <div className={`h-1 w-full md:h-auto md:w-1 ${booking.status === 'confirmed' ? 'bg-emerald-400' : booking.status === 'completed' ? 'bg-blue-400' : 'bg-red-300'}`} />
+                      <div className="flex flex-1 flex-col gap-5 p-6 md:flex-row md:items-center md:justify-between">
                         <div className="flex-1 space-y-4">
                           <div className="flex items-start justify-between md:justify-start md:gap-4">
                             <div>
-                              <h3 className="font-display text-xl font-bold text-white mb-2">{booking.stable.name}</h3>
-                              <div className="flex items-center gap-2 text-sm text-neutral-400">
-                                <span>{booking.horse.name}</span><span>•</span><span className="capitalize">{booking.stable.location}</span>
+                              <h3 className="font-display text-xl font-light mb-1">{booking.stable.name}</h3>
+                              <div className="flex items-center gap-2 text-sm text-ink-soft">
+                                <span>{booking.horse.name}</span><span>·</span><span className="capitalize">{booking.stable.location}</span>
                               </div>
                             </div>
                             <div className="md:hidden">{getStatusBadge(booking.status)}</div>
                           </div>
-                          <div className="flex flex-wrap gap-4 text-sm text-neutral-300">
-                            <div className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2"><Calendar className="h-4 w-4 text-[#D4AF37]" /><span>{formatDate(booking.startTime)}</span></div>
-                            <div className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2"><Clock className="h-4 w-4 text-[#D4AF37]" /><span>{formatTime(booking.startTime)} - {formatTime(booking.endTime)}</span></div>
+                          <div className="flex flex-wrap gap-3 text-sm">
+                            <div className="flex items-center gap-2 border hairline bg-background px-3 py-2 text-ink-soft">
+                              <Calendar className="h-3.5 w-3.5 text-foreground opacity-50" />
+                              <span>{formatDate(booking.startTime)}</span>
+                            </div>
+                            <div className="flex items-center gap-2 border hairline bg-background px-3 py-2 text-ink-soft">
+                              <Clock className="h-3.5 w-3.5 text-foreground opacity-50" />
+                              <span>{formatTime(booking.startTime)} – {formatTime(booking.endTime)}</span>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex flex-col gap-4 border-t border-white/10 pt-4 md:items-end md:border-t-0 md:pt-0">
+
+                        <div className="flex flex-col gap-4 border-t hairline pt-4 md:items-end md:border-t-0 md:pt-0">
                           <div className="hidden md:block">{getStatusBadge(booking.status)}</div>
                           <div className="flex items-center justify-between gap-8 md:justify-end">
                             <div className="text-left md:text-right">
-                              <p className="text-[10px] uppercase tracking-widest text-neutral-500 mb-1">Total</p>
-                              <span className="text-xl font-light text-white">EGP {Number(booking.totalPrice || 0).toFixed(0)}</span>
+                              <p className="text-[10px] uppercase tracking-luxury text-ink-muted mb-0.5">Total</p>
+                              <span className="font-display text-xl font-light">EGP {Number(booking.totalPrice || 0).toFixed(0)}</span>
                             </div>
                             <div className="flex gap-2">
-                              {booking.status === "completed" && !booking.hasReview && <Button size="sm" onClick={() => { setSelectedBooking(booking); setReviewModalOpen(true); }} className="bg-white/10 text-white hover:bg-white/20"><Star className="mr-2 h-3.5 w-3.5" />Review</Button>}
+                              {booking.status === "completed" && !booking.hasReview && (
+                                <Button size="sm" onClick={() => { setSelectedBooking(booking); setReviewModalOpen(true); }} variant="outline" className="border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
+                                  <Star className="mr-2 h-3.5 w-3.5" />Review
+                                </Button>
+                              )}
                               {booking.status === "confirmed" && (
                                 <>
-                                  <Button size="sm" variant="outline" onClick={() => { setSelectedBooking(booking); setCancelRescheduleMode("reschedule"); setCancelRescheduleModalOpen(true); }} className="border-white/10 bg-transparent text-white hover:bg-white/5"><Edit2 className="mr-2 h-3.5 w-3.5" />Reschedule</Button>
-                                  <Button size="sm" variant="destructive" onClick={() => { setSelectedBooking(booking); setCancelRescheduleMode("cancel"); setCancelRescheduleModalOpen(true); }} className="bg-red-500/10 text-red-500 hover:bg-red-500/20 border-red-500/20"><Trash2 className="h-3.5 w-3.5" /></Button>
+                                  <Button size="sm" variant="outline" onClick={() => { setSelectedBooking(booking); setCancelRescheduleMode("reschedule"); setCancelRescheduleModalOpen(true); }} className="border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
+                                    <Edit2 className="mr-2 h-3.5 w-3.5" />Reschedule
+                                  </Button>
+                                  <Button size="sm" variant="outline" onClick={() => { setSelectedBooking(booking); setCancelRescheduleMode("cancel"); setCancelRescheduleModalOpen(true); }} className="border-red-200 text-red-600 hover:bg-red-50">
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </Button>
                                 </>
                               )}
                             </div>
@@ -257,92 +283,104 @@ function RiderDashboardContent() {
         ) : (
           /* Training Tab */
           enrollments.length === 0 ? (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex min-h-[400px] flex-col items-center justify-center rounded-3xl border border-white/10 bg-white/[0.02] p-12 text-center backdrop-blur-sm">
-              <div className="mb-6 rounded-full bg-white/5 p-6 ring-1 ring-white/10"><TrendingUp className="h-8 w-8 text-[#D4AF37]" /></div>
-              <h2 className="mb-3 font-display text-2xl font-light text-white">No Active Training</h2>
-              <p className="mb-8 max-w-md text-neutral-400">Join PyraRides Academy and start your professional horse riding journey today.</p>
-              <Button asChild size="lg" className="bg-[#D4AF37] text-black hover:bg-[#C49A2F] uppercase tracking-[0.2em] font-semibold rounded-full"><Link href="/training">Explore Academies</Link></Button>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              className="flex min-h-[400px] flex-col items-center justify-center border hairline bg-surface p-16 text-center"
+            >
+              <div className="mb-6 flex h-16 w-16 items-center justify-center border hairline bg-surface-elevated">
+                <TrendingUp className="h-7 w-7 text-foreground opacity-40" />
+              </div>
+              <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-3">No active training</p>
+              <h2 className="mb-3 font-display text-3xl font-light">Begin Your Training</h2>
+              <p className="mb-8 max-w-md text-ink-soft text-sm">Join PyraRides Academy and start your professional horse riding journey today.</p>
+              <Link href="/training" className="inline-block bg-foreground text-background px-10 py-4 text-[11px] uppercase tracking-luxury hover:bg-foreground/90 transition-colors">
+                Explore Academies
+              </Link>
             </motion.div>
           ) : (
-            <div className="grid gap-8">
+            <div className="grid gap-6">
               {enrollments.map((enr, idx) => {
                 const progressPercentage = Math.round((enr.completedSessions / enr.totalSessions) * 100);
-                
                 return (
-                  <motion.div key={enr.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden">
+                  <motion.div key={enr.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.08 }} className="border hairline bg-surface overflow-hidden">
                     {/* Training Header */}
                     <div className="p-6 md:p-8 flex flex-col md:flex-row justify-between gap-6">
                       <div className="flex gap-6">
-                        <div className="hidden md:block relative w-24 h-24 rounded-xl overflow-hidden shadow-lg border border-white/10">
-<NextImage src={enr.academy.imageUrl || "/hero-bg.webp"} alt={enr.academy.name} fill className="object-cover" />
+                        <div className="hidden md:block relative w-20 h-20 overflow-hidden border hairline flex-shrink-0">
+                          <NextImage src={enr.academy.imageUrl || "/hero-bg.webp"} alt={enr.academy.name} fill className="object-cover" />
                         </div>
                         <div>
-                          <div className="flex items-center gap-3 mb-2">
+                          <div className="flex items-center gap-3 mb-2 flex-wrap">
                             {getStatusBadge(enr.status)}
-                            <span className="text-[10px] uppercase tracking-widest text-[#D4AF37] border border-[#D4AF37]/30 px-2 py-0.5 rounded-full">{enr.program.skillLevel}</span>
+                            <span className="text-[10px] uppercase tracking-luxury text-ink-muted border hairline px-2 py-0.5">{enr.program.skillLevel}</span>
                           </div>
-                          <h3 className="font-display text-2xl text-white mb-1">{enr.program.name}</h3>
-                          <p className="text-gray-400 text-sm">{enr.academy.name} • {enr.academy.location}</p>
-                          
-                          <div className="mt-4 flex items-center gap-6">
-                             <div className="text-sm">
-                               <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-0.5">Duration</p>
-                               <span className="text-white">{formatDate(enr.startDate)} — {formatDate(enr.expiryDate)}</span>
-                             </div>
+                          <h3 className="font-display text-2xl font-light mb-1">{enr.program.name}</h3>
+                          <p className="text-ink-soft text-sm">{enr.academy.name} · {enr.academy.location}</p>
+                          <div className="mt-3">
+                            <p className="text-[10px] uppercase tracking-luxury text-ink-muted mb-0.5">Duration</p>
+                            <span className="text-sm text-foreground">{formatDate(enr.startDate)} — {formatDate(enr.expiryDate)}</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex flex-col md:items-end justify-between">
-                         <div className="mb-6 md:mb-0 w-full md:w-48">
-                           <div className="flex justify-between text-xs mb-2">
-                             <span className="text-gray-400">Progress</span>
-                             <span className="text-[#D4AF37] font-medium">{enr.completedSessions} / {enr.totalSessions} Sessions</span>
-                           </div>
-                           <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                             <div className="h-full bg-[#D4AF37]" style={{ width: `${progressPercentage}%` }} />
-                           </div>
-                         </div>
+                      <div className="flex flex-col md:items-end justify-between gap-4">
+                        <div className="w-full md:w-52">
+                          <div className="flex justify-between text-[10px] uppercase tracking-luxury mb-2">
+                            <span className="text-ink-muted">Progress</span>
+                            <span className="text-foreground">{enr.completedSessions} / {enr.totalSessions} sessions</span>
+                          </div>
+                          <div className="h-px w-full bg-foreground/10 overflow-hidden">
+                            <div className="h-full bg-foreground transition-all duration-500" style={{ width: `${progressPercentage}%` }} />
+                          </div>
+                        </div>
 
-                         <div className="flex gap-3">
-                           {enr.status === "active" && enr.completedSessions < 2 && (
-                             <button onClick={() => { setSelectedEnrollmentToCancel(enr); setCancelEnrollmentModalOpen(true); }} className="text-xs uppercase tracking-widest text-gray-400 hover:text-red-400 transition-colors">Cancel</button>
-                           )}
-                           {(enr.status === "completed" || enr.status === "expired") && (
-                             <button onClick={() => handleRenewCancelEnrollment(enr.id, "renew")} className="bg-[#D4AF37] text-black px-6 py-2 rounded-full text-xs font-semibold uppercase tracking-widest hover:scale-105 transition-transform">Renew Program</button>
-                           )}
-                         </div>
+                        <div className="flex gap-3">
+                          {enr.status === "active" && enr.completedSessions < 2 && (
+                            <button
+                              onClick={() => { setSelectedEnrollmentToCancel(enr); setCancelEnrollmentModalOpen(true); }}
+                              className="text-[10px] uppercase tracking-luxury text-ink-muted hover:text-red-600 transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          )}
+                          {(enr.status === "completed" || enr.status === "expired") && (
+                            <button
+                              onClick={() => handleRenewCancelEnrollment(enr.id, "renew")}
+                              className="bg-foreground text-background px-6 py-2 text-[10px] uppercase tracking-luxury hover:bg-foreground/90 transition-colors"
+                            >
+                              Renew Program
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
 
                     {/* Sessions Grid */}
-                    <div className="bg-black/50 p-6 md:p-8 border-t border-white/5">
-                      <h4 className="font-display text-lg text-white mb-6">Schedule</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-surface-elevated p-6 md:p-8 border-t hairline">
+                      <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-5">Schedule</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                         {enr.sessions.map((session) => (
-                          <div key={session.id} className="p-4 rounded-xl border border-white/5 bg-white/[0.02] relative group">
+                          <div key={session.id} className="p-4 border hairline bg-background">
                             <div className="flex justify-between items-start mb-3">
-                              <span className="text-[#D4AF37] text-[10px] uppercase tracking-widest font-semibold">Session {session.sessionNumber}</span>
+                              <span className="text-[10px] uppercase tracking-luxury text-foreground opacity-60">Session {session.sessionNumber}</span>
                               {session.status === "completed" ? (
-                                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                                <CheckCircle className="w-4 h-4 text-emerald-500" />
                               ) : session.status === "cancelled" ? (
                                 <XCircle className="w-4 h-4 text-red-400" />
                               ) : session.status === "rescheduled" ? (
                                 <AlertCircle className="w-4 h-4 text-amber-500" />
                               ) : (
-                                <Clock className="w-4 h-4 text-gray-500" />
+                                <Clock className="w-4 h-4 text-ink-muted" />
                               )}
                             </div>
-                            <p className="text-white text-sm mb-1">{formatDate(session.date)}</p>
-                            <p className="text-gray-400 text-xs">{session.startTime} - {session.endTime}</p>
-                            
-                            {/* Review Tooltip */}
+                            <p className="text-foreground text-sm mb-0.5">{formatDate(session.date)}</p>
+                            <p className="text-ink-muted text-xs">{session.startTime} – {session.endTime}</p>
                             {session.review && (
-                              <div className="mt-3 pt-3 border-t border-white/5">
-                                <div className="flex items-center gap-1 mb-1 text-[#D4AF37]">
+                              <div className="mt-3 pt-3 border-t hairline">
+                                <div className="flex items-center gap-0.5 mb-1 text-foreground opacity-50">
                                   <Star className="w-3 h-3 fill-current" /><Star className="w-3 h-3 fill-current" /><Star className="w-3 h-3 fill-current" />
                                 </div>
-                                <p className="text-[10px] text-gray-300 italic line-clamp-2">"{session.review.comment}"</p>
+                                <p className="text-[10px] text-ink-soft italic line-clamp-2">"{session.review.comment}"</p>
                               </div>
                             )}
                           </div>
@@ -363,10 +401,10 @@ function RiderDashboardContent() {
       {selectedBooking && (
         <CancelRescheduleModal open={cancelRescheduleModalOpen} onOpenChange={setCancelRescheduleModalOpen} booking={selectedBooking} mode={cancelRescheduleMode} />
       )}
-      <CancelEnrollmentModal 
-        open={cancelEnrollmentModalOpen} 
-        onOpenChange={setCancelEnrollmentModalOpen} 
-        enrollment={selectedEnrollmentToCancel} 
+      <CancelEnrollmentModal
+        open={cancelEnrollmentModalOpen}
+        onOpenChange={setCancelEnrollmentModalOpen}
+        enrollment={selectedEnrollmentToCancel}
         onConfirm={async (enrollmentId) => {
           try {
             const res = await fetch(`/api/training/enrollments/${enrollmentId}`, {
@@ -379,7 +417,7 @@ function RiderDashboardContent() {
           } catch (e) {
             alert("Something went wrong");
           }
-        }} 
+        }}
       />
     </div>
   );
@@ -388,13 +426,14 @@ function RiderDashboardContent() {
 export default function RiderDashboard() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-black">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#D4AF37] border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground" />
+          <span className="text-[11px] tracking-luxury uppercase text-ink-muted">Loading…</span>
+        </div>
       </div>
     }>
       <RiderDashboardContent />
     </Suspense>
   );
 }
-
-

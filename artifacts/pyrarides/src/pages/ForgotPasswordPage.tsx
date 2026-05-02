@@ -3,7 +3,6 @@ import { Link } from "wouter";
 import { ArrowLeft, Mail, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -35,40 +34,63 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <Link href="/signin" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors mb-8">
+        <Link href="/signin" className="flex items-center gap-2 text-ink-muted hover:text-foreground transition-colors mb-8">
           <ArrowLeft className="h-4 w-4" />
-          <span className="text-sm">Back to Sign In</span>
+          <span className="text-sm tracking-wide">Back to Sign In</span>
         </Link>
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+
+        <div className="border hairline bg-surface p-10">
           {success ? (
-            <div className="text-center space-y-4">
-              <CheckCircle className="h-12 w-12 text-green-400 mx-auto" />
-              <h2 className="text-xl font-bold text-white">Email Sent!</h2>
-              <p className="text-white/60 text-sm">Check your inbox for password reset instructions.</p>
+            <div className="text-center space-y-5">
+              <CheckCircle className="h-12 w-12 text-foreground mx-auto opacity-70" />
+              <div>
+                <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-2">Sent</p>
+                <h2 className="font-display text-3xl">Check your inbox</h2>
+              </div>
+              <p className="text-ink-soft text-sm leading-relaxed">
+                Password reset instructions are on their way to your email address.
+              </p>
               <Link href="/signin">
-                <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">Back to Sign In</Button>
+                <Button variant="outline" className="border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
+                  Back to Sign In
+                </Button>
               </Link>
             </div>
           ) : (
             <>
-              <div className="text-center mb-6">
-                <Mail className="h-10 w-10 text-[#D4AF37] mx-auto mb-3" />
-                <h1 className="text-2xl font-bold text-white">Forgot Password?</h1>
-                <p className="text-white/60 text-sm mt-2">Enter your email and we'll send you a reset link.</p>
+              <div className="text-center mb-8">
+                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center border hairline">
+                  <Mail className="h-6 w-6 text-foreground opacity-60" />
+                </div>
+                <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-2">Account Recovery</p>
+                <h1 className="font-display text-3xl md:text-4xl">Forgot Password?</h1>
+                <p className="text-ink-soft text-sm mt-3">Enter your email and we'll send you a reset link.</p>
               </div>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {error && <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-sm text-red-400">{error}</div>}
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
-                  required
-                />
-                <Button type="submit" disabled={isLoading} className="w-full bg-[#D4AF37] text-black hover:bg-[#D4AF37]/90 font-semibold">
+
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {error && (
+                  <div className="border border-red-300 bg-red-50 p-3 text-sm text-red-700">
+                    {error}
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <label className="text-[11px] tracking-luxury uppercase text-ink-muted">Email address</label>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    className="border-foreground/20 bg-background text-foreground placeholder:text-ink-muted focus:border-foreground/40"
+                    required
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-foreground text-background hover:bg-foreground/90 transition-colors uppercase tracking-[0.15em] text-xs font-medium py-6"
+                >
                   {isLoading ? "Sending..." : "Send Reset Link"}
                 </Button>
               </form>

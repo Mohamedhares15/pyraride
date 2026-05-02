@@ -146,52 +146,53 @@ export default function AnalyticsPage() {
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-black/80 via-black/90 to-black/95">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-white border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground" />
+          <span className="text-[11px] tracking-luxury uppercase text-ink-muted">Loading analytics…</span>
+        </div>
       </div>
     );
   }
 
   if (!analytics && !isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95 safe-area-black">
-        <div className="border-b border-white/10 bg-black/60 py-12 backdrop-blur-lg">
+      <div className="min-h-screen bg-background">
+        <div className="border-b hairline bg-surface py-12">
           <div className="mx-auto max-w-7xl px-4 md:px-8">
             <div className="mb-4">
               <Link href="/">
-                <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                <Button variant="outline" size="sm" className="gap-2 border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
                   <Home className="h-4 w-4" />
                   Home
                 </Button>
               </Link>
             </div>
-            <h1 className="mb-2 font-display text-4xl font-bold tracking-tight text-white">
-              Analytics
-            </h1>
+            <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-2">Analytics</p>
+            <h1 className="font-display text-4xl font-light">Analytics</h1>
           </div>
         </div>
         <div className="flex min-h-[60vh] items-center justify-center">
-          <Card className="p-8 text-center max-w-md">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
-              <XCircle className="h-8 w-8 text-destructive" />
+          <div className="border hairline bg-surface p-10 text-center max-w-md">
+            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center border hairline bg-surface-elevated">
+              <XCircle className="h-7 w-7 text-foreground opacity-40" />
             </div>
-            <h2 className="mb-2 font-display text-xl font-bold">Failed to Load Analytics</h2>
-            <p className="mb-6 text-sm text-muted-foreground">
+            <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-3">Error</p>
+            <h2 className="font-display text-2xl font-light mb-3">Failed to Load Analytics</h2>
+            <p className="mb-6 text-sm text-ink-soft">
               {session?.user?.role === "stable_owner"
                 ? "Unable to load your stable analytics. Please ensure you have an approved stable."
                 : "Unable to load analytics data. Please try again."}
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <Button onClick={fetchAnalytics}>
+              <Button onClick={fetchAnalytics} className="bg-foreground text-background hover:bg-foreground/90">
                 Try Again
               </Button>
-              <Button variant="outline" asChild>
-                <Link href="/dashboard/stable">
-                  Back to Dashboard
-                </Link>
+              <Button variant="outline" asChild className="border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
+                <Link href="/dashboard/stable">Back to Dashboard</Link>
               </Button>
             </div>
-          </Card>
+          </div>
         </div>
       </div>
     );
@@ -205,13 +206,13 @@ export default function AnalyticsPage() {
   const isAdmin = session?.user?.role === "admin";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="border-b border-white/10 bg-black/60 py-12 backdrop-blur-lg">
+      <div className="border-b hairline bg-surface py-12">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <div className="mb-4 flex flex-wrap items-center gap-4">
+          <div className="mb-5 flex flex-wrap items-center gap-3">
             <Link href="/">
-              <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+              <Button variant="outline" size="sm" className="gap-2 border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
                 <Home className="h-4 w-4" />
                 Home
               </Button>
@@ -219,54 +220,54 @@ export default function AnalyticsPage() {
             {isAdmin && (
               <>
                 <Link href="/dashboard/admin/stables">
-                  <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                  <Button variant="outline" size="sm" className="gap-2 border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
                     Manage Stables
                   </Button>
                 </Link>
                 <Link href="/dashboard/admin/packages">
-                  <Button variant="outline" size="sm" className="gap-2 border-[#D4AF37]/30 bg-[#D4AF37]/10 text-[#D4AF37] hover:bg-[#D4AF37]/20 hover:text-[#D4AF37]">
+                  <Button variant="outline" size="sm" className="gap-2 border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
                     <Star className="h-4 w-4" />
                     Manage Packages
                   </Button>
                 </Link>
                 <Link href="/dashboard/admin/packages/bookings">
-                  <Button variant="outline" size="sm" className="gap-2 border-[#D4AF37]/30 bg-[#D4AF37]/10 text-[#D4AF37] hover:bg-[#D4AF37]/20 hover:text-[#D4AF37]">
+                  <Button variant="outline" size="sm" className="gap-2 border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
                     <Activity className="h-4 w-4" />
                     Package Bookings
                   </Button>
                 </Link>
                 <Link href="/dashboard/admin/transport-zones">
-                  <Button variant="outline" size="sm" className="gap-2 border-[#D4AF37]/30 bg-[#D4AF37]/10 text-[#D4AF37] hover:bg-[#D4AF37]/20 hover:text-[#D4AF37]">
+                  <Button variant="outline" size="sm" className="gap-2 border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
                     <MapPin className="h-4 w-4" />
                     Transport Zones
                   </Button>
                 </Link>
                 <Link href="/dashboard/admin/horses">
-                  <Button variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
-                    <FileText className="mr-2 h-4 w-4" />
+                  <Button variant="outline" size="sm" className="gap-2 border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
+                    <FileText className="h-4 w-4" />
                     Manage Horse Admin Tiers
                   </Button>
                 </Link>
                 <Link href="/dashboard/admin/horse-changes">
-                  <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                  <Button variant="outline" size="sm" className="gap-2 border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
                     <FileText className="h-4 w-4" />
                     Horse Changes
                   </Button>
                 </Link>
                 <Link href="/dashboard/admin/locations">
-                  <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                  <Button variant="outline" size="sm" className="gap-2 border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
                     <MapPin className="h-4 w-4" />
                     Manage Locations
                   </Button>
                 </Link>
                 <Link href="/dashboard/admin/academies">
-                  <Button variant="outline" size="sm" className="gap-2 border-[#D4AF37]/30 bg-[#D4AF37]/10 text-[#D4AF37] hover:bg-[#D4AF37]/20 hover:text-[#D4AF37]">
+                  <Button variant="outline" size="sm" className="gap-2 border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
                     <Target className="h-4 w-4" />
                     Manage Academies
                   </Button>
                 </Link>
                 <Link href="/dashboard/admin/instant-booking">
-                  <Button variant="outline" size="sm" className="gap-2 border-teal-500/30 bg-teal-500/10 text-teal-400 hover:bg-teal-500/20 hover:text-teal-300">
+                  <Button variant="outline" size="sm" className="gap-2 border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-colors">
                     <Calendar className="h-4 w-4" />
                     Instant Booking
                   </Button>
@@ -274,39 +275,39 @@ export default function AnalyticsPage() {
               </>
             )}
           </div>
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mt-6">
             <div>
-              <h1 className="mb-2 font-display text-4xl font-bold tracking-tight text-white">
+              <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-2">
+                {isAdmin ? "Platform Analytics" : "Stable Analytics"}
+              </p>
+              <h1 className="font-display text-4xl font-light">
                 {isAdmin ? "Platform Analytics" : "Stable Analytics"}
               </h1>
-              <p className="text-white/70">
+              <p className="text-ink-soft text-sm mt-1">
                 {isAdmin
                   ? "Platform-wide statistics and insights"
                   : `Performance metrics for ${analytics.stable?.name}`}
               </p>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant={days === 7 ? "default" : "outline"}
-                size="sm"
+            <div className="flex gap-1 border hairline p-1 self-start">
+              <button
                 onClick={() => setDays(7)}
+                className={`px-5 py-2 text-[11px] uppercase tracking-luxury transition-all ${days === 7 ? "bg-foreground text-background" : "text-ink-muted hover:text-foreground"}`}
               >
                 7 Days
-              </Button>
-              <Button
-                variant={days === 30 ? "default" : "outline"}
-                size="sm"
+              </button>
+              <button
                 onClick={() => setDays(30)}
+                className={`px-5 py-2 text-[11px] uppercase tracking-luxury transition-all ${days === 30 ? "bg-foreground text-background" : "text-ink-muted hover:text-foreground"}`}
               >
                 30 Days
-              </Button>
-              <Button
-                variant={days === 90 ? "default" : "outline"}
-                size="sm"
+              </button>
+              <button
                 onClick={() => setDays(90)}
+                className={`px-5 py-2 text-[11px] uppercase tracking-luxury transition-all ${days === 90 ? "bg-foreground text-background" : "text-ink-muted hover:text-foreground"}`}
               >
                 90 Days
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -651,7 +652,7 @@ export default function AnalyticsPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-white/10">
+                      <tr className="border-b hairline">
                         <th className="pb-3 text-left font-semibold text-sm">Horse</th>
                         <th className="pb-3 text-left font-semibold text-sm">Date</th>
                         <th className="pb-3 text-left font-semibold text-sm">Time</th>
@@ -663,7 +664,7 @@ export default function AnalyticsPage() {
                     </thead>
                     <tbody>
                       {analytics.recentBookings.map((booking: any) => (
-                        <tr key={booking.id} className="border-b border-white/5 hover:bg-white/5">
+                        <tr key={booking.id} className="border-b hairline hover:bg-surface transition-colors">
                           <td className="py-3 font-medium">{booking.horseName}</td>
                           <td className="py-3 text-muted-foreground">{booking.date}</td>
                           <td className="py-3 text-muted-foreground">{booking.time}</td>
@@ -701,7 +702,7 @@ export default function AnalyticsPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-white/10">
+                      <tr className="border-b hairline">
                         <th className="pb-3 text-left font-semibold text-sm">Name</th>
                         <th className="pb-3 text-left font-semibold text-sm">Email</th>
                         <th className="pb-3 text-left font-semibold text-sm">Phone</th>
@@ -712,7 +713,7 @@ export default function AnalyticsPage() {
                     <tbody>
                       {analytics.detailedUsers.map((user: any) => (
                         <React.Fragment key={user.id}>
-                          <tr className="border-b border-white/5 hover:bg-white/5 cursor-pointer group">
+                          <tr className="border-b hairline hover:bg-surface cursor-pointer group transition-colors">
                             <td className="py-3 font-medium">{user.fullName}</td>
                             <td className="py-3 text-muted-foreground text-sm">{user.email}</td>
                             <td className="py-3 text-muted-foreground text-sm">{user.phoneNumber}</td>
@@ -729,11 +730,11 @@ export default function AnalyticsPage() {
                           {user.bookings && user.bookings.length > 0 && (
                             <tr>
                               <td colSpan={5} className="pb-4 pt-2">
-                                <div className="ml-4 p-3 bg-white/5 rounded-lg border border-white/10">
-                                  <p className="text-xs font-semibold text-muted-foreground mb-2">BOOKING HISTORY</p>
+                                <div className="ml-4 p-3 bg-surface border hairline">
+                                  <p className="text-[10px] uppercase tracking-luxury text-ink-muted mb-2">Booking History</p>
                                   <div className="space-y-2">
                                     {user.bookings.map((b: any) => (
-                                      <div key={b.id} className="flex items-center justify-between text-sm p-2 bg-white/5 rounded">
+                                      <div key={b.id} className="flex items-center justify-between text-sm p-2 bg-surface-elevated">
                                         <div className="flex items-center gap-4">
                                           <span className="font-medium">{b.horseName}</span>
                                           <span className="text-muted-foreground">@</span>

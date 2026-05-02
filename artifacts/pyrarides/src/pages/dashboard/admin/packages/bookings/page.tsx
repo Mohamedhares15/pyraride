@@ -9,8 +9,6 @@ import {
   Loader2, ArrowLeft, Package, Calendar, DollarSign, Users,
   MapPin, Truck, CheckCircle2, Clock, XCircle, Phone, Mail
 } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 interface BookingData {
   bookings: any[];
@@ -40,7 +38,6 @@ export default function AdminPackageBookingsPage() {
       router.push("/dashboard");
       return;
     }
-
     const fetchBookings = async () => {
       try {
         const res = await fetch("/api/admin/bookings");
@@ -54,99 +51,95 @@ export default function AdminPackageBookingsPage() {
         setLoading(false);
       }
     };
-
     fetchBookings();
   }, [session, status, router]);
 
   if (status === "loading" || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-black/80 via-black/90 to-black/95">
-        <Loader2 className="h-10 w-10 animate-spin text-[#D4AF37]" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground" />
+          <span className="text-[11px] tracking-luxury uppercase text-ink-muted">Loading…</span>
+        </div>
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95 flex items-center justify-center">
-        <p className="text-white/50">Failed to load bookings.</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-ink-muted text-sm">Failed to load bookings.</p>
       </div>
     );
   }
 
   const displayList = tab === "upcoming" ? data.upcoming : tab === "past" ? data.past : data.bookings;
 
-  const statusColor = (s: string) => {
+  const statusBadge = (s: string) => {
     switch (s) {
-      case "confirmed": return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-      case "completed": return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
-      case "cancelled": return "bg-red-500/20 text-red-400 border-red-500/30";
-      default: return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+      case "confirmed": return "bg-blue-50 text-blue-700 border-blue-200";
+      case "completed": return "bg-emerald-50 text-emerald-700 border-emerald-200";
+      case "cancelled": return "bg-red-50 text-red-600 border-red-200";
+      default: return "bg-amber-50 text-amber-700 border-amber-200";
     }
   };
 
-  const transportStatusColor = (s: string | null) => {
+  const transportBadge = (s: string | null) => {
     switch (s) {
-      case "completed": return "bg-emerald-500/20 text-emerald-400";
-      case "in_transit": return "bg-blue-500/20 text-blue-400";
-      case "assigned": return "bg-purple-500/20 text-purple-400";
-      case "arrived": return "bg-green-500/20 text-green-400";
-      default: return "bg-yellow-500/20 text-yellow-400";
+      case "completed": return "bg-emerald-50 text-emerald-700";
+      case "in_transit": return "bg-blue-50 text-blue-700";
+      case "assigned": return "bg-violet-50 text-violet-700";
+      case "arrived": return "bg-green-50 text-green-700";
+      default: return "bg-amber-50 text-amber-700";
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95 safe-area-black">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="border-b border-white/10 bg-black/60 py-8 md:py-12 backdrop-blur-lg">
+      <div className="border-b hairline bg-surface py-10">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <div className="mb-4">
+          <div className="mb-5">
             <Link href="/dashboard/analytics">
-              <Button variant="outline" size="sm" className="gap-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+              <button className="flex items-center gap-2 text-[11px] uppercase tracking-luxury text-ink-muted hover:text-foreground transition-colors">
                 <ArrowLeft className="h-4 w-4" />
                 Back to Analytics
-              </Button>
+              </button>
             </Link>
           </div>
-          <h1 className="mb-2 font-display text-3xl md:text-4xl font-bold tracking-tight text-white">
-            Package Bookings
-          </h1>
-          <p className="text-white/60 text-sm">Track all booked and upcoming VIP package reservations</p>
+          <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-2">Admin</p>
+          <h1 className="font-display text-3xl md:text-4xl font-light">Package Bookings</h1>
+          <p className="text-ink-soft text-sm mt-1">Track all booked and upcoming VIP package reservations</p>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         {/* Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-8">
           {[
-            { label: "Total", value: data.stats.total, icon: Package, color: "text-white/80" },
-            { label: "Upcoming", value: data.stats.upcoming, icon: Calendar, color: "text-blue-400" },
-            { label: "Confirmed", value: data.stats.confirmed, icon: CheckCircle2, color: "text-emerald-400" },
-            { label: "Completed", value: data.stats.completed, icon: CheckCircle2, color: "text-green-400" },
-            { label: "Cancelled", value: data.stats.cancelled, icon: XCircle, color: "text-red-400" },
-            { label: "Transport", value: data.stats.withTransport, icon: Truck, color: "text-purple-400" },
-            { label: "Revenue", value: `${Math.round(data.stats.totalRevenue).toLocaleString()}`, icon: DollarSign, color: "text-[#D4AF37]" },
+            { label: "Total", value: data.stats.total },
+            { label: "Upcoming", value: data.stats.upcoming },
+            { label: "Confirmed", value: data.stats.confirmed },
+            { label: "Completed", value: data.stats.completed },
+            { label: "Cancelled", value: data.stats.cancelled },
+            { label: "Transport", value: data.stats.withTransport },
+            { label: "Revenue (EGP)", value: Math.round(data.stats.totalRevenue).toLocaleString() },
           ].map((stat) => (
-            <Card key={stat.label} className="p-3 md:p-4 bg-white/5 border-white/10">
-              <div className="flex items-center gap-2 mb-1">
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                <span className="text-[10px] md:text-xs text-white/50 uppercase tracking-wider font-medium">{stat.label}</span>
-              </div>
-              <p className={`text-xl md:text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-            </Card>
+            <div key={stat.label} className="border hairline bg-surface p-4">
+              <p className="text-[10px] uppercase tracking-luxury text-ink-muted mb-2">{stat.label}</p>
+              <p className="font-display text-2xl font-light">{stat.value}</p>
+            </div>
           ))}
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-6 bg-white/5 rounded-xl p-1 w-max">
+        <div className="flex gap-1 mb-6 border hairline p-1 w-max">
           {(["upcoming", "all", "past"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all capitalize ${
-                tab === t
-                  ? "bg-[#D4AF37] text-black"
-                  : "text-white/50 hover:text-white/80"
+              className={`px-5 py-2 text-[11px] uppercase tracking-luxury transition-all capitalize ${
+                tab === t ? "bg-foreground text-background" : "text-ink-muted hover:text-foreground"
               }`}
             >
               {t} ({t === "upcoming" ? data.upcoming.length : t === "past" ? data.past.length : data.bookings.length})
@@ -156,44 +149,47 @@ export default function AdminPackageBookingsPage() {
 
         {/* Bookings List */}
         {displayList.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <Package className="h-12 w-12 text-white/15 mb-4" />
-            <p className="text-white/50 font-medium">No bookings in this category</p>
+          <div className="border hairline bg-surface flex flex-col items-center justify-center py-20 text-center">
+            <div className="flex h-14 w-14 items-center justify-center border hairline bg-surface-elevated mx-auto mb-4">
+              <Package className="h-6 w-6 text-foreground opacity-20" />
+            </div>
+            <p className="text-ink-muted text-sm">No bookings in this category</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
             {displayList.map((booking: any) => {
-              const bookingDate = new Date(booking.date);
-              const formattedDate = bookingDate.toLocaleDateString("en-US", {
+              const formattedDate = new Date(booking.date).toLocaleDateString("en-US", {
                 weekday: "short", month: "short", day: "numeric", year: "numeric"
               });
 
               return (
-                <Card key={booking.id} className="p-0 bg-white/5 border-white/10 overflow-hidden">
-                  <div className="p-4 md:p-5">
-                    {/* Top Row: Package + Status */}
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+                <div key={booking.id} className="border hairline bg-surface overflow-hidden">
+                  <div className="p-5 md:p-6">
+                    {/* Top Row */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
                       <div className="flex items-center gap-3">
                         {booking.package.imageUrl && (
-<NextImage
+                          <NextImage
                             src={booking.package.imageUrl}
                             alt=""
                             width={48}
                             height={48}
-                            className="rounded-lg object-cover ring-1 ring-white/10 shrink-0"
+                            className="object-cover border hairline shrink-0"
                           />
                         )}
                         <div>
-                          <h3 className="font-bold text-white text-[15px]">{booking.package.title}</h3>
-                          <p className="text-[11px] text-white/40">{booking.package.stable?.name || "No stable"} • {booking.package.packageType}</p>
+                          <h3 className="font-medium text-foreground">{booking.package.title}</h3>
+                          <p className="text-xs text-ink-muted mt-0.5">
+                            {booking.package.stable?.name || "No stable"} · {booking.package.packageType}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`inline-flex items-center px-2.5 py-1 text-[11px] font-semibold rounded-full border ${statusColor(booking.status)}`}>
+                        <span className={`inline-flex px-2.5 py-1 text-[11px] uppercase tracking-luxury font-medium border ${statusBadge(booking.status)}`}>
                           {booking.status}
                         </span>
                         {booking.transportationZone && (
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-full ${transportStatusColor(booking.driverStatus)}`}>
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-[11px] uppercase tracking-luxury font-medium ${transportBadge(booking.driverStatus)}`}>
                             <Truck className="w-3 h-3" />
                             {booking.driverStatus || "pending"}
                           </span>
@@ -201,29 +197,29 @@ export default function AdminPackageBookingsPage() {
                       </div>
                     </div>
 
-                    {/* Details Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[13px]">
+                    {/* Details */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
-                        <p className="text-[10px] text-white/30 uppercase tracking-wider font-medium mb-0.5">Date & Time</p>
-                        <p className="text-white/80 font-medium">{formattedDate}</p>
-                        <p className="text-white/50 text-[12px]">{booking.startTime}</p>
+                        <p className="text-[10px] uppercase tracking-luxury text-ink-muted mb-1">Date & Time</p>
+                        <p className="text-foreground font-medium">{formattedDate}</p>
+                        <p className="text-ink-soft text-xs">{booking.startTime}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-white/30 uppercase tracking-wider font-medium mb-0.5">Tickets</p>
-                        <p className="text-white/80 font-medium">{booking.ticketsCount} pax</p>
-                        <p className="text-[#D4AF37] font-bold text-[14px]">EGP {parseFloat(booking.totalPrice).toLocaleString()}</p>
+                        <p className="text-[10px] uppercase tracking-luxury text-ink-muted mb-1">Tickets</p>
+                        <p className="text-foreground font-medium">{booking.ticketsCount} pax</p>
+                        <p className="text-foreground font-display text-base">EGP {parseFloat(booking.totalPrice).toLocaleString()}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-white/30 uppercase tracking-wider font-medium mb-0.5">Rider</p>
-                        <p className="text-white/80 font-medium">{booking.rider?.fullName || "Guest"}</p>
+                        <p className="text-[10px] uppercase tracking-luxury text-ink-muted mb-1">Rider</p>
+                        <p className="text-foreground font-medium">{booking.rider?.fullName || "Guest"}</p>
                         <div className="flex items-center gap-2 mt-0.5">
                           {booking.rider?.email && (
-                            <a href={`mailto:${booking.rider.email}`} className="text-blue-400 hover:text-blue-300">
+                            <a href={`mailto:${booking.rider.email}`} className="text-ink-muted hover:text-foreground transition-colors">
                               <Mail className="w-3 h-3" />
                             </a>
                           )}
                           {booking.rider?.phoneNumber && (
-                            <a href={`tel:${booking.rider.phoneNumber}`} className="text-emerald-400 hover:text-emerald-300">
+                            <a href={`tel:${booking.rider.phoneNumber}`} className="text-ink-muted hover:text-foreground transition-colors">
                               <Phone className="w-3 h-3" />
                             </a>
                           )}
@@ -231,21 +227,21 @@ export default function AdminPackageBookingsPage() {
                       </div>
                       {booking.transportationZone && (
                         <div>
-                          <p className="text-[10px] text-white/30 uppercase tracking-wider font-medium mb-0.5">Transport</p>
+                          <p className="text-[10px] uppercase tracking-luxury text-ink-muted mb-1">Transport</p>
                           <div className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-[#D4AF37] shrink-0" />
-                            <p className="text-white/80 font-medium truncate">{booking.transportationZone}</p>
+                            <MapPin className="w-3 h-3 text-ink-muted shrink-0" />
+                            <p className="text-foreground font-medium truncate">{booking.transportationZone}</p>
                           </div>
                           {booking.driver ? (
-                            <p className="text-[11px] text-purple-400 mt-0.5">Driver: {booking.driver.fullName}</p>
+                            <p className="text-xs text-ink-soft mt-0.5">Driver: {booking.driver.fullName}</p>
                           ) : (
-                            <p className="text-[11px] text-yellow-400 mt-0.5">No driver assigned</p>
+                            <p className="text-xs text-amber-600 mt-0.5">No driver assigned</p>
                           )}
                         </div>
                       )}
                     </div>
                   </div>
-                </Card>
+                </div>
               );
             })}
           </div>

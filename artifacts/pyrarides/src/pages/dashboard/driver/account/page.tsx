@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession, signOut } from "@/shims/next-auth-react";
-import { Loader2, LogOut, User, Mail, Phone, Shield } from "lucide-react";
+import { LogOut, User, Mail, Phone, Shield } from "lucide-react";
 import NextImage from "@/shims/next-image";
 import { useState, useEffect } from "react";
 
@@ -24,14 +24,13 @@ export default function DriverAccountPage() {
         setLoading(false);
       }
     };
-
     if (session) fetchProfile();
   }, [session]);
 
   if (status === "loading" || loading) {
     return (
-      <div className="flex h-full w-full items-center justify-center">
-        <Loader2 className="w-7 h-7 animate-spin text-[#D4AF37]" />
+      <div className="flex h-full w-full items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground" />
       </div>
     );
   }
@@ -43,71 +42,60 @@ export default function DriverAccountPage() {
   const imageUrl = profile?.profileImageUrl;
 
   return (
-    <div className="flex flex-col w-full min-h-full">
-      <div className="px-5 pt-6 pb-4">
-        <h1 className="text-[22px] font-bold tracking-tight">Account</h1>
+    <div className="flex flex-col w-full min-h-full bg-background text-foreground">
+      <div className="px-5 pt-8 pb-5 border-b hairline">
+        <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-1">Driver Portal</p>
+        <h1 className="font-display text-2xl font-light">Account</h1>
       </div>
 
-      <div className="flex-1 px-4 pb-6 space-y-4">
+      <div className="flex-1 px-4 py-6 space-y-4">
         {/* Profile Card */}
-        <div className="flex items-center gap-4 p-5 rounded-2xl bg-[#141414] border border-white/[0.06]">
+        <div className="flex items-center gap-4 border hairline bg-surface p-5">
           {imageUrl ? (
-<NextImage src={imageUrl} alt="" width={56} height={56} className="rounded-full object-cover ring-2 ring-[#D4AF37]/30 shrink-0" />
+            <NextImage src={imageUrl} alt="" width={56} height={56} className="object-cover border hairline shrink-0" />
           ) : (
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#D4AF37]/20 to-[#D4AF37]/5 flex items-center justify-center shrink-0 ring-2 ring-[#D4AF37]/20">
-              <span className="text-xl font-bold text-[#D4AF37]">{displayName[0]?.toUpperCase()}</span>
+            <div className="w-14 h-14 border hairline bg-surface-elevated flex items-center justify-center shrink-0">
+              <span className="font-display text-xl font-light">{displayName[0]?.toUpperCase()}</span>
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-[16px] font-bold truncate">{displayName}</p>
+            <p className="font-medium truncate">{displayName}</p>
             <div className="flex items-center gap-1.5 mt-1">
-              <Shield className="w-3 h-3 text-[#D4AF37]" />
-              <span className="text-[11px] text-[#D4AF37] font-semibold uppercase tracking-wider">Verified Driver</span>
+              <Shield className="w-3 h-3 text-foreground opacity-40" />
+              <span className="text-[11px] tracking-luxury uppercase text-ink-muted">Verified Driver</span>
             </div>
           </div>
         </div>
 
         {/* Info Rows */}
-        <div className="rounded-2xl bg-[#141414] border border-white/[0.06] overflow-hidden divide-y divide-white/[0.04]">
-          <div className="flex items-center gap-3 px-4 py-3.5">
-            <div className="w-9 h-9 rounded-xl bg-white/[0.04] flex items-center justify-center shrink-0">
-              <Mail className="w-4 h-4 text-white/40" />
+        <div className="border hairline bg-surface divide-y divide-foreground/8">
+          {[
+            { icon: Mail, label: "Email", value: email },
+            { icon: Phone, label: "Phone", value: phone },
+            { icon: User, label: "Role", value: "Transport Driver" },
+          ].map(({ icon: Icon, label, value }) => (
+            <div key={label} className="flex items-center gap-4 px-5 py-4">
+              <div className="flex h-9 w-9 items-center justify-center border hairline bg-surface-elevated shrink-0">
+                <Icon className="w-4 h-4 text-foreground opacity-40" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] uppercase tracking-luxury text-ink-muted">{label}</p>
+                <p className="text-sm text-foreground mt-0.5 truncate">{value}</p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-white/30 uppercase tracking-wider font-medium">Email</p>
-              <p className="text-[13px] text-white/80 truncate mt-0.5">{email}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 px-4 py-3.5">
-            <div className="w-9 h-9 rounded-xl bg-white/[0.04] flex items-center justify-center shrink-0">
-              <Phone className="w-4 h-4 text-white/40" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-white/30 uppercase tracking-wider font-medium">Phone</p>
-              <p className="text-[13px] text-white/80 mt-0.5">{phone}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 px-4 py-3.5">
-            <div className="w-9 h-9 rounded-xl bg-white/[0.04] flex items-center justify-center shrink-0">
-              <User className="w-4 h-4 text-white/40" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-white/30 uppercase tracking-wider font-medium">Role</p>
-              <p className="text-[13px] text-white/80 mt-0.5">Transport Driver</p>
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Sign Out */}
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="flex items-center justify-center gap-2.5 w-full p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-semibold text-[13px] hover:bg-red-500/20 transition-colors active:scale-[0.98]"
+          className="flex w-full items-center justify-center gap-2.5 border border-red-200 bg-red-50 p-4 text-red-600 text-[13px] font-medium hover:bg-red-100 transition-colors"
         >
           <LogOut className="w-4 h-4" />
           Sign Out
         </button>
 
-        <p className="text-center text-[10px] text-white/20 pt-2 tracking-wider uppercase">
+        <p className="text-center text-[10px] text-ink-muted tracking-luxury uppercase pt-1">
           PyraRides Driver v1.0
         </p>
       </div>

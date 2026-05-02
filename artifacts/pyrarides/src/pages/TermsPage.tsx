@@ -1,6 +1,4 @@
 import { motion } from "framer-motion";
-import Navbar from "@/components/shared/Navbar";
-import Footer from "@/components/shared/Footer";
 import { Reveal } from "@/components/shared/Motion";
 import heroImg from "@/assets/hero-pyramids.jpg";
 
@@ -55,8 +53,6 @@ const sections = [
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
-
       {/* Hero */}
       <section className="relative h-[55vh] min-h-[400px] overflow-hidden">
         <img src={heroImg} alt="Pyramids" className="absolute inset-0 w-full h-full object-cover" />
@@ -86,12 +82,14 @@ export default function TermsPage() {
         </div>
       </section>
 
-      {/* Notice banner */}
-      <section className="bg-amber-950/30 border-b border-amber-500/20">
+      {/* Notice banner — luxury style */}
+      <section className="border-b hairline bg-surface">
         <div className="container py-5">
-          <p className="text-amber-400/90 text-sm">
-            ⚖️ <strong>Legal notice:</strong> This agreement is legally binding pursuant to Egyptian Electronic Signature Law No. 15 of 2004.
-            For questions, contact <a href="mailto:legal@pyrarides.com" className="underline underline-offset-4">legal@pyrarides.com</a>.
+          <p className="text-ink-soft text-sm">
+            <span className="font-semibold text-foreground">Legal notice:</span>{" "}
+            This agreement is legally binding pursuant to Egyptian Electronic Signature Law No. 15 of 2004.
+            For questions, contact{" "}
+            <a href="mailto:legal@pyrarides.com" className="text-foreground underline underline-offset-4">legal@pyrarides.com</a>.
           </p>
         </div>
       </section>
@@ -147,8 +145,6 @@ export default function TermsPage() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

@@ -91,16 +91,11 @@ export default function DriverRadarPage() {
 
   if (loading || isLocating) {
     return (
-      <div className="flex h-full w-full flex-col items-center justify-center gap-4 bg-[#0A0A0A]">
-        <div className="relative">
-          <div className="h-20 w-20 rounded-full bg-[#3B82F6]/5 flex items-center justify-center">
-            <div className="h-14 w-14 rounded-full bg-[#3B82F6]/10 flex items-center justify-center animate-pulse">
-              <Navigation className="w-6 h-6 text-[#3B82F6] animate-bounce" />
-            </div>
-          </div>
-          <div className="absolute inset-0 rounded-full border-2 border-[#3B82F6]/20 animate-ping" />
+      <div className="flex h-full w-full flex-col items-center justify-center gap-5 bg-background">
+        <div className="relative flex h-20 w-20 items-center justify-center border hairline bg-surface">
+          <Navigation className="w-7 h-7 text-foreground opacity-40 animate-bounce" />
         </div>
-        <p className="text-sm font-medium text-white/50">Acquiring satellites & radar...</p>
+        <p className="text-[11px] uppercase tracking-luxury text-ink-muted">Acquiring location…</p>
       </div>
     );
   }

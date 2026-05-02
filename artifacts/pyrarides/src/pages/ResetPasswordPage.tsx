@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation, Link } from "wouter";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PasswordInput from "@/components/shared/PasswordInput";
+import { CheckCircle } from "lucide-react";
 
 export default function ResetPasswordPage() {
   const [, navigate] = useLocation();
@@ -38,7 +38,7 @@ export default function ResetPasswordPage() {
       if (!response.ok) {
         setError(data.error || "Failed to reset password.");
       } else {
-        setSuccess("Password reset successfully! Redirecting to sign in...");
+        setSuccess("Password reset successfully. Redirecting to sign in...");
         setTimeout(() => navigate("/signin"), 2000);
       }
     } catch (err) {
@@ -49,40 +49,63 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-white">Reset Password</h1>
-            <p className="text-white/60 text-sm mt-2">Enter your new password below.</p>
+        <div className="border hairline bg-surface p-10">
+          <div className="text-center mb-8">
+            {success ? (
+              <CheckCircle className="h-12 w-12 text-foreground mx-auto mb-4 opacity-70" />
+            ) : null}
+            <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-2">Security</p>
+            <h1 className="font-display text-3xl md:text-4xl">Reset Password</h1>
+            <p className="text-ink-soft text-sm mt-3">Enter your new password below.</p>
           </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-sm text-red-400">{error}</div>}
-            {success && <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 text-sm text-green-400">{success}</div>}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <div className="border border-red-300 bg-red-50 p-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="border border-foreground/20 bg-surface p-3 text-sm text-foreground">
+                {success}
+              </div>
+            )}
+
             <div className="space-y-2">
-              <label className="text-sm text-white/70">New Password</label>
+              <label className="text-[11px] tracking-luxury uppercase text-ink-muted">New Password</label>
               <PasswordInput
                 value={password}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 placeholder="Enter new password"
-                className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
+                className="border-foreground/20 bg-background text-foreground placeholder:text-ink-muted"
               />
             </div>
+
             <div className="space-y-2">
-              <label className="text-sm text-white/70">Confirm Password</label>
+              <label className="text-[11px] tracking-luxury uppercase text-ink-muted">Confirm Password</label>
               <PasswordInput
                 value={confirmPassword}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm new password"
-                className="bg-white/5 border-white/20 text-white placeholder:text-white/30"
+                className="border-foreground/20 bg-background text-foreground placeholder:text-ink-muted"
               />
             </div>
-            <Button type="submit" disabled={isSubmitting} className="w-full bg-[#D4AF37] text-black hover:bg-[#D4AF37]/90 font-semibold">
+
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-foreground text-background hover:bg-foreground/90 transition-colors uppercase tracking-[0.15em] text-xs font-medium py-6"
+            >
               {isSubmitting ? "Resetting..." : "Reset Password"}
             </Button>
           </form>
-          <p className="text-center text-sm text-white/50 mt-6">
-            <Link href="/signin" className="text-[#D4AF37] hover:underline">Back to Sign In</Link>
+
+          <p className="text-center text-sm text-ink-muted mt-6">
+            <Link href="/signin" className="text-foreground underline underline-offset-4 hover:opacity-70 transition-opacity">
+              Back to Sign In
+            </Link>
           </p>
         </div>
       </div>

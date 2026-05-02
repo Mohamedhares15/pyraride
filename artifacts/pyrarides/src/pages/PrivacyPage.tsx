@@ -1,6 +1,4 @@
 import { motion } from "framer-motion";
-import Navbar from "@/components/shared/Navbar";
-import Footer from "@/components/shared/Footer";
 import { Reveal } from "@/components/shared/Motion";
 import heroImg from "@/assets/hero-pyramids.jpg";
 
@@ -45,8 +43,6 @@ const sections = [
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
-
       {/* Hero */}
       <section className="relative h-[55vh] min-h-[400px] overflow-hidden">
         <img src={heroImg} alt="Pyramids" className="absolute inset-0 w-full h-full object-cover" />
@@ -130,8 +126,6 @@ export default function PrivacyPage() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

@@ -3,7 +3,6 @@
 import { useSession } from "@/shims/next-auth-react";
 import { useRouter } from '@/shims/next-navigation';
 import { useEffect } from "react";
-import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -17,7 +16,6 @@ export default function DashboardPage() {
       return;
     }
 
-    // Redirect based on role
     const role = session.user?.role;
 
     if (role === "rider") {
@@ -33,24 +31,16 @@ export default function DashboardPage() {
     } else if (role === "driver") {
       router.push("/dashboard/driver");
     } else {
-      // Default fallback
       router.push("/dashboard/rider");
     }
   }, [session, status, router]);
 
-  if (status === "loading") {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-black/80 via-black/90 to-black/95">
-        <Loader2 className="h-12 w-12 animate-spin text-white" />
-        <span className="sr-only">Loading dashboard...</span>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-black/80 via-black/90 to-black/95">
-      <Loader2 className="h-12 w-12 animate-spin text-white" />
-      <span className="sr-only">Redirecting to dashboard...</span>
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-4">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground" />
+        <span className="text-[11px] tracking-luxury uppercase text-ink-muted">Loading dashboard…</span>
+      </div>
     </div>
   );
 }

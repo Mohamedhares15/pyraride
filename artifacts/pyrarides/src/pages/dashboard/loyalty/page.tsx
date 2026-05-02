@@ -25,9 +25,9 @@ interface LoyaltyData {
 
 const TIERS = [
   { key: "bronze", label: "Bronze", minPoints: 0, maxPoints: 500, color: "#CD7F32", glow: "rgba(205,127,50,0.4)", icon: "🥉" },
-  { key: "silver", label: "Silver", minPoints: 500, maxPoints: 1500, color: "#C0C0C0", glow: "rgba(192,192,192,0.4)", icon: "🥈" },
+  { key: "silver", label: "Silver", minPoints: 500, maxPoints: 1500, color: "#9CA3AF", glow: "rgba(156,163,175,0.4)", icon: "🥈" },
   { key: "gold", label: "Gold", minPoints: 1500, maxPoints: 3500, color: "#DAA520", glow: "rgba(218,165,32,0.5)", icon: "🥇" },
-  { key: "platinum", label: "Platinum", minPoints: 3500, maxPoints: 7000, color: "#9B59B6", glow: "rgba(155,89,182,0.5)", icon: "💎" },
+  { key: "platinum", label: "Platinum", minPoints: 3500, maxPoints: 7000, color: "#6B7280", glow: "rgba(107,114,128,0.5)", icon: "💎" },
 ];
 
 const RADIUS = 52;
@@ -38,14 +38,12 @@ function TierRing({
   isCurrent,
   isCompleted,
   progress,
-  points,
   delay,
 }: {
   tier: typeof TIERS[0];
   isCurrent: boolean;
   isCompleted: boolean;
   progress: number;
-  points: number;
   delay: number;
 }) {
   const ref = useRef<SVGCircleElement>(null);
@@ -62,8 +60,9 @@ function TierRing({
   }, [inView, progress, isCompleted, delay]);
 
   const strokeDashoffset = CIRCUMFERENCE * (1 - animatedProgress);
-  const ringColor = isCompleted || isCurrent ? tier.color : "rgba(255,255,255,0.15)";
+  const trackColor = "rgba(27,48,34,0.08)";
   const strokeWidth = isCurrent ? 9 : 6;
+  const ringColor = isCompleted || isCurrent ? tier.color : "rgba(27,48,34,0.15)";
 
   return (
     <motion.div
@@ -73,7 +72,7 @@ function TierRing({
       transition={{ duration: 0.6, delay: delay * 0.15 }}
       className="flex flex-col items-center gap-3"
     >
-      <div className="relative" style={{ filter: isCurrent ? `drop-shadow(0 0 16px ${tier.glow})` : "none" }}>
+      <div className="relative" style={{ filter: isCurrent ? `drop-shadow(0 0 12px ${tier.glow})` : "none" }}>
         <svg viewBox="0 0 120 120" width={isCurrent ? 148 : 112} height={isCurrent ? 148 : 112}>
           <defs>
             <linearGradient id={`grad-${tier.key}`} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -81,14 +80,7 @@ function TierRing({
               <stop offset="100%" stopColor={tier.color} stopOpacity="0.6" />
             </linearGradient>
           </defs>
-
-          <circle
-            cx="60" cy="60" r={RADIUS}
-            fill="none"
-            stroke="rgba(255,255,255,0.07)"
-            strokeWidth={strokeWidth}
-          />
-
+          <circle cx="60" cy="60" r={RADIUS} fill="none" stroke={trackColor} strokeWidth={strokeWidth} />
           <circle
             ref={ref}
             cx="60" cy="60" r={RADIUS}
@@ -101,14 +93,12 @@ function TierRing({
             transform="rotate(-90 60 60)"
             style={{ transition: `stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1) ${delay * 0.15}s` }}
           />
-
           {isCurrent && (
             <>
-              <circle cx="60" cy="60" r={RADIUS - 14} fill="none" stroke={tier.color} strokeOpacity="0.08" strokeWidth="1" />
-              <circle cx="60" cy="60" r="22" fill={`${tier.color}18`} />
+              <circle cx="60" cy="60" r={RADIUS - 14} fill="none" stroke={tier.color} strokeOpacity="0.06" strokeWidth="1" />
+              <circle cx="60" cy="60" r="22" fill={`${tier.color}12`} />
             </>
           )}
-
           <text x="60" y="55" textAnchor="middle" style={{ fontSize: isCurrent ? "22px" : "18px", dominantBaseline: "middle" }}>
             {tier.icon}
           </text>
@@ -116,7 +106,7 @@ function TierRing({
             x="60" y="72"
             textAnchor="middle"
             style={{
-              fill: isCurrent ? tier.color : "rgba(255,255,255,0.5)",
+              fill: isCurrent ? tier.color : "rgba(27,48,34,0.35)",
               fontSize: isCurrent ? "9px" : "8px",
               fontWeight: isCurrent ? "700" : "400",
               letterSpacing: "0.15em",
@@ -126,25 +116,23 @@ function TierRing({
             {tier.label}
           </text>
         </svg>
-
         {isCurrent && (
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: delay * 0.15 + 0.5, type: "spring", stiffness: 200 }}
-            className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center"
-            style={{ background: tier.color }}
+            className="absolute -top-2 -right-2 w-6 h-6 flex items-center justify-center border hairline bg-background"
+            style={{ borderColor: tier.color }}
           >
-            <Crown className="w-3 h-3 text-black" />
+            <Crown className="w-3 h-3" style={{ color: tier.color }} />
           </motion.div>
         )}
       </div>
-
       <div className="text-center">
-        <p className={`text-xs font-semibold uppercase tracking-widest ${isCurrent ? "text-white" : "text-white/40"}`}>
+        <p className={`text-xs uppercase tracking-luxury ${isCurrent ? "text-foreground font-semibold" : "text-ink-muted"}`}>
           {tier.label}
         </p>
-        <p className="text-[10px] text-white/30 mt-0.5">{tier.minPoints.toLocaleString()}+ pts</p>
+        <p className="text-[10px] text-ink-muted mt-0.5">{tier.minPoints.toLocaleString()}+ pts</p>
       </div>
     </motion.div>
   );
@@ -172,10 +160,10 @@ export default function LoyaltyPage() {
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 rounded-full border-2 border-[#DAA520]/30 border-t-[#DAA520] animate-spin" />
-          <p className="text-white/40 text-sm tracking-widest uppercase">Loading rewards</p>
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground" />
+          <p className="text-[11px] tracking-luxury uppercase text-ink-muted">Loading rewards…</p>
         </div>
       </div>
     );
@@ -183,10 +171,15 @@ export default function LoyaltyPage() {
 
   if (!loyalty) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-white/50">Failed to load loyalty data.</p>
-          <Button onClick={() => window.location.reload()} className="bg-[#DAA520] text-black">Retry</Button>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4 border hairline bg-surface p-10">
+          <p className="text-ink-muted text-sm">Failed to load loyalty data.</p>
+          <Button
+            onClick={() => window.location.reload()}
+            className="bg-foreground text-background hover:bg-foreground/90"
+          >
+            Retry
+          </Button>
         </div>
       </div>
     );
@@ -203,32 +196,25 @@ export default function LoyaltyPage() {
   })();
 
   const HOW_TO_EARN = [
-    { icon: Trophy, label: "Book a Ride", pts: "+100 pts", color: "text-blue-400", bg: "bg-blue-500/10" },
-    { icon: Star, label: "Leave a Review", pts: "+50 pts", color: "text-yellow-400", bg: "bg-yellow-500/10" },
-    { icon: Gift, label: "Refer a Friend", pts: "+200 pts", color: "text-green-400", bg: "bg-green-500/10" },
+    { icon: Trophy, label: "Book a Ride", pts: "+100 pts" },
+    { icon: Star, label: "Leave a Review", pts: "+50 pts" },
+    { icon: Gift, label: "Refer a Friend", pts: "+200 pts" },
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div
-        className="absolute inset-0 pointer-events-none opacity-40"
-        style={{
-          background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${currentTier.glow} 0%, transparent 70%)`,
-        }}
-      />
-
-      <div className="relative z-10 max-w-4xl mx-auto px-4 py-12 space-y-16">
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="max-w-4xl mx-auto px-4 py-12 space-y-16">
 
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="text-center space-y-2"
+          className="text-center space-y-3"
         >
-          <p className="text-[10px] tracking-[0.3em] uppercase text-white/40">Circle Loyalty Programme</p>
-          <h1 className="text-4xl font-display font-bold tracking-tight">Your Rewards Circle</h1>
-          <p className="text-white/50 text-sm">Earn points on every experience and ascend through the tiers</p>
+          <p className="text-[11px] tracking-luxury uppercase text-ink-muted">Circle Loyalty Programme</p>
+          <h1 className="font-display text-4xl md:text-5xl font-light">Your Rewards Circle</h1>
+          <p className="text-ink-soft text-sm">Earn points on every experience and ascend through the tiers</p>
         </motion.div>
 
         {/* Tier Rings Row */}
@@ -244,7 +230,6 @@ export default function LoyaltyPage() {
                 isCurrent={isCurrent}
                 isCompleted={isCompleted}
                 progress={progress}
-                points={loyalty.points}
                 delay={i}
               />
             );
@@ -256,50 +241,52 @@ export default function LoyaltyPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3 }}
-          className="relative rounded-2xl border overflow-hidden"
-          style={{ borderColor: `${currentTier.color}30`, background: `linear-gradient(135deg, ${currentTier.color}0A 0%, rgba(0,0,0,0) 60%)` }}
+          className="border hairline bg-surface overflow-hidden"
         >
-          <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse 60% 80% at 100% 0%, ${currentTier.glow} 0%, transparent 70%)`, opacity: 0.3 }} />
-
-          <div className="relative p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+          <div className="p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
             <div className="flex-1 space-y-1">
-              <p className="text-white/50 text-xs uppercase tracking-widest">Total Balance</p>
-              <p className="text-6xl font-bold tracking-tight" style={{ color: currentTier.color }}>
+              <p className="text-[10px] uppercase tracking-luxury text-ink-muted">Total Balance</p>
+              <p className="font-display text-6xl font-light" style={{ color: currentTier.color }}>
                 {loyalty.points.toLocaleString()}
               </p>
-              <p className="text-white/40 text-sm">points · worth <span className="text-white/70">EGP {loyalty.redemptionValue}</span> in discounts</p>
+              <p className="text-ink-muted text-sm">
+                points · worth <span className="text-foreground">EGP {loyalty.redemptionValue}</span> in discounts
+              </p>
             </div>
 
             <div className="w-full sm:w-64 space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-xs text-white/50 uppercase tracking-widest">{currentTier.label}</span>
+                <span className="text-[10px] uppercase tracking-luxury text-ink-muted">{currentTier.label}</span>
                 {nextTierData && (
-                  <span className="text-xs text-white/50 uppercase tracking-widest">{nextTierData.label}</span>
+                  <span className="text-[10px] uppercase tracking-luxury text-ink-muted">{nextTierData.label}</span>
                 )}
               </div>
-              <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div className="h-px w-full bg-foreground/10 overflow-hidden">
                 <motion.div
-                  className="h-full rounded-full"
-                  style={{ background: `linear-gradient(90deg, ${currentTier.color}, ${nextTierData?.color ?? currentTier.color})` }}
+                  className="h-full"
+                  style={{ background: tier => `linear-gradient(90deg, ${currentTier.color}, ${nextTierData?.color ?? currentTier.color})` }}
                   initial={{ width: "0%" }}
                   animate={{ width: `${tierProgress * 100}%` }}
                   transition={{ duration: 1.6, delay: 0.5, ease: [0.4, 0, 0.2, 1] }}
                 />
               </div>
               {nextTierData ? (
-                <p className="text-xs text-white/40 text-right">
-                  {loyalty.pointsToNextTier?.toLocaleString()} pts to <span style={{ color: nextTierData.color }}>{nextTierData.label}</span>
+                <p className="text-xs text-ink-muted text-right">
+                  {loyalty.pointsToNextTier?.toLocaleString()} pts to{" "}
+                  <span style={{ color: nextTierData.color }}>{nextTierData.label}</span>
                 </p>
               ) : (
-                <p className="text-xs text-right" style={{ color: currentTier.color }}>Maximum tier reached</p>
+                <p className="text-xs text-right text-ink-soft" style={{ color: currentTier.color }}>
+                  Maximum tier reached
+                </p>
               )}
             </div>
           </div>
         </motion.div>
 
         {/* How to Earn */}
-        <div className="space-y-4">
-          <p className="text-[10px] tracking-[0.25em] uppercase text-white/30">How to Earn</p>
+        <div className="space-y-5">
+          <p className="text-[11px] tracking-luxury uppercase text-ink-muted">How to Earn</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {HOW_TO_EARN.map((item, i) => (
               <motion.div
@@ -307,14 +294,14 @@ export default function LoyaltyPage() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 * i + 0.4 }}
-                className="flex items-center gap-4 p-4 rounded-xl border border-white/8 bg-white/3"
+                className="flex items-center gap-4 border hairline bg-surface p-5"
               >
-                <div className={`w-11 h-11 rounded-full flex items-center justify-center ${item.bg}`}>
-                  <item.icon className={`h-5 w-5 ${item.color}`} />
+                <div className="flex h-11 w-11 items-center justify-center border hairline bg-surface-elevated">
+                  <item.icon className="h-5 w-5 text-foreground opacity-50" />
                 </div>
                 <div>
-                  <p className="font-medium text-white text-sm">{item.label}</p>
-                  <p className="text-xs text-white/40">{item.pts}</p>
+                  <p className="font-medium text-foreground text-sm">{item.label}</p>
+                  <p className="text-[11px] tracking-luxury text-ink-muted">{item.pts}</p>
                 </div>
               </motion.div>
             ))}
@@ -322,42 +309,43 @@ export default function LoyaltyPage() {
         </div>
 
         {/* Recent Activity */}
-        <div className="space-y-4">
-          <p className="text-[10px] tracking-[0.25em] uppercase text-white/30 flex items-center gap-2">
-            <TrendingUp className="h-3.5 w-3.5" /> Recent Activity
-          </p>
+        <div className="space-y-5">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-foreground opacity-40" />
+            <p className="text-[11px] tracking-luxury uppercase text-ink-muted">Recent Activity</p>
+          </div>
 
           {loyalty.transactions.length === 0 ? (
-            <div className="text-center py-16 border border-white/8 rounded-xl space-y-4">
-              <p className="text-white/30 text-sm">No activity yet. Book your first ride to earn points.</p>
+            <div className="border hairline bg-surface py-16 text-center space-y-4">
+              <p className="text-ink-muted text-sm">No activity yet. Book your first ride to earn points.</p>
               <Button
-                className="bg-[#DAA520] hover:bg-[#DAA520]/90 text-black text-xs tracking-widest uppercase"
+                className="bg-foreground text-background hover:bg-foreground/90 uppercase tracking-luxury text-xs"
                 onClick={() => router.push("/stables")}
               >
                 Browse Stables <ArrowRight className="ml-2 h-3.5 w-3.5" />
               </Button>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="divide-y divide-foreground/8">
               {loyalty.transactions.map((tx, i) => (
                 <motion.div
                   key={tx.id}
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.4, delay: 0.05 * i }}
-                  className="flex items-center justify-between p-4 rounded-xl border border-white/8 bg-white/3 hover:bg-white/5 transition-colors"
+                  className="flex items-center justify-between py-4 hover:bg-surface transition-colors"
                 >
                   <div>
-                    <p className="text-white text-sm">{tx.description}</p>
-                    <p className="text-white/30 text-xs mt-0.5">
+                    <p className="text-foreground text-sm">{tx.description}</p>
+                    <p className="text-ink-muted text-xs mt-0.5">
                       {new Date(tx.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                     </p>
                   </div>
                   <Badge
                     className={`font-mono text-xs ${
                       tx.amount > 0
-                        ? "bg-green-500/15 text-green-400 border-green-500/20"
-                        : "bg-red-500/15 text-red-400 border-red-500/20"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-red-50 text-red-600 border-red-200"
                     }`}
                   >
                     {tx.amount > 0 ? "+" : ""}{tx.amount} pts
