@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import { Loader2, AlertCircle, CheckCircle, XCircle, Plus, X, Camera, BookOpen } from "lucide-react";
 import NextImage from "@/shims/next-image";
 
