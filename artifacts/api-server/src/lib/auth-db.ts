@@ -11,23 +11,21 @@ export interface DbUser {
   profile_image_url: string | null;
 }
 
-export interface DbSession {
-  id: string;
-  user_id: string;
-  expires_at: Date;
+export interface DbUserWithHash extends DbUser {
+  password_hash: string;
 }
 
 export async function initAuthSchema(): Promise<void> {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS app_users (
-      id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
-      email       TEXT UNIQUE,
-      phone_number TEXT UNIQUE,
+      id            TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+      email         TEXT UNIQUE,
+      phone_number  TEXT UNIQUE,
       password_hash TEXT NOT NULL,
-      full_name   TEXT,
-      role        TEXT NOT NULL DEFAULT 'rider',
+      full_name     TEXT,
+      role          TEXT NOT NULL DEFAULT 'rider',
       profile_image_url TEXT,
-      created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
     CREATE TABLE IF NOT EXISTS app_sessions (
       id         TEXT PRIMARY KEY,
@@ -39,9 +37,9 @@ export async function initAuthSchema(): Promise<void> {
   `);
 }
 
-export async function findUserByIdentifier(identifier: string): Promise<DbUser | null> {
+export async function findUserWithHashByIdentifier(identifier: string): Promise<DbUserWithHash | null> {
   const normalized = identifier.trim().toLowerCase();
-  const { rows } = await pool.query<DbUser & { password_hash: string }>(
+  const { rows } = await pool.query<DbUserWithHash>(
     `SELECT id, email, phone_number, full_name, role, profile_image_url, password_hash
        FROM app_users
       WHERE email = $1 OR phone_number = $1
@@ -53,7 +51,8 @@ export async function findUserByIdentifier(identifier: string): Promise<DbUser |
 
 export async function findUserById(id: string): Promise<DbUser | null> {
   const { rows } = await pool.query<DbUser>(
-    `SELECT id, email, phone_number, full_name, role, profile_image_url FROM app_users WHERE id = $1`,
+    `SELECT id, email, phone_number, full_name, role, profile_image_url
+       FROM app_users WHERE id = $1`,
     [id],
   );
   return rows[0] ?? null;
@@ -63,18 +62,14 @@ export async function verifyPassword(plain: string, hash: string): Promise<boole
   return bcrypt.compare(plain, hash);
 }
 
-export async function hashPassword(plain: string): Promise<string> {
-  return bcrypt.hash(plain, 10);
-}
-
 export async function createUser(opts: {
   email?: string;
   phoneNumber?: string;
   password: string;
   fullName?: string;
-  role?: string;
+  role: string;
 }): Promise<DbUser> {
-  const hash = await hashPassword(opts.password);
+  const passwordHash = await bcrypt.hash(opts.password, 10);
   const { rows } = await pool.query<DbUser>(
     `INSERT INTO app_users (email, phone_number, password_hash, full_name, role)
      VALUES ($1, $2, $3, $4, $5)
@@ -82,9 +77,9 @@ export async function createUser(opts: {
     [
       opts.email?.toLowerCase() ?? null,
       opts.phoneNumber ?? null,
-      hash,
+      passwordHash,
       opts.fullName ?? null,
-      opts.role ?? "rider",
+      opts.role,
     ],
   );
   return rows[0];
@@ -114,4 +109,14 @@ export async function findSessionUser(sid: string): Promise<DbUser | null> {
 
 export async function deleteSession(sid: string): Promise<void> {
   await pool.query(`DELETE FROM app_sessions WHERE id = $1`, [sid]);
+}
+
+export function userToResponse(u: DbUser) {
+  return {
+    id: u.id,
+    email: u.email,
+    fullName: u.full_name,
+    role: u.role,
+    profileImageUrl: u.profile_image_url,
+  };
 }
