@@ -1,132 +1,133 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Clock, Users, ArrowLeft } from "lucide-react";
-import Navbar from "@/components/shared/Navbar";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowUpRight, Sparkles } from "lucide-react";
+import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
+import { packages, stables } from "@/data/mock";
+import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
 
-interface Package {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  duration: number;
-  maxPeople: number;
-  packageType: string;
-  imageUrl?: string;
-  isFeatured?: boolean;
-  hasHorseRide?: boolean;
-  hasFood?: boolean;
-  hasDancingShow?: boolean;
-  hasParty?: boolean;
-  hasTransportation?: boolean;
-  transportationType?: string;
-  startTime?: string;
-  sortOrder?: number;
-}
+const FILTERS = [
+  { id: "all", label: "All journeys" },
+  { id: "al-nasr", label: "Al-Nasr" },
+  { id: "saqqara", label: "Saqqara" },
+  { id: "house-of-horus", label: "House of Horus" },
+] as const;
 
-export default function PackagesPage() {
-  const [packages, setPackages] = useState<Package[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/packages?active=true")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setPackages(data);
-        else if (data.packages) setPackages(data.packages);
-      })
-      .catch(() => {})
-      .finally(() => setIsLoading(false));
-  }, []);
+const PackagesPage = () => {
+  const [filter, setFilter] = useState<(typeof FILTERS)[number]["id"]>("all");
+  const filtered = useMemo(
+    () => (filter === "all" ? packages : packages.filter((p) => p.stableId === filter)),
+    [filter],
+  );
 
   return (
-    <div className="min-h-screen bg-[#050505] pb-32 font-sans text-white selection:bg-[#D4AF37]/30">
-      <Navbar />
-      <section className="relative h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
-        <Link href="/" className="absolute top-20 md:top-8 left-4 md:left-8 z-20 flex items-center gap-2 text-white/70 transition-colors hover:text-white">
-          <ArrowLeft className="h-4 w-4" />
-          <span className="text-sm font-medium tracking-wide">Back to Home</span>
-        </Link>
-        <div className="absolute inset-0 z-0">
-          <img src="/hero-bg.webp" alt="Horse riding at the Pyramids" className="w-full h-full object-cover opacity-[0.35]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/90 via-[#050505]/60 to-[#050505]" />
-        </div>
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto mt-12">
-          <p className="text-[#D4AF37] text-xs uppercase tracking-[0.3em] font-bold mb-6">The Royal Collection</p>
-          <h1 className="text-4xl md:text-6xl font-sans font-medium mb-6 tracking-wide text-white">Curated Experiences</h1>
-          <div className="w-12 h-px bg-[#D4AF37] mx-auto mb-6"></div>
-          <p className="text-sm md:text-base text-gray-200 max-w-xl mx-auto font-medium tracking-wide leading-relaxed">
-            Exclusive private rides and group events at the Great Pyramids of Giza, curated for the most discerning travelers.
+    <>
+      <section className="container pt-40 pb-16">
+        <Reveal>
+          <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-6">Signature Journeys · {packages.length}</p>
+          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.95] text-balance max-w-5xl">
+            Curated, never crowded.
+          </h1>
+        </Reveal>
+        <Reveal delay={0.15}>
+          <p className="mt-10 max-w-xl text-ink-soft text-pretty">
+            Each journey is limited to one party. From sunrise processions to two-day immersions, every detail is arranged before you arrive.
           </p>
-        </div>
+        </Reveal>
       </section>
 
-      <section className="container mx-auto px-4 relative z-20 -mt-10">
-        <div className="max-w-5xl mx-auto space-y-32">
-          {isLoading ? (
-            <div className="py-24 text-center text-white/60">Loading packages...</div>
-          ) : packages.length === 0 ? (
-            <div className="py-24 text-center">
-              <p className="text-[#D4AF37] text-xs uppercase tracking-[0.3em] mb-4">Coming Soon</p>
-              <h3 className="text-2xl font-sans font-light text-white">Our experts are crafting new journeys.</h3>
-            </div>
-          ) : (
-            packages.map((pkg, index) => {
-              const amenitiesList = [];
-              if (pkg.hasHorseRide) amenitiesList.push("Equine Journey");
-              if (pkg.hasFood) amenitiesList.push("Culinary Experience");
-              if (pkg.hasDancingShow) amenitiesList.push("Cultural Show");
-              if (pkg.hasParty) amenitiesList.push("Private Event");
-              if (pkg.hasTransportation) amenitiesList.push(pkg.transportationType === "HOME_PICKUP" ? "Chauffeur Service" : "VIP Transport");
-
+      <div className="sticky top-20 z-30 bg-background/85 backdrop-blur-md border-y hairline">
+        <div className="container">
+          <ul className="flex flex-wrap items-center gap-x-8 gap-y-3 py-4">
+            {FILTERS.map((f) => {
+              const active = filter === f.id;
               return (
-                <div key={pkg.id} className={`flex flex-col ${index % 2 === 1 ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-12 md:gap-20 group`}>
-                  <div className="w-full md:w-1/2 relative aspect-[4/5] overflow-hidden">
-                    <img src={pkg.imageUrl || "/hero-bg.webp"} alt={pkg.title} className="w-full h-full object-cover transition-transform duration-[1.5s] ease-in-out group-hover:scale-105 opacity-90 group-hover:opacity-100" />
-                    <div className="absolute top-6 left-6 z-20 flex flex-col gap-3">
-                      <div className="bg-black/40 backdrop-blur-md border border-white/10 text-white px-3 py-1 text-[9px] uppercase tracking-[0.2em] w-fit">
-                        {pkg.packageType === "GROUP_EVENT" ? "Group Event" : "Private VIP"}
-                      </div>
-                      {pkg.isFeatured && <div className="bg-[#D4AF37] text-black px-3 py-1 text-[9px] uppercase tracking-[0.2em] font-semibold w-fit">Featured</div>}
-                    </div>
-                  </div>
-                  <div className="w-full md:w-1/2 flex flex-col justify-center py-8">
-                    <div className="flex items-center gap-4 text-[10px] text-gray-500 uppercase tracking-[0.2em] mb-4">
-                      <span>{pkg.duration} Hours</span>
-                      <div className="w-1 h-1 bg-[#D4AF37] rounded-full"></div>
-                      <span>{pkg.packageType === "GROUP_EVENT" ? `Up to ${pkg.maxPeople} Guests` : `Exactly ${pkg.maxPeople} Guests`}</span>
-                      {pkg.startTime && (<><div className="w-1 h-1 bg-[#D4AF37] rounded-full"></div><span>Begins {pkg.startTime}</span></>)}
-                    </div>
-                    <h2 className="text-3xl md:text-5xl font-sans font-light text-white mb-6 leading-tight">{pkg.title}</h2>
-                    <p className="text-gray-400 text-sm md:text-base leading-relaxed font-light mb-8">{pkg.description}</p>
-                    {amenitiesList.length > 0 && (
-                      <div className="mb-8">
-                        <p className="text-[10px] text-[#D4AF37] uppercase tracking-[0.2em] mb-3">The Experience</p>
-                        <p className="text-gray-300 text-sm font-light leading-relaxed">{amenitiesList.join(" • ")}</p>
-                      </div>
+                <li key={f.id}>
+                  <button
+                    onClick={() => setFilter(f.id)}
+                    className={cn(
+                      "relative text-[11px] tracking-luxury uppercase pb-1 transition-colors",
+                      active ? "text-foreground" : "text-ink-muted hover:text-foreground",
                     )}
-                    <div className="flex flex-col md:flex-row md:items-end justify-between pt-8 border-t border-white/10 mt-auto">
-                      <div className="mb-6 md:mb-0">
-                        <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em] mb-2">
-                          {pkg.packageType === "GROUP_EVENT" ? "Per Guest" : "Total Price"}
-                        </p>
-                        <div className="flex items-end gap-3">
-                          <span className="text-2xl md:text-3xl font-light text-white tracking-wide">EGP {pkg.price}</span>
-                          {pkg.originalPrice && <del className="text-sm text-gray-600 mb-1">EGP {pkg.originalPrice}</del>}
-                        </div>
-                      </div>
-                      <Link href={`/checkout/package/${pkg.id}`} className="inline-block bg-transparent border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300 px-8 py-4 text-xs uppercase tracking-[0.2em]">
-                        Reserve Now
-                      </Link>
-                    </div>
-                  </div>
-                </div>
+                  >
+                    {f.label}
+                    {active && (
+                      <motion.span layoutId="pkg-filter-underline" className="absolute left-0 right-0 -bottom-px h-px bg-foreground" />
+                    )}
+                  </button>
+                </li>
               );
-            })
-          )}
+            })}
+            <li className="ml-auto text-[10px] tracking-luxury uppercase text-ink-muted tabular-nums">
+              {filtered.length} {filtered.length === 1 ? "journey" : "journeys"}
+            </li>
+          </ul>
         </div>
+      </div>
+
+      <section className="container py-16 md:py-20">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={filter}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.5, ease: easeLuxury }}
+          >
+            {filtered.length === 0 ? (
+              <EmptyState
+                icon={<Sparkles className="size-5" />}
+                eyebrow="Nothing in this estate"
+                title="No journeys here yet."
+                description="The house has not yet curated a journey from this estate. Browse all journeys, or write to the concierge."
+                cta={{ label: "View all journeys", to: "/packages" }}
+              />
+            ) : (
+              <StaggerGroup className="grid gap-10 md:grid-cols-2" gap={0.1}>
+                {filtered.map((p, i) => {
+                  const stable = stables.find((s) => s.id === p.stableId);
+                  return (
+                    <StaggerItem key={p.id}>
+                      <Link to={`/packages/${p.id}`} className="group block">
+                        <div className="relative aspect-[5/6] overflow-hidden bg-surface">
+                          <motion.img
+                            src={p.image} alt={p.name} loading="lazy"
+                            className="h-full w-full object-cover"
+                            whileHover={{ scale: 1.04 }}
+                            transition={{ duration: 1.2, ease: easeLuxury }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent opacity-90" />
+                          <div className="absolute top-5 left-5 right-5 flex items-center justify-between text-background">
+                            <span className="text-[10px] tracking-luxury uppercase">№ {String(i + 1).padStart(2, "0")}</span>
+                            <span className="text-[10px] tracking-luxury uppercase">{p.duration}</span>
+                          </div>
+                          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-background">
+                            <p className="text-[10px] tracking-luxury uppercase text-background/80 mb-2">{stable?.name}</p>
+                            <h3 className="font-display text-3xl md:text-4xl leading-tight">{p.name}</h3>
+                            <p className="mt-1.5 text-background/85">{p.tagline}</p>
+                          </div>
+                        </div>
+                        <div className="pt-5 flex items-baseline justify-between border-b hairline pb-5 group-hover:border-foreground transition-colors">
+                          <div>
+                            <p className="text-[10px] tracking-luxury uppercase text-ink-muted">From</p>
+                            <p className="font-display text-2xl">${p.price}<span className="text-sm text-ink-muted"> / guest</span></p>
+                          </div>
+                          <span className="inline-flex items-center gap-2 text-[11px] tracking-luxury uppercase text-ink-muted group-hover:text-foreground transition-colors">
+                            View journey <ArrowUpRight className="size-3.5" />
+                          </span>
+                        </div>
+                      </Link>
+                    </StaggerItem>
+                  );
+                })}
+              </StaggerGroup>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </section>
-    </div>
+    </>
   );
-}
+};
+
+export default PackagesPage;

@@ -19,6 +19,7 @@ const HomePage = lazy(() => import("@/pages/HomePage"));
 const StablesPage = lazy(() => import("@/pages/StablesPage"));
 const StableDetailPage = lazy(() => import("@/pages/StableDetailPage"));
 const PackagesPage = lazy(() => import("@/pages/PackagesPage"));
+const PackageDetailPage = lazy(() => import("@/pages/PackageDetailPage"));
 const GalleryPage = lazy(() => import("@/pages/GalleryPage"));
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
 const ContactPage = lazy(() => import("@/pages/ContactPage"));
@@ -45,6 +46,7 @@ function Router() {
           <Route path="/" component={HomePage} />
           <Route path="/stables" component={StablesPage} />
           <Route path="/stables/:id" component={StableDetailPage} />
+          <Route path="/packages/:id" component={PackageDetailPage} />
           <Route path="/packages" component={PackagesPage} />
           <Route path="/gallery" component={GalleryPage} />
           <Route path="/about" component={AboutPage} />

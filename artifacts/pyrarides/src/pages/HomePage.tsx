@@ -1,177 +1,184 @@
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "wouter";
-import { Instagram } from "lucide-react";
-import Hero from "@/components/sections/Hero";
-import Navbar from "@/components/shared/Navbar";
-import Footer from "@/components/shared/Footer";
-import { useEffect, useState } from "react";
+import { ArrowUpRight, MapPin } from "lucide-react";
+import { useRef } from "react";
+import heroImg from "@/assets/hero-pyramids.jpg";
+import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
+import { stables, packages } from "@/data/mock";
 
-function TikTokIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
-    </svg>
-  );
-}
-
-interface Package {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  duration: number;
-  maxPeople: number;
-  packageType: string;
-  imageUrl?: string;
-}
-
-export default function HomePage() {
-  const [featuredPackages, setFeaturedPackages] = useState<Package[]>([]);
-
-  useEffect(() => {
-    fetch("/api/packages?featured=true&limit=3")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setFeaturedPackages(data.slice(0, 3));
-        else if (data.packages) setFeaturedPackages(data.packages.slice(0, 3));
-      })
-      .catch(() => {});
-  }, []);
+const HomePage = () => {
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
+  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0.3]);
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <Navbar />
-      <Hero />
+    <>
+      {/* HERO */}
+      <section ref={heroRef} className="relative h-[100svh] min-h-[680px] overflow-hidden">
+        <motion.div style={{ y, scale }} className="absolute inset-0">
+          <img src={heroImg} alt="Rider in cream linen on a dark Arabian horse before the Great Pyramid at golden hour" className="h-full w-full object-cover" width={1920} height={1080} />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-background" />
+        </motion.div>
 
-      <section className="relative z-20 w-full bg-[#0a0a0a] py-20 md:py-28">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="text-center mb-16">
-            <p className="text-[#D4AF37] text-xs uppercase tracking-[0.3em] font-semibold mb-4">Simple &amp; Seamless</p>
-            <h2 className="font-sans text-3xl md:text-4xl font-light text-white tracking-wide">How It Works</h2>
-            <div className="w-12 h-px bg-[#D4AF37]/50 mx-auto mt-4"></div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-            <div className="text-center group">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 flex items-center justify-center text-2xl">🏇</div>
-              <div className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.2em] mb-2">Step 1</div>
-              <h3 className="text-lg font-semibold text-white mb-2">Choose Your Ride</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">Browse verified stables or pick a ready-made package with everything included.</p>
-            </div>
-            <div className="text-center group">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 flex items-center justify-center text-2xl">📅</div>
-              <div className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.2em] mb-2">Step 2</div>
-              <h3 className="text-lg font-semibold text-white mb-2">Pick Date &amp; Time</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">Select your preferred slot with live, real-time availability. No guessing.</p>
-            </div>
-            <div className="text-center group">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 flex items-center justify-center text-2xl">✅</div>
-              <div className="text-[#D4AF37] text-xs font-semibold uppercase tracking-[0.2em] mb-2">Step 3</div>
-              <h3 className="text-lg font-semibold text-white mb-2">Book Instantly</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">Confirm your ride and receive instant email confirmation with directions.</p>
-            </div>
-          </div>
-          <div className="text-center mt-14">
-            <Link href="/stables" className="inline-block border border-[#D4AF37]/50 text-[#D4AF37] hover:bg-white hover:text-black hover:border-white transition-colors duration-500 px-10 py-4 text-xs uppercase tracking-[0.2em] rounded-full">
-              Start Booking Now
+        <motion.div style={{ opacity }} className="relative h-full container flex flex-col justify-end pb-24 md:pb-32">
+          <motion.p
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: easeLuxury, delay: 0.3 }}
+            className="text-[11px] tracking-luxury uppercase text-background/90"
+          >
+            Est. Giza · By reservation only
+          </motion.p>
+          <motion.h1
+            initial="hidden" animate="show"
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12, delayChildren: 0.45 } } }}
+            className="mt-5 font-display text-background text-[14vw] sm:text-[10vw] md:text-[7.5vw] leading-[0.95] max-w-5xl text-balance"
+          >
+            {["The heritage", "of the Pyramids,", "by horseback."].map((line, i) => (
+              <motion.span key={i} variants={{ hidden: { opacity: 0, y: 40 }, show: { opacity: 1, y: 0, transition: { duration: 1.1, ease: easeLuxury } } }} className="block">
+                {line}
+              </motion.span>
+            ))}
+          </motion.h1>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: easeLuxury, delay: 1.2 }}
+            className="mt-10 flex flex-col sm:flex-row sm:items-center gap-5"
+          >
+            <Link to="/booking" className="group inline-flex items-center gap-3 px-7 py-4 bg-background text-foreground text-[12px] tracking-[0.2em] uppercase">
+              Reserve a journey
+              <ArrowUpRight className="size-4 transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
-          </div>
-        </div>
+            <Link to="/stables" className="text-[12px] tracking-[0.2em] uppercase text-background/90 hover:text-background underline-offset-8 hover:underline">
+              Discover the stables
+            </Link>
+          </motion.div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6, duration: 1 }}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 text-background/80 text-[10px] tracking-luxury uppercase"
+        >
+          Scroll
+        </motion.div>
       </section>
 
-      {featuredPackages.length > 0 && (
-        <section className="relative z-20 w-full bg-[#050505] py-32 selection:bg-[#D4AF37]/30">
-          <div className="container mx-auto px-4 max-w-7xl">
-            <div className="text-center mb-24">
-              <p className="text-[#D4AF37] text-xs uppercase tracking-[0.3em] font-semibold mb-6">The Royal Collection</p>
-              <h2 className="font-sans text-4xl md:text-5xl font-light text-white mb-6 tracking-wide">Exclusive Experiences</h2>
-              <div className="w-12 h-px bg-[#D4AF37]/50 mx-auto mb-6"></div>
-              <p className="text-gray-400 max-w-xl mx-auto text-sm md:text-base font-light tracking-wide">
-                A curated selection of our finest private rides and group events at the Great Pyramids.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
-              {featuredPackages.map((pkg) => (
-                <Link href="/packages" key={pkg.id} className="group flex flex-col cursor-pointer">
-                  <div className="relative aspect-[4/5] w-full overflow-hidden mb-8">
-                    <img
-                      src={pkg.imageUrl || "/hero-bg.webp"}
-                      alt={pkg.title}
-                      className="object-cover w-full h-full transition-transform duration-[1.5s] ease-in-out group-hover:scale-105 opacity-90 group-hover:opacity-100"
-                    />
-                    <div className="absolute top-4 left-4 z-20">
-                      <div className="bg-black/40 backdrop-blur-md border border-white/10 text-white px-3 py-1 text-[9px] uppercase tracking-[0.2em]">
-                        {pkg.packageType === "GROUP_EVENT" ? "Group Event" : "Private VIP"}
-                      </div>
-                    </div>
+      {/* MANIFESTO */}
+      <section className="container py-32 md:py-44 grid md:grid-cols-12 gap-12">
+        <Reveal className="md:col-span-4">
+          <p className="text-[11px] tracking-luxury uppercase text-ink-muted">Our house</p>
+        </Reveal>
+        <Reveal className="md:col-span-8" delay={0.15}>
+          <p className="font-display text-3xl md:text-5xl leading-[1.15] text-balance">
+            For one hundred years, our families have raised the finest Arabians in the shadow of the pyramids. PyraRides curates that lineage into a single, quiet experience — a private concierge for those who would rather arrive by saddle than by car.
+          </p>
+        </Reveal>
+      </section>
+
+      {/* FEATURED STABLES */}
+      <section className="container">
+        <div className="flex items-end justify-between mb-12 md:mb-16 border-b hairline pb-6">
+          <div>
+            <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-3">The stables</p>
+            <h2 className="font-display text-4xl md:text-6xl leading-none">Three estates. One plateau.</h2>
+          </div>
+          <Link to="/stables" className="hidden sm:inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-ink-muted hover:text-foreground transition-colors">
+            View all <ArrowUpRight className="size-3.5" />
+          </Link>
+        </div>
+
+        <StaggerGroup className="grid gap-6 md:grid-cols-3" gap={0.12}>
+          {stables.map((s) => (
+            <StaggerItem key={s.id}>
+              <Link to={`/stables/${s.id}`} className="group block">
+                <motion.div layoutId={`stable-image-${s.id}`} className="relative aspect-[4/5] overflow-hidden bg-surface">
+                  <motion.img
+                    src={s.image} alt={s.name}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                    whileHover={{ scale: 1.04 }}
+                    transition={{ duration: 1.2, ease: easeLuxury }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                  <div className="absolute top-4 left-4 text-[10px] tracking-luxury uppercase text-background/90">Est. {s.established}</div>
+                </motion.div>
+                <div className="pt-5 flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="font-display text-2xl leading-tight">{s.name}</h3>
+                    <p className="mt-1.5 text-xs tracking-[0.14em] uppercase text-ink-muted inline-flex items-center gap-1.5">
+                      <MapPin className="size-3" /> {s.location}
+                    </p>
                   </div>
-                  <div className="flex flex-col flex-1">
-                    <div className="flex items-center gap-3 text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-4">
-                      <span>{pkg.duration} Hours</span>
-                      <div className="w-1 h-1 bg-[#D4AF37] rounded-full"></div>
-                      <span>Up to {pkg.maxPeople} Guests</span>
-                    </div>
-                    <h3 className="text-2xl font-sans font-light text-white mb-4 leading-tight group-hover:text-[#D4AF37] transition-colors duration-500">
-                      {pkg.title}
-                    </h3>
-                    <p className="text-gray-400 text-sm font-light line-clamp-2 mb-8 flex-1 leading-relaxed">{pkg.description}</p>
-                    <div className="flex items-end justify-between mt-auto pt-6 border-t border-white/10">
-                      <div>
-                        <p className="text-[9px] text-gray-400 uppercase tracking-[0.2em] mb-1">
-                          {pkg.packageType === "GROUP_EVENT" ? "Per Guest" : "Total Price"}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl font-light text-white tracking-wide">EGP {pkg.price}</span>
-                          {pkg.originalPrice && <del className="text-xs text-gray-400">EGP {pkg.originalPrice}</del>}
-                        </div>
-                      </div>
-                      <span className="text-[#D4AF37] text-[10px] uppercase tracking-[0.2em] font-medium">View Details →</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+                  <ArrowUpRight className="size-4 text-ink-muted transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
+                </div>
+                <p className="mt-3 text-sm text-ink-soft text-pretty">{s.description}</p>
+              </Link>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
+      </section>
+
+      {/* SIGNATURE PACKAGES */}
+      <section className="container py-32 md:py-44">
+        <div className="grid md:grid-cols-12 gap-10 mb-16">
+          <Reveal className="md:col-span-5">
+            <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-3">Signature journeys</p>
+            <h2 className="font-display text-4xl md:text-6xl leading-[1] text-balance">Curated, never crowded.</h2>
+          </Reveal>
+          <Reveal className="md:col-span-6 md:col-start-7 self-end" delay={0.15}>
+            <p className="text-ink-soft text-pretty">Three signature experiences, each limited to a small party. Every detail — from your horse's lineage to the linen on the table — is arranged before you arrive.</p>
+          </Reveal>
+        </div>
+
+        <StaggerGroup className="space-y-4" gap={0.08}>
+          {packages.map((p, i) => (
+            <StaggerItem key={p.id}>
+              <Link to={`/packages/${p.id}`} className="group grid md:grid-cols-12 gap-8 items-center py-8 border-t hairline last:border-b">
+                <div className="md:col-span-1 text-[11px] tracking-luxury uppercase text-ink-muted">№ {String(i + 1).padStart(2, "0")}</div>
+                <div className="md:col-span-5">
+                  <h3 className="font-display text-3xl md:text-4xl leading-tight">{p.name}</h3>
+                  <p className="mt-2 text-ink-muted">{p.tagline}</p>
+                </div>
+                <div className="md:col-span-3 text-sm text-ink-soft">
+                  <p>{p.duration}</p>
+                  <p className="text-ink-muted">{p.minPeople}–{p.maxPeople} guests</p>
+                </div>
+                <div className="md:col-span-2 text-sm">
+                  <p className="text-ink-muted text-[11px] tracking-luxury uppercase">From</p>
+                  <p className="font-display text-2xl">${p.price}</p>
+                </div>
+                <div className="md:col-span-1 flex justify-end">
+                  <span className="inline-flex size-10 items-center justify-center border hairline rounded-full transition-all duration-500 group-hover:bg-foreground group-hover:text-background group-hover:border-foreground">
+                    <ArrowUpRight className="size-4" />
+                  </span>
+                </div>
+              </Link>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
+      </section>
+
+      {/* CTA */}
+      <section className="container pb-24">
+        <Reveal className="relative overflow-hidden">
+          <div className="bg-foreground text-background p-10 md:p-20 grid md:grid-cols-12 gap-10 items-end">
+            <div className="md:col-span-8">
+              <p className="text-[11px] tracking-luxury uppercase text-background/60 mb-5">Concierge</p>
+              <p className="font-display text-4xl md:text-6xl leading-[1.05] text-balance">A single email is all that stands between you and the desert at first light.</p>
             </div>
-            <div className="text-center mt-24">
-              <Link href="/packages" className="inline-block border border-[#D4AF37]/50 text-[#D4AF37] hover:bg-white hover:text-black hover:border-white transition-colors duration-500 px-10 py-4 text-xs uppercase tracking-[0.2em]">
-                Explore All Packages
+            <div className="md:col-span-4 md:text-right">
+              <Link to="/booking" className="inline-flex items-center gap-3 px-7 py-4 bg-background text-foreground text-[12px] tracking-[0.2em] uppercase group">
+                Begin reservation
+                <ArrowUpRight className="size-4 transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </Link>
             </div>
           </div>
-        </section>
-      )}
-
-      <section className="relative z-20 w-full overflow-hidden bg-gradient-to-b from-black/80 via-black/95 to-black py-24 md:py-32">
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-4 text-center">
-          <div className="mb-6 flex items-center gap-3">
-            <div className="h-px w-10 bg-white/40" />
-            <span className="text-xs font-medium tracking-[0.2em] text-white/60 uppercase">Begin Your Journey</span>
-            <div className="h-px w-10 bg-white/40" />
-          </div>
-          <h2 className="mb-6 font-sans text-4xl font-bold tracking-tight text-white drop-shadow-xl sm:text-5xl md:text-6xl">
-            Where Legends Are <br className="hidden sm:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/80 to-white/40">Ridden, Not Told.</span>
-          </h2>
-          <p className="mx-auto mb-10 max-w-2xl text-base text-white/70 drop-shadow md:text-xl">
-            Egypt's highest-rated Arabian horses await. Compare trusted stables, browse premium experiences, and witness the Giza Plateau like pharaohs once did.
-          </p>
-          <Link href="/stables" className="group relative flex items-center justify-center overflow-hidden rounded-full bg-white px-10 py-5 text-base font-semibold text-black transition-all hover:scale-105 hover:shadow-2xl hover:shadow-white/20">
-            <span className="relative">Explore Our Stables</span>
-            <svg className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-          </Link>
-          <div className="mt-16 flex items-center justify-center gap-8">
-            <a href="https://instagram.com/pyrarides" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors hover:scale-110 duration-300">
-              <Instagram className="h-7 w-7" />
-            </a>
-            <a href="https://tiktok.com/@pyrarides" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors hover:scale-110 duration-300">
-              <TikTokIcon className="h-7 w-7" />
-            </a>
-          </div>
-        </div>
+        </Reveal>
       </section>
-
-      <Footer />
-    </div>
+    </>
   );
-}
+};
+
+export default HomePage;
