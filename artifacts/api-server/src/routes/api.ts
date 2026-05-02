@@ -59,6 +59,12 @@ function requireAdmin(req: Request, res: Response, next: NextFunction): void {
 
 const router = Router();
 
+const TRANSPORT_ZONES: any[] = [
+  { id: "zone-giza", name: "Giza Pyramids Area", basePrice: 50, pricePerKm: 5, maxDistance: 30, isActive: true },
+  { id: "zone-cairo", name: "Cairo City", basePrice: 40, pricePerKm: 4, maxDistance: 25, isActive: true },
+  { id: "zone-luxor", name: "Luxor", basePrice: 80, pricePerKm: 6, maxDistance: 40, isActive: true },
+];
+
 const LOCATIONS = [
   { id: "giza", name: "Giza", isActive: true, _count: { stables: 5 } },
   { id: "saqqara", name: "Saqqara", isActive: true, _count: { stables: 3 } },
@@ -588,10 +594,6 @@ router.post("/newsletter/subscribe", (req, res) => {
   res.json({ success: true, email: req.body?.email });
 });
 
-router.get("/training/enrollments/:id", (req, res) => {
-  res.json({ id: req.params.id, status: "active", academy: ACADEMIES[0], program: ACADEMIES[0].programs[0] });
-});
-
 router.get("/my-stable", (_req, res) => {
   res.json(null);
 });
@@ -936,6 +938,151 @@ router.post("/training/enroll", requireAuth, async (req, res) => {
 
 router.get("/stable-os/dashboard", (_req, res) => {
   res.json({ bookings: [], revenue: 0, horses: [] });
+});
+
+router.get("/transport-zones", (_req, res) => {
+  res.json(TRANSPORT_ZONES);
+});
+
+router.post("/transport-zones", requireAdmin, (req, res) => {
+  const zone = { id: "zone-" + Date.now(), ...req.body };
+  TRANSPORT_ZONES.push(zone);
+  res.json(zone);
+});
+
+router.get("/admin/transport-zones", requireAdmin, (_req, res) => {
+  res.json(TRANSPORT_ZONES);
+});
+
+router.put("/admin/transport-zones/:id", requireAdmin, (req, res) => {
+  const idx = TRANSPORT_ZONES.findIndex((z: any) => z.id === req.params.id);
+  if (idx === -1) { res.status(404).json({ error: "Zone not found" }); return; }
+  TRANSPORT_ZONES[idx] = { ...TRANSPORT_ZONES[idx], ...req.body };
+  res.json(TRANSPORT_ZONES[idx]);
+});
+
+router.delete("/admin/transport-zones/:id", requireAdmin, (req, res) => {
+  const idx = TRANSPORT_ZONES.findIndex((z: any) => z.id === req.params.id);
+  if (idx !== -1) TRANSPORT_ZONES.splice(idx, 1);
+  res.json({ success: true });
+});
+
+router.patch("/stables/:id/visibility", requireAdmin, (req, res) => {
+  const { isActive } = req.body;
+  const stable = STABLES.find((s) => s.id === req.params.id) as any;
+  if (!stable) { res.status(404).json({ error: "Stable not found" }); return; }
+  stable.isActive = isActive;
+  res.json({ success: true, stableId: req.params.id, isActive });
+});
+
+router.patch("/admin/stables/:id/commission", requireAdmin, (req, res) => {
+  const { commissionRate } = req.body;
+  res.json({ success: true, stableId: req.params.id, commissionRate });
+});
+
+router.get("/stables/:id/bookings", requireAuth, async (req, res) => {
+  try {
+    const { rows } = await (await import("@workspace/db")).pool.query(
+      `SELECT b.id, b.horse_id, b.date, b.start_time, b.end_time, b.status, b.created_at,
+              u.full_name, u.email
+         FROM bookings b
+         JOIN app_users u ON u.id = b.user_id
+        WHERE b.stable_id = $1
+        ORDER BY b.created_at DESC LIMIT 100`,
+      [req.params.id],
+    );
+    res.json({ bookings: rows, total: rows.length });
+  } catch (err: unknown) {
+    console.error("GET /stables/:id/bookings error:", err);
+    res.status(500).json({ error: "Failed to fetch stable bookings" });
+  }
+});
+
+router.get("/stables/:id/owners", requireAuth, (req, res) => {
+  const stable = STABLES.find((s) => s.id === req.params.id) as any;
+  if (!stable) { res.status(404).json({ error: "Stable not found" }); return; }
+  res.json({ owners: stable.owner ? [stable.owner] : [] });
+});
+
+router.post("/stables/:id/owners", requireAdmin, (req, res) => {
+  res.json({ success: true, stableId: req.params.id, ...req.body });
+});
+
+router.delete("/stables/:id/owners", requireAdmin, (req, res) => {
+  res.json({ success: true });
+});
+
+router.get("/profile", requireAuth, async (req, res) => {
+  try {
+    const { findUserById } = await import("../lib/auth-db");
+    const user = await findUserById(req.sessionUser!.id);
+    if (!user) { res.status(404).json({ error: "Profile not found" }); return; }
+    res.json(userToResponse(user));
+  } catch (err: unknown) {
+    console.error("GET /profile error:", err);
+    res.status(500).json({ error: "Failed to fetch profile" });
+  }
+});
+
+router.put("/profile", requireAuth, async (req, res) => {
+  const { fullName, profileImageUrl } = req.body;
+  try {
+    await (await import("@workspace/db")).pool.query(
+      `UPDATE app_users SET full_name = COALESCE($1, full_name), profile_image_url = COALESCE($2, profile_image_url) WHERE id = $3`,
+      [fullName ?? null, profileImageUrl ?? null, req.sessionUser!.id],
+    );
+    res.json({ success: true });
+  } catch (err: unknown) {
+    console.error("PUT /profile error:", err);
+    res.status(500).json({ error: "Failed to update profile" });
+  }
+});
+
+router.post("/system/auto-complete-bookings", requireAdmin, (_req, res) => {
+  res.json({ success: true, completed: 0 });
+});
+
+router.get("/admin/horse-changes", requireAdmin, (_req, res) => {
+  res.json({ changes: [], total: 0 });
+});
+
+router.patch("/admin/horse-changes/:id/approve", requireAdmin, (req, res) => {
+  res.json({ success: true, id: req.params.id, status: "approved" });
+});
+
+router.patch("/admin/horse-changes/:id/reject", requireAdmin, (req, res) => {
+  res.json({ success: true, id: req.params.id, status: "rejected" });
+});
+
+router.patch("/admin/horses/:id/admin-tier", requireAdmin, (req, res) => {
+  const { tier } = req.body;
+  const horse = HORSES.find((h: any) => h.id === req.params.id) as any;
+  if (!horse) { res.status(404).json({ error: "Horse not found" }); return; }
+  horse.adminTier = tier;
+  res.json({ success: true, id: req.params.id, adminTier: tier });
+});
+
+router.get("/admin/academies/price-requests", requireAdmin, (_req, res) => {
+  res.json({ requests: [], total: 0 });
+});
+
+router.patch("/admin/academies/price-requests/:id", requireAdmin, (req, res) => {
+  res.json({ success: true, id: req.params.id, ...req.body });
+});
+
+router.get("/training/enrollments/:id", async (req, res) => {
+  try {
+    const { pool } = await import("@workspace/db");
+    const { rows } = await pool.query(
+      `SELECT id, academy_id, program_id, start_date, payment_method, payment_structure, status, created_at
+         FROM training_enrollments WHERE id = $1`,
+      [req.params.id],
+    );
+    if (!rows[0]) { res.status(404).json({ error: "Enrollment not found" }); return; }
+    res.json(rows[0]);
+  } catch {
+    res.json({ id: req.params.id, status: "active", academy: ACADEMIES[0], program: ACADEMIES[0].programs[0] });
+  }
 });
 
 export default router;

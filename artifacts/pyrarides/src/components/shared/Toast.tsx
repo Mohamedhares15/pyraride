@@ -22,10 +22,9 @@ export default function Toast({
   duration = 5000,
 }: ToastProps) {
   useEffect(() => {
-    if (duration > 0) {
-      const timer = setTimeout(onClose, duration);
-      return () => clearTimeout(timer);
-    }
+    if (duration <= 0) return;
+    const timer = setTimeout(onClose, duration);
+    return () => clearTimeout(timer);
   }, [duration, onClose]);
 
   const icons = {

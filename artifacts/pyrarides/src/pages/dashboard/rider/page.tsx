@@ -74,7 +74,7 @@ function RiderDashboardContent() {
   useEffect(() => {
     if (status === "loading") return;
     if (!session) { router.push("/"); return; }
-    if (session.user.role !== "rider") { router.push("/dashboard"); return; }
+    if (session.user?.role !== "rider") { router.push("/dashboard"); return; }
 
     fetchData();
   }, [session, status, router, activeTab]);

@@ -48,7 +48,7 @@ export default function ManageStablePage() {
 
   useEffect(() => {
     if (status === "loading") return;
-    if (!session || session.user.role !== "stable_owner") {
+    if (!session || session.user?.role !== "stable_owner") {
       router.push("/dashboard");
       return;
     }
@@ -553,7 +553,7 @@ export default function ManageStablePage() {
                   <p className="font-medium">{owner.fullName || "Unnamed User"}</p>
                   <p className="text-sm text-muted-foreground">{owner.email}</p>
                 </div>
-                {owner.id !== session?.user.id && (
+                {owner.id !== session?.user?.id && (
                   <Button
                     variant="destructive"
                     size="sm"

@@ -21,7 +21,7 @@ export const ReviewModal = ({
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!rating) return toast.error("Please bestow a rating.");
+    if (!rating) { toast.error("Please bestow a rating."); return; }
     toast.success("Letter received. Thank you.");
     setRating(0); setTitle(""); setBody(""); setAuthor("");
     onClose();

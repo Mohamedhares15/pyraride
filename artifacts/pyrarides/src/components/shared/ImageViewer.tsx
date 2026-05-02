@@ -46,45 +46,39 @@ export default function ImageViewer({
 
     // COPIED FROM HORSE VIEWER - Lock scroll when viewer is open
     useEffect(() => {
-        if (isOpen) {
-            // Lock scroll and save current position - Complete lock
-            const scrollY = window.scrollY;
-            const html = document.documentElement;
-            const body = document.body;
+        if (!isOpen) return;
+        const scrollY = window.scrollY;
+        const html = document.documentElement;
+        const body = document.body;
 
-            body.style.overflow = 'hidden';
-            body.style.position = 'fixed';
-            body.style.top = `-${scrollY}px`;
-            body.style.width = '100%';
-            body.style.left = '0';
-            body.style.right = '0';
-            body.style.touchAction = 'none';
+        body.style.overflow = 'hidden';
+        body.style.position = 'fixed';
+        body.style.top = `-${scrollY}px`;
+        body.style.width = '100%';
+        body.style.left = '0';
+        body.style.right = '0';
+        body.style.touchAction = 'none';
 
-            html.style.overflow = 'hidden';
-            html.style.position = 'fixed';
-            html.style.width = '100%';
-            html.style.height = '100%';
+        html.style.overflow = 'hidden';
+        html.style.position = 'fixed';
+        html.style.width = '100%';
+        html.style.height = '100%';
 
-            return () => {
-                // Restore scroll position and unlock scroll
-                const savedScrollY = body.style.top;
-
-                body.style.overflow = '';
-                body.style.position = '';
-                body.style.top = '';
-                body.style.width = '';
-                body.style.left = '';
-                body.style.right = '';
-                body.style.touchAction = '';
-
-                html.style.overflow = '';
-                html.style.position = '';
-                html.style.width = '';
-                html.style.height = '';
-
-                window.scrollTo(0, parseInt(savedScrollY || '0') * -1);
-            };
-        }
+        return () => {
+            const savedScrollY = body.style.top;
+            body.style.overflow = '';
+            body.style.position = '';
+            body.style.top = '';
+            body.style.width = '';
+            body.style.left = '';
+            body.style.right = '';
+            body.style.touchAction = '';
+            html.style.overflow = '';
+            html.style.position = '';
+            html.style.width = '';
+            html.style.height = '';
+            window.scrollTo(0, parseInt(savedScrollY || '0') * -1);
+        };
     }, [isOpen]);
 
 

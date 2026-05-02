@@ -111,7 +111,7 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
   // ── Auth guard ──────────────────────────────────
   useEffect(() => {
     if (status === "loading") return;
-    if (!session || (session.user.role !== "stable_owner" && session.user.role !== "admin")) {
+    if (!session || (session.user?.role !== "stable_owner" && session.user?.role !== "admin")) {
       router.push("/dashboard");
     }
   }, [session, status, router]);

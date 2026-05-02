@@ -108,7 +108,7 @@ export default function AnalyticsPage() {
   useEffect(() => {
     if (status === "loading") return;
 
-    if (!session || (session.user.role !== "stable_owner" && session.user.role !== "admin")) {
+    if (!session || (session.user?.role !== "stable_owner" && session.user?.role !== "admin")) {
       router.push("/dashboard");
       return;
     }
@@ -177,7 +177,7 @@ export default function AnalyticsPage() {
             </div>
             <h2 className="mb-2 font-display text-xl font-bold">Failed to Load Analytics</h2>
             <p className="mb-6 text-sm text-muted-foreground">
-              {session?.user.role === "stable_owner"
+              {session?.user?.role === "stable_owner"
                 ? "Unable to load your stable analytics. Please ensure you have an approved stable."
                 : "Unable to load analytics data. Please try again."}
             </p>
@@ -202,7 +202,7 @@ export default function AnalyticsPage() {
     return null; // This should not happen due to earlier check, but satisfies TypeScript
   }
 
-  const isAdmin = session?.user.role === "admin";
+  const isAdmin = session?.user?.role === "admin";
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black/80 via-black/90 to-black/95">

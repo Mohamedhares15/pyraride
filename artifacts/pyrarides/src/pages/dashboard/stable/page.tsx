@@ -77,7 +77,7 @@ export default function StableOwnerDashboard() {
   useEffect(() => {
     if (status === "loading") return;
 
-    if (!session || session.user.role !== "stable_owner") {
+    if (!session || session.user?.role !== "stable_owner") {
       router.push("/dashboard");
       return;
     }
@@ -282,13 +282,7 @@ export default function StableOwnerDashboard() {
 
       {/* Content */}
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
-        <style jsx global>{`
-          .dashboard-card {
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(8px);
-          }
-        `}</style>
+        <style dangerouslySetInnerHTML={{ __html: `.dashboard-card { border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); backdrop-filter: blur(8px); }` }} />
 
         {activeView === "academy" && academyAssignment ? (
           /* ---- Academy (Captain) View ---- */

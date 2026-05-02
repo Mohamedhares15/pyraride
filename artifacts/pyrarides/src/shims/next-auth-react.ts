@@ -58,7 +58,7 @@ export async function signOut(options?: { callbackUrl?: string }) {
 
 export async function signIn(
   provider: string,
-  options?: { email?: string; password?: string; redirect?: boolean; callbackUrl?: string }
+  options?: { email?: string; identifier?: string; password?: string; redirect?: boolean; callbackUrl?: string; [key: string]: any }
 ) {
   const response = await fetch("/api/auth/signin", {
     method: "POST",

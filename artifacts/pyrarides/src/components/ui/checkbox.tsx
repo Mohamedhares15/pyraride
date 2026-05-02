@@ -3,7 +3,11 @@
 import * as React from "react"
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
 import { cn } from "@/lib/utils"
-import { CheckIcon } from "@radix-ui/react-icons"
+const CheckIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M11.467 3.727c.289.189.37.576.181.865l-4.5 6.75a.625.625 0 01-.944.12l-2.5-2.5a.625.625 0 01.884-.884l1.99 1.99 4.024-6.036a.625.625 0 01.865-.305z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"/>
+  </svg>
+);
 
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,

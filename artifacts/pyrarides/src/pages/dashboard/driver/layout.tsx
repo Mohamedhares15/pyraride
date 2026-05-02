@@ -52,12 +52,12 @@ export default function DriverDashboardLayout({ children }: { children: ReactNod
 
   useEffect(() => {
     if (status === "loading") return;
-    if (!session || session.user.role !== "driver") {
+    if (!session || session.user?.role !== "driver") {
       router.replace("/");
     }
   }, [session, status, router]);
 
-  if (status === "loading" || !session || session.user.role !== "driver") {
+  if (status === "loading" || !session || session.user?.role !== "driver") {
     return (
       <div className="flex h-[100dvh] w-full items-center justify-center bg-[#0A0A0A]">
         <Loader2 className="w-8 h-8 animate-spin text-[#D4AF37]" />

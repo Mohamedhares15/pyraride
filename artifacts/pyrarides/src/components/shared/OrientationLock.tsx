@@ -41,19 +41,15 @@ export default function OrientationLock() {
       }
     };
 
-    // Lock on mount
     lockOrientation();
 
-    // Lock on resize (when orientation might change)
-    if (typeof window !== "undefined") {
-      window.addEventListener("resize", lockOrientation);
-      window.addEventListener("orientationchange", lockOrientation);
+    window.addEventListener("resize", lockOrientation);
+    window.addEventListener("orientationchange", lockOrientation);
 
-      return () => {
-        window.removeEventListener("resize", lockOrientation);
-        window.removeEventListener("orientationchange", lockOrientation);
-      };
-    }
+    return () => {
+      window.removeEventListener("resize", lockOrientation);
+      window.removeEventListener("orientationchange", lockOrientation);
+    };
   }, []);
 
   return null;

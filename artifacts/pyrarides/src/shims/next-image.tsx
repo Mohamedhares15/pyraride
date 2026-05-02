@@ -1,6 +1,6 @@
 import React from "react";
 
-interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+type ImageProps = Omit<React.ImgHTMLAttributes<HTMLImageElement>, "width" | "height"> & {
   src: string;
   alt: string;
   fill?: boolean;
@@ -8,9 +8,9 @@ interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   quality?: number;
   fetchPriority?: string;
   sizes?: string;
-  width?: number;
-  height?: number;
-}
+  width?: number | string;
+  height?: number | string;
+};
 
 const NextImage = React.forwardRef<HTMLImageElement, ImageProps>(
   ({ fill, priority, quality, fetchPriority, sizes, className, ...props }, ref) => {

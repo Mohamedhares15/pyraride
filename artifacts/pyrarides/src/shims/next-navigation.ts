@@ -3,8 +3,8 @@ import { useLocation, useParams as wouterUseParams } from "wouter";
 export function useRouter() {
   const [, navigate] = useLocation();
   return {
-    push: (url: string) => navigate(url),
-    replace: (url: string) => navigate(url, { replace: true }),
+    push: (url: string, _opts?: { scroll?: boolean }) => navigate(url),
+    replace: (url: string, _opts?: { scroll?: boolean }) => navigate(url, { replace: true }),
     back: () => window.history.back(),
     forward: () => window.history.forward(),
     refresh: () => window.location.reload(),

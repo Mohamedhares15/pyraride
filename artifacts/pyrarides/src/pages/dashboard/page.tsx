@@ -18,7 +18,7 @@ export default function DashboardPage() {
     }
 
     // Redirect based on role
-    const role = session.user.role;
+    const role = session.user?.role;
 
     if (role === "rider") {
       router.push("/dashboard/rider");

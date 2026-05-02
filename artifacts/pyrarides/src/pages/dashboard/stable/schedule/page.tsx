@@ -19,7 +19,7 @@ export default function SchedulePage() {
 
     useEffect(() => {
         if (status === "loading") return;
-        if (!session || session.user.role !== "stable_owner") {
+        if (!session || session.user?.role !== "stable_owner") {
             router.push("/dashboard");
             return;
         }

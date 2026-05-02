@@ -53,13 +53,11 @@ export function LazyAIAgent() {
     }
 
     useEffect(() => {
-        if (shouldLoad && !isLoaded) {
-            // Small delay to not block other critical resources
-            const timeout = setTimeout(() => {
-                setIsLoaded(true)
-            }, 100)
-            return () => clearTimeout(timeout)
-        }
+        if (!shouldLoad || isLoaded) return;
+        const timeout = setTimeout(() => {
+            setIsLoaded(true)
+        }, 100)
+        return () => clearTimeout(timeout)
     }, [shouldLoad, isLoaded])
 
     // Show trigger button before AI Agent is loaded

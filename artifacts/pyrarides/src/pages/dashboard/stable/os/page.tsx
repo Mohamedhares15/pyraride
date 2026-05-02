@@ -24,9 +24,10 @@ export default function StableOSPage() {
         return fetch("/api/my-stable");
       })
       .then((r) => {
-        if (!r) return;
+        if (!r) return undefined;
         if (r.ok) return r.json();
         navigate("/dashboard/stable");
+        return undefined;
       })
       .then((data) => {
         if (data?.id) {

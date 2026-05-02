@@ -37,7 +37,7 @@ export default function AdminHorsesPage() {
     useEffect(() => {
         if (status === "loading") return;
 
-        if (!session || session.user.role !== "admin") {
+        if (!session || session.user?.role !== "admin") {
             router.push("/dashboard");
             return;
         }

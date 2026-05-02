@@ -106,29 +106,12 @@ export default function DriverMap({ orders, driverLocation, onDistanceCalculated
 
   return (
     <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-[#111]">
-      <style jsx global>{`
-        .leaflet-container {
-          height: 100%;
-          width: 100%;
-          z-index: 0;
-          font-family: inherit;
-        }
-        /* Dark mode map tiles invert filter */
-        .leaflet-layer,
-        .leaflet-control-zoom-in,
-        .leaflet-control-zoom-out,
-        .leaflet-control-attribution {
-          filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
-        }
-        .leaflet-popup-content-wrapper {
-          background-color: #141414;
-          color: white;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .leaflet-popup-tip {
-          background-color: #141414;
-        }
-      `}</style>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .leaflet-container { height: 100%; width: 100%; z-index: 0; font-family: inherit; }
+        .leaflet-layer, .leaflet-control-zoom-in, .leaflet-control-zoom-out, .leaflet-control-attribution { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+        .leaflet-popup-content-wrapper { background-color: #141414; color: white; border: 1px solid rgba(255,255,255,0.1); }
+        .leaflet-popup-tip { background-color: #141414; }
+      ` }} />
 
       <MapContainer
         center={defaultCenter}

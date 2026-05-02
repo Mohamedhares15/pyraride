@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, Component, ErrorInfo } from "react";
+import React, { ReactNode, Component, ErrorInfo } from "react";
 import dynamic from '@/shims/next-dynamic';
 import { ReactLenis } from "@studio-freight/react-lenis";
 
@@ -35,9 +35,11 @@ interface CinematicWrapperProps {
     children: ReactNode;
 }
 
+const ReactLenisAny = ReactLenis as any;
+
 export default function CinematicWrapper({ children }: CinematicWrapperProps) {
     return (
-        <ReactLenis
+        <ReactLenisAny
             root
             options={{
                 lerp: 0.1,
@@ -47,13 +49,10 @@ export default function CinematicWrapper({ children }: CinematicWrapperProps) {
                 touchMultiplier: 2,
             }}
         >
-            {/* Film Grain Overlay - Wrapped in ErrorBoundary and SSR disabled */}
             <ErrorBoundary>
                 <FilmGrainCanvas />
             </ErrorBoundary>
-
-            {/* Main Content */}
             {children}
-        </ReactLenis>
+        </ReactLenisAny>
     );
 }
