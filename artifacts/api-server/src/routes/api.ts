@@ -666,11 +666,74 @@ router.get("/admin/horse-changes", (_req, res) => {
   res.json({ changes: [], total: 0 });
 });
 
-router.post("/ai-chat", (req, res) => {
-  const { message } = req.body;
-  res.json({
-    reply: `Thanks for your question about "${message}". Our team can help you find the perfect horse riding experience in Egypt! Visit our stables page to browse available options.`,
-  });
+router.post("/ai-chat", async (req, res) => {
+  const { message, conversationHistory = [], currentPage = "/" } = req.body as {
+    message: string;
+    conversationHistory: Array<{ role: string; content: string }>;
+    currentPage: string;
+  };
+
+  if (!message?.trim()) {
+    res.status(400).json({ error: "Message is required" });
+    return;
+  }
+
+  try {
+    const { openai } = await import("@workspace/integrations-openai-ai-server");
+
+    const systemPrompt = `You are Yara, a luxury private concierge for PyraRides — Egypt's premier equestrian experience platform. You help guests discover and book exclusive horse riding experiences, curated journeys, and training programmes near the Pyramids of Giza and across Egypt.
+
+Your personality: warm, refined, knowledgeable, and subtly eloquent — like a five-star hotel concierge. Use graceful, polished language without being flowery. Keep responses concise (2-4 sentences max unless details are needed).
+
+Key services you help with:
+- Curated horse riding journeys & packages (Pyramid rides, desert trails, sunrise rides)
+- Training academy enrollments (beginner to advanced)
+- Stable browsing & selection
+- Booking logistics (dates, group sizes, transport from Cairo/Giza hotels)
+- Loyalty rewards programme (Bronze → Silver → Gold → Platinum tiers)
+
+Current page context: ${currentPage}
+
+Always end with 2-3 brief contextual follow-up suggestions formatted as JSON after your response text like this:
+SUGGESTIONS: ["suggestion 1", "suggestion 2", "suggestion 3"]`;
+
+    const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+      { role: "system", content: systemPrompt },
+      ...conversationHistory
+        .filter((m) => m.role === "user" || m.role === "assistant")
+        .slice(-10)
+        .map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
+      { role: "user", content: message },
+    ];
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-5-mini",
+      max_completion_tokens: 400,
+      messages,
+    });
+
+    const raw = completion.choices[0]?.message?.content ?? "A pleasure. Allow me a moment to find the perfect experience for you.";
+
+    const suggMatch = raw.match(/SUGGESTIONS:\s*(\[[\s\S]*?\])/);
+    let suggestions: string[] = [];
+    let responseText = raw;
+
+    if (suggMatch) {
+      try {
+        suggestions = JSON.parse(suggMatch[1]);
+      } catch { /* ignore */ }
+      responseText = raw.replace(/SUGGESTIONS:\s*\[[\s\S]*?\]/, "").trim();
+    }
+
+    res.json({ response: responseText, suggestions, actions: [] });
+  } catch (err: unknown) {
+    console.error("ai-chat error:", err);
+    res.json({
+      response: "My apologies — I'm having a moment of difficulty. Our human concierge team is available at any time to assist you directly.",
+      suggestions: ["Browse our packages", "View stables", "Contact us"],
+      actions: [],
+    });
+  }
 });
 
 router.get("/users/verify", (_req, res) => {

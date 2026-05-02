@@ -10,37 +10,56 @@ const INITIAL: Msg[] = [
   { id: "m1", from: "concierge", text: "Good evening. I'm Yara, your private concierge. Shall I curate a journey for you, or simply answer a question?", time: "now" },
 ];
 
-const QUICK = ["Sunrise availability", "Private dinner", "Skill level", "Transfer from hotel"];
+const DEFAULT_QUICK = ["Sunrise availability", "Private dinner", "Skill level", "Transfer from hotel"];
 
 export const ConciergeChat = () => {
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>(INITIAL);
   const [draft, setDraft] = useState("");
   const [typing, setTyping] = useState(false);
+  const [quickReplies, setQuickReplies] = useState<string[]>(DEFAULT_QUICK);
   const scroller = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: "smooth" });
   }, [msgs, typing, open]);
 
-  const send = (text: string) => {
+  const send = async (text: string) => {
     if (!text.trim()) return;
     const id = String(Date.now());
     setMsgs((m) => [...m, { id, from: "you", text, time: "now" }]);
     setDraft("");
     setTyping(true);
-    setTimeout(() => {
+
+    try {
+      const history = msgs
+        .filter((m) => m.id !== "m1")
+        .map((m) => ({ role: m.from === "you" ? "user" : "assistant", content: m.text }));
+
+      const res = await fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: text,
+          conversationHistory: history,
+          currentPage: window.location.pathname,
+        }),
+      });
+
+      const data = await res.json();
+      setTyping(false);
+      const reply = data.response || data.reply || "A pleasure. Allow me a moment — I'll have an answer for you shortly.";
+      setMsgs((m) => [...m, { id: id + "-r", from: "concierge", text: reply, time: "now" }]);
+      if (Array.isArray(data.suggestions) && data.suggestions.length > 0) {
+        setQuickReplies(data.suggestions.slice(0, 4));
+      }
+    } catch {
       setTyping(false);
       setMsgs((m) => [
         ...m,
-        {
-          id: id + "-r",
-          from: "concierge",
-          text: "A pleasure. Allow me a moment to consult our master rider. May I confirm your preferred date and party size?",
-          time: "now",
-        },
+        { id: id + "-r", from: "concierge", text: "My apologies — I'm having trouble connecting right now. Please try again in a moment.", time: "now" },
       ]);
-    }, 1400);
+    }
   };
 
   return (
@@ -123,7 +142,7 @@ export const ConciergeChat = () => {
 
             {msgs.length <= 2 && (
               <div className="px-5 pb-3 flex flex-wrap gap-2">
-                {QUICK.map((q) => (
+                {quickReplies.map((q) => (
                   <button
                     key={q}
                     onClick={() => send(q)}

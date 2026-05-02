@@ -229,8 +229,9 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
               <ArrowLeft className="h-4 w-4" />
               <span className="text-sm">Back to Packages</span>
             </Link>
+            <p className="text-[10px] tracking-[0.28em] uppercase text-white/40 mb-1">Curated Journey · Direct Checkout</p>
             <h1 className="font-display text-2xl font-bold tracking-tight text-white drop-shadow-lg md:text-3xl">
-              Complete Your Booking
+              Curate Your Journey
             </h1>
           </div>
 

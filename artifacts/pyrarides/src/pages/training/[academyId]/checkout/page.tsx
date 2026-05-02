@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "wouter";
 import { useSession } from "@/shims/next-auth-react";
 import { useRouter, useSearchParams } from '@/shims/next-navigation';
 import NextImage from "@/shims/next-image";
@@ -15,7 +16,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 
-export default function AcademyCheckoutPage({ params }: { params: { academyId: string } }) {
+export default function AcademyCheckoutPage() {
+  const rawParams = useParams<{ academyId: string }>();
+  const params = { academyId: rawParams?.academyId ?? "" };
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
