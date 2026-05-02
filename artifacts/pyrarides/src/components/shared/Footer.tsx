@@ -20,7 +20,7 @@ export const Footer = () => (
           A private concierge for equestrian journeys at the Pyramids of Giza. By invitation, by reservation, by horseback.
         </p>
         <p className="mt-6 text-sm text-ink-muted">
-          📧 <a href="mailto:support@pyrarides.com" className="hover:text-foreground transition-colors">support@pyrarides.com</a>
+          <a href="mailto:support@pyrarides.com" className="hover:text-foreground transition-colors">support@pyrarides.com</a>
         </p>
         <div className="flex items-center gap-4 mt-5">
           <a
@@ -66,7 +66,7 @@ export const Footer = () => (
     </div>
     <div className="border-t hairline">
       <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-ink-muted">
-        <span>© {new Date().getFullYear()} PyraRides — Giza, Egypt. Made with ❤️ in Egypt.</span>
+        <span>© {new Date().getFullYear()} PyraRides — Giza, Egypt. Crafted in Egypt.</span>
         <span className="tracking-[0.24em] uppercase">The Pyramids, Unforgettable.</span>
       </div>
     </div>

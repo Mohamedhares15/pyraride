@@ -7,9 +7,9 @@ import { motion } from "framer-motion";
 import SearchFilters from "@/components/sections/SearchFilters";
 import StableList from "@/components/sections/StableList";
 import WeatherWidget from "@/components/shared/WeatherWidget";
-import { Button } from "@/components/ui/button";
-import { Loader2, Home, ArrowRight, Star } from "lucide-react";
+import { Loader2, ArrowUpRight } from "lucide-react";
 import { logEvent } from "@/lib/analytics";
+import { Reveal } from "@/components/shared/Motion";
 
 type StableMode = "stable" | "horse";
 
@@ -90,7 +90,6 @@ export default function StablesClient() {
       if (color && color !== "all") params.append("color", color);
       if (skills && skills.length > 0) params.append("skills", skills.join(","));
 
-      // Append cache buster to bypass poisoned browser cache
       params.append("_t", Date.now().toString());
       const response = await fetch(`/api/stables?${params.toString()}`);
 
@@ -164,7 +163,6 @@ export default function StablesClient() {
     fetchStables();
   }, [fetchStables]);
 
-  // KEY FIX: use router.replace with scroll: false to prevent page jump on every filter change
   const updateUrl = (params: URLSearchParams) => {
     router.replace(`?${params.toString()}`, { scroll: false });
   };
@@ -241,146 +239,118 @@ export default function StablesClient() {
   };
 
   return (
-    <div className="min-h-screen bg-background safe-area-white">
+    <div className="min-h-screen bg-background">
+      {/* Page header */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="border-b border-border bg-card/50 py-12 backdrop-blur-lg"
+        transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
+        className="border-b hairline bg-background/90 backdrop-blur-md pt-32 pb-12"
       >
-        <div className="mx-auto max-w-7xl px-3 md:px-8">
-          <div className="mb-6">
-            <Link href="/">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <Home className="h-4 w-4" />
-                Return to Home
-              </Button>
-            </Link>
-          </div>
-          <div className="max-w-3xl">
-            <h1 className="mb-4 font-display text-2xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-              Book Horse Riding at Giza & Saqqara Pyramids
+        <div className="container">
+          <Reveal>
+            <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-5">
+              The Stables · Giza &amp; Saqqara
+            </p>
+            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.95] text-balance max-w-4xl">
+              The finest estates, by horseback.
             </h1>
-            <p className="text-sm md:text-lg text-muted-foreground mb-4">
-              <strong>PyraRides is Egypt's first online marketplace</strong> for booking horse riding experiences
-              at the pyramids. Compare multiple verified stables, read authentic reviews, and book instantly
-              with guaranteed best prices.
+          </Reveal>
+          <Reveal delay={0.15}>
+            <p className="mt-8 max-w-xl text-ink-soft text-pretty">
+              Each stable is verified for horsemanship, safety, and quiet excellence.
+              Compare at your leisure — every detail is in its proper place.
             </p>
-            <p className="text-sm md:text-base text-muted-foreground">
-              <strong>Why choose PyraRides?</strong> Unlike single-stable websites, we offer multiple stables
-              in one platform, making it easy to compare prices, locations, and reviews. All stables are
-              verified for safety and quality. Instant booking, secure payments, 24/7 support.
-            </p>
-          </div>
+          </Reveal>
         </div>
       </motion.div>
 
-      <div className="mx-auto max-w-7xl px-3 py-4 md:py-8 md:px-8">
-        <div className="space-y-6 md:space-y-8">
-          {/* Weather Widget */}
-          <div className="mb-4 md:mb-0">
+      <div className="container py-10 space-y-8">
+        {/* Weather & packages promo */}
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          <div className="flex-1">
             <WeatherWidget location={location} />
           </div>
-
-          {/* Packages Promo Block */}
-          <Link href="/packages" className="block w-full">
-            <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-r from-neutral-950 via-neutral-900 to-neutral-950 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 group transition-all hover:border-[rgb(218,165,32)]/30 hover:shadow-[0_0_20px_rgba(218,165,32,0.1)]">
-              {/* Decorative elements */}
-              <div className="absolute -left-20 -top-20 w-40 h-40 bg-[rgb(218,165,32)]/5 blur-[50px] rounded-full pointer-events-none" />
-              <div className="absolute -right-20 -bottom-20 w-40 h-40 bg-[rgb(218,165,32)]/5 blur-[50px] rounded-full pointer-events-none" />
-              
-              <div className="flex items-center gap-6 relative z-10 w-full md:w-auto">
-                <div className="hidden sm:flex shrink-0 h-16 w-16 rounded-full bg-[rgb(218,165,32)]/10 items-center justify-center border border-[rgb(218,165,32)]/30 group-hover:scale-110 transition-transform duration-500">
-                  <Star className="h-8 w-8 text-[rgb(218,165,32)]" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[rgb(218,165,32)]">New Experience</span>
-                    <span className="flex h-2 w-2 relative">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[rgb(218,165,32)] opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[rgb(218,165,32)]"></span>
-                    </span>
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-display font-medium text-white mb-2">
-                    Discover Our Exclusive Riding Packages
-                  </h3>
-                  <p className="text-sm text-gray-400 max-w-xl">
-                    Upgrade your experience with our curated private VIP rides and group events at the Great Pyramids.
-                  </p>
-                </div>
+          <Link href="/packages" className="group flex-shrink-0 lg:self-stretch">
+            <div className="h-full border hairline p-6 flex flex-col justify-between gap-6 hover:bg-surface transition-colors duration-500 lg:max-w-xs">
+              <div>
+                <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-3">Signature journeys</p>
+                <p className="font-display text-2xl leading-snug">Curated packages, never crowded.</p>
+                <p className="mt-2 text-sm text-ink-soft text-pretty">
+                  Private rides from sunrise to desert, arranged before you arrive.
+                </p>
               </div>
-              
-              <div className="relative z-10 shrink-0 w-full md:w-auto mt-2 md:mt-0">
-                <Button className="w-full md:w-auto bg-[rgb(218,165,32)] text-black hover:bg-[rgb(218,165,32)]/90 font-semibold gap-2 h-12 px-8 shadow-[0_0_15px_rgba(218,165,32,0.3)]">
-                  Explore Packages <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </div>
+              <span className="inline-flex items-center gap-2 text-[11px] tracking-luxury uppercase text-ink-muted group-hover:text-foreground transition-colors">
+                Explore packages <ArrowUpRight className="size-3.5" />
+              </span>
             </div>
           </Link>
+        </div>
 
-          <div className="md:hidden">
-            <button 
-              type="button"
-              onClick={() => setShowMobileFilters(!showMobileFilters)} 
-              className="w-full h-12 flex items-center justify-between px-4 border border-border/40 bg-zinc-900 rounded-xl hover:bg-zinc-800 active:bg-black text-white transition-colors shadow-sm"
+        {/* Mobile filter toggle */}
+        <div className="md:hidden">
+          <button
+            type="button"
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className="w-full h-12 flex items-center justify-between px-5 border hairline bg-surface hover:bg-surface-elevated transition-colors text-[12px] tracking-[0.16em] uppercase"
+          >
+            <span>{showMobileFilters ? "Hide filters" : "Show filters"}</span>
+            <span className="text-ink-muted text-xs">{showMobileFilters ? "▲" : "▼"}</span>
+          </button>
+        </div>
+
+        {/* Filters */}
+        <div className={`${showMobileFilters ? 'block' : 'hidden'} md:block`}>
+          <SearchFilters
+            search={search}
+            location={location}
+            minRating={minRating}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            sort={sort}
+            color={color}
+            skills={skills}
+            onSearchChange={handleSearchChange}
+            onLocationChange={handleLocationChange}
+            onRatingChange={handleRatingChange}
+            onPriceChange={handlePriceChange}
+            onSortChange={handleSortChange}
+            onColorChange={handleColorChange}
+            onSkillsChange={handleSkillsChange}
+            onClear={handleClear}
+          />
+        </div>
+
+        {/* Results */}
+        {error ? (
+          <div className="border hairline p-8 text-center">
+            <p className="text-ink-muted font-display text-2xl mb-3">Something went wrong.</p>
+            <p className="text-sm text-ink-muted mb-5">{error}</p>
+            <button
+              onClick={fetchStables}
+              className="text-[12px] tracking-[0.18em] uppercase text-foreground underline underline-offset-4 hover:opacity-70 transition-opacity"
             >
-              <span className="font-medium">{showMobileFilters ? "Hide Filters" : "🔍 Show Filters"}</span>
-              <span className="text-xs opacity-50">{showMobileFilters ? "▲" : "▼"}</span>
+              Try again
             </button>
           </div>
-
-          <div className={`${showMobileFilters ? 'block' : 'hidden'} md:block`}>
-            <SearchFilters
-              search={search}
-              location={location}
-              minRating={minRating}
-              minPrice={minPrice}
-              maxPrice={maxPrice}
-              sort={sort}
-              color={color}
-              skills={skills}
-              onSearchChange={handleSearchChange}
-              onLocationChange={handleLocationChange}
-              onRatingChange={handleRatingChange}
-              onPriceChange={handlePriceChange}
-              onSortChange={handleSortChange}
-              onColorChange={handleColorChange}
-              onSkillsChange={handleSkillsChange}
-              onClear={handleClear}
-            />
-          </div>
-
-          {error ? (
-            <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-center">
-              <p className="text-destructive">{error}</p>
-              <button
-                onClick={fetchStables}
-                className="mt-4 text-primary hover:underline"
-              >
-                Try Again
-              </button>
+        ) : (
+          <>
+            <div className="flex items-center justify-between border-b hairline pb-4">
+              {isLoading ? (
+                <div className="flex items-center gap-2 text-ink-muted">
+                  <Loader2 className="size-4 animate-spin" />
+                  <span className="text-[12px] tracking-[0.14em] uppercase">Searching…</span>
+                </div>
+              ) : (
+                <p className="text-[12px] tracking-[0.14em] uppercase text-ink-muted">
+                  {results.length} {mode === "horse" ? (results.length === 1 ? "horse" : "horses") : (results.length === 1 ? "estate" : "estates")} found
+                </p>
+              )}
             </div>
-          ) : (
-            <>
-              <div className="flex items-center justify-between">
-                <h2 className="font-display text-lg md:text-2xl font-bold">
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin" />
-                      <span className="text-sm md:text-base">Loading...</span>
-                    </div>
-                  ) : (
-                    <span className="text-sm md:text-base">
-                      {results.length} {mode === "horse" ? "Horse" : "Stable"}
-                      {results.length !== 1 ? "s" : ""} Found
-                    </span>
-                  )}
-                </h2>
-              </div>
 
-              <StableList results={results} mode={mode} isLoading={isLoading} />
-            </>
-          )}
-        </div>
+            <StableList results={results} mode={mode} isLoading={isLoading} />
+          </>
+        )}
       </div>
     </div>
   );

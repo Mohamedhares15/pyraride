@@ -124,7 +124,7 @@ const TrainingPage = () => {
                 <div className={cn("mt-8 pt-6 border-t", p.featured ? "border-background/20" : "hairline")}>
                   <div className="flex items-baseline justify-between">
                     <span className={cn("text-[10px] tracking-luxury uppercase", p.featured ? "text-background/60" : "text-ink-muted")}>From</span>
-                    <span className="font-display text-3xl">${p.price.toLocaleString()}</span>
+                    <span className="font-display text-3xl">EGP {p.price.toLocaleString()}</span>
                   </div>
                   <div className="mt-2 flex items-baseline justify-between">
                     <span className={cn("text-[10px] tracking-luxury uppercase", p.featured ? "text-background/60" : "text-ink-muted")}>Duration</span>

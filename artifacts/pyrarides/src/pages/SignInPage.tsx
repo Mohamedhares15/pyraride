@@ -3,6 +3,7 @@ import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import heroImg from "@/assets/hero-pyramids.jpg";
+import { easeLuxury } from "@/components/shared/Motion";
 
 function SignInPage() {
   const [, navigate] = useLocation();
@@ -44,23 +45,23 @@ function SignInPage() {
           alt="Rider before the Pyramids"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-foreground/70 via-foreground/40 to-transparent" />
         <div className="relative z-10 flex flex-col justify-between h-full p-12">
           <Link href="/">
-            <span className="font-display text-2xl text-white tracking-widest uppercase">PyraRides</span>
+            <span className="font-display text-2xl text-background tracking-luxury uppercase">PyraRides</span>
           </Link>
           <div>
-            <p className="text-[11px] tracking-[0.25em] uppercase text-white/60 mb-4">Est. Giza · By reservation only</p>
-            <p className="font-display text-4xl xl:text-5xl text-white leading-[1.1] max-w-md">
+            <p className="text-[11px] tracking-luxury uppercase text-background/60 mb-4">Est. Giza · By reservation only</p>
+            <p className="font-display text-4xl xl:text-5xl text-background leading-[1.1] max-w-md text-balance">
               The heritage of the Pyramids, by horseback.
             </p>
             <div className="mt-8 flex items-center gap-3">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="w-8 h-8 rounded-full overflow-hidden border-2 border-white/30">
-                  <div className="w-full h-full bg-gradient-to-br from-amber-700/60 to-amber-900/60" />
+                <div key={i} className="w-8 h-8 rounded-full overflow-hidden border border-background/30">
+                  <div className="w-full h-full bg-gradient-to-br from-background/20 to-background/10" />
                 </div>
               ))}
-              <p className="text-sm text-white/70 ml-2">Trusted by 2,400+ riders</p>
+              <p className="text-sm text-background/70 ml-2">Trusted by 2,400+ riders</p>
             </div>
           </div>
         </div>
@@ -72,19 +73,19 @@ function SignInPage() {
           className="w-full max-w-md"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.7, ease: easeLuxury }}
         >
           {/* Mobile logo */}
-          <Link href="/" className="lg:hidden block mb-10 font-display text-2xl tracking-widest uppercase">
+          <Link href="/" className="lg:hidden block mb-10 font-display text-2xl tracking-luxury uppercase">
             PyraRides
           </Link>
 
-          <p className="text-[11px] tracking-[0.25em] uppercase text-ink-muted mb-3">Welcome back</p>
+          <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-3">Welcome back</p>
           <h1 className="font-display text-4xl md:text-5xl leading-tight mb-2">Sign in to your account</h1>
           <p className="text-ink-soft text-sm mb-10">Enter your credentials to continue your journey.</p>
 
           {error && (
-            <div className="mb-6 border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+            <div className="mb-6 border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
               {error}
             </div>
           )}
@@ -124,6 +125,7 @@ function SignInPage() {
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute right-0 bottom-3 text-ink-muted hover:text-foreground transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>

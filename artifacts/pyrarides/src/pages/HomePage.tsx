@@ -154,9 +154,14 @@ const HomePage = () => {
 
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6, duration: 1 }}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 text-background/80 text-[10px] tracking-luxury uppercase"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-background/80"
         >
-          Scroll
+          <span className="text-[10px] tracking-luxury uppercase">Scroll</span>
+          <motion.span
+            animate={{ y: [0, 4, 0] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            className="block w-px h-6 bg-background/40"
+          />
         </motion.div>
       </section>
 

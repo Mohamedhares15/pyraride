@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Clock, Globe, MessageSquare, ArrowRight } from "lucide-react";
-import Navbar from "@/components/shared/Navbar";
-import Footer from "@/components/shared/Footer";
 import { Reveal } from "@/components/shared/Motion";
 import { toast } from "sonner";
 import heroImg from "@/assets/hero-pyramids.jpg";
@@ -34,12 +32,10 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
-
+    <>
       {/* Hero */}
       <section className="relative h-[55vh] min-h-[380px] overflow-hidden">
-        <img src={heroImg} alt="Pyramids" className="absolute inset-0 w-full h-full object-cover" />
+        <img src={heroImg} alt="Pyramids at golden hour" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-foreground/50 via-foreground/30 to-background" />
         <div className="relative h-full container flex flex-col justify-end pb-16">
           <motion.p
@@ -129,7 +125,7 @@ export default function ContactPage() {
                 <label className="text-[11px] tracking-luxury uppercase text-ink-muted block mb-2">Enquiry type *</label>
                 <select
                   value={form.type} onChange={update("type") as any} required
-                  className="w-full bg-transparent border-b hairline pb-3 text-base focus:outline-none focus:border-foreground transition-colors text-foreground"
+                  className="w-full bg-transparent border-b hairline pb-3 text-base focus:outline-none focus:border-foreground transition-colors text-foreground appearance-none"
                 >
                   <option value="" className="bg-background">Select a topic</option>
                   {INQUIRY_TYPES.map((t) => <option key={t} value={t} className="bg-background">{t}</option>)}
@@ -141,7 +137,7 @@ export default function ContactPage() {
               <label className="text-[11px] tracking-luxury uppercase text-ink-muted block mb-2">Message *</label>
               <textarea
                 value={form.message} onChange={update("message")} required rows={6}
-                placeholder="Tell us how we can help..."
+                placeholder="Tell us how we can help…"
                 className="w-full bg-transparent border hairline p-4 text-sm focus:outline-none focus:border-foreground transition-colors resize-none placeholder:text-ink-muted/50"
               />
             </div>
@@ -161,35 +157,21 @@ export default function ContactPage() {
             <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-5">Contact details</p>
 
             <div className="space-y-8">
-              <div className="border-t hairline pt-6">
-                <div className="flex items-start gap-4">
-                  <Mail className="size-4 text-ink-muted mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-1">General support</p>
-                    <a href="mailto:support@pyrarides.com" className="text-sm hover:opacity-70 transition-opacity">support@pyrarides.com</a>
+              {[
+                { label: "General support", email: "support@pyrarides.com" },
+                { label: "Stable partnerships", email: "stables@pyrarides.com" },
+                { label: "Privacy & legal", email: "privacy@pyrarides.com" },
+              ].map(({ label, email }) => (
+                <div key={email} className="border-t hairline pt-6">
+                  <div className="flex items-start gap-4">
+                    <Mail className="size-4 text-ink-muted mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-1">{label}</p>
+                      <a href={`mailto:${email}`} className="text-sm hover:opacity-70 transition-opacity">{email}</a>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="border-t hairline pt-6">
-                <div className="flex items-start gap-4">
-                  <Mail className="size-4 text-ink-muted mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-1">Stable partnerships</p>
-                    <a href="mailto:stables@pyrarides.com" className="text-sm hover:opacity-70 transition-opacity">stables@pyrarides.com</a>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t hairline pt-6">
-                <div className="flex items-start gap-4">
-                  <Mail className="size-4 text-ink-muted mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-1">Privacy & legal</p>
-                    <a href="mailto:privacy@pyrarides.com" className="text-sm hover:opacity-70 transition-opacity">privacy@pyrarides.com</a>
-                  </div>
-                </div>
-              </div>
+              ))}
 
               <div className="border-t hairline pt-6">
                 <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-3">Business hours</p>
@@ -217,8 +199,6 @@ export default function ContactPage() {
           </Reveal>
         </div>
       </section>
-
-      <Footer />
-    </div>
+    </>
   );
 }

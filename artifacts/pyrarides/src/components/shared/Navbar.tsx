@@ -45,15 +45,19 @@ export const Navbar = () => {
             {NAV.map((item) => {
               const isActive = pathname === item.to || pathname.startsWith(item.to + "/");
               return (
-                <li key={item.to}>
+                <li key={item.to} className="relative">
                   <Link
                     to={item.to}
+                    aria-current={isActive ? "page" : undefined}
                     className={`text-[13px] tracking-[0.16em] uppercase transition-colors ${
                       isActive ? "text-foreground" : "text-ink-muted hover:text-foreground"
                     }`}
                   >
                     {item.label}
                   </Link>
+                  {isActive && (
+                    <span className="absolute -bottom-[calc(1.25rem+1px)] left-0 right-0 h-px bg-foreground" />
+                  )}
                 </li>
               );
             })}

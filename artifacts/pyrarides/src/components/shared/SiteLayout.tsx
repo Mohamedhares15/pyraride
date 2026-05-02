@@ -15,8 +15,14 @@ export const SiteLayout = ({ children }: { children: ReactNode }) => {
     || pathname === "/offline";
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground grain">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-4 focus:py-2 focus:bg-foreground focus:text-background focus:text-xs focus:tracking-luxury focus:uppercase"
+      >
+        Skip to content
+      </a>
       <Navbar />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <AnimatePresence mode="wait">
           <motion.div
             key={pathname}

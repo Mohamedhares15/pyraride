@@ -158,6 +158,26 @@ const PackagesPage = () => {
           </AnimatePresence>
         )}
       </section>
+
+      {/* Concierge CTA */}
+      <section className="container pb-24">
+        <div className="bg-foreground text-background p-10 md:p-20 grid md:grid-cols-12 gap-10 items-end">
+          <div className="md:col-span-8">
+            <p className="text-[11px] tracking-luxury uppercase text-background/60 mb-5">Bespoke arrangements</p>
+            <p className="font-display text-4xl md:text-5xl leading-[1.05] text-balance">
+              Every journey is shaped around you — before you arrive.
+            </p>
+          </div>
+          <div className="md:col-span-4 md:text-right">
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-3 px-7 py-4 bg-background text-foreground text-[12px] tracking-[0.2em] uppercase hover:opacity-90 transition-opacity"
+            >
+              Speak with concierge
+            </Link>
+          </div>
+        </div>
+      </section>
     </>
   );
 };

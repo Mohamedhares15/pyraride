@@ -40,7 +40,7 @@ const GalleryPage = () => {
   const visible = filter === "All" ? FRAMES : FRAMES.filter((f) => f.category === filter);
 
   return (
-    <div className="pt-32 pb-32">
+    <div className="pt-28 pb-32">
       <section className="container">
         <Reveal>
           <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-6">Gallery · No. 04</p>
@@ -145,8 +145,14 @@ const GalleryPage = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4, ease: easeLuxury }}
+            role="dialog"
+            aria-modal="true"
+            aria-label={active?.caption}
+            tabIndex={-1}
+            autoFocus
             onClick={() => setActive(null)}
-            className="fixed inset-0 z-[100] bg-foreground/95 backdrop-blur-md flex items-center justify-center p-6 cursor-zoom-out"
+            onKeyDown={(e) => { if (e.key === "Escape") setActive(null); }}
+            className="fixed inset-0 z-[100] bg-foreground/95 backdrop-blur-md flex items-center justify-center p-6 cursor-zoom-out outline-none"
           >
             <motion.figure
               initial={{ scale: 0.96, y: 16, opacity: 0 }}

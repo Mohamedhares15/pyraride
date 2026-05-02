@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, Minus } from "lucide-react";
-import Navbar from "@/components/shared/Navbar";
-import Footer from "@/components/shared/Footer";
 import { Reveal } from "@/components/shared/Motion";
 import heroImg from "@/assets/hero-pyramids.jpg";
+import { Link } from "wouter";
 
 const faqData = [
   {
@@ -113,12 +112,10 @@ export default function FaqPage() {
   const toggle = (key: string) => setOpen((prev) => (prev === key ? null : key));
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
-
+    <>
       {/* Hero */}
       <section className="relative h-[55vh] min-h-[380px] overflow-hidden">
-        <img src={heroImg} alt="Pyramids" className="absolute inset-0 w-full h-full object-cover" />
+        <img src={heroImg} alt="Pyramids at dusk" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-foreground/50 via-foreground/30 to-background" />
         <div className="relative h-full container flex flex-col justify-end pb-16">
           <motion.p
@@ -237,17 +234,15 @@ export default function FaqPage() {
             <h3 className="font-display text-3xl md:text-4xl">Our concierge team is always available.</h3>
           </div>
           <div className="md:col-span-4 md:text-right">
-            <a
-              href="/contact"
+            <Link
+              to="/contact"
               className="inline-flex items-center gap-2 px-6 py-3 border border-background/30 text-background text-[11px] tracking-luxury uppercase hover:bg-background hover:text-foreground transition-colors"
             >
               Contact us
-            </a>
+            </Link>
           </div>
         </div>
       </section>
-
-      <Footer />
-    </div>
+    </>
   );
 }
