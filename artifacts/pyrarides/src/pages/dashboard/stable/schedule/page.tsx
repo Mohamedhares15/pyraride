@@ -82,10 +82,7 @@ export default function SchedulePage() {
                     selectedDate={date || new Date()}
                     horses={horses}
                     onSlotsCreated={() => {
-                        // The grid will need to refresh, but for now we can rely on its own internal fetch
-                        // Ideally we'd pass a refresh trigger, but the grid fetches on mount/date change
-                        // We can force a refresh by toggling a key or context, but let's keep it simple first
-                        window.location.reload(); // Simple brute force for now to ensure grid updates after bulk create
+                        window.location.reload();
                     }}
                 />
             </div>

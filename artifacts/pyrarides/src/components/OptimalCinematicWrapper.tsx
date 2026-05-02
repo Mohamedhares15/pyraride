@@ -3,10 +3,9 @@
 import { useEffect, useState, ReactNode } from 'react'
 import dynamic from '@/shims/next-dynamic'
 
-// Lazy load the heavy CinematicWrapper only when needed
 const CinematicWrapper = dynamic(() => import('./CinematicWrapper'), {
-    ssr: false, // Disable SSR for better performance
-    loading: () => null, // No loading state needed
+    ssr: false,
+    loading: () => null,
 })
 
 interface OptimalCinematicWrapperProps {
@@ -18,26 +17,18 @@ export function OptimalCinematicWrapper({ children }: OptimalCinematicWrapperPro
     const [isChecking, setIsChecking] = useState(true)
 
     useEffect(() => {
-        // Check if we should load cinematic effects
         const shouldLoadEffects = () => {
-            // Check 1: Is desktop?
             const isDesktop = window.innerWidth > 1024
-
-            // Check 2: Has good connection? (optional, progressive enhancement)
             const connection = (navigator as any).connection
             const hasGoodConnection =
-                !connection || // If API not available, assume good
+                !connection ||
                 connection.effectiveType === '4g' ||
                 connection.effectiveType === '5g' ||
-                connection.downlink > 5 // > 5 Mbps
-
-            // Check 3: User prefers reduced motion?
+                connection.downlink > 5
             const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
             return isDesktop && hasGoodConnection && !prefersReducedMotion
         }
 
-        // Delay check slightly to not block initial render
         const timeout = setTimeout(() => {
             setShowEffects(shouldLoadEffects())
             setIsChecking(false)
@@ -46,11 +37,9 @@ export function OptimalCinematicWrapper({ children }: OptimalCinematicWrapperPro
         return () => clearTimeout(timeout)
     }, [])
 
-    // While checking, render children without wrapper
     if (isChecking || !showEffects) {
         return <>{children}</>
     }
 
-    // Load full cinematic experience on capable devices
     return <CinematicWrapper>{children}</CinematicWrapper>
 }
