@@ -1,23 +1,32 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { randomBytes } from "crypto";
-
-type SessionUser = { id: string; email: string; fullName: string; role: string; profileImageUrl: null };
-const sessions = new Map<string, SessionUser>();
+import {
+  findUserByIdentifier,
+  findSessionUser,
+  createSession,
+  deleteSession,
+  createUser,
+  verifyPassword,
+} from "../lib/auth-db";
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   const sid = req.cookies?.sid as string | undefined;
-  if (!sid || !sessions.has(sid)) {
-    return res.status(401).json({ error: "Authentication required" });
-  }
-  return next();
+  if (!sid) return res.status(401).json({ error: "Authentication required" });
+  findSessionUser(sid).then((user) => {
+    if (!user) return res.status(401).json({ error: "Authentication required" });
+    (req as any).sessionUser = user;
+    return next();
+  }).catch(() => res.status(500).json({ error: "Internal server error" }));
 }
 
 function requireAdmin(req: Request, res: Response, next: NextFunction) {
   const sid = req.cookies?.sid as string | undefined;
-  const user = sid ? sessions.get(sid) : undefined;
-  if (!user) return res.status(401).json({ error: "Authentication required" });
-  if (user.role !== "admin") return res.status(403).json({ error: "Admin access required" });
-  return next();
+  if (!sid) return res.status(401).json({ error: "Authentication required" });
+  findSessionUser(sid).then((user) => {
+    if (!user) return res.status(401).json({ error: "Authentication required" });
+    if (user.role !== "admin") return res.status(403).json({ error: "Admin access required" });
+    (req as any).sessionUser = user;
+    return next();
+  }).catch(() => res.status(500).json({ error: "Internal server error" }));
 }
 
 const router = Router();
@@ -343,46 +352,57 @@ router.get("/academies/:id", (req, res) => {
   return res.json(academy);
 });
 
-router.get("/auth/session", (req, res) => {
+router.get("/auth/session", async (req, res) => {
   const sid = req.cookies?.sid as string | undefined;
-  const user = sid ? sessions.get(sid) ?? null : null;
-  res.json({ user });
+  if (!sid) return res.json({ user: null });
+  try {
+    const dbUser = await findSessionUser(sid);
+    if (!dbUser) return res.json({ user: null });
+    return res.json({ user: { id: dbUser.id, email: dbUser.email, fullName: dbUser.full_name, role: dbUser.role, profileImageUrl: dbUser.profile_image_url } });
+  } catch {
+    return res.json({ user: null });
+  }
 });
 
-router.post("/auth/signin", (req, res) => {
+router.post("/auth/signin", async (req, res) => {
   const identifier: string | undefined = req.body.email ?? req.body.identifier;
   const password: string | undefined = req.body.password;
   if (!identifier) return res.status(400).json({ error: "Email or phone required" });
   if (!password) return res.status(400).json({ error: "Password required" });
-  const id = identifier.toLowerCase();
-  let role = "rider";
-  let fullName = "Rider User";
-  if (id.includes("admin")) { role = "admin"; fullName = "Admin User"; }
-  else if (id.includes("stable") || id.includes("owner")) { role = "stable_owner"; fullName = "Stable Owner"; }
-  else if (id.includes("captain")) { role = "captain"; fullName = "Captain User"; }
-  else if (id.includes("driver")) { role = "driver"; fullName = "Driver User"; }
-  const sid = randomBytes(24).toString("hex");
-  const user: SessionUser = { id: "user-" + sid.slice(0, 8), email: identifier, fullName, role, profileImageUrl: null };
-  sessions.set(sid, user);
-  res.cookie("sid", sid, { httpOnly: true, sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000 });
-  return res.json({ user });
+  try {
+    const dbUser = await findUserByIdentifier(identifier) as (Awaited<ReturnType<typeof findUserByIdentifier>> & { password_hash?: string }) | null;
+    if (!dbUser) return res.status(401).json({ error: "Invalid credentials" });
+    const hash: string = (dbUser as any).password_hash ?? "";
+    const valid = await verifyPassword(password, hash);
+    if (!valid) return res.status(401).json({ error: "Invalid credentials" });
+    const sid = await createSession(dbUser.id);
+    res.cookie("sid", sid, { httpOnly: true, sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000 });
+    return res.json({ user: { id: dbUser.id, email: dbUser.email, fullName: dbUser.full_name, role: dbUser.role, profileImageUrl: dbUser.profile_image_url } });
+  } catch {
+    return res.status(500).json({ error: "Authentication service unavailable" });
+  }
 });
 
-router.post("/auth/signout", (req, res) => {
+router.post("/auth/signout", async (req, res) => {
   const sid = req.cookies?.sid as string | undefined;
-  if (sid) sessions.delete(sid);
+  if (sid) { try { await deleteSession(sid); } catch {} }
   res.clearCookie("sid");
   res.json({ success: true });
 });
 
-router.post("/auth/register", (req, res) => {
-  const { email, fullName } = req.body;
-  if (!email) return res.status(400).json({ error: "Email required" });
-  const sid = randomBytes(24).toString("hex");
-  const user: SessionUser = { id: "user-" + sid.slice(0, 8), email, fullName: fullName ?? "New User", role: "rider", profileImageUrl: null };
-  sessions.set(sid, user);
-  res.cookie("sid", sid, { httpOnly: true, sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000 });
-  return res.json({ user });
+router.post("/auth/register", async (req, res) => {
+  const { email, phoneNumber, password, fullName, role } = req.body;
+  if (!email && !phoneNumber) return res.status(400).json({ error: "Email or phone required" });
+  if (!password) return res.status(400).json({ error: "Password required" });
+  try {
+    const dbUser = await createUser({ email, phoneNumber, password, fullName, role: role ?? "rider" });
+    const sid = await createSession(dbUser.id);
+    res.cookie("sid", sid, { httpOnly: true, sameSite: "lax", maxAge: 7 * 24 * 60 * 60 * 1000 });
+    return res.json({ user: { id: dbUser.id, email: dbUser.email, fullName: dbUser.full_name, role: dbUser.role, profileImageUrl: dbUser.profile_image_url } });
+  } catch (err: any) {
+    if (err?.code === "23505") return res.status(409).json({ error: "Account already exists" });
+    return res.status(500).json({ error: "Registration service unavailable" });
+  }
 });
 
 router.post("/auth/forgot-password", (_req, res) => {
