@@ -2,12 +2,12 @@ import { initializeApp, getApps } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 const firebaseConfig = {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyADYxt0y1uF4SVcyrYK22Qp09nMxTmGr_4",
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "pyrarides.firebaseapp.com",
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "pyrarides",
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "pyrarides.firebasestorage.app",
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "994220026642",
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:994220026642:web:594df28bea4b04e94121cb",
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyADYxt0y1uF4SVcyrYK22Qp09nMxTmGr_4",
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "pyrarides.firebaseapp.com",
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "pyrarides",
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "pyrarides.firebasestorage.app",
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "994220026642",
+    appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:994220026642:web:594df28bea4b04e94121cb",
     measurementId: "G-SBZW627YEX"
 };
 
@@ -56,7 +56,7 @@ export const requestNotificationPermission = async () => {
 
         // Get FCM token
         console.log('[Firebase] Getting FCM token...');
-        const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+        const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
 
         const tokenConfig: any = {
             serviceWorkerRegistration: registration

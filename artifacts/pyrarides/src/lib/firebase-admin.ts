@@ -11,7 +11,7 @@ if (!admin.apps.length) {
     try {
         admin.initializeApp({
             credential: admin.credential.cert({
-                projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "pyrarides",
+                projectId: process.env.FIREBASE_PROJECT_ID || "pyrarides",
                 clientEmail,
                 privateKey,
             }),

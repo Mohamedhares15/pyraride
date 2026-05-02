@@ -1,6 +1,6 @@
 // Google Analytics helper functions
 
-export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID || "";
+export const GA_TRACKING_ID = import.meta.env.VITE_GA_ID || "";
 
 // https://developers.google.com/analytics/devguides/collection/gtagjs/pages
 export const pageview = (url: string) => {

@@ -19,7 +19,7 @@ export const logEvent = ({ action, category, label, value, ...rest }: GtagEvent)
     });
   } else {
     // If running in development without GA, safely log to console instead
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log(`[GA Event Simulation] ${action}`, { category, label, value, ...rest });
     }
   }

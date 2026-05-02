@@ -534,6 +534,19 @@ router.get("/admin/bookings/instant", (_req, res) => {
   res.json({ bookings: [], total: 0 });
 });
 
+router.post("/admin/bookings/instant", (req, res) => {
+  const { riderEmail, horseId, stableId, date, startTime, endTime, notes } = req.body;
+  if (!riderEmail || !horseId || !stableId || !date || !startTime || !endTime) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+  return res.json({
+    success: true,
+    bookingId: "instant-" + Date.now(),
+    message: "Instant booking created successfully",
+    booking: { riderEmail, horseId, stableId, date, startTime, endTime, notes, status: "confirmed" }
+  });
+});
+
 router.get("/admin/users", (_req, res) => {
   res.json({ users: [], total: 0 });
 });
@@ -595,12 +608,12 @@ router.post("/notifications/video-call", (_req, res) => {
   res.json({ success: true });
 });
 
-router.post("/reviews", (req, res) => {
-  res.json({ success: true, review: { id: "review-" + Date.now(), ...req.body } });
+router.get("/reviews", (_req, res) => {
+  res.json([]);
 });
 
-router.get("/reviews", (req, res) => {
-  res.json([]);
+router.post("/reviews", (req, res) => {
+  res.json({ success: true, review: { id: "review-" + Date.now(), ...req.body } });
 });
 
 router.get("/chat/conversations", (_req, res) => {
@@ -608,15 +621,8 @@ router.get("/chat/conversations", (_req, res) => {
 });
 
 router.post("/chat/conversations", (req, res) => {
-  res.json({ id: "conv-" + Date.now(), ...req.body });
-});
-
-router.get("/loyalty", (_req, res) => {
-  res.json({ points: 0, tier: "bronze", history: [] });
-});
-
-router.get("/my-stable", (_req, res) => {
-  res.json(null);
+  const conv = { id: "conv-" + Date.now(), ...req.body };
+  res.json({ conversation: conv });
 });
 
 router.put("/my-stable", (req, res) => {

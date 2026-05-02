@@ -69,7 +69,7 @@ export default function NewChatDialog({ onConversationCreated }: NewChatDialogPr
 
             if (res.ok) {
                 const data = await res.json();
-                onConversationCreated(data.conversation);
+                onConversationCreated(data.conversation ?? data);
                 setIsOpen(false);
                 setSelectedUsers([]);
                 setSearchQuery("");
