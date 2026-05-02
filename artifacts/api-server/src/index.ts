@@ -1,6 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
-import { initAuthSchema } from "./lib/auth-db";
+import { initAuthSchema, seedAdminUser } from "./lib/auth-db";
 
 const rawPort = process.env["PORT"];
 
@@ -16,7 +16,16 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-initAuthSchema()
+async function bootstrap() {
+  await initAuthSchema();
+  await seedAdminUser({
+    email: "admin@pyrarides.com",
+    password: "Admin@2026",
+    fullName: "Admin User",
+  });
+}
+
+bootstrap()
   .then(() => {
     app.listen(port, (err) => {
       if (err) {
@@ -27,6 +36,6 @@ initAuthSchema()
     });
   })
   .catch((err) => {
-    logger.error({ err }, "Failed to initialize auth schema");
+    logger.error({ err }, "Failed to bootstrap server");
     process.exit(1);
   });

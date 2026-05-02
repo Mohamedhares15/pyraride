@@ -10,6 +10,7 @@ declare global {
 }
 import {
   findUserWithHashByIdentifier,
+  findUserByEmail,
   findSessionUser,
   createSession,
   deleteSession,
@@ -676,8 +677,17 @@ router.get("/users/verify", (_req, res) => {
   res.json({ valid: false, user: null });
 });
 
-router.post("/users/verify", (req, res) => {
-  res.json({ valid: true, user: { email: req.body?.email } });
+router.post("/users/verify", async (req, res) => {
+  const email: string | undefined = req.body?.email;
+  if (!email) { res.status(400).json({ error: "Email required" }); return; }
+  try {
+    const dbUser = await findUserByEmail(email);
+    if (!dbUser) { res.status(404).json({ error: "User not found" }); return; }
+    res.json({ valid: true, user: userToResponse(dbUser) });
+  } catch (err: unknown) {
+    console.error("users/verify error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 router.get("/notifications/video-call", (_req, res) => {

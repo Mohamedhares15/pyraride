@@ -111,6 +111,31 @@ export async function deleteSession(sid: string): Promise<void> {
   await pool.query(`DELETE FROM app_sessions WHERE id = $1`, [sid]);
 }
 
+export async function findUserByEmail(email: string): Promise<DbUser | null> {
+  const { rows } = await pool.query<DbUser>(
+    `SELECT id, email, phone_number, full_name, role, profile_image_url
+       FROM app_users WHERE email = $1 LIMIT 1`,
+    [email.trim().toLowerCase()],
+  );
+  return rows[0] ?? null;
+}
+
+export async function seedAdminUser(opts: {
+  email: string;
+  password: string;
+  fullName: string;
+}): Promise<void> {
+  const existing = await findUserByEmail(opts.email);
+  if (existing) return;
+  const passwordHash = await bcrypt.hash(opts.password, 10);
+  await pool.query(
+    `INSERT INTO app_users (email, password_hash, full_name, role)
+     VALUES ($1, $2, $3, 'admin')
+     ON CONFLICT (email) DO NOTHING`,
+    [opts.email.toLowerCase(), passwordHash, opts.fullName],
+  );
+}
+
 export function userToResponse(u: DbUser) {
   return {
     id: u.id,
