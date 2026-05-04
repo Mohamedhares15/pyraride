@@ -57,7 +57,7 @@ export async function POST(
         where: { horseId: changeRequest.horseId },
       });
 
-      const mediaPromises = changeRequest.proposedImageUrls.map((url: string, index: number) =>
+      const mediaPromises = (changeRequest.proposedImageUrls || []).map((url: string, index: number) =>
         prisma.horseMedia.create({
           data: {
             horseId: changeRequest.horseId,

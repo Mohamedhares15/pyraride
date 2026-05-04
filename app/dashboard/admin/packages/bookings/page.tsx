@@ -162,7 +162,7 @@ export default function AdminPackageBookingsPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {displayList.map((booking: any) => {
+            {(displayList || []).map((booking: any) => {
               const bookingDate = new Date(booking.date);
               const formattedDate = bookingDate.toLocaleDateString("en-US", {
                 weekday: "short", month: "short", day: "numeric", year: "numeric"

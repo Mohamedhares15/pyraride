@@ -56,7 +56,7 @@ async function main() {
         console.error(
           `❌ Stable "${stableData.stableName}" not found!`
         );
-        console.log("   Available stables:", stables.map((s) => s.name).join(", "));
+        console.log("   Available stables:", (stables || []).map((s) => s.name).join(", "));
         continue;
       }
 
@@ -75,7 +75,7 @@ async function main() {
 
           // Validate image URLs
           const validImageUrls = horseData.imageUrls.filter(
-            (url) => url && (url.startsWith("http") || url.startsWith("/"))
+            (url) => url && (url?.startsWith("http") || url?.startsWith("/"))
           );
 
           if (validImageUrls.length === 0) {
@@ -102,7 +102,7 @@ async function main() {
           });
 
           // Create HorseMedia entries for each image
-          const mediaPromises = validImageUrls.map((url, index) =>
+          const mediaPromises = (validImageUrls || []).map((url, index) =>
             prisma.horseMedia.create({
               data: {
                 horseId: horse.id,

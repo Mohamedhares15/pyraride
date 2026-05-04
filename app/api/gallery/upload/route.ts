@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate file type
-    if (!file.type.startsWith("image/")) {
+    if (!file.type?.startsWith("image/")) {
       return NextResponse.json(
         { error: "File must be an image" },
         { status: 400 }

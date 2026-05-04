@@ -18,7 +18,7 @@ export async function GET(
     }
 
     // If stored as a base64 data URL, extract and serve as binary
-    if (item.url.startsWith("data:")) {
+    if (item.url?.startsWith("data:")) {
       const [header, base64Data] = item.url.split(",");
       const mimeType = header.split(":")[1].split(";")[0];
       const buffer = Buffer.from(base64Data, "base64");

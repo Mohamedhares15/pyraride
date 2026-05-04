@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
         const conversation = await prisma.conversation.create({
             data: {
                 participants: {
-                    connect: allParticipantIds.map((id) => ({ id })),
+                    connect: (allParticipantIds || []).map((id) => ({ id })),
                 },
             },
             include: {

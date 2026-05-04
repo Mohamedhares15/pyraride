@@ -102,7 +102,7 @@ export function CreateSlotsDialog({
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">Entire Stable (All Horses)</SelectItem>
-                                {horses.map((horse) => (
+                                {(horses || []).map((horse) => (
                                     <SelectItem key={horse.id} value={horse.id}>
                                         {horse.name} (specific horse)
                                     </SelectItem>

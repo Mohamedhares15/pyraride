@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
     '/sitemap.xml',
   ];
   
-  const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
+  const isPublicPath = publicPaths.some(path => pathname?.startsWith(path));
   
   // If coming soon is enabled and this is not a public path, require authentication
   if (isComingSoon && !isPublicPath) {
@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
     const token = await import("next-auth/jwt").then(mod => mod.getToken({ req: request }));
     if (token && token.role === "driver") {
       const allowedDriverPaths = ["/dashboard/driver", "/api/", "/_next/", "/favicon.", "/manifest.", "/icons/", "/sw."];
-      const isAllowed = allowedDriverPaths.some(p => pathname.startsWith(p));
+      const isAllowed = allowedDriverPaths.some(p => pathname?.startsWith(p));
       if (!isAllowed) {
         const driverUrl = request.nextUrl.clone();
         driverUrl.pathname = "/dashboard/driver";
@@ -64,7 +64,7 @@ export async function middleware(request: NextRequest) {
   response.headers.set('X-Permitted-Cross-Domain-Policies', 'none');
   
   // CORS for API routes
-  if (pathname.startsWith('/api/')) {
+  if (pathname?.startsWith('/api/')) {
     response.headers.set('Access-Control-Allow-Credentials', 'true');
     response.headers.set('Access-Control-Allow-Origin', '*');
     response.headers.set('Access-Control-Allow-Methods', 'GET,DELETE,PATCH,POST,PUT');

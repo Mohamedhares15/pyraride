@@ -77,7 +77,7 @@ interface ToastContainerProps {
 export function ToastContainer({ toasts, onRemove }: ToastContainerProps) {
   return (
     <AnimatePresence>
-      {toasts.map((toast, index) => (
+      {(toasts || []).map((toast, index) => (
         <div key={toast.id} style={{ top: `${4 + index * 100}px` }}>
           <Toast
             type={toast.type}

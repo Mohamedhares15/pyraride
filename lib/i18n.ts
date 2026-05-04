@@ -51,7 +51,7 @@ export function formatTime(date: Date, locale: Locale = "en"): string {
 export function detectLocale(): Locale {
   if (typeof window !== "undefined") {
     const browserLang = navigator.language.toLowerCase();
-    if (browserLang.startsWith("ar")) return "ar";
+    if (browserLang?.startsWith("ar")) return "ar";
   }
   return defaultLocale;
 }

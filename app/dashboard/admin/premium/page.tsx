@@ -269,7 +269,7 @@ export default function PremiumAdminPage() {
                   className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
                 >
                   <option value="">Select a stable owner</option>
-                  {owners.map((owner) => (
+                  {(owners || []).map((owner) => (
                     <option key={owner.id} value={owner.id}>
                       {owner.fullName || "Unnamed Owner"} — {owner.email}
                     </option>
@@ -326,7 +326,7 @@ export default function PremiumAdminPage() {
                 </p>
               )}
 
-              {filteredOwners.map((owner) => {
+              {(filteredOwners || []).map((owner) => {
                 const isPremium = owner.hasPremiumAI;
                 const isExpiringSoon =
                   owner.premiumAIExpiresAt &&

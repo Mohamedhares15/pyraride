@@ -83,7 +83,7 @@ export async function GET() {
     ]);
 
     const statMap = Object.fromEntries(
-      stats.map(s => [s.status, { count: s._count.status, revenue: s._sum.totalPrice }])
+      (stats || []).map(s => [s.status, { count: s._count.status, revenue: s._sum.totalPrice }])
     );
 
     const formattedStats = {

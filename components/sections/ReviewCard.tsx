@@ -44,13 +44,13 @@ export default function ReviewCard({ review, index }: ReviewCardProps) {
   const validMedias = review.reviewMedias?.filter((media, originalIdx) => {
     // Check if URL is valid (not UUID, not blob, has proper format)
     const isValidUrl = media.url &&
-      media.url.startsWith('http') &&
+      media.url?.startsWith('http') &&
       !media.url.includes('blob:') &&
       !brokenImages.has(originalIdx);
     return isValidUrl;
   }) || [];
 
-  const imageUrls = validMedias.map((media) => media.url);
+  const imageUrls = (validMedias || []).map((media) => media.url);
 
   const handleImageClick = (index: number) => {
     setSelectedImageIndex(index);
@@ -133,7 +133,7 @@ export default function ReviewCard({ review, index }: ReviewCardProps) {
           {validMedias.length > 0 && (
             <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
               {review.reviewMedias?.map((media, originalIdx) => {
-                if (brokenImages.has(originalIdx) || !media.url.startsWith('http') || media.url.includes('blob:')) {
+                if (brokenImages.has(originalIdx) || !media.url?.startsWith('http') || media.url.includes('blob:')) {
                   return null; // Skip rendering broken or invalid images
                 }
                 const validMediaIndex = validMedias.findIndex(vm => vm.url === media.url);

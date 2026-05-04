@@ -178,7 +178,7 @@ function HorseImageCarousel({ modalItems, horseName, tierColor, adminTier, total
                 onScroll={handleScroll}
             >
                 {modalItems.length > 0 ? (
-                    modalItems.map((item: any, idx: number) => (
+                    (modalItems || []).map((item: any, idx: number) => (
                         <div key={idx} className="flex-none w-full h-full snap-center relative">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
@@ -229,7 +229,7 @@ export default function StableDetailsClient({ initialStable, isIsolated = false 
 
     // Initialize date from URL or default to today
     const getInitialDate = () => {
-        const dateParam = searchParams.get('date');
+        const dateParam = searchParams?.get('date');
         if (dateParam) return new Date(dateParam);
         return new Date();
     };
@@ -996,7 +996,7 @@ export default function StableDetailsClient({ initialStable, isIsolated = false 
                             <h2 className="mb-6 font-display text-2xl font-bold">Our Horses</h2>
                             {stable.horses.length > 0 ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                    {stable.horses.map((horse) => {
+                                    {(stable.horses || []).map((horse) => {
                                         const dateStr = selectedDate.toISOString().split("T")[0];
                                         const horseSlots = takenSlots[dateStr]?.[horse.id] || [];
                                         const availableTimes = availableSlots[dateStr]?.[horse.id] || [];
@@ -1534,7 +1534,7 @@ export default function StableDetailsClient({ initialStable, isIsolated = false 
                                     boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
                                 }}
                             >
-                                {portfolioViewer.items.map((item, idx) => (
+                                {(portfolioViewer.items || []).map((item, idx) => (
                                     <button
                                         key={idx}
                                         onClick={() => setPortfolioViewer(prev => prev ? { ...prev, index: idx } : null)}

@@ -83,7 +83,7 @@ export default function NavigationMenu() {
             </div>
 
             <ul className="space-y-2">
-              {links.map((link) => {
+              {(links || []).map((link) => {
                 const Icon = link.icon;
                 return (
                   <li key={link.href}>
@@ -117,7 +117,7 @@ export default function NavigationMenu() {
 
       {/* Desktop Navigation */}
       <nav className="hidden md:flex md:items-center md:gap-6">
-        {links.map((link) => {
+        {(links || []).map((link) => {
           const Icon = link.icon;
           return (
             <Link

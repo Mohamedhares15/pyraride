@@ -89,7 +89,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
 
     // Dynamic stable pages
-    const stablePages: MetadataRoute.Sitemap = stables.map((stable) => ({
+    const stablePages: MetadataRoute.Sitemap = (stables || []).map((stable) => ({
       url: `${baseUrl}/stables/${stable.id}`,
       lastModified: stable.createdAt || new Date(),
       changeFrequency: 'weekly' as const,

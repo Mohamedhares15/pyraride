@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
@@ -79,7 +80,7 @@ export default function AdminAcademiesPage() {
           <p className="text-neutral-500 italic p-4 text-sm">No pending requests.</p>
         ) : (
           <div className="grid gap-4">
-            {data.pendingRequests.map((req: any) => (
+            {(data.pendingRequests || []).map((req: any) => (
               <div key={req.id} className="p-5 bg-white/[0.02] border border-white/10 rounded-xl flex flex-col md:flex-row justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
@@ -371,7 +372,7 @@ function CreateAcademyModal({ onClose, onSuccess }: { onClose: () => void; onSuc
             <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Assign Captain</label>
             <select required className="w-full bg-neutral-900 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-[#D4AF37]" value={formData.captainId} onChange={(e) => setFormData({ ...formData, captainId: e.target.value })}>
               <option value="" disabled>Select a user to assign as Captain</option>
-              {loadingUsers ? <option value="" disabled>Loading users...</option> : users.map(u => (
+              {loadingUsers ? <option value="" disabled>Loading users...</option> : (users || []).map(u => (
                 <option key={u.id} value={u.id}>{u.fullName} ({u.email}) - {u.role}</option>
               ))}
             </select>
@@ -504,7 +505,7 @@ function AddProgramModal({ academyId, onClose, onSuccess }: { academyId: string;
           <div className="space-y-2">
             <label className="text-xs uppercase tracking-widest text-neutral-400 font-semibold px-1">Available Days</label>
             <div className="flex flex-wrap gap-2">
-              {allDays.map(day => (
+              {(allDays || []).map(day => (
                 <button key={day} type="button" onClick={() => toggleDay(day)} className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   form.availableDays.includes(day)
                     ? "bg-[#D4AF37] text-black"

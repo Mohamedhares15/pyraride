@@ -89,7 +89,7 @@ export default function GalleryReviewPage() {
                 </Card>
             ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {items.map((item) => (
+                    {(items || []).map((item) => (
                         <Card key={item.id} className="overflow-hidden">
                             <div className="relative aspect-[3/4] w-full">
                                 <Image

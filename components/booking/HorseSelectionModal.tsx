@@ -91,7 +91,7 @@ export default function HorseSelectionModal({
                     </div>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 pt-4">
-                        {availableHorses.map((horse) => {
+                        {(availableHorses || []).map((horse) => {
                             const heroImage = horse.media?.find(m => m.type === "image")?.url || horse.imageUrls?.[0] || "/hero-bg.webp";
 
                             return (

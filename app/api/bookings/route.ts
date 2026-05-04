@@ -322,7 +322,7 @@ export async function POST(req: NextRequest) {
 
         // Send notifications for each booking in the group
         for (const booking of createdBookings) {
-          const emailPromises = allRecipients.map(recipient =>
+          const emailPromises = (allRecipients || []).map(recipient =>
             sendOwnerBookingNotification({
               ownerEmail: recipient.email,
               riderName: booking.rider.fullName || "Guest Rider",
@@ -358,7 +358,7 @@ export async function POST(req: NextRequest) {
       if (notificationRecipients.length > 0) {
         const { createBulkNotifications } = await import("@/lib/notifications");
 
-        const notifications = notificationRecipients.map(user => ({
+        const notifications = (notificationRecipients || []).map(user => ({
           userId: user.id,
           type: "booking_new",
           title: "New Booking Received! 🐎",
@@ -503,7 +503,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Add hasReview flag to each booking
-    const bookingsWithReviewStatus = filteredBookings.map((booking: any) => ({
+    const bookingsWithReviewStatus = (filteredBookings || []).map((booking: any) => ({
       ...booking,
       hasReview: !!booking.review,
       alreadyScored: !!booking.rideResult,

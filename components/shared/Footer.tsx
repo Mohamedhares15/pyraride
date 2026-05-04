@@ -1,105 +1,38 @@
-import Link from "next/link";
-import { Instagram } from "lucide-react";
-import NewsletterSignup from "./NewsletterSignup";
+import { Link } from "@/components/shared/shims";
 
-// TikTok Icon SVG Component
-function TikTokIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
-    </svg>
-  );
-}
-
-export default function Footer() {
-  return (
-    <footer className="bg-secondary border-t hidden md:block">
-      <div className="mx-auto max-w-7xl px-4 py-12 md:py-16">
-        {/* Newsletter Signup */}
-        <div className="mb-12">
-          <NewsletterSignup />
-        </div>
-
-        {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-          
-          {/* Brand & Mission */}
-          <div>
-            <h3 className="text-primary font-bold text-xl mb-4">PyraRides</h3>
-            <p className="text-sm text-foreground/80 mb-4">
-              The Pyramids, Unforgettable.<br />
-              The Ride, Uncomplicated.
-            </p>
-            <p className="text-xs text-foreground/80">
-              Connecting travelers with trusted, verified horse riding experiences at Egypt's most iconic landmarks.
-            </p>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h4 className="font-semibold text-sm mb-4">Explore</h4>
-            <nav className="flex flex-col gap-2 text-sm text-foreground/80">
-              <Link href="/stables" className="hover:text-primary transition-colors">Browse Stables</Link>
-              <Link href="/gallery" className="hover:text-primary transition-colors">Photo Gallery</Link>
-              <Link href="/contact" className="hover:text-primary transition-colors">Contact</Link>
-              <Link href="/faq" className="hover:text-primary transition-colors">FAQ</Link>
-            </nav>
-          </div>
-
-          {/* Support & Legal */}
-          <div>
-            <h4 className="font-semibold text-sm mb-4">Support & Legal</h4>
-            <nav className="flex flex-col gap-2 text-sm text-foreground/80">
-              <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-primary transition-colors">Terms & Conditions</Link>
-              <Link href="/refund-policy" className="hover:text-primary transition-colors">Refund Policy</Link>
-            </nav>
-          </div>
-
-          {/* Connect & Contact */}
-          <div>
-            <h4 className="font-semibold text-sm mb-4">Connect With Us</h4>
-            <div className="space-y-3 mb-4">
-              <p className="text-sm text-foreground/80">
-                📧 <a href="mailto:support@pyrarides.com" className="hover:text-primary transition-colors">support@pyrarides.com</a>
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link 
-                aria-label="Instagram" 
-                href="https://instagram.com/pyrarides" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary transition-colors"
-              >
-                <Instagram className="h-5 w-5" />
-              </Link>
-              <Link 
-                aria-label="TikTok" 
-                href="https://tiktok.com/@pyrarides" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary transition-colors"
-              >
-                <TikTokIcon className="h-5 w-5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Bar */}
-        <div className="pt-8 mt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-xs text-foreground/80 text-center md:text-left">
-            © {new Date().getFullYear()} PyraRides. All rights reserved. Made with ❤️ in Egypt.
-          </div>
-          <div className="flex flex-wrap gap-4 text-xs text-foreground/80">
-            <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>
-            <Link href="/refund-policy" className="hover:text-primary transition-colors">Refunds</Link>
-            <Link href="/faq" className="hover:text-primary transition-colors">FAQ</Link>
-          </div>
-        </div>
+export const Footer = () => (
+  <footer className="border-t hairline mt-32">
+    <div className="container py-20 grid gap-16 md:grid-cols-12">
+      <div className="md:col-span-5">
+        <p className="font-display text-4xl md:text-5xl text-balance leading-[1.05]">
+          Where heritage<br/>meets the saddle.
+        </p>
+        <p className="mt-6 text-ink-muted max-w-sm text-pretty">
+          A private concierge for equestrian journeys at the Pyramids of Giza. By invitation, by reservation, by horseback.
+        </p>
       </div>
-    </footer>
-  );
-}
+      <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-10 text-sm">
+        <Col title="Discover" links={[["/stables","Stables"],["/packages","Packages"],["/training","Training"],["/gallery","Gallery"],["/reviews","Letters"],["/leaderboard","The Register"]]} />
+        <Col title="Concierge" links={[["/booking","Reserve"],["/checkout","Checkout"],["/dashboard","Your journeys"],["/dashboard/loyalty","Le Cercle standing"],["/chat","Correspondence"],["/cercle","Le Cercle"],["/contact","Contact"],["/faq","FAQ"]]} />
+        <Col title="House" links={[["/about","About"],["/pricing","Pricing"],["/admin","Stable OS"],["/auth","Sign in"],["/auth/switch","Switchboard"],["/privacy","Privacy"],["/terms","Terms"],["/refund-policy","Refunds"]]} />
+      </div>
+    </div>
+    <div className="border-t hairline">
+      <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-ink-muted">
+        <span>© {new Date().getFullYear()} PyraRides — Giza, Egypt</span>
+        <span className="tracking-[0.24em] uppercase">Quiet luxury · By reservation only</span>
+      </div>
+    </div>
+  </footer>
+);
+
+const Col = ({ title, links }: { title: string; links: [string,string][] }) => (
+  <div>
+    <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-4">{title}</p>
+    <ul className="space-y-2.5">
+      {(links || []).map(([to,label]) => (
+        <li key={to}><Link to={to} className="text-foreground/85 hover:text-foreground transition-colors">{label}</Link></li>
+      ))}
+    </ul>
+  </div>
+);

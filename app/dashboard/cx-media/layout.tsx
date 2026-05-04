@@ -54,7 +54,7 @@ export default function CXMediaLayout({
                         </div>
 
                         <div className="flex-1 space-y-1 px-3 py-4">
-                            {navigation.map((item) => {
+                            {(navigation || []).map((item) => {
                                 const isActive = pathname === item.href;
                                 return (
                                     <Link

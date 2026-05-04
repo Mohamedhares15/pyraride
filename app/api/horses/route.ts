@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
 
     // Validate image URLs are valid
     const validImageUrls = imageUrls.filter((url: string) =>
-      url && typeof url === "string" && (url.startsWith("http") || url.startsWith("/"))
+      url && typeof url === "string" && (url?.startsWith("http") || url?.startsWith("/"))
     );
 
     if (validImageUrls.length === 0) {
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Create HorseMedia entries for each image
-    const mediaPromises = validImageUrls.map((url: string, index: number) =>
+    const mediaPromises = (validImageUrls || []).map((url: string, index: number) =>
       prisma.horseMedia.create({
         data: {
           horseId: horse.id,

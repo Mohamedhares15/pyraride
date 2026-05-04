@@ -365,7 +365,7 @@ export default function AdminPackagesPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array.isArray(packages) && packages.map(pkg => (
+        {Array.isArray(packages) && (packages || []).map(pkg => (
           <Card key={pkg.id} className="overflow-hidden flex flex-col border-white/10 relative group">
             <div className="relative h-56 w-full bg-muted">
               {pkg.imageUrl ? (
@@ -502,7 +502,7 @@ export default function AdminPackagesPage() {
                     onChange={e => setFormData({ ...formData, stableId: e.target.value })}
                   >
                     <option value="" className="bg-black text-white">None (Platform Package)</option>
-                    {Array.isArray(stables) && stables.map(stable => (
+                    {Array.isArray(stables) && (stables || []).map(stable => (
                       <option key={stable.id} value={stable.id} className="bg-black text-white">
                         {stable.name}
                       </option>

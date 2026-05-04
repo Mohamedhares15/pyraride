@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
         });
 
         // Format conversations
-        const formattedConversations = conversations.map((conv) => {
+        const formattedConversations = (conversations || []).map((conv) => {
             const otherParticipant = conv.participants.find(
                 (p) => p.id !== session.user.id
             );

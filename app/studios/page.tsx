@@ -1,59 +1,14 @@
-import { Metadata } from "next";
-import { Card } from "@/components/ui/card";
+"use client";
+import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "Studios - Coming Soon - PyraRides",
-  description: "Professional photography studios for your pyramid riding experience.",
-};
-
-export default function StudiosPage() {
+export default function StubPage() {
   return (
-    <div className="min-h-screen bg-background safe-area-white">
-      {/* Hero with Background */}
-      <div 
-        className="relative h-[600px] overflow-hidden"
-        style={{
-          backgroundImage: "url(https://images.pexels.com/photos/2279791/pexels-photo-2279791.jpeg?auto=compress&cs=tinysrgb&w=1600)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="absolute inset-0 bg-black/60" />
-        <div className="relative z-10 flex h-full items-center justify-center">
-          <div className="text-center">
-            <h1 className="font-display text-6xl font-bold tracking-tight text-white md:text-7xl drop-shadow-lg">
-              Photography Studios
-            </h1>
-            <p className="mt-6 text-3xl text-white/90 drop-shadow-md">
-              Coming Soon
-            </p>
-            <p className="mt-4 text-xl text-white/80 drop-shadow-md max-w-2xl">
-              Professional photographers for your pyramid adventure
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-4xl px-4 py-16 md:px-8">
-        <Card className="p-12 text-center">
-          <h2 className="mb-4 text-3xl font-bold">Photography Services</h2>
-          <p className="mb-8 text-lg text-muted-foreground">
-            We&apos;re building a network of professional photographers who specialize in capturing
-            unforgettable moments at the pyramids. Check back soon to book your photography session!
-          </p>
-          <div className="mt-12 space-y-4 text-left">
-            <div className="rounded-lg border p-6">
-              <h3 className="mb-2 font-semibold">What&apos;s Coming:</h3>
-              <ul className="space-y-2 text-muted-foreground">
-                <li>✓ Professional photographers</li>
-                <li>✓ Sunrise & sunset shoots</li>
-                <li>✓ Action shots and portraits</li>
-                <li>✓ 4K video production</li>
-                <li>✓ Photo editing services</li>
-              </ul>
-            </div>
-          </div>
-        </Card>
+    <div className="min-h-screen flex items-center justify-center px-6 pt-32 pb-20">
+      <div className="max-w-2xl text-center">
+        <p className="text-[11px] tracking-luxury uppercase ink-muted">Creative studios</p>
+        <h1 className="mt-5 font-display text-5xl md:text-6xl leading-[1.02] text-balance">Studios.</h1>
+        <p className="mt-6 ink-soft text-pretty">Photography, film and editorial work staged at the plateau.</p>
+        <Link href="/" className="mt-10 inline-block border-b hairline pb-1 text-[11px] tracking-luxury uppercase hover:border-foreground">Return home →</Link>
       </div>
     </div>
   );

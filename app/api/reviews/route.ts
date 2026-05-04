@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
         photos: photos || [],
         reviewMedias: {
           create: photos
-            ?.filter((url: string) => url && url.startsWith('https://'))
+            ?.filter((url: string) => url && url?.startsWith('https://'))
             ?.map((url: string) => ({ url })) || [],
         },
       },

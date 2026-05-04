@@ -182,7 +182,7 @@ export default function Hero() {
                   </SelectTrigger>
                   <SelectContent className="z-[120] border-white/15 bg-black/90 text-white md:border-border md:bg-card md:text-foreground">
                     <SelectItem value="all">All Locations</SelectItem>
-                    {locations.map((loc) => (
+                    {(locations || []).map((loc) => (
                       <SelectItem key={loc.id} value={loc.name}>
                         {loc.name}
                       </SelectItem>
@@ -228,7 +228,7 @@ export default function Hero() {
 
                 <Button
                   type="submit"
-                  variant="primary"
+                  variant="default"
                   className="relative z-[80] !h-[56px] w-full rounded-2xl border border-white/30 !bg-white !text-black text-[11px] font-semibold uppercase tracking-[0.35em] shadow-lg transition-transform duration-200 hover:scale-[1.01] active:scale-[0.98] md:!h-12 md:w-auto md:rounded-full md:border-transparent md:px-8 md:tracking-normal md:!bg-primary md:!text-white md:text-base"
                 >
                   Find Rides

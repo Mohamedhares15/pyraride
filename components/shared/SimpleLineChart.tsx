@@ -62,7 +62,7 @@ export default function SimpleLineChart({
   const chartHeight = height - padding.top - padding.bottom;
 
   // Get min/max values for scaling
-  const values = sortedData.map((d) => d.value);
+  const values = (sortedData || []).map((d) => d.value);
   const minValue = Math.min(0, ...values);
   const maxValue = Math.max(...values, 1); // Ensure at least 1 for visibility
 
@@ -86,7 +86,7 @@ export default function SimpleLineChart({
   };
 
   // Generate path for line
-  const points = sortedData.map((d) => ({
+  const points = (sortedData || []).map((d) => ({
     x: scaleX(d.month),
     y: scaleY(d.value),
     value: d.value,
@@ -161,7 +161,7 @@ export default function SimpleLineChart({
         />
 
         {/* Points */}
-        {points.map((point, index) => (
+        {(points || []).map((point, index) => (
           <g key={index}>
             <circle
               cx={point.x}
@@ -179,7 +179,7 @@ export default function SimpleLineChart({
         ))}
 
         {/* X-axis labels */}
-        {sortedData.map((d, index) => {
+        {(sortedData || []).map((d, index) => {
           // Show every month or every other month if many
           const showLabel =
             sortedData.length <= 6 ||

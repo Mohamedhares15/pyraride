@@ -101,7 +101,7 @@ function section(title: string, rows: { label: string; value: string }[]): strin
     <tr><td style="padding:28px 32px 0;">
       <h2 style="margin:0 0 14px;font-size:16px;color:#DAA520;font-weight:700;letter-spacing:.05em;text-transform:uppercase;">${title}</h2>
       <table width="100%" cellspacing="0" cellpadding="0" style="background:rgba(255,255,255,.04);border-radius:8px;padding:16px;">
-        ${rows.map((r) => `
+        ${(rows || []).map((r) => `
           <tr><td style="padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.05);">
             <span style="color:rgba(255,255,255,.45);font-size:11px;text-transform:uppercase;letter-spacing:.1em;">${r.label}</span><br>
             <span style="color:#fff;font-size:14px;">${r.value}</span>
@@ -123,7 +123,7 @@ function buildEmail(d: PartnerApp): string {
 
   // Per-horse pricing table
   const namedHorses = d.horses.filter((h) => h.name?.trim());
-  const horsePricingRows = namedHorses.map((h) => {
+  const horsePricingRows = (namedHorses || []).map((h) => {
     const skills = (h.skills || []).map((s) => SKILL_LABELS[s] || s).join(", ") || "—";
     const walkin = h.walkinRate ? `EGP ${h.walkinRate}` : "—";
     const pyra = h.pyraRate ? `EGP ${h.pyraRate}` : "—";

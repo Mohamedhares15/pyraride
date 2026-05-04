@@ -53,7 +53,7 @@ export async function PATCH(
         Sunday: 0, Monday: 1, Tuesday: 2, Wednesday: 3,
         Thursday: 4, Friday: 5, Saturday: 6,
       };
-      const availableDayNumbers = enrollment.program.availableDays.map((d) => dayMap[d]).filter((n) => n !== undefined);
+      const availableDayNumbers = (enrollment.program.availableDays || []).map((d) => dayMap[d]).filter((n) => n !== undefined);
       const defaultStartTime = enrollment.program.startTime || "10:00";
       const durationHours = enrollment.program.sessionDuration || 1;
       const [startHour, startMin] = defaultStartTime.split(":").map(Number);
@@ -92,7 +92,7 @@ export async function PATCH(
         });
 
         await tx.trainingSession.createMany({
-          data: sessions.map((s) => ({
+          data: (sessions || []).map((s) => ({
             enrollmentId: created.id,
             sessionNumber: s.sessionNumber,
             date: s.date,

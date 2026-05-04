@@ -1,0 +1,14 @@
+components/ui/chart.tsx(110,7): error TS2339: Property 'payload' does not exist on type 'Omit<Omit<Props<ValueType, NameType>, PropertiesReadFromContext> & { active?: boolean | undefined; allowEscapeViewBox?: AllowInDimension | undefined; ... 24 more ...; wrapperStyle?: CSSProperties | undefined; } & ClassAttributes<...> & HTMLAttributes<...> & { ...; }, "ref">'.
+components/ui/chart.tsx(115,7): error TS2339: Property 'label' does not exist on type 'Omit<Omit<Props<ValueType, NameType>, PropertiesReadFromContext> & { active?: boolean | undefined; allowEscapeViewBox?: AllowInDimension | undefined; ... 24 more ...; wrapperStyle?: CSSProperties | undefined; } & ClassAttributes<...> & HTMLAttributes<...> & { ...; }, "ref">'.
+components/ui/chart.tsx(170,22): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/ui/chart.tsx(171,19): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/ui/chart.tsx(171,25): error TS7006: Parameter 'index' implicitly has an 'any' type.
+components/ui/chart.tsx(247,41): error TS2344: Type '"verticalAlign" | "payload"' does not satisfy the constraint '"string" | "onSelect" | "children" | "direction" | "className" | "style" | "clipPath" | "filter" | "mask" | "path" | "onClick" | "onAnimationStart" | "onDragStart" | "onDragEnd" | ... 430 more ... | "onBBoxUpdate"'.
+  Type '"payload"' is not assignable to type '"string" | "onSelect" | "children" | "direction" | "className" | "style" | "clipPath" | "filter" | "mask" | "path" | "onClick" | "onAnimationStart" | "onDragStart" | "onDragEnd" | ... 430 more ... | "onBBoxUpdate"'.
+components/ui/chart.tsx(254,17): error TS2339: Property 'length' does not exist on type '{}'.
+components/ui/chart.tsx(268,10): error TS2339: Property 'filter' does not exist on type '{}'.
+components/ui/chart.tsx(268,18): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/ui/chart.tsx(269,15): error TS7006: Parameter 'item' implicitly has an 'any' type.
+lib/router-compat.tsx(11,3): error TS2459: Module '"@tanstack/react-router"' declares 'useRouter' locally, but it is not exported.
+lib/router-compat.tsx(137,36): error TS2353: Object literal may only specify known properties, and 'search' does not exist in type '{ to: string; replace?: boolean | undefined; }'.
+pages/Booking.tsx(88,34): error TS2353: Object literal may only specify known properties, and 'state' does not exist in type '{ replace?: boolean | undefined; }'.

@@ -1,0 +1,1 @@
+lib/router-compat.tsx(11,3): error TS2305: Module '"@tanstack/react-router"' has no exported member 'useRouterState'.

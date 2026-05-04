@@ -1,405 +1,116 @@
 "use client";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { Link, NavLink, useLocation } from "@/components/shared/shims";
+import { useEffect, useState } from "react";
+import { Menu, X } from "lucide-react";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
+const NAV = [
+  { to: "/stables", label: "Stables" },
+  { to: "/packages", label: "Packages" },
+  { to: "/training", label: "Training" },
+  { to: "/cercle", label: "Cercle" },
+  { to: "/gallery", label: "Gallery" },
+];
 
-import Link from "next/link";
-import { signOut, useSession } from "next-auth/react";
-import { Button } from "@/components/ui/button";
-import { useMemo, useState, useEffect } from "react";
-import Image from "next/image";
-import { User, LogOut } from "lucide-react";
-import NotificationBell from "./NotificationBell";
+export const Navbar = () => {
+  const { scrollY } = useScroll();
+  const bgOpacity = useTransform(scrollY, [0, 80], [0, 0.92]);
+  const blur = useTransform(scrollY, [0, 80], [0, 14]);
+  const filter = useTransform(blur, (v) => `blur(${v}px) saturate(1.1)`);
+  const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
 
-export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const { data: session, status } = useSession();
-
-  const [userImage, setUserImage] = useState<string | null>(null);
-  const [imageError, setImageError] = useState(false);
-
-  const displayName = useMemo(() => {
-    const user = session?.user as any;
-    return user?.name || user?.email || "Profile";
-  }, [session?.user]);
-
-  // Fetch profile image separately from API to avoid JWT cookie size limits
-  useEffect(() => {
-    if (!session?.user?.id) {
-      setUserImage(null);
-      setImageError(false);
-      return;
-    }
-
-    const fetchProfileImage = async () => {
-      try {
-        const response = await fetch("/api/profile");
-        if (response.ok) {
-          const data = await response.json();
-          setUserImage(data.user?.profileImageUrl ?? null);
-          setImageError(false);
-        }
-      } catch (error) {
-        console.error("Failed to fetch profile image:", error);
-        setUserImage(null);
-      }
-    };
-
-    fetchProfileImage();
-  }, [session?.user?.id]);
-
-  const initials = useMemo(() => {
-    const user = session?.user as any;
-    if (user?.name) {
-      return (user.name as string)
-        .split(" ")
-        .map((part) => part[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase();
-    }
-    if (user?.email) {
-      return (user.email as string).charAt(0).toUpperCase();
-    }
-    return "P";
-  }, [session?.user]);
-
-  const toggleMenu = () => setIsOpen((prev) => !prev);
-  const closeMenu = () => setIsOpen(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add("menu-open");
-    } else {
-      document.body.classList.remove("menu-open");
-    }
-    return () => {
-      document.body.classList.remove("menu-open");
-    };
-  }, [isOpen]);
-
-  const desktopLinks = (
-    <>
-      <li>
-        <Link href="/">Home</Link>
-      </li>
-      <li>
-        <Link href="/stables">Book a Ride</Link>
-      </li>
-      <li>
-        <Link href="/packages">Packages</Link>
-      </li>
-      <li>
-        <Link href="/training">Training</Link>
-      </li>
-      <li>
-        <Link href="/gallery">Gallery</Link>
-      </li>
-      {session && (
-        <li>
-          <Link href="/dashboard">Dashboard</Link>
-        </li>
-      )}
-    </>
-  );
-
-  const desktopAuthSection =
-    status === "authenticated" ? (
-      <li
-        className="relative group"
-        onMouseEnter={() => setIsOpen(true)}
-        onMouseLeave={() => setIsOpen(false)}
-      >
-        {/* Only show notification bell in dashboard */}
-        {typeof window !== 'undefined' && window.location.pathname.includes('/dashboard') && (
-          <NotificationBell />
-        )}
-        <button
-          className="flex items-center gap-3 focus:outline-none group/btn py-2"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <div className="relative h-9 w-9 overflow-hidden rounded-full border border-white/20 group-hover/btn:border-[rgb(218,165,32)]/50 transition-colors duration-300 shadow-lg shadow-black/20">
-            {userImage && !imageError ? (
-              <Image
-                src={userImage}
-                alt="Profile"
-                fill
-                className="object-cover"
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-800 to-black text-xs font-bold text-white group-hover/btn:text-[rgb(218,165,32)] transition-colors">
-                {initials}
-              </div>
-            )}
-          </div>
-          <span className="text-sm font-medium text-white/90 group-hover/btn:text-white transition-colors">{displayName}</span>
-        </button>
-
-        {isOpen && (
-          <div className="absolute right-0 top-full pt-2 w-56 origin-top-right z-50">
-            <div className="rounded-xl bg-[#121212]/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-200">
-              <div className="p-1">
-                <Link
-                  href={`/users/${session?.user?.id}`}
-                  className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 rounded-lg transition-all duration-200 group"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <div className="p-1.5 rounded-md bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
-                    <User className="h-4 w-4" />
-                  </div>
-                  My Profile
-                </Link>
-
-                <div className="my-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
-                <button
-                  onClick={() => {
-                    setIsOpen(false);
-                    signOut();
-                  }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/80 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200 group"
-                >
-                  <div className="p-1.5 rounded-md bg-white/5 text-white/60 group-hover:text-red-400 group-hover:bg-red-500/10 transition-colors">
-                    <LogOut className="h-4 w-4" />
-                  </div>
-                  Sign Out
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </li>
-    ) : (
-      <>
-        <li>
-          <Link href="/signin">
-            <Button variant="ghost">Sign In</Button>
-          </Link>
-        </li>
-        <li>
-          <Link href="/signup">
-            <Button>Get Started</Button>
-          </Link>
-        </li>
-      </>
-    );
-
-  const mobileMenuLinks = (
-    <>
-      {/* Mobile Menu Items - World Class Styling */}
-      <li onClick={closeMenu}>
-        <Link href="/" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
-          Home
-        </Link>
-      </li>
-      <li onClick={closeMenu}>
-        <Link href="/stables" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
-          Book a Ride
-        </Link>
-      </li>
-      <li onClick={closeMenu}>
-        <Link href="/packages" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
-          Packages
-        </Link>
-      </li>
-      <li onClick={closeMenu}>
-        <Link href="/gallery" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
-          Gallery
-        </Link>
-      </li>
-      {session ? (
-        <>
-          <li onClick={closeMenu}>
-            <Link href="/dashboard" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
-              Dashboard
-            </Link>
-          </li>
-          <li onClick={closeMenu}>
-            <Link href={`/users/${session?.user?.id}`} className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
-              Profile
-            </Link>
-          </li>
-          <li onClick={() => { closeMenu(); signOut(); }}>
-            <button className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium text-red-400 hover:bg-red-500/10 transition-colors">
-              Sign Out
-            </button>
-          </li>
-        </>
-      ) : (
-        <>
-          <li onClick={closeMenu}>
-            <Link href="/signin" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
-              Sign In
-            </Link>
-          </li>
-          <li onClick={closeMenu}>
-            <Link href="/signup" className="block w-full text-left py-4 px-2 border-b border-white/10 font-medium hover:bg-white/5 hover:text-[rgb(218,165,32)] transition-colors">
-              Get Started
-            </Link>
-          </li>
-        </>
-      )}
-    </>
-  );
+  useEffect(() => setOpen(false), [pathname]);
 
   return (
     <>
-      <header
-
-        style={{
-          height: 'var(--header-total-height)',
-          paddingTop: 'var(--sat)',
-          paddingLeft: 'var(--spacing-left-safe)',
-          paddingRight: 'var(--spacing-right-safe)',
-        }}
-        className="fixed top-0 left-0 right-0 z-[150] flex items-center justify-between backdrop-blur-md bg-[#121212]/90 border-b border-white/10 text-white"
+      <motion.header
+        initial={{ y: -24, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
+        className="fixed inset-x-0 top-0 z-50"
       >
-        <Link href="/" className="text-2xl font-bold font-display tracking-tight">
-          PyraRides
-        </Link>
+        <motion.div
+          aria-hidden
+          style={{ opacity: bgOpacity, backdropFilter: filter, WebkitBackdropFilter: filter }}
+          className="absolute inset-0 bg-background/80 border-b hairline"
+        />
+        <nav className="relative container flex h-20 items-center justify-between">
+          <Link to="/" className="flex items-baseline gap-2">
+            <span className="font-display text-2xl tracking-tight text-foreground">PyraRides</span>
+            <span className="hidden sm:inline text-[10px] tracking-luxury uppercase text-ink-muted">Est. Giza</span>
+          </Link>
 
-        <nav className="hidden md:block">
-          <ul className="flex items-center gap-8">
-            {desktopLinks}
-            {desktopAuthSection}
+          <ul className="hidden md:flex items-center gap-10">
+            {(NAV || []).map((item) => (
+              <li key={item.to}>
+                <NavLink to={item.to} className={({ isActive }) =>
+                  `text-[13px] tracking-[0.16em] uppercase transition-colors ${
+                    isActive ? "text-foreground" : "text-ink-muted hover:text-foreground"
+                  }`
+                }>
+                  {item.label}
+                </NavLink>
+              </li>
+            ))}
           </ul>
+
+          <div className="hidden md:flex items-center gap-5">
+            <NotificationBell />
+            <Link to="/signin" className="text-[13px] tracking-[0.16em] uppercase text-ink-muted hover:text-foreground transition-colors">Sign in</Link>
+            <Link to="/booking" className="group relative inline-flex items-center gap-2 px-5 py-2.5 bg-foreground text-background text-[12px] tracking-[0.18em] uppercase overflow-hidden">
+              <span className="relative z-10">Reserve</span>
+              <span aria-hidden className="absolute inset-0 bg-accent translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)]" />
+            </Link>
+          </div>
+
+          <button onClick={() => setOpen(true)} className="md:hidden p-2 -mr-2" aria-label="Open menu">
+            <Menu className="size-5" />
+          </button>
         </nav>
+      </motion.header>
 
-        <button
-          type="button"
-          className="md:hidden text-2xl bg-transparent border-none text-white cursor-pointer px-2.5 py-1.5"
-          aria-label="Toggle navigation menu"
-          aria-expanded={isOpen}
-          aria-controls="mobile-nav"
-          onClick={toggleMenu}
-        >
-          {isOpen ? "✕" : "☰"}
-        </button>
-      </header>
-
-      <div
-        className={`fixed inset-0 bg-black/50 z-[140] transition-opacity duration-300 ease-out ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
-        onClick={closeMenu}
-        aria-hidden="true"
-      />
-
-      <nav
-        id="mobile-nav"
-        className={`fixed top-0 right-0 w-[85%] max-w-[360px] h-full bg-[#0a0a0a] border-l border-white/10 pt-safe px-6 pb-safe shadow-[-10px_0_30px_rgba(0,0,0,0.8)] z-[145] transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+      {/* Mobile sheet */}
+      <motion.div
+        initial={false}
+        animate={open ? "open" : "closed"}
+        variants={{ open: { pointerEvents: "auto" }, closed: { pointerEvents: "none" } }}
+        className="fixed inset-0 z-[60]"
       >
-        <div className="flex flex-col h-full">
-          <div className="flex justify-between items-center py-6 mb-2 border-b border-white/5">
-            <span className="text-2xl font-display font-bold text-white tracking-tight">Menu</span>
-            <button
-              onClick={closeMenu}
-              className="p-2 -mr-2 text-white/60 hover:text-white transition-colors rounded-full hover:bg-white/5"
-            >
-              <span className="text-2xl leading-none">✕</span>
-            </button>
+        <motion.div
+          variants={{ open: { opacity: 1 }, closed: { opacity: 0 } }}
+          transition={{ duration: 0.4 }}
+          className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
+          onClick={() => setOpen(false)}
+        />
+        <motion.aside
+          variants={{ open: { x: 0 }, closed: { x: "100%" } }}
+          transition={{ type: "spring", stiffness: 260, damping: 32 }}
+          className="absolute right-0 top-0 h-full w-[88%] max-w-sm bg-background p-8 flex flex-col"
+        >
+          <div className="flex items-center justify-between mb-12">
+            <span className="font-display text-xl">PyraRides</span>
+            <button onClick={() => setOpen(false)} aria-label="Close menu"><X className="size-5" /></button>
           </div>
-
-          <div className="flex-1 overflow-y-auto py-4">
-            <ul className="space-y-1">
-              {/* Mobile Menu Items - World Class Styling */}
-              <li onClick={closeMenu}>
-                <Link href="/" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
-                  <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
-                  </div>
-                  <span className="font-medium text-lg">Home</span>
-                </Link>
-              </li>
-              <li onClick={closeMenu}>
-                <Link href="/stables" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
-                  <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /><circle cx="7" cy="17" r="2" /><circle cx="17" cy="17" r="2" /><path d="M5 17h8v-6H5v6Z" /></svg>
-                  </div>
-                  <span className="font-medium text-lg">Stables</span>
-                </Link>
-              </li>
-              <li onClick={closeMenu}>
-                <Link href="/packages" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
-                  <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.29 7 12 12 20.71 7" /><line x1="12" y1="22" x2="12" y2="12" /></svg>
-                  </div>
-                  <span className="font-medium text-lg">Packages</span>
-                </Link>
-              </li>
-              <li onClick={closeMenu}>
-                <Link href="/training" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
-                  <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 6 3 12 0v-5"/></svg>
-                  </div>
-                  <span className="font-medium text-lg">Training</span>
-                </Link>
-              </li>
-              <li onClick={closeMenu}>
-                <Link href="/gallery" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
-                  <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
-                  </div>
-                  <span className="font-medium text-lg">Gallery</span>
-                </Link>
-              </li>
-
-              <li aria-hidden="true" className="my-4 h-px bg-white/10 mx-4" />
-
-              {session ? (
-                <>
-                  <li onClick={closeMenu}>
-                    <Link href="/dashboard" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
-                      <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></svg>
-                      </div>
-                      <span className="font-medium text-lg">Dashboard</span>
-                    </Link>
-                  </li>
-                  <li onClick={closeMenu}>
-                    <Link href={`/users/${session?.user?.id}`} className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
-                      <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
-                        <User className="h-5 w-5" />
-                      </div>
-                      <span className="font-medium text-lg">Profile</span>
-                    </Link>
-                  </li>
-                  <li onClick={() => { closeMenu(); signOut(); }}>
-                    <button className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-red-400 hover:bg-red-500/10 transition-all duration-200">
-                      <div className="p-2 rounded-lg bg-red-500/10 text-red-400 group-hover:bg-red-500/20 transition-colors">
-                        <LogOut className="h-5 w-5" />
-                      </div>
-                      <span className="font-medium text-lg">Sign Out</span>
-                    </button>
-                  </li>
-                </>
-              ) : (
-                <>
-                  <li onClick={closeMenu}>
-                    <Link href="/signin" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 transition-all duration-200">
-                      <div className="p-2 rounded-lg bg-white/5 text-white/60 group-hover:text-[rgb(218,165,32)] group-hover:bg-[rgba(218,165,32,0.1)] transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" x2="3" y1="12" y2="12" /></svg>
-                      </div>
-                      <span className="font-medium text-lg">Sign In</span>
-                    </Link>
-                  </li>
-                  <li onClick={closeMenu}>
-                    <Link href="/signup" className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl bg-white text-black hover:bg-white/90 transition-all duration-200 mt-2">
-                      <div className="p-2 rounded-lg bg-black/5 text-black/60">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12h20" /><path d="m13 5 7 7-7 7" /></svg>
-                      </div>
-                      <span className="font-bold text-lg">Get Started</span>
-                    </Link>
-                  </li>
-                </>
-              )}
-            </ul>
+          <ul className="flex flex-col gap-6">
+            {(NAV || []).map((item, i) => (
+              <motion.li
+                key={item.to}
+                initial={{ opacity: 0, x: 24 }}
+                animate={open ? { opacity: 1, x: 0 } : { opacity: 0, x: 24 }}
+                transition={{ delay: open ? 0.1 + i * 0.06 : 0, duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
+              >
+                <Link to={item.to} className="font-display text-3xl">{item.label}</Link>
+              </motion.li>
+            ))}
+          </ul>
+          <div className="mt-auto pt-8 border-t hairline flex flex-col gap-4">
+            <Link to="/signin" className="text-[13px] tracking-[0.16em] uppercase text-ink-muted">Sign in</Link>
+            <Link to="/booking" className="inline-flex justify-center px-5 py-3 bg-foreground text-background text-[12px] tracking-[0.18em] uppercase">Reserve</Link>
           </div>
-
-          <div className="py-6 border-t border-white/5 px-6">
-            <p className="text-xs text-white/50 text-center font-medium tracking-widest uppercase">
-              PyraRides &copy; 2026
-            </p>
-          </div>
-        </div>
-      </nav>
+        </motion.aside>
+      </motion.div>
     </>
   );
-}
+};

@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
     const result = await prisma.$transaction(async (tx) => {
       // Create standings for current league
       const standings = await Promise.all(
-        league.riders.map((rider, index) =>
+        (league.riders || []).map((rider, index) =>
           tx.leagueStanding.create({
             data: {
               leagueId: league.id,
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
 
       // Update top 3 riders to next league
       await Promise.all(
-        top3Riders.map((rider) =>
+        (top3Riders || []).map((rider) =>
           tx.user.update({
             where: { id: rider.id },
             data: { currentLeagueId: nextLeague!.id },
@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       message: `Promoted ${result.promoted} riders to ${nextLeagueName}`,
-      promoted: top3Riders.map((r) => ({
+      promoted: (top3Riders || []).map((r) => ({
         id: r.id,
         name: r.fullName || r.email,
         rankPoints: r.rankPoints,

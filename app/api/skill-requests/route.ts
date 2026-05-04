@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
         });
 
         // Calculate overall rating for each rider
-        const requestsWithRating = requests.map((request) => {
+        const requestsWithRating = (requests || []).map((request) => {
             const reviews = request.rider.riderReviewsReceived;
             const avgSkill = reviews.length > 0
                 ? reviews.reduce((sum, r) => sum + r.ridingSkillLevel, 0) / reviews.length

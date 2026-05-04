@@ -292,7 +292,7 @@ export default function ImageViewer({
                             boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
                         }}
                     >
-                        {images.map((img, idx) => (
+                        {(images || []).map((img, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => setCurrentIndex(idx)}

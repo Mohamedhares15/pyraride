@@ -221,7 +221,7 @@ export default function ReviewModal({
             <Label>Add Photos (Optional)</Label>
             <div className="flex flex-wrap gap-3">
               {/* Preview uploaded images */}
-              {photos.map((photo, index) => (
+              {(photos || []).map((photo, index) => (
                 <div key={index} className="relative h-20 w-20 rounded-lg overflow-hidden border border-border group">
                   <img src={photo} alt="Review" className="h-full w-full object-cover" />
                   <button

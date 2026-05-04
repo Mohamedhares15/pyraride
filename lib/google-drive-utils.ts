@@ -52,7 +52,7 @@ export function convertGoogleDriveUrl(url: string): string | null {
   }
 
   // If it's already a full HTTP URL but not Google Drive, return as-is
-  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+  if (trimmed?.startsWith("http://") || trimmed?.startsWith("https://")) {
     // Only return non-Google-Drive URLs as-is
     if (!trimmed.includes("drive.google.com") && !trimmed.includes("googleusercontent.com")) {
       return trimmed;
@@ -60,7 +60,7 @@ export function convertGoogleDriveUrl(url: string): string | null {
   }
 
   // If it's a relative path, return as-is
-  if (trimmed.startsWith("/")) {
+  if (trimmed?.startsWith("/")) {
     return trimmed;
   }
 

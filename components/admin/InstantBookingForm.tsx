@@ -217,7 +217,7 @@ export default function InstantBookingForm() {
                                 <SelectValue placeholder={isLoadingStables ? "Loading..." : "Select stable"} />
                             </SelectTrigger>
                             <SelectContent>
-                                {stables.map((stable) => (
+                                {(stables || []).map((stable) => (
                                     <SelectItem key={stable.id} value={stable.id}>
                                         {stable.name}
                                     </SelectItem>
@@ -234,7 +234,7 @@ export default function InstantBookingForm() {
                                 <SelectValue placeholder={selectedStable ? "Select horse" : "Select stable first"} />
                             </SelectTrigger>
                             <SelectContent>
-                                {horses.map((horse) => (
+                                {(horses || []).map((horse) => (
                                     <SelectItem key={horse.id} value={horse.id}>
                                         {horse.name} {horse.pricePerHour ? `(EGP ${horse.pricePerHour}/hr)` : ""}
                                     </SelectItem>

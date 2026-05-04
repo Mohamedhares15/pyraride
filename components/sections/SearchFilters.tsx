@@ -128,7 +128,7 @@ export default function SearchFilters({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Locations</SelectItem>
-                {locations.map((loc) => (
+                {(locations || []).map((loc) => (
                   <SelectItem key={loc.id} value={loc.name}>{loc.name}</SelectItem>
                 ))}
               </SelectContent>

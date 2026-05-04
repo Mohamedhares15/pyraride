@@ -26,6 +26,12 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "react-router-dom": [
+        "./shims/react-router-dom.tsx"
+      ],
+      "@tanstack/react-router": [
+        "./shims/tanstack-react-router.tsx"
       ]
     }
   },
