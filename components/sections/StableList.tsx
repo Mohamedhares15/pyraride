@@ -53,7 +53,7 @@ interface StableListProps {
 
 export default function StableList({ results, mode, isLoading }: StableListProps) {
   const searchParams = useSearchParams();
-  const dateParam = searchParams.get("date");
+  const dateParam = searchParams?.get("date");
 
   if (isLoading) {
     return (
@@ -88,7 +88,7 @@ export default function StableList({ results, mode, isLoading }: StableListProps
   if (mode === "horse") {
     return (
       <div className="grid gap-6 md:grid-cols-1">
-        {results.map((item, index) => {
+        {(results || []).map((item, index) => {
           if (item.type !== "horse") return null;
 
           // Use the same image selection logic as stable detail page
@@ -222,7 +222,7 @@ export default function StableList({ results, mode, isLoading }: StableListProps
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {results.map((item, index) => {
+      {(results || []).map((item, index) => {
         if (item.type !== "stable") return null;
         return (
           <StableCard

@@ -1,5 +1,6 @@
+"use client";
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, MapPin, Search } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
@@ -7,7 +8,7 @@ import { stables } from "@/data/mock";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
 
-const LOCATIONS = ["all", ...Array.from(new Set(stables.map((s) => s.location)))] as const;
+const LOCATIONS = ["all", ...Array.from(new Set((stables || []).map((s) => s.location)))] as const;
 
 const Stables = () => {
   const [filter, setFilter] = useState<string>("all");
@@ -32,7 +33,7 @@ const Stables = () => {
       <div className="sticky top-20 z-30 bg-background/85 backdrop-blur-md border-y hairline">
         <div className="container">
           <ul className="flex flex-wrap items-center gap-x-7 gap-y-3 py-4">
-            {LOCATIONS.map((loc) => {
+            {(LOCATIONS || []).map((loc) => {
               const active = filter === loc;
               const label = loc === "all" ? "All estates" : loc;
               return (
@@ -78,7 +79,7 @@ const Stables = () => {
               />
             ) : (
               <StaggerGroup className="grid gap-6 md:grid-cols-3" gap={0.12}>
-                {visible.map((s) => (
+                {(visible || []).map((s) => (
                   <StaggerItem key={s.id}>
                     <Link to={`/stables/${s.id}`} className="group block">
                       <motion.div layoutId={`stable-image-${s.id}`} className="relative aspect-[4/5] overflow-hidden bg-surface">

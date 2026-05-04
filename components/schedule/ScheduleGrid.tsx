@@ -328,7 +328,7 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
                             <div className="p-4 font-semibold text-white/70 text-sm border-r border-white/10 sticky left-0 bg-white/10 backdrop-blur-md z-20">
                                 Time
                             </div>
-                            {horses.map(horse => (
+                            {(horses || []).map(horse => (
                                 <div key={horse.id} className="p-4 font-semibold text-center text-white border-r border-white/10 last:border-r-0 truncate">
                                     {horse.name}
                                 </div>
@@ -342,12 +342,12 @@ export function ScheduleGrid({ stableId, horses }: ScheduleGridProps) {
                             </div>
                         ) : (
                             <div className="divide-y divide-white/5">
-                                {timeSlots.map(time => (
+                                {(timeSlots || []).map(time => (
                                     <div key={time} className="grid hover:bg-white/[0.02] transition-colors" style={{ gridTemplateColumns: `100px repeat(${horses.length}, minmax(120px, 1fr))` }}>
                                         <div className="p-4 text-sm text-white/50 border-r border-white/10 flex items-center justify-center sticky left-0 bg-white/5 backdrop-blur-md z-10 font-medium">
                                             {time}
                                         </div>
-                                        {horses.map(horse => {
+                                        {(horses || []).map(horse => {
                                             const slot = getSlot(horse.id, time);
                                             return (
                                                 <div key={`${horse.id}-${time}`} className="p-2 border-r border-white/5 last:border-r-0">

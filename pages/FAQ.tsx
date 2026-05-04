@@ -1,6 +1,7 @@
+"use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 import { Reveal, easeLuxury } from "@/components/shared/Motion";
 
 type QA = { q: string; a: string };
@@ -114,7 +115,7 @@ const FAQ = () => {
         <aside className="md:col-span-3">
           <div className="md:sticky md:top-32 space-y-3">
             <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-4">Index</p>
-            {SECTIONS.map((s, i) => (
+            {(SECTIONS || []).map((s, i) => (
               <a
                 key={s.title}
                 href={`#section-${i}`}
@@ -128,14 +129,14 @@ const FAQ = () => {
 
         {/* Sections */}
         <div className="md:col-span-9 space-y-24">
-          {SECTIONS.map((s, si) => (
+          {(SECTIONS || []).map((s, si) => (
             <section key={s.title} id={`section-${si}`}>
               <Reveal>
                 <p className="text-[10px] tracking-luxury uppercase text-ink-muted mb-3">{s.eyebrow}</p>
                 <h2 className="font-display text-4xl md:text-5xl leading-[1.05] mb-10">{s.title}</h2>
               </Reveal>
               <div className="border-t hairline">
-                {s.items.map((qa, i) => (
+                {(s.items || []).map((qa, i) => (
                   <Row key={qa.q} {...qa} i={i} />
                 ))}
               </div>

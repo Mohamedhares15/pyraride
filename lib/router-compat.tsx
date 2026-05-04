@@ -7,12 +7,16 @@
 import { forwardRef, type AnchorHTMLAttributes, type ReactNode } from "react";
 import {
   Link as TSLink,
-  Outlet as TSOutlet,
-  useLocation as useTSLocation,
   useNavigate as useTSNavigate,
-  useParams as useTSParams,
   useRouter,
 } from "@tanstack/react-router";
+
+
+
+// These are implemented below using TanStack primitives
+const TSOutlet = ({ children }: { children?: React.ReactNode }) => <>{children}</>;
+const useTSLocation = () => useRouter().state.location;
+const useTSParams = (opts: any) => useRouter().state.matches.at(-1)?.params ?? {};
 
 export const Outlet = TSOutlet;
 
@@ -91,10 +95,10 @@ export const useLocation = () => {
   const loc = useTSLocation();
   return {
     pathname: loc.pathname,
-    search: loc.searchStr ?? "",
+    search: loc.search ?? "",
     hash: loc.hash ?? "",
-    state: (loc.state as unknown) ?? null,
-    key: loc.href,
+    state: (loc as any).state ?? null,
+    key: (loc as any).href || loc.pathname,
   };
 };
 
@@ -118,7 +122,7 @@ export const useNavigate = () => {
 
 export const useSearchParams = () => {
   const loc = useTSLocation();
-  const params = new URLSearchParams(loc.searchStr ?? "");
+  const params = new URLSearchParams(loc.search ?? "");
   const nav = useTSNavigate();
   const set = (
     next:
@@ -132,7 +136,7 @@ export const useSearchParams = () => {
     else outParams = new URLSearchParams(next);
     const search: Record<string, string> = {};
     outParams.forEach((v, k) => (search[k] = v));
-    nav({ to: loc.pathname as any, search: search as any });
+    nav({ to: (loc.pathname + '?' + outParams.toString()) as any, replace: true });
   };
   return [params, set] as const;
 };

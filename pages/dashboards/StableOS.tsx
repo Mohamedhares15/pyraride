@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { Check, X, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
@@ -84,7 +85,7 @@ const StableOS = () => {
           <>
             <SectionTitle title="Reviews to moderate" hint={`${reviews.length} on record`} />
             <div className="space-y-4">
-              {reviews.map((r) => (
+              {(reviews || []).map((r) => (
                 <article key={r.id} className="border hairline p-6">
                   <div className="flex justify-between items-start gap-4">
                     <div>

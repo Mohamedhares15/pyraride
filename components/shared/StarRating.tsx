@@ -24,7 +24,7 @@ export default function StarRating({
 
   return (
     <div className="flex gap-1">
-      {stars.map((value) => (
+      {(stars || []).map((value) => (
         <motion.button
           key={value}
           type="button"

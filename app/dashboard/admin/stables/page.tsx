@@ -129,7 +129,7 @@ export default function AdminStablesPage() {
 
       // Update local state
       setStables((prev) =>
-        prev.map((stable) =>
+        (prev || []).map((stable) =>
           stable.id === stableId
             ? { ...stable, isHidden: !currentState }
             : stable
@@ -168,7 +168,7 @@ export default function AdminStablesPage() {
 
       // Update local state
       setStables((prev) =>
-        prev.map((stable) =>
+        (prev || []).map((stable) =>
           stable.id === stableId
             ? { ...stable, commissionRate: rate }
             : stable
@@ -292,7 +292,7 @@ export default function AdminStablesPage() {
           </Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredStables.map((stable) => (
+            {(filteredStables || []).map((stable) => (
               <motion.div
                 key={stable.id}
                 initial={{ opacity: 0, y: 20 }}

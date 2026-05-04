@@ -180,7 +180,7 @@ export async function POST(req: NextRequest) {
       if (transportZoneName) {
         try {
           const drivers = await prisma.user.findMany({ where: { role: "driver" } });
-          const driverIdSet = drivers.map(d => ({
+          const driverIdSet = (drivers || []).map(d => ({
             userId: d.id,
             type: "system",
             title: "New Transport Request!",
@@ -220,7 +220,7 @@ export async function POST(req: NextRequest) {
         const admins = await prisma.user.findMany({ where: { role: "admin" } });
         if (admins.length > 0) {
           await prisma.notification.createMany({
-            data: admins.map(admin => ({
+            data: (admins || []).map(admin => ({
               userId: admin.id,
               type: "system",
               title: "New Package Booking",

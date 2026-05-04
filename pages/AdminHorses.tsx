@@ -1,7 +1,8 @@
+"use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Plus, Pencil, Trash2, X, Search } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 import { horses as initialHorses, stables, type Horse } from "@/data/mock";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
 import { toast } from "sonner";
@@ -19,7 +20,7 @@ const AdminHorses = () => {
 
   const save = (data: Omit<Horse, "id"> & { id?: string }) => {
     if (data.id) {
-      setHorses((hs) => hs.map((h) => (h.id === data.id ? { ...h, ...data } as Horse : h)));
+      setHorses((hs) => (hs || []).map((h) => (h.id === data.id ? { ...h, ...data } as Horse : h)));
       toast.success("Roster updated.");
     } else {
       setHorses((hs) => [...hs, { ...data, id: `h${Date.now()}`, stableId: stable.id }]);
@@ -71,7 +72,7 @@ const AdminHorses = () => {
             <div className="col-span-2 text-right">Actions</div>
           </div>
           <StaggerGroup gap={0.04}>
-            {visible.map((h, i) => (
+            {(visible || []).map((h, i) => (
               <StaggerItem key={h.id}>
                 <div className="grid grid-cols-2 md:grid-cols-12 gap-4 px-6 py-5 border-b hairline last:border-b-0 hover:bg-surface/40 transition-colors items-center">
                   <div className="md:col-span-1 text-[11px] tracking-luxury uppercase text-ink-muted">№ {String(i + 1).padStart(2, "0")}</div>

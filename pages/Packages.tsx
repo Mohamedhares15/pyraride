@@ -1,5 +1,6 @@
+"use client";
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
@@ -41,7 +42,7 @@ const Packages = () => {
       <div className="sticky top-20 z-30 bg-background/85 backdrop-blur-md border-y hairline">
         <div className="container">
           <ul className="flex flex-wrap items-center gap-x-8 gap-y-3 py-4">
-            {FILTERS.map((f) => {
+            {(FILTERS || []).map((f) => {
               const active = filter === f.id;
               return (
                 <li key={f.id}>
@@ -87,7 +88,7 @@ const Packages = () => {
               />
             ) : (
               <StaggerGroup className="grid gap-10 md:grid-cols-2" gap={0.1}>
-                {filtered.map((p, i) => {
+                {(filtered || []).map((p, i) => {
                   const stable = stables.find((s) => s.id === p.stableId);
                   return (
                     <StaggerItem key={p.id}>

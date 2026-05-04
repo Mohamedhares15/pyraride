@@ -69,7 +69,7 @@ export default function PhoneInput({ value, onChange, className = "", required =
   // Parse existing value to extract country code if present
   const getInitialCountry = () => {
     if (value) {
-      const matchedCountry = countries.find((country) => value.startsWith(country.dialCode));
+      const matchedCountry = countries.find((country) => value?.startsWith(country.dialCode));
       if (matchedCountry) {
         return matchedCountry;
       }
@@ -99,7 +99,7 @@ export default function PhoneInput({ value, onChange, className = "", required =
   };
 
   // Extract number without country code for display
-  const displayNumber = value.startsWith(selectedCountry.dialCode) 
+  const displayNumber = value?.startsWith(selectedCountry.dialCode) 
     ? value.replace(selectedCountry.dialCode, "").trim()
     : value.replace(/^\+?\d+\s*/, "").trim();
 
@@ -115,7 +115,7 @@ export default function PhoneInput({ value, onChange, className = "", required =
           </SelectValue>
         </SelectTrigger>
         <SelectContent className="max-h-[300px]">
-          {countries.map((country) => (
+          {(countries || []).map((country) => (
             <SelectItem key={country.code} value={country.code}>
               <span className="flex items-center gap-2">
                 <span>{country.flag}</span>

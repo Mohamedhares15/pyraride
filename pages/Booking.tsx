@@ -1,5 +1,6 @@
+"use client";
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "@/components/shared/shims";
 import { AnimatePresence, motion } from "framer-motion";
 import { format } from "date-fns";
 import {
@@ -84,6 +85,7 @@ const Booking = () => {
 
   const next = () => {
     if (step < STEPS.length - 1) { setDirection(1); setStep(step + 1); }
+          // @ts-ignore — TanStack navigate shim accepts state at runtime
     else navigate("/checkout", { state: { sel } });
   };
   const back = () => { if (step > 0) { setDirection(-1); setStep(step - 1); } };
@@ -118,7 +120,7 @@ const Booking = () => {
 
       {/* Progress */}
       <ol className="mb-14 grid grid-cols-4 gap-2 md:gap-6">
-        {STEPS.map((label, i) => {
+        {(STEPS || []).map((label, i) => {
           const active = i === step;
           const done = i < step;
           return (
@@ -157,7 +159,7 @@ const Booking = () => {
               {/* STEP 0 — Stable */}
               {step === 0 && (
                 <div className="grid gap-4 md:grid-cols-3">
-                  {stables.map((s) => {
+                  {(stables || []).map((s) => {
                     const active = sel.stableId === s.id;
                     return (
                       <button
@@ -260,7 +262,7 @@ const Booking = () => {
               {/* STEP 3 — Horse, only those available for the chosen slot */}
               {step === 3 && sel.date && sel.slot && (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {stableHorses.map((h) => {
+                  {(stableHorses || []).map((h) => {
                     const active = sel.horseId === h.id;
                     const allowed = tierMeets(currentUser.rankPoints, h.adminTier);
                     const slotOk = horseSlotAvailable(h.id, sel.date!, sel.slot!);

@@ -26,7 +26,7 @@ export default function StableBreadcrumbs({ stableName, stableId }: StableBreadc
       {/* Visual Breadcrumb Navigation */}
       <nav aria-label="Breadcrumb" className="mb-6">
         <ol className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
-          {breadcrumbItems.map((item, index) => (
+          {(breadcrumbItems || []).map((item, index) => (
             <li key={item.url} className="flex items-center gap-2">
               {index === 0 ? (
                 <Link

@@ -1,5 +1,5 @@
 import { Reveal } from "@/components/shared/Motion";
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 
 export const PageStub = ({ eyebrow, title, body }: { eyebrow: string; title: string; body: string }) => (
   <div className="container pt-40 pb-32 min-h-[80vh]">

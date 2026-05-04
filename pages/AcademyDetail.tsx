@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "@/components/shared/shims";
 import { GraduationCap, Clock, Users, ArrowUpRight } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/shared/Motion";
 import { ACADEMIES } from "@/lib/mock-data/seed";
@@ -39,7 +39,7 @@ const AcademyDetail = () => {
           <Reveal>
             <h2 className="font-display text-3xl md:text-4xl mb-6 border-b hairline pb-4">Programs</h2>
             <StaggerGroup className="space-y-4" gap={0.08}>
-              {academy.programs.map((p) => (
+              {(academy.programs || []).map((p) => (
                 <StaggerItem key={p.id}>
                   <article className="border hairline p-7 bg-surface-elevated/30">
                     <div className="flex justify-between items-start gap-4 flex-wrap">
@@ -82,3 +82,6 @@ const AcademyDetail = () => {
 };
 
 export default AcademyDetail;
+
+// Forced SSR to bypass static pre-render errors during UI migration
+export const getServerSideProps = async () => ({ props: {} });

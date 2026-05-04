@@ -1,3 +1,4 @@
+"use client";
 import { motion } from "framer-motion";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
 import { cn } from "@/lib/utils";
@@ -42,7 +43,7 @@ export const Leaderboard = ({ limit }: { limit?: number }) => {
             <div className="col-span-2 text-right">Tier</div>
           </div>
           <StaggerGroup gap={0.05}>
-            {rows.map((r) => (
+            {(rows || []).map((r) => (
               <StaggerItem key={r.rank}>
                 <motion.div
                   whileHover={{ x: 6 }}

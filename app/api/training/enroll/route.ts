@@ -80,7 +80,7 @@ export async function POST(request: Request) {
       Thursday: 4, Friday: 5, Saturday: 6,
     };
 
-    const availableDayNumbers = program.availableDays.map((d) => dayMap[d]).filter((n) => n !== undefined);
+    const availableDayNumbers = (program.availableDays || []).map((d) => dayMap[d]).filter((n) => n !== undefined);
     const defaultStartTime = program.startTime || "10:00";
     const durationHours = program.sessionDuration || 1;
     const [startHour, startMin] = defaultStartTime.split(":").map(Number);
@@ -139,7 +139,7 @@ export async function POST(request: Request) {
 
       // Create all session slots
       await tx.trainingSession.createMany({
-        data: sessions.map((s) => ({
+        data: (sessions || []).map((s) => ({
           enrollmentId: newEnrollment.id,
           sessionNumber: s.sessionNumber,
           date: s.date,

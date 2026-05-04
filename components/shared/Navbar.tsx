@@ -1,5 +1,6 @@
+"use client";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "@/components/shared/shims";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
@@ -42,7 +43,7 @@ export const Navbar = () => {
           </Link>
 
           <ul className="hidden md:flex items-center gap-10">
-            {NAV.map((item) => (
+            {(NAV || []).map((item) => (
               <li key={item.to}>
                 <NavLink to={item.to} className={({ isActive }) =>
                   `text-[13px] tracking-[0.16em] uppercase transition-colors ${
@@ -93,7 +94,7 @@ export const Navbar = () => {
             <button onClick={() => setOpen(false)} aria-label="Close menu"><X className="size-5" /></button>
           </div>
           <ul className="flex flex-col gap-6">
-            {NAV.map((item, i) => (
+            {(NAV || []).map((item, i) => (
               <motion.li
                 key={item.to}
                 initial={{ opacity: 0, x: 24 }}

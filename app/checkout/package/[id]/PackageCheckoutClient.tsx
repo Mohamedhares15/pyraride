@@ -42,7 +42,7 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
         .then(res => res.json())
         .then((data: TransportZone[]) => {
           if (Array.isArray(data)) {
-            const formattedZones = data.map(z => ({
+            const formattedZones = (data || []).map(z => ({
               ...z,
               name: `${z.name} (+${z.price} EGP)`
             }));
@@ -403,7 +403,7 @@ export default function PackageCheckoutClient({ pkg }: { pkg: any }) {
                           value={selectedZone}
                           onChange={(e) => setSelectedZone(e.target.value)}
                         >
-                          {transportZones.map((zone: TransportZone) => (
+                          {(transportZones || []).map((zone: TransportZone) => (
                             <option key={zone.id} value={zone.id} className="bg-black text-white">
                               {zone.name}
                             </option>

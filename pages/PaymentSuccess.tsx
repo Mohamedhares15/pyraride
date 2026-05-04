@@ -1,4 +1,5 @@
-import { Link, useSearchParams } from "react-router-dom";
+"use client";
+import { Link, useSearchParams } from "@/components/shared/shims";
 import { Check, ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/components/shared/Motion";
 

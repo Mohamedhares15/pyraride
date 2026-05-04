@@ -1,5 +1,5 @@
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/shared/Motion";
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 import { ArrowUpRight } from "lucide-react";
 
 const tiers = [
@@ -32,7 +32,7 @@ const Pricing = () => (
 
     <section className="container py-20 md:py-28">
       <StaggerGroup className="grid md:grid-cols-3 gap-px bg-hairline border hairline">
-        {tiers.map((t) => (
+        {(tiers || []).map((t) => (
           <StaggerItem key={t.eyebrow}>
             <div className="bg-background p-10 md:p-12 h-full">
               <p className="text-[11px] tracking-luxury uppercase text-ink-muted">{t.eyebrow}</p>
@@ -49,7 +49,7 @@ const Pricing = () => (
         <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-8">House terms</p>
       </Reveal>
       <div className="border-t hairline">
-        {lines.map(([label, copy]) => (
+        {(lines || []).map(([label, copy]) => (
           <Reveal key={label}>
             <div className="grid md:grid-cols-12 gap-6 py-7 border-b hairline">
               <p className="md:col-span-4 font-display text-2xl">{label}</p>

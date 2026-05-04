@@ -67,7 +67,7 @@ export default function DriverDashboardLayout({ children }: { children: ReactNod
 
   const isActive = (href: string) => {
     if (href === "/dashboard/driver") return pathname === "/dashboard/driver";
-    return pathname.startsWith(href);
+    return pathname?.startsWith(href) ?? false;
   };
 
   return (
@@ -106,7 +106,7 @@ export default function DriverDashboardLayout({ children }: { children: ReactNod
 
       {/* ─── Bottom Navigation Dock ─── */}
       <nav className="shrink-0 flex items-end justify-around bg-[#0A0A0A] border-t border-white/[0.06] px-2 pt-1.5 pb-[max(0.5rem,var(--sab))]">
-        {NAV_ITEMS.map((item) => {
+        { (NAV_ITEMS || []).map((item) => {
           const active = isActive(item.href);
           return (
             <a

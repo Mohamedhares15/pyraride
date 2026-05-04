@@ -66,14 +66,14 @@ export default function StablesClient() {
     return value;
   };
 
-  const [search, setSearch] = useState(searchParams.get("search") || "");
-  const [location, setLocation] = useState(normalizeLocationParam(searchParams.get("location")));
-  const [minRating, setMinRating] = useState(searchParams.get("minRating") || "0");
-  const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
-  const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
-  const [sort, setSort] = useState(searchParams.get("sort") || "recommended");
-  const [color, setColor] = useState(searchParams.get("color") || "all");
-  const [skills, setSkills] = useState<string[]>(searchParams.get("skills") ? searchParams.get("skills")!.split(",") : []);
+  const [search, setSearch] = useState((searchParams?.get("search") ?? "") || "");
+  const [location, setLocation] = useState(normalizeLocationParam((searchParams?.get("location") ?? null)));
+  const [minRating, setMinRating] = useState(searchParams?.get("minRating") || "0");
+  const [minPrice, setMinPrice] = useState(searchParams?.get("minPrice") || "");
+  const [maxPrice, setMaxPrice] = useState(searchParams?.get("maxPrice") || "");
+  const [sort, setSort] = useState(searchParams?.get("sort") || "recommended");
+  const [color, setColor] = useState(searchParams?.get("color") || "all");
+  const [skills, setSkills] = useState<string[]>(searchParams?.get("skills") ? searchParams?.get("skills")!.split(",") : []);
 
   const fetchStables = useCallback(async () => {
     setIsLoading(true);
@@ -145,7 +145,7 @@ export default function StablesClient() {
           action: "view_item_list",
           item_list_id: search || location !== "all" ? "filtered_search" : "default_list",
           item_list_name: "Stables and Horses List",
-          items: mappedResults.map((r: any, i: number) => ({
+          items: (mappedResults || []).map((r: any, i: number) => ({
             item_id: r.id,
             item_name: r.name,
             index: i,
@@ -171,7 +171,7 @@ export default function StablesClient() {
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
     if (value) params.set("search", value);
     else params.delete("search");
     updateUrl(params);
@@ -179,7 +179,7 @@ export default function StablesClient() {
 
   const handleLocationChange = (value: string) => {
     setLocation(value);
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
     if (value !== "all") params.set("location", value);
     else params.delete("location");
     updateUrl(params);
@@ -187,7 +187,7 @@ export default function StablesClient() {
 
   const handleRatingChange = (value: string) => {
     setMinRating(value);
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
     if (value !== "0") params.set("minRating", value);
     else params.delete("minRating");
     updateUrl(params);
@@ -196,7 +196,7 @@ export default function StablesClient() {
   const handlePriceChange = (min: string, max: string) => {
     setMinPrice(min);
     setMaxPrice(max);
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
     if (min) params.set("minPrice", min);
     else params.delete("minPrice");
     if (max) params.set("maxPrice", max);
@@ -206,7 +206,7 @@ export default function StablesClient() {
 
   const handleSortChange = (value: string) => {
     setSort(value);
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
     if (value && value !== "recommended") params.set("sort", value);
     else params.delete("sort");
     updateUrl(params);
@@ -214,7 +214,7 @@ export default function StablesClient() {
 
   const handleColorChange = (value: string) => {
     setColor(value);
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
     if (value && value !== "all") params.set("color", value);
     else params.delete("color");
     updateUrl(params);
@@ -222,7 +222,7 @@ export default function StablesClient() {
 
   const handleSkillsChange = (value: string[]) => {
     setSkills(value);
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
     if (value && value.length > 0) params.set("skills", value.join(","));
     else params.delete("skills");
     updateUrl(params);

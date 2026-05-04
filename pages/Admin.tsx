@@ -1,6 +1,7 @@
+"use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 import { ArrowUpRight, Calendar, Check, Clock, Plus, TrendingUp, Users, BarChart3, Layers } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
 import { horses, packages, stables } from "@/data/mock";
@@ -46,7 +47,7 @@ const Admin = () => {
       {/* Tabs */}
       <div className="container border-b hairline">
         <ul className="flex gap-8 overflow-x-auto">
-          {TABS.map((t) => {
+          {(TABS || []).map((t) => {
             const active = tab === t;
             return (
               <li key={t}>
@@ -90,7 +91,7 @@ const SPARK = [12, 18, 16, 22, 28, 24, 32, 36, 30, 38, 44, 41, 48, 52];
 const Overview = () => (
   <>
     <StaggerGroup className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-hairline border hairline" gap={0.06}>
-      {STATS.map((s) => (
+      {(STATS || []).map((s) => (
         <StaggerItem key={s.label}>
           <div className="bg-background p-8">
             <p className="text-[10px] tracking-luxury uppercase text-ink-muted">{s.label}</p>
@@ -160,12 +161,12 @@ const Overview = () => (
 
 const Spark = ({ data }: { data: number[] }) => {
   const w = 600, h = 140, max = Math.max(...data), min = Math.min(...data);
-  const pts = data.map((v, i) => {
+  const pts = (data || []).map((v, i) => {
     const x = (i / (data.length - 1)) * w;
     const y = h - ((v - min) / (max - min || 1)) * (h - 12) - 6;
     return [x, y] as const;
   });
-  const path = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p[0]} ${p[1]}`).join(" ");
+  const path = (pts || []).map((p, i) => `${i === 0 ? "M" : "L"} ${p[0]} ${p[1]}`).join(" ");
   const area = `${path} L ${w} ${h} L 0 ${h} Z`;
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-32" preserveAspectRatio="none">
@@ -173,7 +174,7 @@ const Spark = ({ data }: { data: number[] }) => {
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.2, ease: easeLuxury }} />
       <motion.path d={path} fill="none" stroke="hsl(var(--foreground))" strokeWidth={1.25}
         initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.6, ease: easeLuxury }} />
-      {pts.map((p, i) => (
+      {(pts || []).map((p, i) => (
         <motion.circle key={i} cx={p[0]} cy={p[1]} r={1.75} fill="hsl(var(--foreground))"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 + i * 0.04, duration: 0.4 }} />
       ))}
@@ -205,7 +206,7 @@ const Bookings = () => (
         <div className="col-span-1 text-right">Status</div>
       </div>
       <StaggerGroup gap={0.05}>
-        {BOOKINGS.map((b) => {
+        {(BOOKINGS || []).map((b) => {
           const pkg = packages.find((p) => p.id === b.packageId)!;
           return (
             <StaggerItem key={b.id}>
@@ -249,7 +250,7 @@ const Roster = ({ horses: hs }: { horses: typeof horses }) => (
       </button>
     </div>
     <StaggerGroup className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4" gap={0.08}>
-      {hs.map((h) => (
+      {(hs || []).map((h) => (
         <StaggerItem key={h.id}>
           <article className="border hairline bg-surface-elevated/40 group overflow-hidden">
             <div className="aspect-[3/4] overflow-hidden bg-surface">
@@ -284,7 +285,7 @@ const PackagesPanel = ({ pkgs }: { pkgs: typeof packages }) => (
       </button>
     </div>
     <StaggerGroup className="space-y-0 border-t hairline" gap={0.06}>
-      {pkgs.map((p, i) => (
+      {(pkgs || []).map((p, i) => (
         <StaggerItem key={p.id}>
           <div className="grid md:grid-cols-12 gap-6 items-center py-6 border-b hairline">
             <div className="md:col-span-1 text-[11px] tracking-luxury uppercase text-ink-muted">№ {String(i + 1).padStart(2, "0")}</div>

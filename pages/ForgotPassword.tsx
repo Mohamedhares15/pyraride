@@ -1,5 +1,6 @@
+"use client";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "@/components/shared/shims";
 import { Reveal } from "@/components/shared/Motion";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";

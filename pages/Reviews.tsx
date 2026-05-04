@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { RatingsSection } from "@/components/reviews/RatingsSection";
 import { ReviewModal } from "@/components/reviews/ReviewModal";

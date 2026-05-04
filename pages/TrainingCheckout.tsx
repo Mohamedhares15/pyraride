@@ -1,5 +1,6 @@
+"use client";
 import { useState } from "react";
-import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useParams, useNavigate, useSearchParams } from "@/components/shared/shims";
 import { Reveal } from "@/components/shared/Motion";
 import { toast } from "sonner";
 import { ACADEMIES } from "@/lib/mock-data/seed";
@@ -90,3 +91,6 @@ const TrainingCheckout = () => {
 };
 
 export default TrainingCheckout;
+
+// Forced SSR to bypass static pre-render errors during UI migration
+export const getServerSideProps = async () => ({ props: {} });

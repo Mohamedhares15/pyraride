@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 import { ArrowUpRight } from "lucide-react";
 import { SubNav } from "@/components/shared/SubNav";
 import { DashShell, StatGrid, SectionTitle, DashTable, Pill } from "@/components/shared/DashShell";

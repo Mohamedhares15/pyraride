@@ -1,4 +1,5 @@
-import { useLocation } from "react-router-dom";
+"use client";
+import { useLocation } from "@/components/shared/shims";
 import { useEffect } from "react";
 
 const NotFound = () => {

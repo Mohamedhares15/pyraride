@@ -214,7 +214,7 @@ export default function HorseChangesPage() {
           </Card>
         ) : (
           <div className="space-y-6">
-            {changeRequests.map((request) => (
+            {(changeRequests || []).map((request) => (
               <motion.div
                 key={request.id}
                 initial={{ opacity: 0, y: 20 }}

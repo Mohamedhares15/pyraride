@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
@@ -60,7 +61,7 @@ const StableSchedule = () => {
       >
         <SectionTitle title={`Week of ${fmtDay(days[0])}`} />
 
-        {horses.map((h) => (
+        {(horses || []).map((h) => (
           <div key={h.id} className="mb-10">
             <div className="flex items-center gap-3 mb-3">
               <img src={h.imageUrls[0]} alt="" className="size-9 rounded-full object-cover" />
@@ -72,16 +73,16 @@ const StableSchedule = () => {
                 <thead>
                   <tr className="border-b hairline">
                     <th className="text-left px-3 py-2 text-[10px] tracking-luxury uppercase text-ink-muted font-normal w-16">Hour</th>
-                    {days.map((d, i) => (
+                    {(days || []).map((d, i) => (
                       <th key={i} className="text-left px-3 py-2 text-[10px] tracking-luxury uppercase text-ink-muted font-normal">{fmtDay(d)}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {HOURS.map((hr) => (
+                  {(HOURS || []).map((hr) => (
                     <tr key={hr} className="border-b hairline last:border-0">
                       <td className="px-3 py-1.5 tabular-nums text-ink-muted">{String(hr).padStart(2, "0")}:00</td>
-                      {days.map((_, di) => {
+                      {(days || []).map((_, di) => {
                         const cell = bookings.get(`${di}-${hr}-${h.id}`);
                         return (
                           <td key={di} className="px-1.5 py-1">

@@ -214,7 +214,7 @@ export default function BookingModalEnhanced({
         {/* Progress Steps */}
         <div className="mb-6">
           <div className="flex items-center justify-between">
-            {steps.map((step, index) => (
+            {(steps || []).map((step, index) => (
               <div key={step.id} className="flex items-center flex-1">
                 <div className="flex flex-col items-center flex-1">
                   <div

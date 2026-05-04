@@ -1,0 +1,72 @@
+app/stables/StablesClient.tsx(174,40): error TS2345: Argument of type 'ReadonlyURLSearchParams | null' is not assignable to parameter of type 'string | URLSearchParams | Record<string, string> | string[][] | undefined'.
+  Type 'null' is not assignable to type 'string | URLSearchParams | Record<string, string> | string[][] | undefined'.
+app/stables/StablesClient.tsx(182,40): error TS2345: Argument of type 'ReadonlyURLSearchParams | null' is not assignable to parameter of type 'string | URLSearchParams | Record<string, string> | string[][] | undefined'.
+  Type 'null' is not assignable to type 'string | URLSearchParams | Record<string, string> | string[][] | undefined'.
+app/stables/StablesClient.tsx(190,40): error TS2345: Argument of type 'ReadonlyURLSearchParams | null' is not assignable to parameter of type 'string | URLSearchParams | Record<string, string> | string[][] | undefined'.
+  Type 'null' is not assignable to type 'string | URLSearchParams | Record<string, string> | string[][] | undefined'.
+app/stables/StablesClient.tsx(199,40): error TS2345: Argument of type 'ReadonlyURLSearchParams | null' is not assignable to parameter of type 'string | URLSearchParams | Record<string, string> | string[][] | undefined'.
+  Type 'null' is not assignable to type 'string | URLSearchParams | Record<string, string> | string[][] | undefined'.
+app/stables/StablesClient.tsx(209,40): error TS2345: Argument of type 'ReadonlyURLSearchParams | null' is not assignable to parameter of type 'string | URLSearchParams | Record<string, string> | string[][] | undefined'.
+  Type 'null' is not assignable to type 'string | URLSearchParams | Record<string, string> | string[][] | undefined'.
+app/stables/StablesClient.tsx(217,40): error TS2345: Argument of type 'ReadonlyURLSearchParams | null' is not assignable to parameter of type 'string | URLSearchParams | Record<string, string> | string[][] | undefined'.
+  Type 'null' is not assignable to type 'string | URLSearchParams | Record<string, string> | string[][] | undefined'.
+app/stables/StablesClient.tsx(225,40): error TS2345: Argument of type 'ReadonlyURLSearchParams | null' is not assignable to parameter of type 'string | URLSearchParams | Record<string, string> | string[][] | undefined'.
+  Type 'null' is not assignable to type 'string | URLSearchParams | Record<string, string> | string[][] | undefined'.
+components/sections/Hero.tsx(231,19): error TS2322: Type '"primary"' is not assignable to type '"link" | "default" | "secondary" | "destructive" | "outline" | "ghost" | null | undefined'.
+components/sections/StableList.tsx(56,21): error TS18047: 'searchParams' is possibly 'null'.
+components/stables/StableDetailsClient.tsx(232,27): error TS18047: 'searchParams' is possibly 'null'.
+components/ui/accordion.tsx(2,37): error TS2307: Cannot find module '@radix-ui/react-accordion' or its corresponding type declarations.
+components/ui/alert-dialog.tsx(2,39): error TS2307: Cannot find module '@radix-ui/react-alert-dialog' or its corresponding type declarations.
+components/ui/aspect-ratio.tsx(1,39): error TS2307: Cannot find module '@radix-ui/react-aspect-ratio' or its corresponding type declarations.
+components/ui/carousel.tsx(3,61): error TS2307: Cannot find module 'embla-carousel-react' or its corresponding type declarations.
+components/ui/chart.tsx(3,36): error TS2307: Cannot find module 'recharts' or its corresponding type declarations.
+components/ui/chart.tsx(170,22): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/ui/chart.tsx(171,19): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/ui/chart.tsx(171,25): error TS7006: Parameter 'index' implicitly has an 'any' type.
+components/ui/chart.tsx(268,18): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/ui/chart.tsx(269,15): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/ui/collapsible.tsx(3,39): error TS2307: Cannot find module '@radix-ui/react-collapsible' or its corresponding type declarations.
+components/ui/command.tsx(5,45): error TS2307: Cannot find module 'cmdk' or its corresponding type declarations.
+components/ui/context-menu.tsx(2,39): error TS2307: Cannot find module '@radix-ui/react-context-menu' or its corresponding type declarations.
+components/ui/drawer.tsx(2,43): error TS2307: Cannot find module 'vaul' or its corresponding type declarations.
+components/ui/dropdown-menu.tsx(4,40): error TS2307: Cannot find module '@radix-ui/react-dropdown-menu' or its corresponding type declarations.
+components/ui/hover-card.tsx(2,37): error TS2307: Cannot find module '@radix-ui/react-hover-card' or its corresponding type declarations.
+components/ui/input-otp.tsx(3,43): error TS2307: Cannot find module 'input-otp' or its corresponding type declarations.
+components/ui/input-otp.tsx(37,44): error TS18047: 'inputOTPContext' is possibly 'null'.
+components/ui/input-otp.tsx(37,60): error TS2339: Property 'slots' does not exist on type 'string | number | boolean | ServerContextJSONArray | { [key: string]: ServerContextJSONValue; }'.
+  Property 'slots' does not exist on type 'string'.
+components/ui/menubar.tsx(2,35): error TS2307: Cannot find module '@radix-ui/react-menubar' or its corresponding type declarations.
+components/ui/navigation-menu.tsx(2,42): error TS2307: Cannot find module '@radix-ui/react-navigation-menu' or its corresponding type declarations.
+components/ui/progress.tsx(4,36): error TS2307: Cannot find module '@radix-ui/react-progress' or its corresponding type declarations.
+components/ui/radio-group.tsx(2,38): error TS2307: Cannot find module '@radix-ui/react-radio-group' or its corresponding type declarations.
+components/ui/resizable.tsx(2,41): error TS2307: Cannot find module 'react-resizable-panels' or its corresponding type declarations.
+components/ui/scroll-area.tsx(2,38): error TS2307: Cannot find module '@radix-ui/react-scroll-area' or its corresponding type declarations.
+components/ui/separator.tsx(2,37): error TS2307: Cannot find module '@radix-ui/react-separator' or its corresponding type declarations.
+components/ui/toggle-group.tsx(4,39): error TS2307: Cannot find module '@radix-ui/react-toggle-group' or its corresponding type declarations.
+components/ui/toggle.tsx(2,34): error TS2307: Cannot find module '@radix-ui/react-toggle' or its corresponding type declarations.
+components/ui/tooltip.tsx(4,35): error TS2307: Cannot find module '@radix-ui/react-tooltip' or its corresponding type declarations.
+data/mock.ts(48,12): error TS2304: Cannot find name 'stableCourtyard'.
+data/mock.ts(61,12): error TS2304: Cannot find name 'desertRide'.
+data/mock.ts(74,12): error TS2304: Cannot find name 'horsePortrait'.
+data/mock.ts(83,140): error TS2304: Cannot find name 'horseChestnut'.
+data/mock.ts(84,132): error TS2304: Cannot find name 'horseBlack'.
+data/mock.ts(85,136): error TS2304: Cannot find name 'horseGrey'.
+data/mock.ts(86,134): error TS2304: Cannot find name 'horsePortrait'.
+data/mock.ts(87,135): error TS2304: Cannot find name 'horseGrey'.
+data/mock.ts(88,130): error TS2304: Cannot find name 'horseChestnut'.
+data/mock.ts(89,131): error TS2304: Cannot find name 'horseBlack'.
+data/mock.ts(90,136): error TS2304: Cannot find name 'horsePortrait'.
+data/mock.ts(91,137): error TS2304: Cannot find name 'horseGrey'.
+data/mock.ts(159,264): error TS2304: Cannot find name 'desertRide'.
+data/mock.ts(160,255): error TS2304: Cannot find name 'stableCourtyard'.
+data/mock.ts(161,265): error TS2304: Cannot find name 'horsePortrait'.
+data/mock.ts(162,261): error TS2304: Cannot find name 'stableCourtyard'.
+lib/router-compat.tsx(10,3): error TS2305: Module '"@tanstack/react-router"' has no exported member 'Outlet'.
+lib/router-compat.tsx(11,3): error TS2305: Module '"@tanstack/react-router"' has no exported member 'useLocation'.
+lib/router-compat.tsx(13,3): error TS2305: Module '"@tanstack/react-router"' has no exported member 'useParams'.
+lib/router-compat.tsx(14,3): error TS2459: Module '"@tanstack/react-router"' declares 'useRouter' locally, but it is not exported.
+lib/router-compat.tsx(135,36): error TS2353: Object literal may only specify known properties, and 'search' does not exist in type '{ to: string; replace?: boolean | undefined; }'.
+pages/Booking.tsx(88,34): error TS2353: Object literal may only specify known properties, and 'state' does not exist in type '{ replace?: boolean | undefined; }'.
+pages/Checkout.tsx(17,21): error TS2352: Conversion of type '{ pathname: string; search: string; hash: string; state: null; key: string; }' to type '{ state?: { sel?: Sel | undefined; } | undefined; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Types of property 'state' are incompatible.
+    Type 'null' is not comparable to type '{ sel?: Sel | undefined; } | undefined'.

@@ -1,6 +1,7 @@
+"use client";
 import { motion } from "framer-motion";
 import { ArrowLeft, TrendingUp, TrendingDown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
 import { packages } from "@/data/mock";
 
@@ -10,7 +11,7 @@ const MONTHLY = [
   { m: "Jan", v: 58 }, { m: "Feb", v: 64 }, { m: "Mar", v: 72 }, { m: "Apr", v: 78 },
 ];
 
-const BREAKDOWN = packages.map((p, i) => ({
+const BREAKDOWN = (packages || []).map((p, i) => ({
   name: p.name,
   revenue: [18420, 22640, 14280, 9320][i] ?? 8000,
   bookings: [38, 22, 8, 26][i] ?? 12,
@@ -24,8 +25,8 @@ const KPI = [
 ];
 
 const AdminAnalytics = () => {
-  const max = Math.max(...MONTHLY.map((d) => d.v));
-  const maxRev = Math.max(...BREAKDOWN.map((b) => b.revenue));
+  const max = Math.max(...(MONTHLY || []).map((d) => d.v));
+  const maxRev = Math.max(...(BREAKDOWN || []).map((b) => b.revenue));
 
   return (
     <div className="min-h-screen pt-28">
@@ -43,7 +44,7 @@ const AdminAnalytics = () => {
       <div className="container py-12 space-y-16">
         {/* KPI band */}
         <StaggerGroup className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-hairline border hairline" gap={0.06}>
-          {KPI.map((k) => {
+          {(KPI || []).map((k) => {
             const Trend = k.up ? TrendingUp : TrendingDown;
             return (
               <StaggerItem key={k.label}>
@@ -69,7 +70,7 @@ const AdminAnalytics = () => {
             <p className="text-xs text-ink-muted">+38% YoY</p>
           </div>
           <div className="grid grid-cols-12 gap-2 md:gap-3 h-64 items-end">
-            {MONTHLY.map((d, i) => (
+            {(MONTHLY || []).map((d, i) => (
               <div key={d.m} className="flex flex-col items-center gap-3 h-full">
                 <div className="flex-1 w-full flex items-end">
                   <motion.div
@@ -97,7 +98,7 @@ const AdminAnalytics = () => {
             </p>
           </div>
           <div className="lg:col-span-7 space-y-6">
-            {BREAKDOWN.map((b, i) => (
+            {(BREAKDOWN || []).map((b, i) => (
               <motion.div
                 key={b.name}
                 initial={{ opacity: 0, y: 12 }}

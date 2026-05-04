@@ -64,7 +64,7 @@ export function validatePassword(password: string): {
 export function normalizePhoneNumber(phone: string): string {
   const trimmed = phone.trim();
   if (!trimmed) return "";
-  const hasPlus = trimmed.startsWith("+");
+  const hasPlus = trimmed?.startsWith("+");
   const digitsOnly = trimmed.replace(/\D+/g, "");
   return hasPlus ? `+${digitsOnly}`.replace(/\+\+/, "+") : digitsOnly;
 }

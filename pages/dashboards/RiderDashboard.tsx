@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+"use client";
+import { Link } from "@/components/shared/shims";
 import { motion } from "framer-motion";
 import { ArrowUpRight, CalendarDays, Clock, MapPin, Trophy, GraduationCap } from "lucide-react";
 import { useState } from "react";
@@ -82,7 +83,7 @@ const RiderDashboard = () => {
               <EmptyState icon={CalendarDays} title="The calendar is quiet." cta="Browse packages" to="/packages" />
             ) : (
               <StaggerGroup className="grid gap-6 md:grid-cols-2" gap={0.1}>
-                {upcoming.map((b) => <BookingCard key={b.id} b={b} />)}
+                {(upcoming || []).map((b) => <BookingCard key={b.id} b={b} />)}
               </StaggerGroup>
             )}
           </section>
@@ -93,7 +94,7 @@ const RiderDashboard = () => {
               <p className="text-sm text-ink-muted">No past rides yet.</p>
             ) : (
               <div className="space-y-0">
-                {past.map((b, i) => {
+                {(past || []).map((b, i) => {
                   const pkg = PACKAGES.find((p) => p.id === b.packageId)!;
                   const stable = STABLES.find((s) => s.id === pkg.stableId)!;
                   return (
@@ -126,7 +127,7 @@ const RiderDashboard = () => {
             <EmptyState icon={GraduationCap} title="No training enrolment yet." cta="Browse academies" to="/training" />
           ) : (
             <div className="grid gap-6 md:grid-cols-2">
-              {TRAININGS.map((t) => {
+              {(TRAININGS || []).map((t) => {
                 const academy = ACADEMIES.find((a) => a.id === t.academyId);
                 const pct = (t.sessionsCompleted / t.totalSessions) * 100;
                 return (

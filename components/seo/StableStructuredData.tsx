@@ -143,7 +143,7 @@ export function StableStructuredData({ stable, reviews = [] }: StableStructuredD
       />
       
       {/* Review Schemas */}
-      {reviewSchemas.map((review, index) => (
+      {(reviewSchemas || []).map((review, index) => (
         <script
           key={`review-${index}`}
           type="application/ld+json"

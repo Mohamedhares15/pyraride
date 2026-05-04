@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 
 export const Footer = () => (
   <footer className="border-t hairline mt-32">
@@ -30,7 +30,7 @@ const Col = ({ title, links }: { title: string; links: [string,string][] }) => (
   <div>
     <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-4">{title}</p>
     <ul className="space-y-2.5">
-      {links.map(([to,label]) => (
+      {(links || []).map(([to,label]) => (
         <li key={to}><Link to={to} className="text-foreground/85 hover:text-foreground transition-colors">{label}</Link></li>
       ))}
     </ul>

@@ -1,5 +1,6 @@
+"use client";
 import { useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "@/components/shared/shims";
 import { Reveal } from "@/components/shared/Motion";
 import { toast } from "sonner";
 import { fmtMoney } from "@/lib/format";
@@ -80,7 +81,7 @@ const TrainingDirectCheckout = () => {
 
         {/* programme picker */}
         <div className="mt-10 grid sm:grid-cols-3 gap-3">
-          {PROGRAMMES.map((p) => {
+          {(PROGRAMMES || []).map((p) => {
             const active = p.id === selected;
             return (
               <button
@@ -142,7 +143,7 @@ const TrainingDirectCheckout = () => {
           <p className="mt-1 text-sm text-ink-muted">{programme.audience}</p>
 
           <ul className="mt-6 space-y-3 text-sm border-t hairline pt-5">
-            {programme.inclusions.map((inc) => (
+            {(programme.inclusions || []).map((inc) => (
               <li key={inc} className="flex items-start gap-3">
                 <Check className="size-4 mt-0.5 shrink-0" />
                 <span className="text-ink-soft">{inc}</span>

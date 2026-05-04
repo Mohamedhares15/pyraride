@@ -58,7 +58,7 @@ export function FAQPageSchema({ items }: { items: FAQItem[] }) {
   const schema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": items.map(({ question, answer }) => ({
+    "mainEntity": (items || []).map(({ question, answer }) => ({
       "@type": "Question",
       "name": question,
       "acceptedAnswer": {
@@ -135,7 +135,7 @@ export function BreadcrumbSchema({ items }: { items: { name: string; url: string
   const schema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": items.map((item, index) => ({
+    "itemListElement": (items || []).map((item, index) => ({
       "@type": "ListItem",
       "position": index + 1,
       "name": item.name,

@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
         });
 
         return NextResponse.json({
-            messages: messages.map((m) => ({
+            messages: (messages || []).map((m) => ({
                 id: m.id,
                 content: m.content,
                 createdAt: m.createdAt,

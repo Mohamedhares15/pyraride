@@ -1,15 +1,16 @@
+"use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
-import g1 from "@/assets/gallery-1.jpg";
-import g2 from "@/assets/gallery-2.jpg";
-import g3 from "@/assets/gallery-3.jpg";
-import g4 from "@/assets/gallery-4.jpg";
-import g5 from "@/assets/gallery-5.jpg";
-import g6 from "@/assets/gallery-6.jpg";
-import desertRide from "@/assets/desert-ride.jpg";
-import horsePortrait from "@/assets/horse-portrait.jpg";
-import stableCourtyard from "@/assets/stable-courtyard.jpg";
+const g1 = "/assets/gallery-1.jpg";
+const g2 = "/assets/gallery-2.jpg";
+const g3 = "/assets/gallery-3.jpg";
+const g4 = "/assets/gallery-4.jpg";
+const g5 = "/assets/gallery-5.jpg";
+const g6 = "/assets/gallery-6.jpg";
+const desertRide = "/assets/desert-ride.jpg";
+const horsePortrait = "/assets/horse-portrait.jpg";
+const stableCourtyard = "/assets/stable-courtyard.jpg";
 
 type Frame = {
   src: string;
@@ -62,7 +63,7 @@ const Gallery = () => {
         <Reveal delay={0.25}>
           <div className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 border-t hairline border-b py-5">
             <span className="text-[10px] tracking-luxury uppercase text-ink-muted mr-2">Filter</span>
-            {FILTERS.map((f) => (
+            {(FILTERS || []).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
@@ -89,7 +90,7 @@ const Gallery = () => {
       <section className="container mt-16">
         <motion.div layout className="grid grid-cols-1 md:grid-cols-6 gap-5 md:gap-6">
           <AnimatePresence mode="popLayout">
-            {visible.map((frame, i) => {
+            {(visible || []).map((frame, i) => {
               const span =
                 frame.span === "tall"
                   ? "md:col-span-2 md:row-span-2 aspect-[3/4]"

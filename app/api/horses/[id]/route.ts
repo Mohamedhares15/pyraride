@@ -93,7 +93,7 @@ export async function PATCH(
     // Validate image URLs if provided
     if (imageUrls && imageUrls.length > 0) {
       const invalidUrls = imageUrls.filter(
-        (url: string) => !url.startsWith("http://") && !url.startsWith("https://")
+        (url: string) => !url?.startsWith("http://") && !url?.startsWith("https://")
       );
       if (invalidUrls.length > 0) {
         return NextResponse.json(
@@ -178,7 +178,7 @@ export async function PATCH(
         });
 
         // Create new media entries
-        const mediaPromises = imageUrls.map((url: string, index: number) =>
+        const mediaPromises = (imageUrls || []).map((url: string, index: number) =>
           prisma.horseMedia.create({
             data: {
               horseId: params.id,
@@ -222,7 +222,7 @@ export async function PATCH(
       });
 
       // Create new media entries
-      const mediaPromises = imageUrls.map((url: string, index: number) =>
+      const mediaPromises = (imageUrls || []).map((url: string, index: number) =>
         prisma.horseMedia.create({
           data: {
             horseId: params.id,

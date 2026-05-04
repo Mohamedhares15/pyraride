@@ -300,7 +300,7 @@ export default function BookingModal({
           <div className="space-y-2">
             <Label>Select Horse *</Label>
             <div className="grid gap-3 md:grid-cols-2">
-              {horses.map((horse) => (
+              {(horses || []).map((horse) => (
                 <Card
                   key={horse.id}
                   className={`cursor-pointer transition-all ${selectedHorseId === horse.id

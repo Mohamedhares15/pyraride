@@ -1,9 +1,5 @@
 "use client";
-
-import Page from "@/pages/Legal";
-
-
+import { Privacy } from "@/pages/Legal";
 export default function NextPage() {
-
-  return <Page />;
+  return <Privacy />;
 }

@@ -1,4 +1,5 @@
-import { Link, useParams, Navigate } from "react-router-dom";
+"use client";
+import { Link, useParams, Navigate } from "@/components/shared/shims";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Trophy, MapPin, Award } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
@@ -12,7 +13,7 @@ const RiderProfile = () => {
   // Pull a curated slice of related photos and letters.
   const photos = GALLERY_ITEMS.filter((g) => g.riderName === rider.fullName).slice(0, 6);
   const letters = REVIEWS.filter((r) => r.riderName === rider.fullName).slice(0, 4);
-  const visited = Array.from(new Set(photos.map((p) => p.stableName).filter(Boolean))) as string[];
+  const visited = Array.from(new Set((photos || []).map((p) => p.stableName).filter(Boolean))) as string[];
 
   return (
     <div className="min-h-screen pt-28">
@@ -65,7 +66,7 @@ const RiderProfile = () => {
             <h2 className="font-display text-3xl md:text-5xl">Where they have been.</h2>
           </Reveal>
           <ul className="mt-10 border-t hairline">
-            {visited.map((name) => {
+            {(visited || []).map((name) => {
               const stable = STABLES.find((s) => s.name === name);
               return (
                 <li key={name} className="border-b hairline py-6 grid md:grid-cols-12 gap-4 items-center">
@@ -91,7 +92,7 @@ const RiderProfile = () => {
             <h2 className="font-display text-3xl md:text-5xl">Their record on the plateau.</h2>
           </Reveal>
           <StaggerGroup className="mt-10 grid grid-cols-2 md:grid-cols-3 gap-3" gap={0.06}>
-            {photos.map((p) => (
+            {(photos || []).map((p) => (
               <StaggerItem key={p.id}>
                 <figure className="relative aspect-[4/5] overflow-hidden bg-surface group">
                   <motion.img src={p.url} alt={p.caption} className="h-full w-full object-cover" whileHover={{ scale: 1.04 }} transition={{ duration: 1.2, ease: easeLuxury }} />
@@ -111,7 +112,7 @@ const RiderProfile = () => {
             <h2 className="font-display text-3xl md:text-5xl">Letters they have left.</h2>
           </Reveal>
           <div className="mt-10 grid md:grid-cols-2 gap-px bg-hairline border hairline">
-            {letters.map((l) => (
+            {(letters || []).map((l) => (
               <article key={l.id} className="bg-background p-8">
                 <p className="text-[10px] tracking-luxury uppercase text-ink-muted">{l.stableName}{l.horseName ? ` · ${l.horseName}` : ""}</p>
                 <p className="mt-4 font-display text-xl leading-snug text-pretty">"{l.comment}"</p>
@@ -126,3 +127,6 @@ const RiderProfile = () => {
 };
 
 export default RiderProfile;
+
+// Forced SSR to bypass static pre-render errors during UI migration
+export const getServerSideProps = async () => ({ props: {} });

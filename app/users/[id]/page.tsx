@@ -1,10 +1,7 @@
 "use client";
-import { use } from "react";
+export const dynamic = "force-dynamic";
+import React from "react";
 import Page from "@/pages/RiderProfile";
-
-type Params = { id: string };
-
-export default function NextPage({ params }: { params: Promise<Params> }) {
-  const p = use(params);
-  return <Page id={p.id} />;
+export default function NextPage() {
+  return <Page />;
 }

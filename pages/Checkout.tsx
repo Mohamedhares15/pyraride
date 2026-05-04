@@ -1,5 +1,6 @@
+"use client";
 import { useEffect, useState } from "react";
-import { Link, Navigate, useLocation } from "react-router-dom";
+import { Link, Navigate, useLocation } from "@/components/shared/shims";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { ArrowLeft, Check, CreditCard, Lock, Banknote, AlertTriangle, Tag } from "lucide-react";
@@ -13,7 +14,7 @@ import { toast } from "sonner";
 type Sel = { stableId?: string; date?: Date; party: number; horseId?: string; slot?: string };
 
 const Checkout = () => {
-  const { state } = useLocation() as { state?: { sel?: Sel } };
+  const { state } = useLocation() as unknown as { state?: { sel?: Sel } };
   const sel = state?.sel;
   const [confirmed, setConfirmed] = useState(false);
   const [promo, setPromo] = useState("");

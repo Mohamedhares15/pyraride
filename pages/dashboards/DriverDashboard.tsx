@@ -1,3 +1,4 @@
+"use client";
 import { motion } from "framer-motion";
 import { Car, MapPin, Clock, CheckCircle2, Navigation } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
@@ -116,7 +117,7 @@ const DriverDashboard = () => {
               <div className="col-span-1 text-right">Party</div>
               <div className="col-span-2 text-right">Fee</div>
             </div>
-            {completed.map((r) => {
+            {(completed || []).map((r) => {
               const zone = transportZones.find((z) => z.id === r.pickupZoneId);
               return (
                 <div key={r.id} className="grid grid-cols-2 md:grid-cols-12 gap-4 px-6 py-5 border-b hairline last:border-b-0 hover:bg-surface/50 transition-colors items-center">

@@ -130,7 +130,7 @@ export async function GET(
         stable.reviews.length
         : 0;
 
-    const horses = stable.horses.map((horse: any) => ({
+    const horses = (stable.horses || []).map((horse: any) => ({
       ...horse,
       pricePerHour:
         horse.pricePerHour !== null && horse.pricePerHour !== undefined

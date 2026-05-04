@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+"use client";
+import { Link } from "@/components/shared/shims";
 import { motion } from "framer-motion";
 import { Sparkles, ArrowUpRight, Trophy } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
@@ -60,7 +61,7 @@ const DashboardLoyalty = () => {
               />
             </div>
             <div className="mt-5 grid grid-cols-4 gap-2">
-              {tiers.map((t) => {
+              {(tiers || []).map((t) => {
                 const reached = points >= TIER_THRESHOLDS[t];
                 return (
                   <div key={t} className={cn("border-t pt-3", reached ? "border-foreground" : "border-hairline")}>
@@ -83,7 +84,7 @@ const DashboardLoyalty = () => {
           </Link>
         </div>
         <StaggerGroup className="grid md:grid-cols-2 lg:grid-cols-4 gap-px bg-hairline border hairline" gap={0.06}>
-          {PERKS.map((p) => {
+          {(PERKS || []).map((p) => {
             const reached = points >= TIER_THRESHOLDS[p.tier as AdminTier];
             return (
               <StaggerItem key={p.tier}>
@@ -106,7 +107,7 @@ const DashboardLoyalty = () => {
           <p className="text-[11px] tracking-luxury uppercase text-ink-muted">{HISTORY.length} entries</p>
         </div>
         <ul>
-          {HISTORY.map((h, i) => (
+          {(HISTORY || []).map((h, i) => (
             <li key={i} className="grid md:grid-cols-12 gap-4 py-5 border-b hairline items-center">
               <p className="md:col-span-2 text-[11px] tracking-luxury uppercase text-ink-muted">{h.date}</p>
               <p className="md:col-span-8 font-display text-xl">{h.note}</p>

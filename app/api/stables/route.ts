@@ -271,7 +271,7 @@ export async function GET(req: NextRequest) {
       saqqara: 25,
     };
 
-    const stablesWithRating = stables.map((stable: any) => {
+    const stablesWithRating = (stables || []).map((stable: any) => {
       const stableReviewEntries = stableReviewsMap.get(stable.id) ?? [];
       const { rating: stableRating, reviewCount: stableReviewCount } =
         computeAdjustedRating(stableReviewEntries, "stableRating", 0);
@@ -296,7 +296,7 @@ export async function GET(req: NextRequest) {
       const distanceKm =
         distanceKey in distanceLookup ? distanceLookup[distanceKey] : 40;
 
-      const horses = stable.horses.map((horse: any) => {
+      const horses = (stable.horses || []).map((horse: any) => {
         const primaryMedia = horse.media?.find((m: any) => m.type === "image");
         const horseReviewEntries = horseReviewsMap.get(horse.id) ?? [];
         const { rating: horseRating, reviewCount: horseReviewCount } =

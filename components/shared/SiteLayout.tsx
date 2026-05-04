@@ -1,17 +1,19 @@
-import { Outlet, useLocation } from "react-router-dom";
+"use client";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { ConciergeChat } from "@/components/concierge/ConciergeChat";
 
-export const SiteLayout = () => {
-  const { pathname } = useLocation();
-  const hideChat = pathname.startsWith("/auth")
-    || pathname === "/signin"
-    || pathname === "/signup"
-    || pathname === "/forgot-password"
-    || pathname === "/reset-password"
-    || pathname === "/offline";
+export const SiteLayout = ({ children }: { children: React.ReactNode }) => {
+  const pathname = usePathname() || "/";
+  const hideChat =
+    pathname?.startsWith("/auth") ||
+    pathname === "/signin" ||
+    pathname === "/signup" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password" ||
+    pathname === "/offline";
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground grain">
       <Navbar />
@@ -24,7 +26,7 @@ export const SiteLayout = () => {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.55, ease: [0.2, 0.8, 0.2, 1] }}
           >
-            <Outlet />
+            {children}
           </motion.div>
         </AnimatePresence>
       </main>

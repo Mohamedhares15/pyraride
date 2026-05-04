@@ -1,0 +1,23 @@
+components/stable-os/StableOSClient.tsx(301,28): error TS1005: ',' expected.
+components/stable-os/StableOSClient.tsx(301,33): error TS1005: ',' expected.
+components/stable-os/StableOSClient.tsx(301,34): error TS1109: Expression expected.
+components/stable-os/StableOSClient.tsx(500,68): error TS1005: ',' expected.
+components/stable-os/StableOSClient.tsx(500,98): error TS1134: Variable declaration expected.
+components/stable-os/StableOSClient.tsx(500,99): error TS1005: ';' expected.
+components/stable-os/StableOSClient.tsx(500,100): error TS1005: '}' expected.
+components/stable-os/StableOSClient.tsx(514,23): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/stable-os/StableOSClient.tsx(514,25): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/stable-os/StableOSClient.tsx(759,69): error TS1005: ',' expected.
+components/stable-os/StableOSClient.tsx(759,97): error TS1134: Variable declaration expected.
+components/stable-os/StableOSClient.tsx(759,98): error TS1005: ';' expected.
+components/stable-os/StableOSClient.tsx(759,99): error TS1005: '}' expected.
+components/stable-os/StableOSClient.tsx(769,23): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/stable-os/StableOSClient.tsx(769,25): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/stable-os/StableOSClient.tsx(793,104): error TS1005: ',' expected.
+components/stable-os/StableOSClient.tsx(793,130): error TS1005: '}' expected.
+components/stable-os/StableOSClient.tsx(793,132): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+components/stable-os/StableOSClient.tsx(794,96): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+components/stable-os/StableOSClient.tsx(795,42): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/stable-os/StableOSClient.tsx(796,35): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/stable-os/StableOSClient.tsx(796,36): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+components/stable-os/StableOSClient.tsx(797,34): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?

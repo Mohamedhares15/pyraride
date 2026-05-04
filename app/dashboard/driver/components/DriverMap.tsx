@@ -165,7 +165,7 @@ export default function DriverMap({ orders, driverLocation, onDistanceCalculated
         )}
 
         {/* Rider Pickup Points */}
-        {riderIcon && orders.map(order => {
+        {riderIcon && (orders || []).map(order => {
           const coords = getCoordinatesForZone(order.transportationZone);
           return (
             <Marker key={order.id} position={coords} icon={riderIcon}>

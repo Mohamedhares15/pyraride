@@ -293,7 +293,7 @@ export default function AIAgent() {
       if (res.ok) {
         const data = await res.json();
         setChatMessages(prev =>
-          prev.map(m => m.id === tempMessage.id ? data.message : m)
+          (prev || []).map(m => m.id === tempMessage.id ? data.message : m)
         );
       }
     } catch (error) {
@@ -459,7 +459,7 @@ export default function AIAgent() {
             <p className="text-sm">Send a message to start the conversation!</p>
           </div>
         ) : (
-          chatMessages.map((msg) => (
+          (chatMessages || []).map((msg) => (
             <div key={msg.id} className={`flex ${msg.isOwn ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${msg.isOwn
                 ? "bg-gradient-to-r from-primary to-purple-600 text-white"
@@ -573,7 +573,7 @@ export default function AIAgent() {
             {conversations.length > 0 && (
               <div className="p-2">
                 <p className="text-xs font-semibold text-white/50 px-2 py-1">RECENT</p>
-                {conversations.map((conv) => (
+                {(conversations || []).map((conv) => (
                   <button
                     key={conv.id}
                     onClick={() => openConversation(conv)}
@@ -607,7 +607,7 @@ export default function AIAgent() {
             {filteredFriends.length > 0 && (
               <div className="p-2 border-t border-white/10">
                 <p className="text-xs font-semibold text-white/50 px-2 py-1">START NEW CHAT</p>
-                {filteredFriends.map((friend) => (
+                {(filteredFriends || []).map((friend) => (
                   <button
                     key={friend.id}
                     onClick={() => startConversationWithFriend(friend.friendId)}
@@ -706,7 +706,7 @@ export default function AIAgent() {
         <>
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((message, index) => (
+            {(messages || []).map((message, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 10 }}
@@ -734,7 +734,7 @@ export default function AIAgent() {
                   {/* Rich Cards */}
                   {message.role === "assistant" && message.cards && message.cards.length > 0 && (
                     <div className="flex gap-2 overflow-x-auto pb-1 mt-1 scrollbar-thin">
-                      {message.cards.map((card) => (
+                      {(message.cards || []).map((card) => (
                         <Link key={card.id} href={card.link} className="flex-shrink-0">
                           <div className="w-[140px] rounded-lg border border-white/10 bg-white/5 overflow-hidden hover:bg-white/10 transition-all group cursor-pointer">
                             <div className="h-[80px] relative overflow-hidden">

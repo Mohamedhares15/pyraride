@@ -178,6 +178,7 @@ const nextConfig = {
     ];
   },
   experimental: {
+    missingSuspenseWithCSRBailout: false,
     optimizePackageImports: ['lucide-react', 'date-fns', 'framer-motion', '@radix-ui/react-icons', '@radix-ui/react-popover'],
     optimizeCss: true,
   },

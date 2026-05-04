@@ -267,7 +267,7 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
       prev
         ? {
             ...prev,
-            horses: prev.horses.map((h) =>
+            horses: (prev.horses || []).map((h) =>
               h.id === horse.id ? { ...h, isTemporarilyUnavailable: newVal, isActive: !newVal } : h
             ),
           }
@@ -298,7 +298,7 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
   const exportCSV = () => {
     const rows = [
       ["Date", "Horse", "Rider", "Status", "Earnings (EGP)"],
-      ...filteredBookings.map((b) => [
+      ...(filteredBookings || []).map((b) => [
         fmt(b.startTime),
         b.horse.name,
         b.rider.fullName || b.rider.email,
@@ -306,7 +306,7 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
         netEarning(b).toFixed(2),
       ]),
     ];
-    const csv = rows.map((r) => r.join(",")).join("\n");
+    const csv = (rows || []).map((r) => r.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -349,7 +349,7 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
 
           {/* Tab bar */}
           <div className="flex gap-1 overflow-x-auto pb-0 no-scrollbar">
-            {TABS.map((tab) => {
+            {TABS?.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
@@ -423,7 +423,7 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
                   </Card>
                 ) : (
                   <div className="space-y-2">
-                    {filteredBookings.map((b) => (
+                    {filteredBookings?.map((b) => (
                       <Card key={b.id} className="p-4">
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex-1 min-w-0">
@@ -496,8 +496,8 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
                     <h3 className="font-semibold mb-4 text-sm">Performance by Horse</h3>
                     {/* Inline CSS bar chart */}
                     <div className="space-y-2 mb-4">
-                      {revenueByHorse.map((h, i) => {
-                        const maxRev = Math.max(...revenueByHorse.map((x) => x.revenue), 1);
+                      {revenueByHorse?.map((h, i) => {
+                        const maxRev = Math.max(...(revenueByHorse || []).map((x) => x.revenue), 1);
                         const COLORS = ["#6366f1","#f59e0b","#10b981","#ef4444","#8b5cf6","#06b6d4"];
                         return (
                           <div key={h.name} className="flex items-center gap-2">
@@ -514,7 +514,7 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
                       })}
                     </div>
                     <div className="divide-y divide-border">
-                      {revenueByHorse.map((h) => (
+                      {revenueByHorse?.map((h) => (
                         <div key={h.name} className="flex items-center justify-between py-2.5 text-sm">
                           <span className="font-medium">{h.name}</span>
                           <div className="flex items-center gap-6 text-right">
@@ -697,7 +697,7 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
                     <p className="text-muted-foreground">No riders yet.</p>
                   </Card>
                 ) : (
-                  riders.map((rider) => (
+                  (riders || []).map((rider) => (
                     <Card key={rider.id} className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -718,7 +718,7 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
                         <span>Last ride: {fmt(rider.lastRide)}</span>
                         <span>·</span>
                         <span>
-                          Horses: {[...new Set(rider.bookings.map((b) => b.horse.name))].join(", ")}
+                          Horses: {[...new Set((rider.bookings || []).map((b) => b.horse.name))].join(", ")}
                         </span>
                         {rider.bookings.length >= 3 && (
                           <span className="ml-auto flex items-center gap-0.5 text-amber-500 font-bold">
@@ -755,8 +755,8 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
                   <Card className="p-5">
                     <h3 className="font-semibold mb-4 text-sm">Peak Booking Hours</h3>
                     <div className="flex items-end gap-1 h-36">
-                      {peakHoursData.map((d) => {
-                        const maxCount = Math.max(...peakHoursData.map((x) => x.count), 1);
+                      {peakHoursData?.map((d) => {
+                        const maxCount = Math.max(...(peakHoursData || []).map((x) => x.count), 1);
                         return (
                           <div key={d.hour} className="flex-1 flex flex-col items-center gap-1">
                             <div
@@ -790,8 +790,8 @@ export default function StableOSClient({ stableId }: { stableId: string }) {
                                 <div
                                   className="h-full rounded-full bg-primary"
                                   style={{
-                                    width: `${revenueByHorse.length > 0 && Math.max(...revenueByHorse.map((x) => x.count)) > 0
-                                      ? (h.count / Math.max(...revenueByHorse.map((x) => x.count))) * 100
+                                    width: `${revenueByHorse.length > 0 && Math.max(...(revenueByHorse || []).map((x) => x.count)) > 0
+                                      ? (h.count / Math.max(...(revenueByHorse || []).map((x) => x.count))) * 100
                                       : 0}%`,
                                   }}
                                 />

@@ -32,7 +32,7 @@ function processDateSlots(
     }
   }
 
-  const processedSlots = slots.map((slot) => {
+  const processedSlots = (slots || []).map((slot) => {
     const slotStart = new Date(slot.startTime).getTime();
     const slotEnd = new Date(slot.endTime).getTime();
 

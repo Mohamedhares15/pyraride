@@ -1,8 +1,9 @@
+"use client";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 import { ArrowUpRight, MapPin } from "lucide-react";
 import { useRef } from "react";
-import heroImg from "@/assets/hero-pyramids.jpg";
+const heroImg = "/assets/hero-pyramids.jpg";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
 import { stables, packages } from "@/data/mock";
 import { SAMPLE_REVIEWS } from "@/components/reviews/RatingsSection";
@@ -92,7 +93,7 @@ const Index = () => {
         </div>
 
         <StaggerGroup className="grid gap-6 md:grid-cols-3" gap={0.12}>
-          {stables.map((s) => (
+          {(stables || []).map((s) => (
             <StaggerItem key={s.id}>
               <Link to={`/stables/${s.id}`} className="group block">
                 <motion.div layoutId={`stable-image-${s.id}`} className="relative aspect-[4/5] overflow-hidden bg-surface">
@@ -135,7 +136,7 @@ const Index = () => {
         </div>
 
         <StaggerGroup className="space-y-4" gap={0.08}>
-          {packages.map((p, i) => (
+          {(packages || []).map((p, i) => (
             <StaggerItem key={p.id}>
               <Link to={`/packages/${p.id}`} className="group grid md:grid-cols-12 gap-8 items-center py-8 border-t hairline last:border-b">
                 <div className="md:col-span-1 text-[11px] tracking-luxury uppercase text-ink-muted">№ {String(i+1).padStart(2,"0")}</div>

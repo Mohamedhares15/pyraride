@@ -1,3 +1,4 @@
+"use client";
 import { useState, useRef, useEffect } from "react";
 import { Reveal } from "@/components/shared/Motion";
 import { motion, AnimatePresence } from "framer-motion";
@@ -41,11 +42,11 @@ const Chat = () => {
     e.preventDefault();
     if (!draft.trim()) return;
     const now = new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-    setThreads((prev) => prev.map((t) => t.id === active ? { ...t, messages: [...t.messages, { id: `m-${Date.now()}`, from: "you", text: draft.trim(), at: now }], preview: draft.trim() } : t));
+    setThreads((prev) => (prev || []).map((t) => t.id === active ? { ...t, messages: [...t.messages, { id: `m-${Date.now()}`, from: "you", text: draft.trim(), at: now }], preview: draft.trim() } : t));
     setDraft("");
     // Mock reply
     setTimeout(() => {
-      setThreads((prev) => prev.map((t) => t.id === active ? { ...t, messages: [...t.messages, { id: `r-${Date.now()}`, from: "them", text: "Noted — we will write back within the hour.", at: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) }] } : t));
+      setThreads((prev) => (prev || []).map((t) => t.id === active ? { ...t, messages: [...t.messages, { id: `r-${Date.now()}`, from: "them", text: "Noted — we will write back within the hour.", at: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) }] } : t));
     }, 1100);
   };
 
@@ -76,7 +77,7 @@ const Chat = () => {
               </label>
             </div>
             <ul className="overflow-y-auto flex-1">
-              {filtered.map((t) => (
+              {(filtered || []).map((t) => (
                 <li key={t.id}>
                   <button
                     onClick={() => setActive(t.id)}
@@ -115,7 +116,7 @@ const Chat = () => {
 
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-7 py-8 space-y-5 bg-surface/30">
               <AnimatePresence initial={false}>
-                {current.messages.map((m) => (
+                {(current.messages || []).map((m) => (
                   <motion.div
                     key={m.id}
                     initial={{ opacity: 0, y: 8 }}

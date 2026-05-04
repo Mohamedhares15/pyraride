@@ -56,7 +56,7 @@ export default function LightboxGallery({ images }: LightboxGalleryProps) {
     <>
       {/* Gallery Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {images.map((image, index) => (
+        {(images || []).map((image, index) => (
           <motion.div
             key={image.id}
             whileHover={{ scale: 1.02 }}
@@ -160,7 +160,7 @@ export default function LightboxGallery({ images }: LightboxGalleryProps) {
             {/* Thumbnail Strip */}
             {images.length > 1 && (
               <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto max-w-4xl">
-                {images.map((image, index) => (
+                {(images || []).map((image, index) => (
                   <button
                     key={image.id}
                     onClick={(e) => {

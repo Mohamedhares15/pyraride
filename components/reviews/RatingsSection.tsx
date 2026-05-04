@@ -1,3 +1,4 @@
+"use client";
 import { motion } from "framer-motion";
 import { Stars } from "./Stars";
 import { ReviewCard, type Review } from "./ReviewCard";
@@ -21,7 +22,7 @@ export const RatingsSection = ({
     star,
     count: reviews.filter((r) => Math.round(r.rating) === star).length,
   }));
-  const max = Math.max(...dist.map((d) => d.count), 1);
+  const max = Math.max(...(dist || []).map((d) => d.count), 1);
 
   return (
     <section className="py-24 md:py-32 border-t hairline">
@@ -42,7 +43,7 @@ export const RatingsSection = ({
               <p className="mt-2 text-xs text-ink-muted">{reviews.length} verified letters</p>
 
               <ul className="mt-8 space-y-3">
-                {dist.map((d) => (
+                {(dist || []).map((d) => (
                   <li key={d.star} className="flex items-center gap-3 text-xs">
                     <span className="w-3 tabular-nums text-ink-muted">{d.star}</span>
                     <div className="flex-1 h-px bg-hairline relative overflow-hidden">
@@ -71,7 +72,7 @@ export const RatingsSection = ({
 
           {/* Letters */}
           <StaggerGroup className="lg:col-span-8 grid sm:grid-cols-2 gap-6" gap={0.08}>
-            {reviews.map((r) => (
+            {(reviews || []).map((r) => (
               <StaggerItem key={r.id}>
                 <ReviewCard review={r} />
               </StaggerItem>

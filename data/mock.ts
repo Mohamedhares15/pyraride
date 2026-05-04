@@ -1,9 +1,10 @@
-import stableCourtyard from "@/assets/stable-courtyard.jpg";
-import horsePortrait from "@/assets/horse-portrait.jpg";
-import desertRide from "@/assets/desert-ride.jpg";
-import horseGrey from "@/assets/horse-grey.jpg";
-import horseChestnut from "@/assets/horse-chestnut.jpg";
-import horseBlack from "@/assets/horse-black.jpg";
+const stableCourtyard = "/assets/stable-1.jpg";
+const desertRide = "/assets/hero-bg.jpg";
+const horsePortrait = "/assets/horse-1.jpg";
+const horseChestnut = "/assets/horse-1.jpg";
+const horseBlack = "/assets/horse-1.jpg";
+const horseGrey = "/assets/horse-1.jpg";
+
 
 // Skill tier ladder. Compared against User.rankPoints to gate selection.
 export type AdminTier = "novice" | "intermediate" | "advanced" | "master";

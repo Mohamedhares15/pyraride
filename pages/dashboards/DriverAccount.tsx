@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SubNav } from "@/components/shared/SubNav";

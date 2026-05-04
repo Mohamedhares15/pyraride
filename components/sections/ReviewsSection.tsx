@@ -49,7 +49,7 @@ export default function ReviewsSection({
   }
 
   // Calculate rating distribution
-  const stableRatings = reviews.map((r) => r.stableRating);
+  const stableRatings = (reviews || []).map((r) => r.stableRating);
   const distribution = [5, 4, 3, 2, 1].map((stars) => ({
     stars,
     count: stableRatings.filter((rating) => rating === stars).length,
@@ -114,7 +114,7 @@ export default function ReviewsSection({
       <Card className="p-6">
         <h4 className="mb-4 font-semibold">Rating Distribution</h4>
         <div className="space-y-3">
-          {distribution.map(({ stars, count }, index) => {
+          {(distribution || []).map(({ stars, count }, index) => {
             const percentage =
               totalReviews > 0 ? (count / totalReviews) * 100 : 0;
             return (
@@ -150,7 +150,7 @@ export default function ReviewsSection({
         </div>
 
         <div className="space-y-4">
-          {reviews.map((review, index) => (
+          {(reviews || []).map((review, index) => (
             <ReviewCard key={review.id} review={review} index={index} />
           ))}
         </div>

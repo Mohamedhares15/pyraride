@@ -1,3 +1,4 @@
+"use client";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { MessageSquare, X, Send } from "lucide-react";
@@ -89,7 +90,7 @@ export const ConciergeChat = () => {
             </header>
 
             <div ref={scroller} className="flex-1 overflow-y-auto px-5 py-6 space-y-4">
-              {msgs.map((m) => (
+              {(msgs || []).map((m) => (
                 <motion.div
                   key={m.id}
                   initial={{ opacity: 0, y: 8 }}
@@ -125,7 +126,7 @@ export const ConciergeChat = () => {
 
             {msgs.length <= 2 && (
               <div className="px-5 pb-3 flex flex-wrap gap-2">
-                {QUICK.map((q) => (
+                {(QUICK || []).map((q) => (
                   <button
                     key={q}
                     onClick={() => send(q)}

@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+"use client";
+import { Link } from "@/components/shared/shims";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
@@ -33,7 +34,7 @@ const Leaderboard = () => (
       </Reveal>
 
       <StaggerGroup gap={0.04}>
-        {LEADERBOARD.map((r) => (
+        {(LEADERBOARD || []).map((r) => (
           <StaggerItem key={r.id}>
             <Link
               to={`/users/${r.id}`}

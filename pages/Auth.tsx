@@ -1,11 +1,12 @@
+"use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "@/components/shared/shims";
 import { Reveal, easeLuxury } from "@/components/shared/Motion";
 import { toast } from "sonner";
-import gallery1 from "@/assets/gallery-1.jpg";
-import gallery6 from "@/assets/gallery-6.jpg";
-import horsePortrait from "@/assets/horse-portrait.jpg";
+const gallery1 = "/assets/gallery-1.jpg";
+const gallery6 = "/assets/gallery-6.jpg";
+const horsePortrait = "/assets/horse-portrait.jpg";
 
 type Mode = "signin" | "signup";
 

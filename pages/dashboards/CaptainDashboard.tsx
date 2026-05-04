@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+"use client";
+import { Link } from "@/components/shared/shims";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Users, GraduationCap, CalendarDays, Award } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
@@ -70,7 +71,7 @@ const CaptainDashboard = () => (
             <div className="col-span-1 text-right">Sessions</div>
             <div className="col-span-3">Completion</div>
           </div>
-          {COHORTS.map((c) => (
+          {(COHORTS || []).map((c) => (
             <div key={c.id} className="grid grid-cols-2 md:grid-cols-12 gap-4 px-6 py-5 border-b hairline last:border-b-0 hover:bg-surface/50 transition-colors items-center">
               <div className="md:col-span-5 font-display text-2xl">{c.name}</div>
               <div className="md:col-span-2 text-[11px] tracking-luxury uppercase text-ink-muted">{c.level}</div>
@@ -96,7 +97,7 @@ const CaptainDashboard = () => (
         <Reveal>
           <h2 className="font-display text-3xl mb-6 border-b hairline pb-4">Students</h2>
           <ul className="space-y-0">
-            {STUDENTS.map((s) => (
+            {(STUDENTS || []).map((s) => (
               <li key={s.id} className="grid grid-cols-12 gap-3 items-center py-4 border-b hairline">
                 <div className="col-span-5">
                   <p className="text-foreground">{s.name}</p>
@@ -114,7 +115,7 @@ const CaptainDashboard = () => (
         <Reveal delay={0.1}>
           <h2 className="font-display text-3xl mb-6 border-b hairline pb-4">This week</h2>
           <ul className="space-y-0">
-            {SESSIONS.map((s) => (
+            {(SESSIONS || []).map((s) => (
               <li key={s.id} className="py-5 border-b hairline">
                 <p className="text-[10px] tracking-luxury uppercase text-ink-muted">{s.date}</p>
                 <p className="font-display text-2xl mt-1">{s.program}</p>

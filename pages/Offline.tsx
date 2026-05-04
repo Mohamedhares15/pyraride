@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 import { WifiOff } from "lucide-react";
 import { Reveal } from "@/components/shared/Motion";
 

@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
         });
 
         // Format friends list (get the other user from sender/receiver)
-        const friendsList = friends.map((f) => {
+        const friendsList = (friends || []).map((f) => {
             const friend = f.senderId === userId ? f.receiver : f.sender;
             return {
                 id: f.id,
@@ -98,7 +98,7 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({
             friends: friendsList,
-            pendingReceived: pendingReceived.map((p) => ({
+            pendingReceived: (pendingReceived || []).map((p) => ({
                 id: p.id,
                 senderId: p.sender.id,
                 fullName: p.sender.fullName,
@@ -106,7 +106,7 @@ export async function GET(req: NextRequest) {
                 profilePhoto: p.sender.profilePhoto || p.sender.profileImageUrl,
                 createdAt: p.createdAt,
             })),
-            pendingSent: pendingSent.map((p) => ({
+            pendingSent: (pendingSent || []).map((p) => ({
                 id: p.id,
                 receiverId: p.receiver.id,
                 fullName: p.receiver.fullName,

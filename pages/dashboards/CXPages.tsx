@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Check, X, Send } from "lucide-react";
@@ -13,7 +14,7 @@ export const CXGalleryPage = () => {
 
   const decide = (id: string, status: "approved" | "rejected") => {
     const prev = items;
-    const next = items.map((g) => (g.id === id ? { ...g, status } : g));
+    const next = (items || []).map((g) => (g.id === id ? { ...g, status } : g));
     undoableAction({
       message: status === "approved" ? "Photo approved." : "Photo rejected.",
       apply: () => setItems(next),
@@ -48,7 +49,7 @@ export const CXGalleryPage = () => {
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pending.map((g) => (
+              {(pending || []).map((g) => (
                 <article key={g.id} className="border hairline overflow-hidden bg-surface-elevated/30">
                   <div className="aspect-[4/5] overflow-hidden bg-surface">
                     <img src={g.url} alt="" className="w-full h-full object-cover" />
@@ -97,7 +98,7 @@ export const CXSupportPage = () => {
       <DashShell eyebrow="CX Media" title="Support" subtitle="Open conversations with riders.">
         <div className="grid lg:grid-cols-3 gap-6 min-h-[60vh]">
           <aside className="border hairline divide-y hairline">
-            {TICKETS.map((t) => (
+            {(TICKETS || []).map((t) => (
               <button key={t.id} onClick={() => setActive(t)} className={`w-full text-left p-5 transition-colors ${active.id === t.id ? "bg-surface-elevated" : "hover:bg-surface-elevated/40"}`}>
                 <div className="flex justify-between items-start gap-3">
                   <p className="font-display text-base leading-tight">{t.subject}</p>
@@ -142,3 +143,5 @@ export const CXOverviewWrapper = ({ children }: { children: React.ReactNode }) =
     {children}
   </RoleGuard>
 );
+
+export default CXOverviewWrapper;

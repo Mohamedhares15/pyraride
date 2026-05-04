@@ -1,10 +1,11 @@
+"use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "@/components/shared/shims";
 import { Reveal, easeLuxury } from "@/components/shared/Motion";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
-import gallery1 from "@/assets/gallery-1.jpg";
+const gallery1 = "/assets/gallery-1.jpg";
 
 const SignUp = () => {
   const [name, setName] = useState("");

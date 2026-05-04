@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+"use client";
+import { Link } from "@/components/shared/shims";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Building2, Users, Crown, MapPin, Settings, ShieldAlert } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
@@ -69,7 +70,7 @@ const AdminGlobal = () => (
             <div className="col-span-2 text-right">Commission</div>
             <div className="col-span-1 text-right" />
           </div>
-          {stables.map((s) => (
+          {(stables || []).map((s) => (
             <div key={s.id} className="grid grid-cols-2 md:grid-cols-12 gap-4 px-6 py-5 border-b hairline last:border-b-0 hover:bg-surface/50 transition-colors items-center">
               <div className="md:col-span-4 font-display text-xl">{s.name}</div>
               <div className="md:col-span-3 text-sm text-ink-soft inline-flex items-center gap-1.5"><MapPin className="size-3" /> {s.location}</div>
@@ -120,7 +121,7 @@ const AdminGlobal = () => (
             <ShieldAlert className="size-5" /> Skill overrides
           </h2>
           <ul className="space-y-0">
-            {OVERRIDES.map((o) => (
+            {(OVERRIDES || []).map((o) => (
               <li key={o.id} className="grid grid-cols-12 gap-3 items-center py-5 border-b hairline">
                 <div className="col-span-7">
                   <p className="font-display text-lg">{o.rider}</p>
@@ -141,7 +142,7 @@ const AdminGlobal = () => (
       <Reveal>
         <h2 className="font-display text-3xl md:text-4xl mb-6 border-b hairline pb-5">Transport zones</h2>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-px bg-hairline border hairline">
-          {transportZones.map((z) => (
+          {(transportZones || []).map((z) => (
             <div key={z.id} className="bg-background p-6">
               <p className="text-[10px] tracking-luxury uppercase text-ink-muted">{z.id}</p>
               <p className="font-display text-xl mt-2">{z.name}</p>

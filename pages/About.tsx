@@ -1,11 +1,12 @@
+"use client";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/shared/Motion";
-import founder from "@/assets/founder-portrait.jpg";
-import courtyard from "@/assets/stable-courtyard.jpg";
-import desertRide from "@/assets/desert-ride.jpg";
-import masterRider from "@/assets/master-rider.jpg";
+const founder = "/assets/founder-portrait.jpg";
+const courtyard = "/assets/stable-courtyard.jpg";
+const desertRide = "/assets/desert-ride.jpg";
+const masterRider = "/assets/master-rider.jpg";
 
 const PILLARS = [
   { n: "01", title: "By reservation, only.", body: "We accept a small number of riders each day. The desert deserves stillness; our horses deserve rest." },
@@ -62,7 +63,7 @@ const About = () => {
       {/* Numbers */}
       <section className="container mt-24">
         <StaggerGroup className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 border-y hairline py-12">
-          {NUMBERS.map((n) => (
+          {(NUMBERS || []).map((n) => (
             <StaggerItem key={n.l} className="text-center md:text-left">
               <p className="font-display text-6xl md:text-7xl leading-none">{n.v}</p>
               <p className="mt-3 text-[10px] tracking-luxury uppercase text-ink-muted">{n.l}</p>
@@ -119,7 +120,7 @@ const About = () => {
           </h2>
         </Reveal>
         <div className="mt-16 grid md:grid-cols-2 gap-px bg-hairline border hairline">
-          {PILLARS.map((p, i) => (
+          {(PILLARS || []).map((p, i) => (
             <Reveal key={p.n} delay={i * 0.05} className="bg-background p-10 md:p-14">
               <p className="text-[10px] tracking-luxury uppercase text-ink-muted">{p.n}</p>
               <h3 className="font-display text-3xl mt-4 leading-tight">{p.title}</h3>
@@ -140,7 +141,7 @@ const About = () => {
         <div className="mt-16 relative">
           <div className="absolute left-[22px] md:left-1/2 top-2 bottom-2 w-px bg-hairline" />
           <div className="space-y-16">
-            {TIMELINE.map((t, i) => (
+            {(TIMELINE || []).map((t, i) => (
               <Reveal key={t.year} delay={i * 0.05}>
                 <div className={`grid md:grid-cols-2 gap-8 items-start ${i % 2 ? "md:[direction:rtl]" : ""}`}>
                   <div className="relative pl-14 md:pl-0 md:[direction:ltr] md:text-right md:pr-12">

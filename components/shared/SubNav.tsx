@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "@/components/shared/shims";
 import { type ReactNode } from "react";
 
 const STABLE_NAV = [
@@ -46,8 +46,8 @@ export const SubNav = ({ kind, children }: { kind: keyof typeof NAVS; children?:
     <div className="border-b hairline bg-background sticky top-20 z-30">
       <div className="container">
         <div className="flex items-center gap-1 overflow-x-auto py-3">
-          {items.map((item) => {
-            const isActive = item.end ? pathname === item.to : pathname.startsWith(item.to);
+          {(items || []).map((item) => {
+            const isActive = item.end ? pathname === item.to : pathname?.startsWith(item.to);
             return (
               <Link
                 key={item.to}

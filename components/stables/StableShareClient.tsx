@@ -84,7 +84,7 @@ function HorseShareCarousel({
         onScroll={handleScroll}
       >
         {modalItems.length > 0 ? (
-          modalItems.map((item: any, idx: number) => (
+          (modalItems || []).map((item: any, idx: number) => (
             <div key={idx} className="flex-none w-full h-full snap-center relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -221,13 +221,13 @@ export default function StableShareClient({ initialStable }: Props) {
           <h2 className="text-xl font-bold mb-4">Available Horses</h2>
           {stable.horses.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {stable.horses.map((horse) => {
+              {(stable.horses || []).map((horse) => {
                 const allImages = [
                   ...(horse.media?.filter((m) => m.type === "image").map((m) => m.url) || []),
                   ...(horse.imageUrls || []),
                 ];
                 const uniqueImages = Array.from(new Set(allImages));
-                const modalItems = uniqueImages.map((url) => ({ url, type: "image" as const }));
+                const modalItems = (uniqueImages || []).map((url) => ({ url, type: "image" as const }));
                 const totalImages = modalItems.length;
                 const horseSkills = horse.skills || [];
                 const originalPrice = horse.pricePerHour;
@@ -371,7 +371,7 @@ export default function StableShareClient({ initialStable }: Props) {
                             )}
                             {!isLoadingSlots && slots.length > 0 && (
                               <div className="flex flex-wrap gap-2">
-                                {slots.map((time) => {
+                                {(slots || []).map((time) => {
                                   const isTaken = taken.includes(time);
                                   return (
                                     <button
@@ -455,7 +455,7 @@ export default function StableShareClient({ initialStable }: Props) {
           onOpenChange={(open) => { if (!open) setBookingSelection(undefined); }}
           stableId={stable.id}
           stableName={stable.name}
-          horses={stable.horses.map((h) => ({
+          horses={(stable.horses || []).map((h) => ({
             id: h.id,
             name: h.name,
             imageUrls: h.imageUrls || [],

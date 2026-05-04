@@ -1,11 +1,12 @@
-import { Link } from "react-router-dom";
+"use client";
+import { Link } from "@/components/shared/shims";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState } from "react";
 import { ArrowUpRight, Check, Plus, Minus } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
 import { cn } from "@/lib/utils";
-import arena from "@/assets/training-arena.jpg";
-import master from "@/assets/master-rider.jpg";
+const arena = "/assets/training-arena.jpg";
+const master = "/assets/master-rider.jpg";
 
 const PROGRAMMES = [
   {
@@ -113,7 +114,7 @@ const Training = () => {
         </div>
 
         <StaggerGroup className="grid gap-px bg-hairline border hairline" gap={0.1}>
-          {PROGRAMMES.map((p) => (
+          {(PROGRAMMES || []).map((p) => (
             <StaggerItem key={p.id}>
               <article className={cn(
                 "group h-full p-8 md:p-10 flex flex-col transition-colors duration-700",
@@ -135,7 +136,7 @@ const Training = () => {
                 </div>
 
                 <ul className="mt-8 space-y-3 text-sm">
-                  {p.inclusions.map((inc) => (
+                  {(p.inclusions || []).map((inc) => (
                     <li key={inc} className="flex items-start gap-3">
                       <Check className={cn("size-4 mt-0.5 shrink-0", p.featured ? "text-background" : "text-foreground")} />
                       <span className={p.featured ? "text-background/90" : "text-ink-soft"}>{inc}</span>
@@ -205,7 +206,7 @@ const Training = () => {
 
         <StaggerGroup className="relative" gap={0.08}>
           <span aria-hidden className="absolute left-[8.5rem] top-2 bottom-2 w-px bg-hairline hidden md:block" />
-          {CURRICULUM.map((step) => (
+          {(CURRICULUM || []).map((step) => (
             <StaggerItem key={step.title}>
               <div className="grid md:grid-cols-[10rem_1fr] gap-4 md:gap-10 py-8 border-b hairline last:border-b-0">
                 <p className="text-[10px] tracking-luxury uppercase text-ink-muted md:pt-1.5 relative">
@@ -230,7 +231,7 @@ const Training = () => {
         </Reveal>
         <div className="md:col-span-8">
           <StaggerGroup gap={0.06}>
-            {FAQ.map((item, i) => (
+            {(FAQ || []).map((item, i) => (
               <StaggerItem key={item.q}>
                 <FaqRow item={item} defaultOpen={i === 0} />
               </StaggerItem>

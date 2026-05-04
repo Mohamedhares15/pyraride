@@ -11,29 +11,34 @@ export const LegalPage = ({ eyebrow, title, intro, sections }: { eyebrow: string
         <p className="mt-6 max-w-2xl text-base text-ink-soft text-pretty">{intro}</p>
       </Reveal>
     </section>
-
     <section className="container py-20 md:py-28 grid md:grid-cols-12 gap-12">
       <aside className="md:col-span-3">
         <p className="text-[11px] tracking-luxury uppercase text-ink-muted mb-4">Contents</p>
         <ul className="space-y-2 text-sm text-ink-soft">
-          {sections.map((s, i) => (
+          {(sections || []).map((s, i) => (
             <li key={s.heading}>
-              <a href={`#s-${i}`} className="hover:text-foreground transition-colors">№ {String(i + 1).padStart(2, "0")} · {s.heading}</a>
+              <a href={`#s-${i}`} className="hover:text-foreground transition-colors">
+                {String(i + 1).padStart(2, "0")} · {s.heading}
+              </a>
             </li>
           ))}
         </ul>
       </aside>
       <div className="md:col-span-9 space-y-14">
-        {sections.map((s, i) => (
+        {(sections || []).map((s, i) => (
           <Reveal key={s.heading}>
             <article id={`s-${i}`} className="border-t hairline pt-8">
-              <p className="text-[11px] tracking-luxury uppercase text-ink-muted">№ {String(i + 1).padStart(2, "0")}</p>
+              <p className="text-[11px] tracking-luxury uppercase text-ink-muted">
+                {String(i + 1).padStart(2, "0")}
+              </p>
               <h2 className="mt-3 font-display text-3xl md:text-4xl">{s.heading}</h2>
               <p className="mt-5 text-ink-soft text-pretty leading-relaxed whitespace-pre-line">{s.body}</p>
             </article>
           </Reveal>
         ))}
-        <p className="text-xs tracking-[0.14em] uppercase text-ink-muted pt-10 border-t hairline">Last revised — Spring 2026</p>
+        <p className="text-xs tracking-[0.14em] uppercase text-ink-muted pt-10 border-t hairline">
+          Last revised — Spring 2026
+        </p>
       </div>
     </section>
   </div>
@@ -85,3 +90,5 @@ export const RefundPolicy = () => (
     ]}
   />
 );
+
+export default RefundPolicy;

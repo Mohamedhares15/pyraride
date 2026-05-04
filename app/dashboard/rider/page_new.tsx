@@ -135,7 +135,7 @@ export default function RiderDashboardNew() {
           </div>
         ) : bookings.length > 0 ? (
           <div className="grid gap-6">
-            {bookings.map((booking) => (
+            {(bookings || []).map((booking) => (
               <motion.div
                 key={booking.id}
                 initial={{ opacity: 0, y: 20 }}

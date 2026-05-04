@@ -1,4 +1,5 @@
-import { Link, useParams, Navigate } from "react-router-dom";
+"use client";
+import { Link, useParams, Navigate } from "@/components/shared/shims";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { ArrowLeft, ArrowUpRight, MapPin, Clock, Users, Check } from "lucide-react";
@@ -91,7 +92,7 @@ const StableDetail = () => {
         </div>
 
         <StaggerGroup className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4" gap={0.08}>
-          {stableHorses.map((h) => (
+          {(stableHorses || []).map((h) => (
             <StaggerItem key={h.id}>
               <article className="group">
                 <div className="relative aspect-[3/4] overflow-hidden bg-surface">
@@ -125,7 +126,7 @@ const StableDetail = () => {
 
         {stablePackages.length > 0 ? (
           <StaggerGroup className="space-y-0" gap={0.08}>
-            {stablePackages.map((p, i) => (
+            {(stablePackages || []).map((p, i) => (
               <StaggerItem key={p.id}>
                 <Link to={`/packages/${p.id}`} className="group grid md:grid-cols-12 gap-8 items-center py-8 border-t hairline last:border-b">
                   <div className="md:col-span-1 text-[11px] tracking-luxury uppercase text-ink-muted">№ {String(i + 1).padStart(2, "0")}</div>
@@ -165,7 +166,7 @@ const StableDetail = () => {
               <p className="mt-5 text-ink-soft text-pretty max-w-xs">Nothing on this list is optional, surcharged, or upsold. It is simply how we receive guests.</p>
             </div>
             <StaggerGroup className="md:col-span-8 grid sm:grid-cols-2 gap-x-10 gap-y-1" gap={0.05}>
-              {stable.amenities.map((a) => (
+              {(stable.amenities || []).map((a) => (
                 <StaggerItem key={a}>
                   <div className="flex items-center gap-4 py-4 border-b hairline">
                     <Check className="size-4 text-foreground shrink-0" />
@@ -204,3 +205,6 @@ const StableDetail = () => {
 };
 
 export default StableDetail;
+
+// Forced SSR to bypass static pre-render errors during UI migration
+export const getServerSideProps = async () => ({ props: {} });

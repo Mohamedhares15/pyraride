@@ -24,7 +24,7 @@ export async function GET(req: Request) {
             select: { riderId: true }
         });
 
-        const riderIds = [...new Set(lastWeekBookings.map(b => b.riderId))];
+        const riderIds = [...new Set((lastWeekBookings || []).map(b => b.riderId))];
         const notifications = [];
 
         for (const riderId of riderIds) {

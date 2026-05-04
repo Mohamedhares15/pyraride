@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { MapPin, Navigation2, Phone, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";

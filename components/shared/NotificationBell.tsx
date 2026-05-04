@@ -54,7 +54,7 @@ export default function NotificationBell() {
 
             // Update local state
             setNotifications(prev =>
-                prev.map(n =>
+                (prev || []).map(n =>
                     notificationIds.includes(n.id) ? { ...n, read: true } : n
                 )
             );
@@ -97,7 +97,7 @@ export default function NotificationBell() {
                                             headers: { "Content-Type": "application/json" },
                                             body: JSON.stringify({ markAllAsRead: true }),
                                         });
-                                        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+                                        setNotifications(prev => (prev || []).map(n => ({ ...n, read: true })));
                                         setUnreadCount(0);
                                     }}
                                     className="text-xs text-[rgb(218,165,32)] hover:underline"
@@ -114,7 +114,7 @@ export default function NotificationBell() {
                             </div>
                         ) : (
                             <div className="divide-y divide-white/5">
-                                {notifications.map((notification) => (
+                                {(notifications || []).map((notification) => (
                                     <div
                                         key={notification.id}
                                         className={`p-4 hover:bg-white/5 transition-colors cursor-pointer ${!notification.read ? "bg-[rgb(218,165,32)]/5" : ""

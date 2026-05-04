@@ -1,14 +1,15 @@
+"use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Camera, MessageSquare, Image as ImageIcon, AlertCircle } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
 import { cn } from "@/lib/utils";
-import gallery1 from "@/assets/gallery-1.jpg";
-import gallery2 from "@/assets/gallery-2.jpg";
-import gallery3 from "@/assets/gallery-3.jpg";
-import gallery4 from "@/assets/gallery-4.jpg";
-import gallery5 from "@/assets/gallery-5.jpg";
-import gallery6 from "@/assets/gallery-6.jpg";
+const gallery1 = "/assets/gallery-1.jpg";
+const gallery2 = "/assets/gallery-2.jpg";
+const gallery3 = "/assets/gallery-3.jpg";
+const gallery4 = "/assets/gallery-4.jpg";
+const gallery5 = "/assets/gallery-5.jpg";
+const gallery6 = "/assets/gallery-6.jpg";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CX Media dashboard — Gallery curation + Support tickets
@@ -82,7 +83,7 @@ const CXMediaDashboard = () => {
           </div>
 
           <StaggerGroup className="grid grid-cols-2 md:grid-cols-3 gap-4" gap={0.06}>
-            {filtered.map((a) => (
+            {(filtered || []).map((a) => (
               <StaggerItem key={a.id}>
                 <article className="border hairline bg-surface-elevated/40 group overflow-hidden">
                   <div className="relative aspect-[4/5] overflow-hidden bg-surface">
@@ -123,7 +124,7 @@ const CXMediaDashboard = () => {
               <div className="col-span-1">Age</div>
               <div className="col-span-1 text-right">Status</div>
             </div>
-            {TICKETS.map((t) => (
+            {(TICKETS || []).map((t) => (
               <div key={t.id} className="grid grid-cols-2 md:grid-cols-12 gap-4 px-6 py-5 border-b hairline last:border-b-0 hover:bg-surface/50 transition-colors items-center">
                 <div className="md:col-span-3 font-display text-xl">{t.guest}</div>
                 <div className="md:col-span-5 text-sm text-ink-soft">{t.subject}</div>

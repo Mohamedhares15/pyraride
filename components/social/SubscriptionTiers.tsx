@@ -1,6 +1,7 @@
+"use client";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
 import { cn } from "@/lib/utils";
 
@@ -74,7 +75,7 @@ export const SubscriptionTiers = () => (
       </Reveal>
 
       <StaggerGroup className="mt-16 grid lg:grid-cols-3 gap-px bg-hairline border hairline" gap={0.1}>
-        {TIERS.map((t) => (
+        {(TIERS || []).map((t) => (
           <StaggerItem key={t.name}>
             <motion.article
               whileHover={{ y: -4 }}
@@ -107,7 +108,7 @@ export const SubscriptionTiers = () => (
               </p>
 
               <ul className="mt-8 space-y-3">
-                {t.features.map((f) => (
+                {(t.features || []).map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm">
                     <Check className={cn("size-3.5 mt-1 shrink-0", t.featured ? "text-background" : "text-foreground")} />
                     <span>{f}</span>

@@ -31,7 +31,7 @@ export const DashShell = ({
 
 export const StatGrid = ({ stats }: { stats: { label: string; value: string | number; hint?: string }[] }) => (
   <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-hairline border hairline">
-    {stats.map((s) => (
+    {(stats || []).map((s) => (
       <div key={s.label} className="bg-background p-7">
         <p className="text-[10px] tracking-luxury uppercase text-ink-muted">{s.label}</p>
         <p className="mt-3 font-display text-4xl tabular-nums">{s.value}</p>
@@ -72,7 +72,7 @@ export const DashTable = <T,>({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b hairline bg-surface-elevated/40">
-            {columns.map((c) => (
+            {(columns || []).map((c) => (
               <th key={c.key} className={`text-left px-5 py-4 text-[10px] tracking-luxury uppercase text-ink-muted font-normal ${c.width ?? ""}`}>
                 {c.header}
               </th>
@@ -80,9 +80,9 @@ export const DashTable = <T,>({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, i) => (
+          {(rows || []).map((row, i) => (
             <tr key={i} className="border-b hairline last:border-0 hover:bg-surface-elevated/30 transition-colors">
-              {columns.map((c) => (
+              {(columns || []).map((c) => (
                 <td key={c.key} className="px-5 py-4 align-top">{c.cell(row)}</td>
               ))}
             </tr>

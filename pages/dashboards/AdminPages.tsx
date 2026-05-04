@@ -1,3 +1,4 @@
+"use client";
 import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
 import { SubNav } from "@/components/shared/SubNav";
@@ -35,7 +36,7 @@ export const AdminAnalyticsPage = () => {
       <div className="mt-12 border hairline p-8">
         <SectionTitle title="Bookings — last 12 months" />
         <div className="flex items-end gap-2 h-48">
-          {monthly.map((v, i) => (
+          {(monthly || []).map((v, i) => (
             <div key={i} className="flex-1 flex flex-col items-center gap-2">
               <div className="w-full bg-foreground" style={{ height: `${(v / 50) * 100}%` }} />
               <span className="text-[10px] tracking-luxury uppercase text-ink-muted">{["J","F","M","A","M","J","J","A","S","O","N","D"][i]}</span>
@@ -100,7 +101,7 @@ export const AdminStablesPage = () => {
           { key: "horses", header: "Horses", cell: (s) => <span className="tabular-nums">{s.horseCount}</span> },
           { key: "comm", header: "Commission", cell: (s) => (
             <input type="number" defaultValue={s.commissionRate * 100} onBlur={(e) => {
-              setRows((p) => p.map((x) => x.id === s.id ? { ...x, commissionRate: Number(e.target.value) / 100 } : x));
+              setRows((p) => (p || []).map((x) => x.id === s.id ? { ...x, commissionRate: Number(e.target.value) / 100 } : x));
               toast.success(`${s.name}: commission updated`);
             }} className="w-16 bg-transparent border-b hairline text-sm text-right tabular-nums focus:outline-none focus:border-foreground" />
           ) },
@@ -131,7 +132,7 @@ export const AdminHorsesPage = () => {
           { key: "current", header: "Current tier", cell: (h) => <Pill>{h.adminTier}</Pill> },
           { key: "set", header: "Override", cell: (h) => (
             <select defaultValue={h.adminTier} onChange={(e) => toast.success(`${h.name}: tier → ${e.target.value}`)} className="bg-transparent border hairline px-2 py-1 text-xs">
-              {tiers.map((t) => <option key={t} value={t}>{t}</option>)}
+              {(tiers || []).map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
           ) },
         ]}
@@ -250,7 +251,7 @@ export const AdminTransportZonesPage = () => {
         { key: "name", header: "Zone", cell: (z) => <span className="font-display">{z.name}</span> },
         { key: "price", header: "Price", cell: (z) => (
           <input type="number" defaultValue={z.price} onBlur={(e) => {
-            setItems((p) => p.map((x) => x.id === z.id ? { ...x, price: Number(e.target.value) } : x));
+            setItems((p) => (p || []).map((x) => x.id === z.id ? { ...x, price: Number(e.target.value) } : x));
             toast.success(`${z.name}: price updated`);
           }} className="w-24 bg-transparent border-b hairline text-right tabular-nums focus:outline-none focus:border-foreground" />
         ) },
@@ -335,14 +336,14 @@ export const AdminInstantBookingPage = () => {
         <label className="block">
           <span className="text-[10px] tracking-luxury uppercase text-ink-muted">Stable</span>
           <select value={stable} onChange={(e) => { setStable(e.target.value); setHorse(""); }} className={`mt-2 ${inp}`}>
-            {STABLES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            {(STABLES || []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
         </label>
         <label className="block">
           <span className="text-[10px] tracking-luxury uppercase text-ink-muted">Horse</span>
           <select value={horse} onChange={(e) => setHorse(e.target.value)} className={`mt-2 ${inp}`} required>
             <option value="">Select…</option>
-            {horses.map((h) => <option key={h.id} value={h.id}>{h.name}</option>)}
+            {(horses || []).map((h) => <option key={h.id} value={h.id}>{h.name}</option>)}
           </select>
         </label>
         <label className="block">
@@ -372,3 +373,5 @@ export const AdminUploadHorsesPage = () => {
     </RoleGuard>
   );
 };
+
+export default AdminUploadHorsesPage;

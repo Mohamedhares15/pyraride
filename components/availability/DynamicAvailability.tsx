@@ -112,7 +112,7 @@ export default function DynamicAvailability({ grouped, blocked, horseId, onSlotC
                         <span className="text-xs text-muted-foreground">{title}</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        {allTimes.map(({ time, blocked }) => (
+                        {(allTimes || []).map(({ time, blocked }) => (
                             <Button
                                 key={time}
                                 variant="outline"

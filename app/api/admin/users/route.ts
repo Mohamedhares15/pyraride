@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Return user data without password hash for security
-    const safeUsers = users.map((user) => ({
+    const safeUsers = (users || []).map((user) => ({
       id: user.id,
       email: user.email,
       phoneNumber: user.phoneNumber,

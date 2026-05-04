@@ -105,7 +105,7 @@ export default function AdminHorsesPage() {
                 toast.success(`Admin tier updated for horse`);
                 // Update local state
                 setHorses((prev) =>
-                    prev.map((h) => (h.id === horseId ? {
+                    (prev || []).map((h) => (h.id === horseId ? {
                         ...h,
                         adminTier: tier || null,
                         firstTimeFriendly: tier === "Beginner" ? firstTimeFriendly : null
@@ -201,7 +201,7 @@ export default function AdminHorsesPage() {
                     </Card>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {filteredHorses.map((horse) => (
+                        {(filteredHorses || []).map((horse) => (
                             <Card key={horse.id}>
                                 <CardHeader>
                                     <CardTitle className="text-lg">{horse.name}</CardTitle>

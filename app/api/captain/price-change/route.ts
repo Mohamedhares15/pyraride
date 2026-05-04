@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     });
 
     await prisma.notification.createMany({
-      data: admins.map((admin) => ({
+      data: (admins || []).map((admin) => ({
         userId: admin.id,
         type: "price_change_request",
         title: "Price Change Request",

@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+"use client";
+import { Link } from "@/components/shared/shims";
 import { motion } from "framer-motion";
 import { ArrowUpRight, CalendarDays, MapPin, Clock, Trophy, Sparkles } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
@@ -82,7 +83,7 @@ const Dashboard = () => {
           <p className="text-ink-muted">Nothing on the calendar. <Link to="/packages" className="text-foreground underline-offset-4 hover:underline">Browse journeys</Link>.</p>
         ) : (
           <StaggerGroup className="grid gap-6 md:grid-cols-2" gap={0.1}>
-            {upcoming.map((j) => <JourneyCard key={j.id} j={j} featured />)}
+            {(upcoming || []).map((j) => <JourneyCard key={j.id} j={j} featured />)}
           </StaggerGroup>
         )}
       </section>
@@ -94,7 +95,7 @@ const Dashboard = () => {
           <p className="text-[11px] tracking-luxury uppercase text-ink-muted">{past.length} journey{past.length === 1 ? "" : "s"}</p>
         </div>
         <StaggerGroup className="space-y-0" gap={0.06}>
-          {past.map((j, i) => {
+          {(past || []).map((j, i) => {
             const pkg = packages.find((p) => p.id === j.packageId)!;
             const stable = stables.find((s) => s.id === pkg.stableId)!;
             return (
@@ -213,7 +214,7 @@ const RankPanel = () => {
           />
         </div>
         <div className="mt-4 grid grid-cols-4 gap-2">
-          {tiers.map((t) => {
+          {(tiers || []).map((t) => {
             const reached = points >= TIER_THRESHOLDS[t];
             return (
               <div key={t} className={cn(

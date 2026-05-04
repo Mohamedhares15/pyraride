@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { Reveal } from "@/components/shared/Motion";
 import { toast } from "sonner";

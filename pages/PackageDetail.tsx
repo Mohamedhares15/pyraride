@@ -1,4 +1,5 @@
-import { Link, Navigate, useParams } from "react-router-dom";
+"use client";
+import { Link, Navigate, useParams } from "@/components/shared/shims";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Check, Clock, Coffee, Music, Users, Car } from "lucide-react";
 import { Reveal, StaggerGroup, StaggerItem, easeLuxury } from "@/components/shared/Motion";
@@ -90,7 +91,7 @@ const PackageDetail = () => {
               <h2 className="font-display text-3xl md:text-5xl leading-[1.05]">All arranged. None upsold.</h2>
             </Reveal>
             <StaggerGroup className="mt-10 grid sm:grid-cols-2 gap-x-10" gap={0.06}>
-              {inclusions.map((it) => (
+              {(inclusions || []).map((it) => (
                 <StaggerItem key={it.label}>
                   <div className="flex items-center justify-between gap-4 py-5 border-b hairline">
                     <div className="flex items-center gap-4">
@@ -114,7 +115,7 @@ const PackageDetail = () => {
             </Reveal>
             <StaggerGroup className="mt-12 relative" gap={0.08}>
               <span aria-hidden className="absolute left-[7.5rem] top-2 bottom-2 w-px bg-hairline hidden md:block" />
-              {ITINERARY.map((step) => (
+              {(ITINERARY || []).map((step) => (
                 <StaggerItem key={step.title}>
                   <div className="grid md:grid-cols-[8rem_1fr] gap-4 md:gap-10 py-7 border-b hairline last:border-b-0">
                     <p className="text-[10px] tracking-luxury uppercase text-ink-muted md:pt-1.5 relative">
@@ -177,3 +178,6 @@ const Row = ({ label, value }: { label: string; value: string }) => (
 );
 
 export default PackageDetail;
+
+// Forced SSR to bypass static pre-render errors during UI migration
+export const getServerSideProps = async () => ({ props: {} });

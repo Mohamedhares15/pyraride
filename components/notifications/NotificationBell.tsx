@@ -1,3 +1,4 @@
+"use client";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Bell, Calendar, MessageCircle, Star, ArrowUpRight } from "lucide-react";
@@ -36,7 +37,7 @@ export const NotificationBell = () => {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  const markAll = () => setItems(items.map((i) => ({ ...i, unread: false })));
+  const markAll = () => setItems((items || []).map((i) => ({ ...i, unread: false })));
 
   return (
     <div ref={ref} className="relative">
@@ -75,7 +76,7 @@ export const NotificationBell = () => {
               )}
             </div>
             <ul className="max-h-[26rem] overflow-y-auto">
-              {items.map((n, i) => {
+              {(items || []).map((n, i) => {
                 const Icon = ICONS[n.icon];
                 return (
                   <motion.li

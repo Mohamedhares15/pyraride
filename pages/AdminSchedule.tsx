@@ -1,7 +1,8 @@
+"use client";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/components/shared/shims";
 import { packages } from "@/data/mock";
 import { Reveal, easeLuxury } from "@/components/shared/Motion";
 import { cn } from "@/lib/utils";
@@ -74,10 +75,10 @@ const AdminSchedule = () => {
         {/* Calendar */}
         <Reveal className="lg:col-span-8">
           <div className="grid grid-cols-7 border-t border-l hairline">
-            {DAYS.map((d) => (
+            {(DAYS || []).map((d) => (
               <div key={d} className="border-b border-r hairline px-3 py-3 text-[10px] tracking-luxury uppercase text-ink-muted bg-surface/40">{d}</div>
             ))}
-            {grid.map((d, i) => {
+            {(grid || []).map((d, i) => {
               if (!d) return <div key={i} className="border-b border-r hairline aspect-square bg-surface/20" />;
               const bs = dayBookings(d);
               const isSelected = same(d, selected);
@@ -123,7 +124,7 @@ const AdminSchedule = () => {
                 <p className="text-sm text-ink-muted italic">The desert rests.</p>
               ) : (
                 <ul className="space-y-5 relative pl-6 border-l hairline">
-                  {selectedBookings.map((b, i) => {
+                  {(selectedBookings || []).map((b, i) => {
                     const pkg = packages.find((p) => p.id === b.packageId);
                     return (
                       <motion.li

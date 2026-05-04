@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Plus, X } from "lucide-react";
@@ -40,7 +41,7 @@ const StableManage = () => {
             <div>
               <SectionTitle title="Gallery" hint={`${images.length} images`} />
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {images.map((src, i) => (
+                {(images || []).map((src, i) => (
                   <div key={i} className="relative group aspect-[4/3] overflow-hidden border hairline">
                     <img src={src} alt="" className="w-full h-full object-cover" />
                     <button

@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 // Helper function to safely convert month/date values returned from SQL queries
 function serializeMonthlyData(data: any[] = []) {
-  return data.map((item) => {
+  return (data || []).map((item) => {
     let monthValue = item.month;
 
     if (monthValue instanceof Date) {
@@ -59,7 +59,7 @@ function convertBigIntToNumber(obj: any): any {
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(convertBigIntToNumber);
+    return (obj || []).map(convertBigIntToNumber);
   }
 
   if (typeof obj === "object") {
@@ -362,7 +362,7 @@ export async function GET(req: NextRequest) {
         let topStablesWithDetails: any[] = [];
         try {
           topStablesWithDetails = await Promise.all(
-            topStables.map(async (stable: any) => {
+            (topStables || []).map(async (stable: any) => {
               try {
                 const stableDetails = await prisma.stable.findUnique({
                   where: { id: stable.stableId },
@@ -383,7 +383,7 @@ export async function GET(req: NextRequest) {
           );
         } catch (e) {
           console.error("Error fetching top stables details:", e);
-          topStablesWithDetails = topStables.map((stable: any) => ({
+          topStablesWithDetails = (topStables || []).map((stable: any) => ({
             ...stable,
             stable: { name: "Unknown", location: "Unknown" },
           }));
@@ -469,7 +469,7 @@ export async function GET(req: NextRequest) {
             },
           },
           horseUtilization: horseUtilization || [],
-          recentBookings: recentBookings.map((b) => ({
+          recentBookings: (recentBookings || []).map((b) => ({
             id: b.id,
             horseName: b.horse?.name || "Unknown",
             riderName: b.rider?.fullName || "Unknown",
@@ -526,14 +526,14 @@ export async function GET(req: NextRequest) {
             take: 100,
           });
 
-          detailedUsers = users.map((u) => ({
+          detailedUsers = (users || []).map((u) => ({
             id: u.id,
             fullName: u.fullName,
             email: u.email,
             phoneNumber: u.phoneNumber || "N/A",
             createdAt: u.createdAt ? new Date(u.createdAt).toISOString() : "",
             totalBookings: u._count.bookings,
-            bookings: u.bookings.map((b) => ({
+            bookings: (u.bookings || []).map((b) => ({
               id: b.id,
               horseName: b.horse?.name || "Unknown",
               stableName: b.stable?.name || "Unknown",

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/components/shared/shims";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/shared/Motion";
 import { useAuth } from "@/hooks/use-auth";
 import type { UserRole } from "@/lib/types";
@@ -41,7 +41,7 @@ const DevSwitch = () => {
 
       <section className="container py-20 md:py-28">
         <StaggerGroup className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-hairline border hairline">
-          {ROLES.map((r) => (
+          {(ROLES || []).map((r) => (
             <StaggerItem key={r.role}>
               <button
                 onClick={() => enter(r.role, r.to)}

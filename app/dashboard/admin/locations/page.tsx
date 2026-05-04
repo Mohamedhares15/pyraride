@@ -90,7 +90,7 @@ export default function AdminLocationsPage() {
 
             if (!response.ok) throw new Error("Failed to update location");
 
-            setLocations(locations.map(loc =>
+            setLocations((locations || []).map(loc =>
                 loc.id === id ? { ...loc, isActive: !currentState } : loc
             ));
             toast.success("Location updated");
@@ -174,7 +174,7 @@ export default function AdminLocationsPage() {
                 </Card>
 
                 <div className="grid gap-4">
-                    {locations.map((location) => (
+                    {(locations || []).map((location) => (
                         <Card key={location.id} className="flex items-center justify-between p-4 border-white/10 bg-black/40 text-white backdrop-blur-sm">
                             <div className="flex items-center gap-4">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20">

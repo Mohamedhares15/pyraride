@@ -1,3 +1,4 @@
+"use client";
 import { motion } from "framer-motion";
 import { Stars } from "./Stars";
 import { easeLuxury } from "@/components/shared/Motion";

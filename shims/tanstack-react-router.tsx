@@ -1,17 +1,25 @@
-/**
- * Minimal `@tanstack/react-router` shim covering the only symbol used
- * by elevated pages outside router-compat: `useNavigate`.
- *
- * Add a tsconfig path or bundler alias:
- *   "paths": { "@tanstack/react-router": ["./src/shims/tanstack-react-router.tsx"] }
- */
 "use client";
-import { useRouter } from "next/navigation";
+import { useRouter as useNextRouter } from "next/navigation";
+import Link from "next/link";
 
 export const useNavigate = () => {
-  const router = useRouter();
+  const router = useNextRouter();
   return ({ to, replace }: { to: string; replace?: boolean }) => {
-    if (replace) router.replace(to); else router.push(to);
+    const target = typeof to === 'string' ? to : (to as any).to;
+    if (replace) router.replace(target); else router.push(target);
   };
 };
-export { default as Link } from "next/link";
+
+export const useRouter = () => {
+  const router = useNextRouter();
+  return {
+    history: { go: (n: number) => window.history.go(n) },
+    navigate: (to: string) => router.push(to),
+    state: {
+      location: typeof window !== "undefined" ? window.location : { pathname: "/", search: "", hash: "" },
+      matches: [] as any[]
+    }
+  };
+};
+
+export { Link };

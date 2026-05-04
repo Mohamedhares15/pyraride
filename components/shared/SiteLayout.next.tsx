@@ -13,7 +13,7 @@ import { ConciergeChat } from "@/components/concierge/ConciergeChat";
 export const SiteLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname() || "/";
   const hideChat =
-    pathname.startsWith("/auth") ||
+    pathname?.startsWith("/auth") ||
     pathname === "/signin" ||
     pathname === "/signup" ||
     pathname === "/forgot-password" ||

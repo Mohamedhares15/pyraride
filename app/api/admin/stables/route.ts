@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Calculate average ratings
-    const stablesWithRatings = stables.map((stable) => {
+    const stablesWithRatings = (stables || []).map((stable) => {
       const avgRating =
         stable.reviews.length > 0
           ? stable.reviews.reduce(

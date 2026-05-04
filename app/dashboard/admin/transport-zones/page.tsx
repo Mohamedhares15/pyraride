@@ -185,7 +185,7 @@ export default function AdminTransportZonesPage() {
         </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {zones.map(zone => (
+        {(zones || []).map(zone => (
           <Card key={zone.id} className="overflow-hidden flex flex-col border-white/10 relative group bg-white/5">
             {!zone.isActive && (
               <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground py-1 rounded text-xs px-2 font-bold shadow-black/50 shadow-sm z-10">

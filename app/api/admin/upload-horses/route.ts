@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
                 return `https://drive.google.com/uc?id=${driveMatch[1]}`;
               }
               // If already in correct format, use as-is
-              if (url.startsWith("http") || url.startsWith("/")) {
+              if (url?.startsWith("http") || url?.startsWith("/")) {
                 return url;
               }
               return null;
@@ -131,13 +131,13 @@ export async function POST(req: NextRequest) {
               stableId: stableId,
               pricePerHour: horseData.pricePerHour ? parseFloat(horseData.pricePerHour.toString()) : null,
               age: horseData.age ? parseInt(horseData.age.toString()) : null,
-              skills: Array.isArray(horseData.skills) ? horseData.skills.map((s: string) => s.trim()) : [],
+              skills: Array.isArray(horseData.skills) ? (horseData.skills || []).map((s: string) => s.trim()) : [],
               isActive: true,
             },
           });
 
           // Create HorseMedia entries for each image
-          const mediaPromises = validImageUrls.map((url: string, index: number) =>
+          const mediaPromises = (validImageUrls || []).map((url: string, index: number) =>
             prisma.horseMedia.create({
               data: {
                 horseId: horse.id,

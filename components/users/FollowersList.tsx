@@ -35,7 +35,7 @@ export default function FollowersList({ userId, isOpen, onClose }: FollowersList
             const res = await fetch(`/api/users/${userId}/followers`);
             if (res.ok) {
                 const data = await res.json();
-                setFollowers(data.followers.map((f: any) => f.follower));
+                setFollowers((data.followers || []).map((f: any) => f.follower));
             }
         } catch (error) {
             console.error("Error fetching followers:", error);
@@ -62,7 +62,7 @@ export default function FollowersList({ userId, isOpen, onClose }: FollowersList
                         </div>
                     ) : followers.length > 0 ? (
                         <div className="space-y-4">
-                            {followers.map((follower) => (
+                            {(followers || []).map((follower) => (
                                 <div
                                     key={follower.id}
                                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors"

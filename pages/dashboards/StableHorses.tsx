@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { Plus, Edit2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -17,7 +18,7 @@ const StableHorses = () => {
   );
 
   const toggleActive = (id: string) => {
-    setHorses((prev) => prev.map((h) => h.id === id ? { ...h, isActive: !h.isActive } : h));
+    setHorses((prev) => (prev || []).map((h) => h.id === id ? { ...h, isActive: !h.isActive } : h));
     toast.success("Horse status updated.");
   };
 

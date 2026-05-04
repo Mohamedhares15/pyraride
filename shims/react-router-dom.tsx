@@ -36,7 +36,7 @@ type NavLinkProps = Omit<LinkProps, "className" | "children"> & {
 export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
   ({ to, className, children, end, ...rest }, ref) => {
     const pathname = usePathname() || "/";
-    const isActive = end ? pathname === to : pathname === to || pathname.startsWith(to + "/");
+    const isActive = end ? pathname === to : pathname === to || pathname?.startsWith(to + "/");
     const ctx = { isActive, isPending: false };
     const cls = typeof className === "function" ? className(ctx) : className;
     const kids = typeof children === "function" ? (children as any)(ctx) : children;

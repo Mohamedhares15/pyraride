@@ -1,3 +1,4 @@
+"use client";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
 import { X, ImagePlus } from "lucide-react";
@@ -41,7 +42,7 @@ export const ReviewModal = ({
     }
     const accepted: typeof images = [];
     for (const f of files.slice(0, room)) {
-      if (!f.type.startsWith("image/")) {
+      if (!f.type?.startsWith("image/")) {
         toast.error(`${f.name} is not an image.`);
         continue;
       }
@@ -127,7 +128,7 @@ export const ReviewModal = ({
 
               <Field label={`Photographs · optional · up to ${MAX_IMAGES}`}>
                 <div className="grid grid-cols-4 gap-3">
-                  {images.map((img) => (
+                  {(images || []).map((img) => (
                     <div key={img.id} className="relative aspect-square border hairline overflow-hidden bg-surface group">
                       <img src={img.url} alt={img.name} className="h-full w-full object-cover" />
                       <button

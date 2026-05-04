@@ -1,5 +1,6 @@
+"use client";
 import { useEffect, useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "@/components/shared/shims";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import {
@@ -179,7 +180,7 @@ const CheckoutPackage = () => {
                           className="w-full appearance-none bg-transparent border-b hairline pb-3 pr-8 font-display text-xl text-foreground focus:outline-none focus:border-foreground transition-colors cursor-pointer"
                         >
                           <option value="" disabled>Select your pick-up</option>
-                          {transportZones.map((z) => (
+                          {(transportZones || []).map((z) => (
                             <option key={z.id} value={z.id}>{z.name}{z.price > 0 ? `  ·  +$${z.price}` : "  ·  included"}</option>
                           ))}
                         </select>
@@ -401,3 +402,6 @@ const Confirmed = ({ pkgName, stableName, date, startTime }: { pkgName: string; 
 };
 
 export default CheckoutPackage;
+
+// Forced SSR to bypass static pre-render errors during UI migration
+export const getServerSideProps = async () => ({ props: {} });

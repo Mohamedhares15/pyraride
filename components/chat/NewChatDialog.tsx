@@ -64,7 +64,7 @@ export default function NewChatDialog({ onConversationCreated }: NewChatDialogPr
             const res = await fetch("/api/chat/conversations", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ participantIds: selectedUsers.map(u => u.id) }),
+                body: JSON.stringify({ participantIds: (selectedUsers || []).map(u => u.id) }),
             });
 
             if (res.ok) {
@@ -97,7 +97,7 @@ export default function NewChatDialog({ onConversationCreated }: NewChatDialogPr
                     {/* Selected Users */}
                     {selectedUsers.length > 0 && (
                         <div className="flex flex-wrap gap-2">
-                            {selectedUsers.map(user => (
+                            {(selectedUsers || []).map(user => (
                                 <div key={user.id} className="flex items-center gap-1 bg-primary/20 text-primary px-2 py-1 rounded-full text-sm">
                                     <span>{user.fullName}</span>
                                     <button onClick={() => toggleUser(user)} className="hover:text-white">
@@ -127,7 +127,7 @@ export default function NewChatDialog({ onConversationCreated }: NewChatDialogPr
                             </div>
                         ) : searchResults.length > 0 ? (
                             <div className="space-y-2">
-                                {searchResults.map(user => {
+                                {(searchResults || []).map(user => {
                                     const isSelected = selectedUsers.some(u => u.id === user.id);
                                     return (
                                         <div
